@@ -21,6 +21,8 @@ public class GlobalState : MonoBehaviour
     /// </summary>
     public const float PlayAreaWidth = 24, PlayAreaHeight = 12;
 
+    public static float HitsoundVolume = 0.25f;
+
     public const float DefaultNoteSize = 2;
 
     public static Sprite BackgroundSprite = null;
@@ -74,6 +76,18 @@ public class GlobalState : MonoBehaviour
                 DirPath = Application.persistentDataPath;
             }
         }
+        if (File.Exists(Path.Combine(Application.persistentDataPath, "data.txt")))
+        {
+            string[] lines = File.ReadAllLines(Path.Combine(Application.persistentDataPath, "data.txt"));
+            if(lines.Length > 1)
+            {
+                HitsoundVolume = float.Parse(lines[1]);
+            }
+        }
+        else
+        {
+            HitsoundVolume = 0.25f;
+        }
     }
 
     /// <summary>
@@ -82,7 +96,12 @@ public class GlobalState : MonoBehaviour
     /// <param name="path"> Path to the directory to be set as default </param>
     public static void SetDefaultFolder(string path)
     {
-        File.WriteAllText(Path.Combine(Application.persistentDataPath, "data.txt"), path);
+        File.WriteAllText(Path.Combine(Application.persistentDataPath, "data.txt"), path + "\n" + HitsoundVolume.ToString());
+    }
+
+    public static void SaveHitsoundVolume()
+    {
+        File.WriteAllText(Path.Combine(Application.persistentDataPath, "data.txt"), DirPath + "\n" + HitsoundVolume.ToString());
     }
 
     /// <summary>

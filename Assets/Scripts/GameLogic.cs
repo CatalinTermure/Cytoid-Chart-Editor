@@ -54,6 +54,7 @@ public class GameLogic : MonoBehaviour
         {
             CalculateTimings();
             MusicManager.SetSource(MusicSource);
+            HitsoundSource.volume = HitsoundVolume;
             UpdateTime(0);
         }
 
@@ -516,7 +517,7 @@ public class GameLogic : MonoBehaviour
             1.0 - (CurrentChart.tempo_list[id].tick - CurrentPage.start_tick) / CurrentPage.PageSize)));
 
         obj.GetComponent<ScanlineNoteController>().TimeInputField.text = (CurrentChart.music_offset + CurrentChart.tempo_list[id].time).ToString();
-        obj.GetComponent<ScanlineNoteController>().BPMInputField.text = (120000000.0 / CurrentChart.tempo_list[id].value).ToString();
+        obj.GetComponent<ScanlineNoteController>().BPMInputField.text = (Math.Round(120000000.0 / CurrentChart.tempo_list[id].value, 2)).ToString();
     }
 
 

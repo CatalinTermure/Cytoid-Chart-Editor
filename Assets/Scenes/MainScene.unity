@@ -424,8 +424,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1739609896}
-        m_MethodName: 
+      - m_Target: {fileID: 1739609897}
+        m_MethodName: NavigateToEditorOptions
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -585,7 +585,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 20, y: 0}
+  m_SizeDelta: {x: 20, y: -16}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &197838917
 MonoBehaviour:
@@ -4606,7 +4606,7 @@ RectTransform:
   m_AnchorMin: {x: 1, y: 0.5}
   m_AnchorMax: {x: 1, y: 0.5}
   m_AnchoredPosition: {x: -200, y: 0}
-  m_SizeDelta: {x: 300, y: 20}
+  m_SizeDelta: {x: 300, y: 40}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2136568711
 MonoBehaviour:

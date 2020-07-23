@@ -17,6 +17,11 @@ public class SceneNavigator : MonoBehaviour
         }
     }
 
+    public void NavigateToMainScreenUnsafe()
+    {
+        SceneManager.LoadScene("MainScene");
+    }
+
     public void NavigateToLevelOptions()
     {
         if(GlobalState.CurrentChart != null)
@@ -28,5 +33,10 @@ public class SceneNavigator : MonoBehaviour
     public void NavigateToChartOptions()
     {
         SceneManager.LoadScene("ChartOptionsScene");
+    }
+
+    public void NavigateToEditorOptions()
+    {
+        SceneManager.LoadScene("EditorOptionsScene");
     }
 }

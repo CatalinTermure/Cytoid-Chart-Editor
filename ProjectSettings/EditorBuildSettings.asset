@@ -17,4 +17,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/ChartOptionsScene.unity
     guid: c4a35648f18d75b40a8557880ae3bfbb
+  - enabled: 1
+    path: Assets/Scenes/EditorOptionsScene.unity
+    guid: 091e39c47ec98684585fe946d7579b0d
   m_configObjects: {}
