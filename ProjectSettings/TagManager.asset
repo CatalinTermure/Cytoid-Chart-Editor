@@ -1,0 +1,64 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!78 &1
+TagManager:
+  serializedVersion: 2
+  tags:
+  - Click
+  - Hold
+  - Long Hold
+  - Drag Head
+  - Drag Child
+  - CDrag Head
+  - CDrag Child
+  - Flick
+  - Move
+  - Settings
+  - Note
+  - Connector
+  - GridLine
+  - DivisorLine
+  - ScanlineNote
+  layers:
+  - Default
+  - TransparentFX
+  - Ignore Raycast
+  - 
+  - Water
+  - UI
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  m_SortingLayers:
+  - name: Default
+    uniqueID: 0
+    locked: 0
+  - name: Connectors
+    uniqueID: 1701325987
+    locked: 0
+  - name: Notes
+    uniqueID: 494735107
+    locked: 0
