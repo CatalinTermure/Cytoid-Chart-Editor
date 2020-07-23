@@ -18,7 +18,7 @@ public class ScanlineNoteController : MonoBehaviour, INote
     public void SetPosition(Vector3 pos)
     {
         gameObject.transform.position = pos;
-        TimeInputField.transform.position -= new Vector3(700, - (pos.y / GlobalState.Height) * 540);
-        BPMInputField.transform.position -= new Vector3(700, -(pos.y / GlobalState.Height) * 540);
+        TimeInputField.transform.position -= new Vector3(Screen.width / 2 * (-pos.x / GlobalState.Width), - (pos.y / GlobalState.Height) * Screen.height * 540 / 1080);
+        BPMInputField.transform.position -= new Vector3(Screen.width / 2 * (-pos.x / GlobalState.Width), -(pos.y / GlobalState.Height) * Screen.height * 540 / 1080);
     }
 }

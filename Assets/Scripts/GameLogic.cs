@@ -58,6 +58,20 @@ public class GameLogic : MonoBehaviour
             UpdateTime(0);
         }
 
+        // Adjust for different aspect ratios
+        GameObject.Find("PlayAreaBorder").transform.localScale = new Vector3(PlayAreaWidth / 24 * 3, 3);
+        Scanline.transform.localScale = new Vector3(PlayAreaWidth / 24 * 3, 1);
+        GameObject LevelOptionsButton = GameObject.Find("LevelOptionsButton"), EditorSettingsButton = GameObject.Find("EditorSettingsButton"), SaveButton = GameObject.Find("SaveButton");
+        GameObject.Find("ChartSelectButton").GetComponent<RectTransform>().sizeDelta = new Vector3(200 + 1.5f * ((200 * Screen.width / 1920f * 1080f / Screen.height) - 200), 70);
+        LevelOptionsButton.GetComponent<RectTransform>().sizeDelta = new Vector3(200 + 1.5f * ((200 * Screen.width / 1920f * 1080f / Screen.height) - 200), 70);
+        EditorSettingsButton.GetComponent<RectTransform>().sizeDelta = new Vector3(200 + 1.5f * ((200 * Screen.width / 1920f * 1080f / Screen.height) - 200), 70);
+        SaveButton.GetComponent<RectTransform>().sizeDelta = new Vector3(200 + 1.5f * ((200 * Screen.width / 1920f * 1080f / Screen.height) - 200), 70);
+        LevelOptionsButton.GetComponent<RectTransform>().anchoredPosition = new Vector2(LevelOptionsButton.GetComponent<RectTransform>().anchoredPosition.x * Screen.width / 1920f * 1080f / Screen.height, LevelOptionsButton.GetComponent<RectTransform>().anchoredPosition.y);
+        EditorSettingsButton.GetComponent<RectTransform>().anchoredPosition = new Vector2(EditorSettingsButton.GetComponent<RectTransform>().anchoredPosition.x * Screen.width / 1920f * 1080f / Screen.height, EditorSettingsButton.GetComponent<RectTransform>().anchoredPosition.y);
+        SaveButton.GetComponent<RectTransform>().anchoredPosition = new Vector2(SaveButton.GetComponent<RectTransform>().anchoredPosition.x * Screen.width / 1920f * 1080f / Screen.height, SaveButton.GetComponent<RectTransform>().anchoredPosition.y);
+
+
+
         // Create vertical divisor lines
         for (int i = 1; i < VerticalDivisors; i++)
         {
@@ -512,7 +526,7 @@ public class GameLogic : MonoBehaviour
 
         obj.GetComponent<ScanlineNoteController>().NoteID = id;
 
-        obj.GetComponent<ScanlineNoteController>().SetPosition(new Vector3(-13, -PlayAreaHeight / 2 + PlayAreaHeight * (float)(CurrentPage.scan_line_direction == 1 ?
+        obj.GetComponent<ScanlineNoteController>().SetPosition(new Vector3(-PlayAreaWidth / 2 - 1, -PlayAreaHeight / 2 + PlayAreaHeight * (float)(CurrentPage.scan_line_direction == 1 ?
             (CurrentChart.tempo_list[id].tick - CurrentPage.start_tick) / CurrentPage.PageSize :
             1.0 - (CurrentChart.tempo_list[id].tick - CurrentPage.start_tick) / CurrentPage.PageSize)));
 
@@ -614,6 +628,7 @@ public class GameLogic : MonoBehaviour
         {
             GameObject obj = Instantiate(DivisorLine);
             obj.transform.position = new Vector3(0, PlayAreaHeight / DivisorValue * i - PlayAreaHeight / 2);
+            obj.transform.localScale = new Vector3(PlayAreaWidth / 24 * 3, 0.6f);
         }
     }
 
@@ -1101,7 +1116,7 @@ public class GameLogic : MonoBehaviour
                         }
                         else if(currentlymoving.CompareTag("ScanlineNote"))
                         {
-                            currentlymoving.transform.position = new Vector3(-13,
+                            currentlymoving.transform.position = new Vector3(-PlayAreaWidth / 2 - 1,
                                 (float)Math.Round((currentlymoving.transform.position.y + PlayAreaHeight / 2) / (PlayAreaHeight / DivisorValue)) * (PlayAreaHeight / DivisorValue) - PlayAreaHeight / 2);
 
                             int id = currentlymoving.GetComponent<INote>().NoteID;

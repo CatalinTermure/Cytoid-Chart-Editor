@@ -19,11 +19,11 @@ public class GlobalState : MonoBehaviour
     /// <summary>
     /// The dimensions of the play area, in Unity units.
     /// </summary>
-    public const float PlayAreaWidth = 24, PlayAreaHeight = 12;
+    public static readonly float PlayAreaWidth = 12 * (Width / Height) / (960.0f / 1080), PlayAreaHeight = 12;
 
     public static float HitsoundVolume = 0.25f;
 
-    public const float DefaultNoteSize = 2;
+    public static readonly float DefaultNoteSize = 2 * Width / 17.77778f;
 
     public static Sprite BackgroundSprite = null;
 
@@ -118,7 +118,10 @@ public class GlobalState : MonoBehaviour
 
     public static void LoadAudio()
     {
-        MusicManager = new AudioManager(Path.Combine(CurrentLevelPath, CurrentChart.Data.music_override?.path ?? CurrentLevel.music.path));
+        if(File.Exists(Path.Combine(CurrentLevelPath, CurrentChart.Data.music_override?.path ?? CurrentLevel.music.path)))
+        {
+            MusicManager = new AudioManager(Path.Combine(CurrentLevelPath, CurrentChart.Data.music_override?.path ?? CurrentLevel.music.path));
+        }
     }
 
     /// <summary>
