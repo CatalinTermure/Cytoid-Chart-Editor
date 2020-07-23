@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -56,21 +57,31 @@ public class FilePopulator : MonoBehaviour
         (gameObject.transform as RectTransform).sizeDelta = new Vector2(0, 0);
 
         // Add parent directory option
-        GameObject obj = Instantiate(FolderListItem);
-        (obj.transform as RectTransform).SetParent(gameObject.transform);
-        (obj.transform as RectTransform).localPosition = new Vector3(0, -100 * listItemCount);
-        (obj.transform as RectTransform).sizeDelta = new Vector2(800, 100);
-        obj.transform.localScale = Vector3.one;
-        obj.GetComponentInChildren<Text>().text = "...";
 
-        listItemCount++;
-        (gameObject.transform as RectTransform).sizeDelta = new Vector2(0, 100 * listItemCount);
-
-        obj.GetComponent<Button>().onClick.AddListener(() =>
+        try
         {
-            GlobalState.DirPath = Directory.GetParent(GlobalState.DirPath).FullName;
-            PopulateList(GlobalState.DirPath);
-        });
+            if (Directory.GetDirectories(Directory.GetParent(GlobalState.DirPath).FullName).Length > 0)
+            {
+                GameObject obj = Instantiate(FolderListItem);
+                (obj.transform as RectTransform).SetParent(gameObject.transform);
+                (obj.transform as RectTransform).localPosition = new Vector3(0, -100 * listItemCount);
+                (obj.transform as RectTransform).sizeDelta = new Vector2(800, 100);
+                obj.transform.localScale = Vector3.one;
+                obj.GetComponentInChildren<Text>().text = "...";
+
+                listItemCount++;
+                (gameObject.transform as RectTransform).sizeDelta = new Vector2(0, 100 * listItemCount);
+
+                obj.GetComponent<Button>().onClick.AddListener(() =>
+                {
+                    GlobalState.DirPath = Directory.GetParent(GlobalState.DirPath).FullName;
+                    PopulateList(GlobalState.DirPath);
+                });
+            }
+        } catch(UnauthorizedAccessException)
+        {
+            //
+        }
         
 
         // Add child folders and files
