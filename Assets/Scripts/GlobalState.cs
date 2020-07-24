@@ -1,39 +1,36 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.IO;
-using Unity.Mathematics;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class GlobalState : MonoBehaviour
 {
     /// <summary>
     /// Distance, in Unity units, from the center of the screen to the top/bottom edge of the screen.
     /// </summary>
-    public const float Height = 10;
+    public static float Height;
 
     /// <summary>
     /// Distance, in Unity units, from the center of the screen to the left/right edge of the screen.
     /// </summary>
-    public static readonly float Width = Screen.width / (Screen.height / Height);
+    public static float Width;
+
+    public static readonly float AspectRatio = (float)Screen.width / Screen.height;
+    public const float NormalAspectRatio = 16f / 9f;
 
     /// <summary>
     /// The dimensions of the play area, in Unity units.
     /// </summary>
-    public static readonly float PlayAreaWidth = 12 * (Width / Height) / (960.0f / 1080), PlayAreaHeight = 12;
+    public static float PlayAreaWidth, PlayAreaHeight;
 
-    public static float HitsoundVolume = 0.25f;
-
-    public static readonly float DefaultNoteSize = 2 * Width / 17.77778f;
+    public static EditorConfig Config;
 
     public static Sprite BackgroundSprite = null;
 
     public static string DefaultRingColor = "#FFFFFF";
     public static string[] DefaultFillColors = new string[12] { "#35A7FF", "#FF5964", "#39E59E", "#39E59E", "#35A7FF", "#FF5964", "#F2C85A", "#F2C85A", "#35A7FF", "#FF5964", "#39E59E", "#39E59E" };
-
-    /// <summary>
-    /// Path to the directory in which levels are stored.
-    /// </summary>
-    public static string DirPath = "";
 
     /// <summary>
     /// The current path to use for relative paths referenced in the level.json
@@ -62,46 +59,31 @@ public class GlobalState : MonoBehaviour
 
     private void Awake()
     {
-        // Initialize DirPath
-        if(DirPath == "")
+        Height = Camera.main.orthographicSize;
+        Width = AspectRatio * Height;
+        PlayAreaWidth = 24 * AspectRatio / NormalAspectRatio;
+        PlayAreaHeight = 12 * AspectRatio / NormalAspectRatio;
+        
+        if(File.Exists(Path.Combine(Application.persistentDataPath, "data.txt")))
         {
-            if(File.Exists(Path.Combine(Application.persistentDataPath, "data.txt")))
+            try
             {
-                DirPath = File.ReadAllLines(Path.Combine(Application.persistentDataPath, "data.txt"))[0];
+                Config = JsonConvert.DeserializeObject<EditorConfig>(File.ReadAllText(Path.Combine(Application.persistentDataPath, "data.txt")));
             }
-            else
+            catch(Exception)
             {
-                Debug.Log("CCELog: Data file not found, creating it...");
-                File.WriteAllText(Path.Combine(Application.persistentDataPath, "data.txt"), Application.persistentDataPath);
-                DirPath = Application.persistentDataPath;
-            }
-        }
-        if (File.Exists(Path.Combine(Application.persistentDataPath, "data.txt")))
-        {
-            string[] lines = File.ReadAllLines(Path.Combine(Application.persistentDataPath, "data.txt"));
-            if(lines.Length > 1)
-            {
-                HitsoundVolume = float.Parse(lines[1]);
+                Config = new EditorConfig();
             }
         }
         else
         {
-            HitsoundVolume = 0.25f;
+            Config = new EditorConfig();
         }
     }
 
-    /// <summary>
-    /// Sets the default directory in which levels are stored and stores it into the config file.
-    /// </summary>
-    /// <param name="path"> Path to the directory to be set as default </param>
-    public static void SetDefaultFolder(string path)
+    public static void SaveConfig()
     {
-        File.WriteAllText(Path.Combine(Application.persistentDataPath, "data.txt"), path + "\n" + HitsoundVolume.ToString());
-    }
-
-    public static void SaveHitsoundVolume()
-    {
-        File.WriteAllText(Path.Combine(Application.persistentDataPath, "data.txt"), DirPath + "\n" + HitsoundVolume.ToString());
+        File.WriteAllText(Path.Combine(Application.persistentDataPath, "data.txt"), JsonConvert.SerializeObject(Config));
     }
 
     /// <summary>
@@ -118,9 +100,17 @@ public class GlobalState : MonoBehaviour
 
     public static void LoadAudio()
     {
-        if(File.Exists(Path.Combine(CurrentLevelPath, CurrentChart.Data.music_override?.path ?? CurrentLevel.music.path)))
+        try
         {
-            MusicManager = new AudioManager(Path.Combine(CurrentLevelPath, CurrentChart.Data.music_override?.path ?? CurrentLevel.music.path));
+            if (File.Exists(Path.Combine(CurrentLevelPath, CurrentChart.Data.music_override?.path ?? CurrentLevel.music.path)))
+            {
+                MusicManager = new AudioManager(Path.Combine(CurrentLevelPath, CurrentChart.Data.music_override?.path ?? CurrentLevel.music.path));
+            }
+        }
+        catch(Exception e)
+        {
+            GameObject.Find("ErrorToast").GetComponent<Text>().text = e.StackTrace;
+            File.AppendAllText(Path.Combine(Application.persistentDataPath, "error.log"), e.Message + "\n\n\n\n");
         }
     }
 

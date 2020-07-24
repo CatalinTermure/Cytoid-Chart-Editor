@@ -27,7 +27,7 @@ public class LevelPopulator : MonoBehaviour
 
     private void Start()
     {
-        PopulateLevels(GlobalState.DirPath);
+        PopulateLevels(GlobalState.Config.DirPath);
     }
 
     /// <summary>
@@ -66,7 +66,7 @@ public class LevelPopulator : MonoBehaviour
         (obj.transform as RectTransform).localPosition = new Vector3(0, -100 * listItemCount);
         (obj.transform as RectTransform).sizeDelta = new Vector2(800, 100);
         obj.transform.localScale = Vector3.one;
-        obj.GetComponentInChildren<Text>().text = GlobalState.DirPath == Path.GetDirectoryName(musicPath) ? Path.GetFileName(musicPath) : Path.Combine(Path.GetFileName(Path.GetDirectoryName(musicPath)), Path.GetFileName(musicPath));
+        obj.GetComponentInChildren<Text>().text = GlobalState.Config.DirPath == Path.GetDirectoryName(musicPath) ? Path.GetFileName(musicPath) : Path.Combine(Path.GetFileName(Path.GetDirectoryName(musicPath)), Path.GetFileName(musicPath));
 
         listItemCount++;
         (gameObject.transform as RectTransform).sizeDelta = new Vector2(0, 100 * listItemCount);

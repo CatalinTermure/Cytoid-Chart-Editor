@@ -12,7 +12,7 @@ public class FilePopulator : MonoBehaviour
 
     private void Start()
     {
-        PopulateList(GlobalState.DirPath);
+        PopulateList(GlobalState.Config.DirPath);
     }
 
     private void Awake()
@@ -21,8 +21,9 @@ public class FilePopulator : MonoBehaviour
         GameObject.Find("SetDefaultFolderButton").GetComponent<Button>().onClick.AddListener(
             () =>
             {
-                GlobalState.SetDefaultFolder(GameObject.Find("FolderPathText").GetComponent<Text>().text);
-                GameObject.Find("LevelListView").GetComponentInChildren<LevelPopulator>().PopulateLevels(GlobalState.DirPath);
+                GlobalState.Config.DirPath = GameObject.Find("FolderPathText").GetComponent<Text>().text;
+                GlobalState.SaveConfig();
+                GameObject.Find("LevelListView").GetComponentInChildren<LevelPopulator>().PopulateLevels(GlobalState.Config.DirPath);
             });
     }
 
@@ -40,8 +41,8 @@ public class FilePopulator : MonoBehaviour
 
         obj.GetComponent<Button>().onClick.AddListener(() =>
         {
-            GlobalState.DirPath = Path.Combine(GlobalState.DirPath, name);
-            PopulateList(GlobalState.DirPath);
+            GlobalState.Config.DirPath = Path.Combine(GlobalState.Config.DirPath, name);
+            PopulateList(GlobalState.Config.DirPath);
         });
     }
 
@@ -60,7 +61,7 @@ public class FilePopulator : MonoBehaviour
 
         try
         {
-            if (Directory.GetDirectories(Directory.GetParent(GlobalState.DirPath).FullName).Length > 0)
+            if (Directory.GetDirectories(Directory.GetParent(GlobalState.Config.DirPath).FullName).Length > 0)
             {
                 GameObject obj = Instantiate(FolderListItem);
                 (obj.transform as RectTransform).SetParent(gameObject.transform);
@@ -74,8 +75,8 @@ public class FilePopulator : MonoBehaviour
 
                 obj.GetComponent<Button>().onClick.AddListener(() =>
                 {
-                    GlobalState.DirPath = Directory.GetParent(GlobalState.DirPath).FullName;
-                    PopulateList(GlobalState.DirPath);
+                    GlobalState.Config.DirPath = Directory.GetParent(GlobalState.Config.DirPath).FullName;
+                    PopulateList(GlobalState.Config.DirPath);
                 });
             }
         } catch(UnauthorizedAccessException)

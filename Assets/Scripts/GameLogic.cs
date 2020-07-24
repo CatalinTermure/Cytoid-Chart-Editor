@@ -36,6 +36,9 @@ public class GameLogic : MonoBehaviour
 
     public Slider BeatDivisor;
 
+    public static int CurrentPageIndexOverride = -1;
+
+    private int CurrentTempoIndex { get; set; }
     private int CurrentNoteIndex { get; set; }
     private int CurrentPageIndex { get; set; }
     private Page CurrentPage
@@ -46,7 +49,37 @@ public class GameLogic : MonoBehaviour
     private double ScheduledTime { get; set; }
     private bool IsStartScheduled = false;
 
-    public const int VerticalDivisors = 24;
+    private void Start()
+    {
+        // Adjust for different aspect ratios
+        GameObject.Find("PlayAreaBorder").GetComponent<SpriteRenderer>().size = new Vector2(PlayAreaWidth, PlayAreaHeight);
+        Scanline.GetComponent<SpriteRenderer>().size = new Vector2(PlayAreaWidth, 0.1f);
+        GameObject LevelOptionsButton = GameObject.Find("LevelOptionsButton"), EditorSettingsButton = GameObject.Find("EditorSettingsButton"), SaveButton = GameObject.Find("SaveButton");
+        GameObject.Find("ChartSelectButton").GetComponent<RectTransform>().sizeDelta = new Vector3(200 + 1.5f * ((200 * AspectRatio / NormalAspectRatio) - 200), 70);
+        LevelOptionsButton.GetComponent<RectTransform>().sizeDelta = new Vector3(200 + 1.5f * ((200 * AspectRatio / NormalAspectRatio) - 200), 70);
+        EditorSettingsButton.GetComponent<RectTransform>().sizeDelta = new Vector3(200 + 1.5f * ((200 * AspectRatio / NormalAspectRatio) - 200), 70);
+        SaveButton.GetComponent<RectTransform>().sizeDelta = new Vector3(200 + 1.5f * ((200 * AspectRatio / NormalAspectRatio) - 200), 70);
+        LevelOptionsButton.GetComponent<RectTransform>().anchoredPosition = new Vector2(LevelOptionsButton.GetComponent<RectTransform>().anchoredPosition.x * AspectRatio / NormalAspectRatio, LevelOptionsButton.GetComponent<RectTransform>().anchoredPosition.y);
+        EditorSettingsButton.GetComponent<RectTransform>().anchoredPosition = new Vector2(EditorSettingsButton.GetComponent<RectTransform>().anchoredPosition.x * AspectRatio / NormalAspectRatio, EditorSettingsButton.GetComponent<RectTransform>().anchoredPosition.y);
+        SaveButton.GetComponent<RectTransform>().anchoredPosition = new Vector2(SaveButton.GetComponent<RectTransform>().anchoredPosition.x * AspectRatio / NormalAspectRatio, SaveButton.GetComponent<RectTransform>().anchoredPosition.y);
+
+        // Keep current page index after navigating to editor/level/chart options
+        LevelOptionsButton.GetComponent<Button>().onClick.AddListener(() => CurrentPageIndexOverride = CurrentPageIndex);
+        EditorSettingsButton.GetComponent<Button>().onClick.AddListener(() => CurrentPageIndexOverride = CurrentPageIndex);
+
+        // Create vertical divisor lines
+        for (int i = 0; i <= Config.VerticalDivisors; i++)
+        {
+            GameObject obj = Instantiate(DivisorLine);
+            obj.transform.position = new Vector3(PlayAreaWidth / Config.VerticalDivisors * i - PlayAreaWidth / 2, 0);
+            obj.transform.rotation = Quaternion.AngleAxis(90, Vector3.forward);
+            obj.GetComponent<SpriteRenderer>().size = new Vector2(PlayAreaHeight, 0.05f);
+            obj.tag = "GridLine";
+        }
+
+        // Create horizontal divisor lines
+        BeatDivisorValueChanged();
+    }
 
     public void Awake()
     {
@@ -54,36 +87,18 @@ public class GameLogic : MonoBehaviour
         {
             CalculateTimings();
             MusicManager.SetSource(MusicSource);
-            HitsoundSource.volume = HitsoundVolume;
-            UpdateTime(0);
+            HitsoundSource.volume = Config.HitsoundVolume;
+            if(CurrentPageIndexOverride != -1)
+            {
+                CurrentPageIndex = CurrentPageIndexOverride;
+                CurrentPageIndexOverride = -1;
+            }
+            else
+            {
+                CurrentPageIndex = 0;
+            }
+            UpdateTime(CurrentPage.start_time);
         }
-
-        // Adjust for different aspect ratios
-        GameObject.Find("PlayAreaBorder").transform.localScale = new Vector3(PlayAreaWidth / 24 * 3, 3);
-        Scanline.transform.localScale = new Vector3(PlayAreaWidth / 24 * 3, 1);
-        GameObject LevelOptionsButton = GameObject.Find("LevelOptionsButton"), EditorSettingsButton = GameObject.Find("EditorSettingsButton"), SaveButton = GameObject.Find("SaveButton");
-        GameObject.Find("ChartSelectButton").GetComponent<RectTransform>().sizeDelta = new Vector3(200 + 1.5f * ((200 * Screen.width / 1920f * 1080f / Screen.height) - 200), 70);
-        LevelOptionsButton.GetComponent<RectTransform>().sizeDelta = new Vector3(200 + 1.5f * ((200 * Screen.width / 1920f * 1080f / Screen.height) - 200), 70);
-        EditorSettingsButton.GetComponent<RectTransform>().sizeDelta = new Vector3(200 + 1.5f * ((200 * Screen.width / 1920f * 1080f / Screen.height) - 200), 70);
-        SaveButton.GetComponent<RectTransform>().sizeDelta = new Vector3(200 + 1.5f * ((200 * Screen.width / 1920f * 1080f / Screen.height) - 200), 70);
-        LevelOptionsButton.GetComponent<RectTransform>().anchoredPosition = new Vector2(LevelOptionsButton.GetComponent<RectTransform>().anchoredPosition.x * Screen.width / 1920f * 1080f / Screen.height, LevelOptionsButton.GetComponent<RectTransform>().anchoredPosition.y);
-        EditorSettingsButton.GetComponent<RectTransform>().anchoredPosition = new Vector2(EditorSettingsButton.GetComponent<RectTransform>().anchoredPosition.x * Screen.width / 1920f * 1080f / Screen.height, EditorSettingsButton.GetComponent<RectTransform>().anchoredPosition.y);
-        SaveButton.GetComponent<RectTransform>().anchoredPosition = new Vector2(SaveButton.GetComponent<RectTransform>().anchoredPosition.x * Screen.width / 1920f * 1080f / Screen.height, SaveButton.GetComponent<RectTransform>().anchoredPosition.y);
-
-
-
-        // Create vertical divisor lines
-        for (int i = 1; i < VerticalDivisors; i++)
-        {
-            GameObject obj = Instantiate(DivisorLine);
-            obj.transform.position = new Vector3(PlayAreaWidth / VerticalDivisors * i - PlayAreaWidth / 2, 0);
-            obj.transform.rotation = Quaternion.AngleAxis(90, Vector3.forward);
-            obj.transform.localScale = new Vector3(1.5f, 0.6f);
-            obj.tag = "GridLine";
-        }
-
-        // Create horizontal divisor lines
-        BeatDivisorValueChanged();
     }
 
     /// <summary>
@@ -157,6 +172,7 @@ public class GameLogic : MonoBehaviour
             return;
         }
 
+        tempos[ti].time = temposum;
         temposum = 0;
         ti = 0;
         Page prevPage, currPage;
@@ -337,7 +353,7 @@ public class GameLogic : MonoBehaviour
                 obj = Instantiate(ClickNote);
 
                 obj.transform.position = new Vector3((float)((note.x - 0.5) * PlayAreaWidth), (float)((note.y - 0.5) * PlayAreaHeight), (float)note.y);
-                obj.transform.localScale = new Vector3(DefaultNoteSize * (float)note.size, DefaultNoteSize * (float)note.size);
+                obj.transform.localScale = new Vector3(Config.DefaultNoteSize * (float)note.size, Config.DefaultNoteSize * (float)note.size);
 
                 obj.GetComponent<ClickNoteController>().ApproachTime = (float)note.approach_time;
 
@@ -357,7 +373,7 @@ public class GameLogic : MonoBehaviour
                 obj = Instantiate(HoldNote);
 
                 obj.transform.position = new Vector3((float)((note.x - 0.5) * PlayAreaWidth), (float)((note.y - 0.5) * PlayAreaHeight), (float)note.y);
-                obj.GetComponent<HoldNoteController>().SetSize(DefaultNoteSize * (float)note.size);
+                obj.GetComponent<HoldNoteController>().SetSize(Config.DefaultNoteSize * (float)note.size);
 
                 obj.GetComponent<HoldNoteController>().ApproachTime = (float)note.approach_time;
 
@@ -385,7 +401,7 @@ public class GameLogic : MonoBehaviour
                 obj = Instantiate(LongHoldNote);
 
                 obj.transform.position = new Vector3((float)((note.x - 0.5) * PlayAreaWidth), (float)((note.y - 0.5) * PlayAreaHeight), (float)note.y);
-                obj.GetComponent<LongHoldNoteController>().SetSize(DefaultNoteSize * (float)note.size);
+                obj.GetComponent<LongHoldNoteController>().SetSize(Config.DefaultNoteSize * (float)note.size);
 
                 obj.GetComponent<LongHoldNoteController>().ApproachTime = (float)note.approach_time;
 
@@ -412,7 +428,7 @@ public class GameLogic : MonoBehaviour
                 obj = Instantiate(DragHeadNote);
 
                 obj.transform.position = new Vector3((float)((note.x - 0.5) * PlayAreaWidth), (float)((note.y - 0.5) * PlayAreaHeight), (float)note.y);
-                obj.transform.localScale = new Vector3(DefaultNoteSize * (float)note.size, DefaultNoteSize * (float)note.size);
+                obj.transform.localScale = new Vector3(Config.DefaultNoteSize * (float)note.size, Config.DefaultNoteSize * (float)note.size);
 
                 obj.GetComponent<DragHeadNoteController>().ApproachTime = (float)note.approach_time;
 
@@ -435,7 +451,7 @@ public class GameLogic : MonoBehaviour
                 obj = Instantiate(DragChildNote);
 
                 obj.transform.position = new Vector3((float)((note.x - 0.5) * PlayAreaWidth), (float)((note.y - 0.5) * PlayAreaHeight), (float)note.y);
-                obj.transform.localScale = new Vector3(DefaultNoteSize * (float)note.size, DefaultNoteSize * (float)note.size);
+                obj.transform.localScale = new Vector3(Config.DefaultNoteSize * (float)note.size, Config.DefaultNoteSize * (float)note.size);
 
                 obj.GetComponent<DragChildNoteController>().ApproachTime = (float)note.approach_time;
 
@@ -455,7 +471,7 @@ public class GameLogic : MonoBehaviour
                 obj = Instantiate(FlickNote);
 
                 obj.transform.position = new Vector3((float)((note.x - 0.5) * PlayAreaWidth), (float)((note.y - 0.5) * PlayAreaHeight), (float)note.y);
-                obj.transform.localScale = new Vector3(DefaultNoteSize * (float)note.size * 0.8f, DefaultNoteSize * (float)note.size * 0.8f);
+                obj.transform.localScale = new Vector3(Config.DefaultNoteSize * (float)note.size * 0.8f, Config.DefaultNoteSize * (float)note.size * 0.8f);
 
                 obj.GetComponent<ClickNoteController>().ApproachTime = (float)note.approach_time;
 
@@ -475,7 +491,7 @@ public class GameLogic : MonoBehaviour
                 obj = Instantiate(CDragHeadNote);
 
                 obj.transform.position = new Vector3((float)((note.x - 0.5) * PlayAreaWidth), (float)((note.y - 0.5) * PlayAreaHeight), (float)note.y);
-                obj.transform.localScale = new Vector3(DefaultNoteSize * (float)note.size, DefaultNoteSize * (float)note.size);
+                obj.transform.localScale = new Vector3(Config.DefaultNoteSize * (float)note.size, Config.DefaultNoteSize * (float)note.size);
 
                 obj.GetComponent<DragHeadNoteController>().ApproachTime = (float)note.approach_time;
 
@@ -498,7 +514,7 @@ public class GameLogic : MonoBehaviour
                 obj = Instantiate(DragChildNote);
 
                 obj.transform.position = new Vector3((float)((note.x - 0.5) * PlayAreaWidth), (float)((note.y - 0.5) * PlayAreaHeight), (float)note.y);
-                obj.transform.localScale = new Vector3(DefaultNoteSize * (float)note.size, DefaultNoteSize * (float)note.size);
+                obj.transform.localScale = new Vector3(Config.DefaultNoteSize * (float)note.size, Config.DefaultNoteSize * (float)note.size);
 
                 obj.GetComponent<DragChildNoteController>().ApproachTime = (float)note.approach_time;
 
@@ -568,48 +584,56 @@ public class GameLogic : MonoBehaviour
     /// </summary>
     public void PlayPause()
     {
-        if(CurrentChart == null)
+        try
         {
-            return;
-        }
-        if(IsGameRunning || IsStartScheduled)
-        {
-            MusicManager.Pause();
-            IsGameRunning = false;
-            IsStartScheduled = false;
-
-            if(CurrentPageIndex < CurrentChart.page_list.Count)
+            if (CurrentChart == null)
             {
-                UpdateTime(CurrentPage.start_time);
+                return;
+            }
+            if (IsGameRunning || IsStartScheduled)
+            {
+                MusicManager.Pause();
+                IsGameRunning = false;
+                IsStartScheduled = false;
+
+                if (CurrentPageIndex < CurrentChart.page_list.Count)
+                {
+                    UpdateTime(CurrentPage.start_time);
+                }
+                else
+                {
+                    CurrentPageIndex = CurrentChart.page_list.Count - 1;
+                    UpdateTime(CurrentPage.start_time);
+                }
             }
             else
             {
-                CurrentPageIndex = CurrentChart.page_list.Count - 1;
-                UpdateTime(CurrentPage.start_time);
-            }
-        }
-        else
-        {
-            ScheduledTime = MusicManager.Play();
-            IsStartScheduled = true;
-            foreach(GameObject obj in GameObject.FindGameObjectsWithTag("ScanlineNote"))
-            {
-                Destroy(obj);
-            }
-            foreach(GameObject obj in GameObject.FindGameObjectsWithTag("Note"))
-            {
-                if(obj.GetComponent<IHighlightable>().Highlighted)
+                ScheduledTime = MusicManager.Play();
+                IsStartScheduled = true;
+                foreach (GameObject obj in GameObject.FindGameObjectsWithTag("ScanlineNote"))
                 {
-                    obj.GetComponent<IHighlightable>().Highlight();
+                    Destroy(obj);
+                }
+                foreach (GameObject obj in GameObject.FindGameObjectsWithTag("Note"))
+                {
+                    if (obj.GetComponent<IHighlightable>().Highlighted)
+                    {
+                        obj.GetComponent<IHighlightable>().Highlight();
+                    }
                 }
             }
+        }
+        catch (Exception e)
+        {
+            GameObject.Find("ErrorToast").GetComponent<Text>().text = e.Message;
+            File.AppendAllText(Path.Combine(Application.persistentDataPath, "error.log"), e.StackTrace + "\n\n\n\n");
         }
     }
 
     /// <summary>
     /// The value of the divisor slider.
     /// </summary>
-    private int DivisorValue = 8;
+    public static int DivisorValue = 8;
 
     public void BeatDivisorValueChanged()
     {
@@ -628,7 +652,7 @@ public class GameLogic : MonoBehaviour
         {
             GameObject obj = Instantiate(DivisorLine);
             obj.transform.position = new Vector3(0, PlayAreaHeight / DivisorValue * i - PlayAreaHeight / 2);
-            obj.transform.localScale = new Vector3(PlayAreaWidth / 24 * 3, 0.6f);
+            obj.GetComponent<SpriteRenderer>().size = new Vector2(PlayAreaWidth, 0.1f);
         }
     }
 
@@ -700,6 +724,10 @@ public class GameLogic : MonoBehaviour
             {
                 SpawnScanlineNote(i);
             }
+            if (CurrentChart.tempo_list[i].time <= time)
+            {
+                CurrentTempoIndex = i;
+            }
         }
 
         GameObject.Find("TimeText").GetComponent<Text>().text = $"Page:{CurrentPageIndex}\nTime:{(int)((time - CurrentChart.music_offset) / 60)}:{(int)(time - CurrentChart.music_offset) % 60}:{(int)((time - CurrentChart.music_offset) * 100 - Math.Floor((time - CurrentChart.music_offset)) * 100)}";
@@ -746,16 +774,20 @@ public class GameLogic : MonoBehaviour
             {
                 CurrentPageIndex++;
             }
+            while(CurrentTempoIndex + 1 < CurrentChart.tempo_list.Count && CurrentChart.tempo_list[CurrentTempoIndex + 1].time < time)
+            {
+                CurrentTempoIndex++;
+            }
 
             GameObject.Find("TimeText").GetComponent<Text>().text = $"Page:{CurrentPageIndex}\nTime:{(int)((time - CurrentChart.music_offset) / 60)}:{(int)(time - CurrentChart.music_offset) % 60}:{(int)((time + CurrentChart.music_offset) * 100 - Math.Floor((time + CurrentChart.music_offset)) * 100)}";
 
             if(CurrentPageIndex < CurrentChart.page_list.Count) // in case the pages don't go to the end of the chart
             {
+                double CurrentTick = CurrentChart.tempo_list[CurrentTempoIndex].tick + (time - CurrentChart.tempo_list[CurrentTempoIndex].time) * 1000000 / CurrentChart.tempo_list[CurrentTempoIndex].value * CurrentChart.time_base;
+
                 Scanline.transform.position = new Vector3(0, CurrentPage.scan_line_direction == 1
-                    ? PlayAreaHeight * (float)((time - CurrentPage.start_time) /
-                    (CurrentPage.end_time - CurrentPage.start_time) - 0.5f)
-                    : PlayAreaHeight * (0.5f - (float)((time - CurrentPage.start_time) /
-                    (CurrentPage.end_time - CurrentPage.start_time))));
+                    ? PlayAreaHeight * (float)((CurrentTick - CurrentPage.start_tick) / CurrentPage.PageSize - 0.5)
+                    : PlayAreaHeight * (float)(0.5 - (CurrentTick - CurrentPage.start_tick) / CurrentPage.PageSize));
             }
         }
         else
@@ -848,7 +880,6 @@ public class GameLogic : MonoBehaviour
                         if (obj.GetComponentInChildren<Collider2D>().OverlapPoint(touchpos))
                         {
                             currentlymoving = obj;
-                            break;
                         }
                     }
                     foreach (GameObject obj in GameObject.FindGameObjectsWithTag("ScanlineNote"))
@@ -867,7 +898,7 @@ public class GameLogic : MonoBehaviour
                     {
                         AddNote(new Note
                         {
-                            x = (Math.Round(touchpos.x / (PlayAreaWidth / VerticalDivisors)) * (PlayAreaWidth / VerticalDivisors) + PlayAreaWidth / 2) / PlayAreaWidth,
+                            x = (Math.Round(touchpos.x / (PlayAreaWidth / Config.VerticalDivisors)) * (PlayAreaWidth / Config.VerticalDivisors) + PlayAreaWidth / 2) / PlayAreaWidth,
                             page_index = CurrentPageIndex,
                             type = (int)NoteType.CLICK,
                             id = -1,
@@ -883,17 +914,19 @@ public class GameLogic : MonoBehaviour
                     }
                     else if(CurrentTool == NoteType.HOLD) // Add hold note
                     {
+                        int tick = (int)(CurrentPage.start_tick + CurrentPage.PageSize * (CurrentPage.scan_line_direction == 1 
+                            ? Math.Round((touchpos.y + PlayAreaHeight / 2) / (PlayAreaHeight / DivisorValue)) / DivisorValue
+                            : 1.0f - Math.Round((touchpos.y + PlayAreaHeight / 2) / (PlayAreaHeight / DivisorValue)) / DivisorValue));
+
                         AddNote(new Note
                         {
-                            x = (Math.Round(touchpos.x / (PlayAreaWidth / VerticalDivisors)) * (PlayAreaWidth / VerticalDivisors) + PlayAreaWidth / 2) / PlayAreaWidth,
-                            page_index = CurrentPageIndex,
+                            x = (Math.Round(touchpos.x / (PlayAreaWidth / Config.VerticalDivisors)) * (PlayAreaWidth / Config.VerticalDivisors) + PlayAreaWidth / 2) / PlayAreaWidth,
+                            page_index = tick == CurrentPage.end_tick ? CurrentPageIndex + 1 : CurrentPageIndex,
                             type = (int)NoteType.HOLD,
                             id = -1,
                             hold_tick = CurrentChart.time_base / DivisorValue,
                             next_id = 0,
-                            tick = (int)(CurrentPage.start_tick + CurrentPage.PageSize *
-                                (CurrentPage.scan_line_direction == 1 ? Math.Round((touchpos.y + PlayAreaHeight / 2) / (PlayAreaHeight / DivisorValue)) / DivisorValue
-                                : 1.0f - Math.Round((touchpos.y + PlayAreaHeight / 2) / (PlayAreaHeight / DivisorValue)) / DivisorValue))
+                            tick = tick
                         });
 
                         CalculateTimings();
@@ -901,17 +934,19 @@ public class GameLogic : MonoBehaviour
                     }
                     else if(CurrentTool == NoteType.LONG_HOLD) // Add long hold note
                     {
+                        int tick = (int)(CurrentPage.start_tick + CurrentPage.PageSize * (CurrentPage.scan_line_direction == 1 
+                            ? Math.Round((touchpos.y + PlayAreaHeight / 2) / (PlayAreaHeight / DivisorValue)) / DivisorValue 
+                            : 1.0f - Math.Round((touchpos.y + PlayAreaHeight / 2) / (PlayAreaHeight / DivisorValue)) / DivisorValue));
+
                         AddNote(new Note
                         {
-                            x = (Math.Round(touchpos.x / (PlayAreaWidth / VerticalDivisors)) * (PlayAreaWidth / VerticalDivisors) + PlayAreaWidth / 2) / PlayAreaWidth,
-                            page_index = CurrentPageIndex,
+                            x = (Math.Round(touchpos.x / (PlayAreaWidth / Config.VerticalDivisors)) * (PlayAreaWidth / Config.VerticalDivisors) + PlayAreaWidth / 2) / PlayAreaWidth,
+                            page_index = tick == CurrentPage.end_tick ? CurrentPageIndex + 1 : CurrentPageIndex,
                             type = (int)NoteType.LONG_HOLD,
                             id = -1,
                             hold_tick = CurrentChart.time_base / DivisorValue,
                             next_id = 0,
-                            tick = (int)(CurrentPage.start_tick + CurrentPage.PageSize *
-                                (CurrentPage.scan_line_direction == 1 ? Math.Round((touchpos.y + PlayAreaHeight / 2) / (PlayAreaHeight / DivisorValue)) / DivisorValue
-                                : 1.0f - Math.Round((touchpos.y + PlayAreaHeight / 2) / (PlayAreaHeight / DivisorValue)) / DivisorValue))
+                            tick = tick
                         });
 
                         CalculateTimings();
@@ -921,7 +956,7 @@ public class GameLogic : MonoBehaviour
                     {
                         AddNote(new Note
                         {
-                            x = (Math.Round(touchpos.x / (PlayAreaWidth / VerticalDivisors)) * (PlayAreaWidth / VerticalDivisors) + PlayAreaWidth / 2) / PlayAreaWidth,
+                            x = (Math.Round(touchpos.x / (PlayAreaWidth / Config.VerticalDivisors)) * (PlayAreaWidth / Config.VerticalDivisors) + PlayAreaWidth / 2) / PlayAreaWidth,
                             page_index = CurrentPageIndex,
                             type = (int)NoteType.FLICK,
                             id = -1,
@@ -952,7 +987,7 @@ public class GameLogic : MonoBehaviour
                                 {
                                     int id = AddNote(new Note
                                     {
-                                        x = (Math.Round(touchpos.x / (PlayAreaWidth / VerticalDivisors)) * (PlayAreaWidth / VerticalDivisors) + PlayAreaWidth / 2) / PlayAreaWidth,
+                                        x = (Math.Round(touchpos.x / (PlayAreaWidth / Config.VerticalDivisors)) * (PlayAreaWidth / Config.VerticalDivisors) + PlayAreaWidth / 2) / PlayAreaWidth,
                                         page_index = CurrentPageIndex,
                                         type = (int)NoteType.DRAG_CHILD,
                                         id = -1,
@@ -972,7 +1007,7 @@ public class GameLogic : MonoBehaviour
                         {
                             IDtoHighlight = AddNote(new Note
                             {
-                                x = (Math.Round(touchpos.x / (PlayAreaWidth / VerticalDivisors)) * (PlayAreaWidth / VerticalDivisors) + PlayAreaWidth / 2) / PlayAreaWidth,
+                                x = (Math.Round(touchpos.x / (PlayAreaWidth / Config.VerticalDivisors)) * (PlayAreaWidth / Config.VerticalDivisors) + PlayAreaWidth / 2) / PlayAreaWidth,
                                 page_index = CurrentPageIndex,
                                 type = (int)NoteType.DRAG_HEAD,
                                 id = -1,
@@ -1005,7 +1040,7 @@ public class GameLogic : MonoBehaviour
                                 {
                                     int id = AddNote(new Note
                                     {
-                                        x = (Math.Round(touchpos.x / (PlayAreaWidth / VerticalDivisors)) * (PlayAreaWidth / VerticalDivisors) + PlayAreaWidth / 2) / PlayAreaWidth,
+                                        x = (Math.Round(touchpos.x / (PlayAreaWidth / Config.VerticalDivisors)) * (PlayAreaWidth / Config.VerticalDivisors) + PlayAreaWidth / 2) / PlayAreaWidth,
                                         page_index = CurrentPageIndex,
                                         type = (int)NoteType.CDRAG_CHILD,
                                         id = -1,
@@ -1025,7 +1060,7 @@ public class GameLogic : MonoBehaviour
                         {
                             IDtoHighlight = AddNote(new Note
                             {
-                                x = (Math.Round(touchpos.x / (PlayAreaWidth / VerticalDivisors)) * (PlayAreaWidth / VerticalDivisors) + PlayAreaWidth / 2) / PlayAreaWidth,
+                                x = (Math.Round(touchpos.x / (PlayAreaWidth / Config.VerticalDivisors)) * (PlayAreaWidth / Config.VerticalDivisors) + PlayAreaWidth / 2) / PlayAreaWidth,
                                 page_index = CurrentPageIndex,
                                 type = (int)NoteType.CDRAG_HEAD,
                                 id = -1,
@@ -1080,7 +1115,7 @@ public class GameLogic : MonoBehaviour
                         if(currentlymoving.CompareTag("Note"))
                         {
                             currentlymoving.transform.position = new Vector3(
-                                (float)Math.Round((currentlymoving.transform.position.x + PlayAreaWidth / 2) / (PlayAreaWidth / VerticalDivisors)) * (PlayAreaWidth / VerticalDivisors) - PlayAreaWidth / 2,
+                                (float)Math.Round((currentlymoving.transform.position.x + PlayAreaWidth / 2) / (PlayAreaWidth / Config.VerticalDivisors)) * (PlayAreaWidth / Config.VerticalDivisors) - PlayAreaWidth / 2,
                                 (float)Math.Round((currentlymoving.transform.position.y + PlayAreaHeight / 2) / (PlayAreaHeight / DivisorValue)) * (PlayAreaHeight / DivisorValue) - PlayAreaHeight / 2);
 
                             int id = currentlymoving.GetComponent<INote>().NoteID;
@@ -1160,7 +1195,7 @@ public class GameLogic : MonoBehaviour
 
     public void GoToPreviousPage()
     {
-        if(!IsGameRunning && CurrentPageIndex > 0)
+        if(!IsGameRunning && CurrentChart != null && CurrentPageIndex > 0)
         {
             CurrentPageIndex--;
             UpdateTime(CurrentPage.start_time);
@@ -1169,7 +1204,7 @@ public class GameLogic : MonoBehaviour
 
     public void GoToNextPage()
     {
-        if (!IsGameRunning && CurrentPageIndex < CurrentChart.page_list.Count)
+        if (!IsGameRunning && CurrentChart != null && CurrentPageIndex < CurrentChart.page_list.Count)
         {
             CurrentPageIndex++;
             UpdateTime(CurrentPage.start_time);

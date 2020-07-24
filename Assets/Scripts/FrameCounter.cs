@@ -10,9 +10,9 @@ public class FrameCounter : MonoBehaviour
     void Update()
     {
         cnt++;
-        if(cnt == 10)
+        if (cnt == 10)
         {
-            gameObject.GetComponent<Text>().text = (1 / Time.deltaTime).ToString();
+            gameObject.GetComponent<Text>().text = (1.0 / Time.deltaTime).ToString();
             cnt = 0;
         }
     }
