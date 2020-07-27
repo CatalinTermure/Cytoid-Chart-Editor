@@ -110,8 +110,6 @@ public class HoldNoteController : MonoBehaviour, IHighlightable, INote
         UpdateComponentVisuals();
     }
 
-    private bool playedhitsound = false;
-
     private void UpdateComponentVisuals()
     {
         if(GlobalState.IsGameRunning)
@@ -125,32 +123,18 @@ public class HoldNoteController : MonoBehaviour, IHighlightable, INote
             }
             else
             {
-                if(!playedhitsound)
-                {
-                    if(Delay < 1000)
-                    {
-                        GameObject.Find("PlayArea").GetComponent<AudioSource>().Play();
-                    }
-                    playedhitsound = true;
-                }
                 CompletionPercentage = (Delay + sw.ElapsedMilliseconds / 1000f - ApproachTime) / HoldTime;
 
                 FillNoteBodyMask.transform.localScale = new Vector3(Size * 50, Height * CompletionPercentage * 100);
 
                 if (CompletionPercentage > 1)
                 {
-                    if (Delay < 1000)
-                    {
-                        GameObject.Find("PlayArea").GetComponent<AudioSource>().Play();
-                    }
                     Destroy(gameObject);
                 }
             }
         }
         else
         {
-            playedhitsound = false;
-
             HollowNoteBody.transform.localScale = new Vector3(0.5f, 1);
             NoteFill.transform.localScale = NoteBorder.transform.localScale = new Vector3(1, 1);
             InnerNoteBorder.transform.localScale = new Vector3(0.75f, 0.75f);

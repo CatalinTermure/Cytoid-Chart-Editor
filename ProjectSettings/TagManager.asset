@@ -16,9 +16,9 @@ TagManager:
   - Settings
   - Note
   - Connector
-  - GridLine
   - DivisorLine
   - ScanlineNote
+  - GridLine
   layers:
   - Default
   - TransparentFX

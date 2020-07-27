@@ -30,7 +30,10 @@ public class GameLogic : MonoBehaviour
 
     public Slider Timeline;
 
-    public AudioSource MusicSource, HitsoundSource;
+    public AudioSource MusicSource;
+
+    public AudioSource[] HitsoundSources;
+    private readonly double[] HitsoundScheduledTimes = new double[4];
 
     public Camera MainCamera;
 
@@ -38,6 +41,8 @@ public class GameLogic : MonoBehaviour
 
     public static int CurrentPageIndexOverride = -1;
 
+    private int CurrentHoldHitsoundIndex { get; set; }
+    private int CurrentHitsoundIndex { get; set; }
     private int CurrentTempoIndex { get; set; }
     private int CurrentNoteIndex { get; set; }
     private int CurrentPageIndex { get; set; }
@@ -79,6 +84,8 @@ public class GameLogic : MonoBehaviour
 
         // Create horizontal divisor lines
         BeatDivisorValueChanged();
+
+        UpdateOffsetText();
     }
 
     public void Awake()
@@ -87,8 +94,11 @@ public class GameLogic : MonoBehaviour
         {
             CalculateTimings();
             MusicManager.SetSource(MusicSource);
-            HitsoundSource.volume = Config.HitsoundVolume;
-            if(CurrentPageIndexOverride != -1)
+            for (int i = 0; i < HitsoundSources.Length; i++)
+            {
+                HitsoundSources[i].volume = Config.HitsoundVolume;
+            }
+            if (CurrentPageIndexOverride != -1)
             {
                 CurrentPageIndex = CurrentPageIndexOverride;
                 CurrentPageIndexOverride = -1;
@@ -98,6 +108,7 @@ public class GameLogic : MonoBehaviour
                 CurrentPageIndex = 0;
             }
             UpdateTime(CurrentPage.start_time);
+            GameObject.Find("NoteCountText").GetComponent<Text>().text = $"Note count: {CurrentChart.note_list.Count}";
         }
     }
 
@@ -196,7 +207,7 @@ public class GameLogic : MonoBehaviour
                     (double)(notes[ni].tick - pages[notes[ni].page_index].start_tick) / (pages[notes[ni].page_index].end_tick - pages[notes[ni].page_index].start_tick) :
                     1.0 - (double)(notes[ni].tick - pages[notes[ni].page_index].start_tick) / (pages[notes[ni].page_index].end_tick - pages[notes[ni].page_index].start_tick);
 
-                notes[ni].approach_time = notes[ni].approach_rate;
+                notes[ni].approach_time = 1.0 / notes[ni].approach_rate;
                 if(notes[ni].page_index == 0)
                 {
                     notes[ni].approach_time *= 1.367;
@@ -207,8 +218,7 @@ public class GameLogic : MonoBehaviour
                     prevPage = pages[notes[ni].page_index - 1];
                     page_ratio = (double)(notes[ni].tick - currPage.start_tick) / (currPage.end_tick - currPage.start_tick);
 
-                    notes[ni].approach_time *= 1.367 / Math.Max(1.0,
-                        1.367 / ((currPage.end_time - currPage.start_time) * page_ratio + (prevPage.end_time - prevPage.start_time) * (1.367 - page_ratio)));
+                    notes[ni].approach_time *= 1.367 / Math.Max(1.0, 1.367 / ((currPage.end_time - currPage.start_time) * page_ratio + (prevPage.end_time - prevPage.start_time) * (1.367 - page_ratio)));
                 }
 
                 if(notes[ni].type == 1 || notes[ni].type == 2)
@@ -299,6 +309,7 @@ public class GameLogic : MonoBehaviour
             CurrentChart.note_list[i].id = i;
         }
         CurrentChart.note_list[poz] = note;
+        GameObject.Find("NoteCountText").GetComponent<Text>().text = $"Note count: {CurrentChart.note_list.Count}";
         return poz;
     }
 
@@ -308,7 +319,7 @@ public class GameLogic : MonoBehaviour
     /// <param name="noteID"> The id of the note to be removed. </param>
     private void RemoveNote(int noteID)
     {
-        if(CurrentChart.note_list[noteID].type == (int)NoteType.CDRAG_HEAD || CurrentChart.note_list[noteID].type == (int)NoteType.DRAG_HEAD)
+        if (CurrentChart.note_list[noteID].type == (int)NoteType.CDRAG_HEAD || CurrentChart.note_list[noteID].type == (int)NoteType.DRAG_HEAD)
             // If the deleted note is a (c)drag head, then make the next note the head instead
         {
             int nxt = CurrentChart.note_list[noteID].next_id;
@@ -335,6 +346,7 @@ public class GameLogic : MonoBehaviour
             CurrentChart.note_list[i].id = i;
         }
         CurrentChart.note_list.RemoveAt(CurrentChart.note_list.Count - 1);
+        GameObject.Find("NoteCountText").GetComponent<Text>().text = $"Note count: {CurrentChart.note_list.Count}";
     }
 
     /// <summary>
@@ -546,7 +558,7 @@ public class GameLogic : MonoBehaviour
             (CurrentChart.tempo_list[id].tick - CurrentPage.start_tick) / CurrentPage.PageSize :
             1.0 - (CurrentChart.tempo_list[id].tick - CurrentPage.start_tick) / CurrentPage.PageSize)));
 
-        obj.GetComponent<ScanlineNoteController>().TimeInputField.text = (CurrentChart.music_offset + CurrentChart.tempo_list[id].time).ToString();
+        obj.GetComponent<ScanlineNoteController>().TimeInputField.text = (CurrentChart.tempo_list[id].time - CurrentChart.music_offset).ToString();
         obj.GetComponent<ScanlineNoteController>().BPMInputField.text = (Math.Round(120000000.0 / CurrentChart.tempo_list[id].value, 2)).ToString();
     }
 
@@ -584,49 +596,41 @@ public class GameLogic : MonoBehaviour
     /// </summary>
     public void PlayPause()
     {
-        try
+        if (CurrentChart == null)
         {
-            if (CurrentChart == null)
-            {
-                return;
-            }
-            if (IsGameRunning || IsStartScheduled)
-            {
-                MusicManager.Pause();
-                IsGameRunning = false;
-                IsStartScheduled = false;
+            return;
+        }
+        if (IsGameRunning || IsStartScheduled)
+        {
+            MusicManager.Pause();
+            IsGameRunning = false;
+            IsStartScheduled = false;
 
-                if (CurrentPageIndex < CurrentChart.page_list.Count)
-                {
-                    UpdateTime(CurrentPage.start_time);
-                }
-                else
-                {
-                    CurrentPageIndex = CurrentChart.page_list.Count - 1;
-                    UpdateTime(CurrentPage.start_time);
-                }
+            if (CurrentPageIndex < CurrentChart.page_list.Count)
+            {
+                UpdateTime(CurrentPage.start_time);
             }
             else
             {
-                ScheduledTime = MusicManager.Play();
-                IsStartScheduled = true;
-                foreach (GameObject obj in GameObject.FindGameObjectsWithTag("ScanlineNote"))
-                {
-                    Destroy(obj);
-                }
-                foreach (GameObject obj in GameObject.FindGameObjectsWithTag("Note"))
-                {
-                    if (obj.GetComponent<IHighlightable>().Highlighted)
-                    {
-                        obj.GetComponent<IHighlightable>().Highlight();
-                    }
-                }
+                CurrentPageIndex = CurrentChart.page_list.Count - 1;
+                UpdateTime(CurrentPage.start_time);
             }
         }
-        catch (Exception e)
+        else
         {
-            GameObject.Find("ErrorToast").GetComponent<Text>().text = e.Message;
-            File.AppendAllText(Path.Combine(Application.persistentDataPath, "error.log"), e.StackTrace + "\n\n\n\n");
+            ScheduledTime = MusicManager.Play();
+            IsStartScheduled = true;
+            foreach (GameObject obj in GameObject.FindGameObjectsWithTag("ScanlineNote"))
+            {
+                Destroy(obj);
+            }
+            foreach (GameObject obj in GameObject.FindGameObjectsWithTag("Note"))
+            {
+                if (obj.GetComponent<IHighlightable>().Highlighted)
+                {
+                    obj.GetComponent<IHighlightable>().Highlight();
+                }
+            }
         }
     }
 
@@ -634,14 +638,17 @@ public class GameLogic : MonoBehaviour
     /// The value of the divisor slider.
     /// </summary>
     public static int DivisorValue = 8;
+    private readonly int[] AllowedDivisor = {1, 2, 3, 4, 6, 8, 12, 16 };
 
     public void BeatDivisorValueChanged()
     {
-        if(BeatDivisor.value == 5 || BeatDivisor.value == 7 || BeatDivisor.value == 9 || BeatDivisor.value == 11 || BeatDivisor.value == 13)
-            // Do not allow these divisors since they don't go with the time_base
+        for(int i = 0; i < 8; i++)
         {
-            BeatDivisor.value = DivisorValue;
-            return;
+            if(AllowedDivisor[i] >= (int)BeatDivisor.value)
+            {
+                BeatDivisor.value = AllowedDivisor[i];
+                break;
+            }
         }
         DivisorValue = (int)BeatDivisor.value;
         foreach(var obj in GameObject.FindGameObjectsWithTag("DivisorLine"))
@@ -696,25 +703,40 @@ public class GameLogic : MonoBehaviour
             Destroy(obj);
         }
 
+        CurrentHitsoundIndex = 0;
+        CurrentHoldHitsoundIndex = 0;
+
         CurrentNoteIndex = 0;
 
         // Can be optimized if necessary with binary search algorithms and a segment tree for the holds, albeit very tricky to implement properly. The last resort if optimization is necessary.
         for (int i = 0; i < CurrentChart.note_list.Count; i++)
         {
-            if (CurrentChart.note_list[i].time - CurrentChart.note_list[i].approach_time <= time && CurrentChart.note_list[i].time + CurrentChart.note_list[i].hold_time >= time)
+            if (CurrentChart.note_list[i].time - (Config.ShowApproachingNotesWhilePaused || CurrentChart.note_list[i].page_index == CurrentPageIndex ? CurrentChart.note_list[i].approach_time : 0) <= time && CurrentChart.note_list[i].time + CurrentChart.note_list[i].hold_time >= time
+                || ((CurrentChart.note_list[i].type == (int)NoteType.DRAG_HEAD || CurrentChart.note_list[i].type == (int)NoteType.CDRAG_HEAD) && GetLastChild(i).time >= time && CurrentChart.note_list[i].time <= time))
             {
                 SpawnNote(CurrentChart.note_list[i], time - CurrentChart.note_list[i].time + CurrentChart.note_list[i].approach_time);
-                CurrentNoteIndex = Math.Max(i + 1, CurrentNoteIndex);
             }
             else if (CurrentChart.note_list[i].page_index == CurrentPageIndex)
             {
                 SpawnNote(CurrentChart.note_list[i], 10000);
-                CurrentNoteIndex = Math.Max(i + 1, CurrentNoteIndex);
             }
             else if (CurrentChart.note_list[i].page_index + 1 == CurrentPageIndex)
             {
                 SpawnNote(CurrentChart.note_list[i], 10000, true);
-                CurrentNoteIndex = Math.Max(i + 1, CurrentNoteIndex);
+            }
+            else if(CurrentChart.note_list[i].time - (Config.ShowApproachingNotesWhilePaused || CurrentChart.note_list[i].page_index == CurrentPageIndex ? CurrentChart.note_list[i].approach_time : 0) <= time)
+            {
+                CurrentNoteIndex = i + 1;
+            }
+
+            if(CurrentChart.note_list[i].time < time)
+            {
+                CurrentHitsoundIndex = i + 1;
+            }
+
+            if((CurrentChart.note_list[i].type == (int)NoteType.HOLD || CurrentChart.note_list[i].type == (int)NoteType.LONG_HOLD) && CurrentChart.note_list[i].time + CurrentChart.note_list[i].hold_time < time)
+            {
+                CurrentHoldHitsoundIndex = i + 1;
             }
         }
 
@@ -730,7 +752,8 @@ public class GameLogic : MonoBehaviour
             }
         }
 
-        GameObject.Find("TimeText").GetComponent<Text>().text = $"Page:{CurrentPageIndex}\nTime:{(int)((time - CurrentChart.music_offset) / 60)}:{(int)(time - CurrentChart.music_offset) % 60}:{(int)((time - CurrentChart.music_offset) * 100 - Math.Floor((time - CurrentChart.music_offset)) * 100)}";
+
+        GameObject.Find("TimeText").GetComponent<Text>().text = "Page: " + CurrentPageIndex.ToString() + "\nTime: " + ((int)((time - CurrentChart.music_offset) / 60)).ToString() + ":" + ((int)(time - CurrentChart.music_offset) % 60).ToString("D2") + "." + ((int)((time - CurrentChart.music_offset) * 1000 - Math.Floor(time - CurrentChart.music_offset) * 1000)).ToString("D3");
 
         Scanline.transform.position = new Vector3(0, CurrentPage.scan_line_direction == 1
             ? PlayAreaHeight * (float)((time - CurrentPage.start_time) /
@@ -738,9 +761,18 @@ public class GameLogic : MonoBehaviour
             : PlayAreaHeight * (0.5f - (float)((time - CurrentPage.start_time) /
             (CurrentPage.end_time - CurrentPage.start_time))));
 
-        MusicManager.SetTime(Math.Max(time - CurrentChart.music_offset, 0));
+        MusicManager.SetTime(time - Offset);
 
         Timeline.SetValueWithoutNotify((float)(MusicManager.Time / MusicManager.MaxTime));
+    }
+
+    private Note GetLastChild(int parent)
+    {
+        while(CurrentChart.note_list[parent].next_id > 0)
+        {
+            parent = CurrentChart.note_list[parent].next_id;
+        }
+        return CurrentChart.note_list[parent];
     }
 
     private bool isTouchHeld = false;
@@ -748,9 +780,12 @@ public class GameLogic : MonoBehaviour
 
     private void Update()
     {
-        if (AudioSettings.dspTime > ScheduledTime && IsStartScheduled)
+        if (IsStartScheduled)
         {
-            IsGameRunning = true;
+            if(AudioSettings.dspTime > ScheduledTime)
+            {
+                IsGameRunning = true;
+            }
         }
         if(IsGameRunning)
         {
@@ -763,7 +798,41 @@ public class GameLogic : MonoBehaviour
             }
 
             Timeline.SetValueWithoutNotify((float)(MusicManager.Time / MusicManager.MaxTime));
-            double time = MusicManager.Time - Offset;
+            double time = MusicManager.Time + Offset;
+
+            while(CurrentHitsoundIndex < CurrentChart.note_list.Count && CurrentChart.note_list[CurrentHitsoundIndex].time - 0.05 <= time)
+            {
+                for(int i = 0; i < HitsoundSources.Length; i++)
+                {
+                    if(HitsoundScheduledTimes[i] < AudioSettings.dspTime)
+                    {
+                        HitsoundSources[i].PlayScheduled(CurrentChart.note_list[CurrentHitsoundIndex].time - time + AudioSettings.dspTime);
+                        HitsoundScheduledTimes[i] = CurrentChart.note_list[CurrentHitsoundIndex].time - time + AudioSettings.dspTime + HitsoundSources[i].clip.length;
+                        break;
+                    }
+                }
+                CurrentHitsoundIndex++;
+            }
+
+            if(Config.PlayHitsoundsOnHoldEnd)
+            {
+                while (CurrentHoldHitsoundIndex < CurrentChart.note_list.Count && CurrentChart.note_list[CurrentHoldHitsoundIndex].time + CurrentChart.note_list[CurrentHoldHitsoundIndex].hold_time - 0.05 <= time)
+                {
+                    if (CurrentChart.note_list[CurrentHoldHitsoundIndex].type == (int)NoteType.HOLD || CurrentChart.note_list[CurrentHoldHitsoundIndex].type == (int)NoteType.LONG_HOLD)
+                    {
+                        for (int i = 0; i < HitsoundSources.Length; i++)
+                        {
+                            if (HitsoundScheduledTimes[i] < AudioSettings.dspTime)
+                            {
+                                HitsoundSources[i].PlayScheduled(CurrentChart.note_list[CurrentHoldHitsoundIndex].time + CurrentChart.note_list[CurrentHoldHitsoundIndex].hold_time - time + AudioSettings.dspTime);
+                                HitsoundScheduledTimes[i] = CurrentChart.note_list[CurrentHoldHitsoundIndex].time + CurrentChart.note_list[CurrentHoldHitsoundIndex].hold_time - time + AudioSettings.dspTime + HitsoundSources[i].clip.length;
+                                break;
+                            }
+                        }
+                    }
+                    CurrentHoldHitsoundIndex++;
+                }
+            }
 
             while(CurrentNoteIndex < CurrentChart.note_list.Count &&  CurrentChart.note_list[CurrentNoteIndex].time - CurrentChart.note_list[CurrentNoteIndex].approach_time <= time)
             {
@@ -779,9 +848,9 @@ public class GameLogic : MonoBehaviour
                 CurrentTempoIndex++;
             }
 
-            GameObject.Find("TimeText").GetComponent<Text>().text = $"Page:{CurrentPageIndex}\nTime:{(int)((time - CurrentChart.music_offset) / 60)}:{(int)(time - CurrentChart.music_offset) % 60}:{(int)((time + CurrentChart.music_offset) * 100 - Math.Floor((time + CurrentChart.music_offset)) * 100)}";
+            GameObject.Find("TimeText").GetComponent<Text>().text = "Page: " + CurrentPageIndex.ToString() + "\nTime: " + ((int)((time - CurrentChart.music_offset) / 60)).ToString() + ":" + ((int)(time - CurrentChart.music_offset) % 60).ToString("D2") + "." + ((int)((time - CurrentChart.music_offset) * 1000 - Math.Floor(time - CurrentChart.music_offset) * 1000)).ToString("D3");
 
-            if(CurrentPageIndex < CurrentChart.page_list.Count) // in case the pages don't go to the end of the chart
+            if (CurrentPageIndex < CurrentChart.page_list.Count) // in case the pages don't go to the end of the chart
             {
                 double CurrentTick = CurrentChart.tempo_list[CurrentTempoIndex].tick + (time - CurrentChart.tempo_list[CurrentTempoIndex].time) * 1000000 / CurrentChart.tempo_list[CurrentTempoIndex].value * CurrentChart.time_base;
 
@@ -792,393 +861,403 @@ public class GameLogic : MonoBehaviour
         }
         else
         {
-            if (Input.GetMouseButtonDown(0)) // Handle input
+            HandleInput();
+        }
+    }
+
+    private void HandleInput()
+    {
+        if (Input.GetMouseButtonDown(0)) // Handle input
+        {
+            Vector2 touchpos = MainCamera.ScreenToWorldPoint(Input.mousePosition);
+
+            isTouchHeld = true;
+
+            if (CurrentTool == NoteType.NONE)
             {
-                Vector2 touchpos = MainCamera.ScreenToWorldPoint(Input.mousePosition);
-
-                isTouchHeld = true;
-
-                if (CurrentTool == NoteType.NONE)
+                foreach (GameObject obj in GameObject.FindGameObjectsWithTag("Note"))
                 {
-                    foreach (GameObject obj in GameObject.FindGameObjectsWithTag("Note"))
+                    if (obj.GetComponentInChildren<CircleCollider2D>().OverlapPoint(touchpos)) // Highlighting notes
                     {
-                        if (obj.GetComponentInChildren<CircleCollider2D>().OverlapPoint(touchpos)) // Highlighting notes
+                        obj.GetComponent<IHighlightable>().Highlight();
+                        if (obj.GetComponent<LongHoldNoteController>() != null)
                         {
-                            obj.GetComponent<IHighlightable>().Highlight();
-                            if(obj.GetComponent<LongHoldNoteController>() != null)
-                            {
-                                Note note = CurrentChart.note_list[obj.GetComponent<INote>().NoteID];
-                                obj.GetComponent<LongHoldNoteController>().FinishIndicator.transform.position = new Vector3(obj.transform.position.x, CurrentPage.scan_line_direction *
-                                    (PlayAreaHeight * (note.tick + note.hold_tick - CurrentPage.start_tick) / (int)CurrentPage.PageSize - PlayAreaHeight / 2));
-                            }
-                        }
-                        if(obj.GetComponent<HoldNoteController>() != null) // Modifying hold_time for short holds
-                        {
-                            var holdcontroller = obj.GetComponent<HoldNoteController>();
-                            int id = holdcontroller.NoteID;
-                            if (holdcontroller.UpArrowCollider.OverlapPoint(touchpos))
-                            {
-                                CurrentChart.note_list[id].hold_tick += CurrentChart.time_base / DivisorValue;
-                                if (CurrentChart.note_list[id].hold_tick + CurrentChart.note_list[id].tick > CurrentChart.page_list[CurrentChart.note_list[id].page_index].end_tick)
-                                {
-                                    CurrentChart.note_list[id].hold_tick = CurrentChart.page_list[CurrentChart.note_list[id].page_index].end_tick - CurrentChart.note_list[id].tick;
-                                }
-                            }
-                            else if (holdcontroller.DownArrowCollider.OverlapPoint(touchpos))
-                            {
-                                CurrentChart.note_list[id].hold_tick -= CurrentChart.time_base / DivisorValue;
-                                if (CurrentChart.note_list[id].hold_tick < 0)
-                                {
-                                    CurrentChart.note_list[id].hold_tick = 1;
-                                }
-                            }
-                            else
-                            {
-                                continue;
-                            }
-                            CalculateTimings();
-                            UpdateTime(CurrentPage.start_time);
-                            HighlightNoteWithID(id);
-                        }
-                        else if(obj.GetComponent<LongHoldNoteController>() != null) // Modifying hold_time for long holds
-                        {
-                            var holdcontroller = obj.GetComponent<LongHoldNoteController>();
-                            int id = holdcontroller.NoteID;
-                            if (holdcontroller.UpArrowCollider.OverlapPoint(touchpos))
-                            {
-                                CurrentChart.note_list[id].hold_tick += CurrentChart.time_base / DivisorValue;
-                            }
-                            else if (holdcontroller.DownArrowCollider.OverlapPoint(touchpos))
-                            {
-                                CurrentChart.note_list[id].hold_tick -= CurrentChart.time_base / DivisorValue;
-
-                                if(CurrentChart.note_list[id].hold_tick < 0)
-                                {
-                                    CurrentChart.note_list[id].hold_tick = 1;
-                                }
-                            }
-                            else
-                            {
-                                continue;
-                            }
-                            CalculateTimings();
-                            UpdateTime(CurrentPage.start_time);
-                            foreach (var obj2 in GameObject.FindGameObjectsWithTag("Note"))
-                            {
-                                if (obj2.GetComponent<INote>().NoteID == id)
-                                {
-                                    obj2.GetComponent<IHighlightable>().Highlight();
-                                }
-                            }
+                            Note note = CurrentChart.note_list[obj.GetComponent<INote>().NoteID];
+                            obj.GetComponent<LongHoldNoteController>().FinishIndicator.transform.position = new Vector3(obj.transform.position.x, CurrentPage.scan_line_direction *
+                                (PlayAreaHeight * (note.tick + note.hold_tick - CurrentPage.start_tick) / (int)CurrentPage.PageSize - PlayAreaHeight / 2));
                         }
                     }
-                }
-                else if(CurrentTool == NoteType.MOVE) // Starting the move of notes
-                {
-                    foreach(GameObject obj in GameObject.FindGameObjectsWithTag("Note"))
+                    if (obj.GetComponent<HoldNoteController>() != null) // Modifying hold_time for short holds
                     {
-                        if (obj.GetComponentInChildren<Collider2D>().OverlapPoint(touchpos))
+                        var holdcontroller = obj.GetComponent<HoldNoteController>();
+                        int id = holdcontroller.NoteID;
+                        if (holdcontroller.UpArrowCollider.OverlapPoint(touchpos))
                         {
-                            currentlymoving = obj;
-                        }
-                    }
-                    foreach (GameObject obj in GameObject.FindGameObjectsWithTag("ScanlineNote"))
-                    {
-                        if (obj.GetComponentInChildren<Collider2D>().OverlapPoint(touchpos))
-                        {
-                            currentlymoving = obj;
-                            break;
-                        }
-                    }
-                }
-                else if(CurrentChart != null && touchpos.x < PlayAreaWidth / 2 && touchpos.x > -PlayAreaWidth / 2 && touchpos.y < PlayAreaHeight / 2 && touchpos.y > -PlayAreaHeight / 2)
-                    // Adding notes
-                {
-                    if (CurrentTool == NoteType.CLICK) // Add click note
-                    {
-                        AddNote(new Note
-                        {
-                            x = (Math.Round(touchpos.x / (PlayAreaWidth / Config.VerticalDivisors)) * (PlayAreaWidth / Config.VerticalDivisors) + PlayAreaWidth / 2) / PlayAreaWidth,
-                            page_index = CurrentPageIndex,
-                            type = (int)NoteType.CLICK,
-                            id = -1,
-                            hold_tick = 0,
-                            next_id = 0,
-                            tick = (int)(CurrentPage.start_tick + CurrentPage.PageSize *
-                                (CurrentPage.scan_line_direction == 1 ? Math.Round((touchpos.y + PlayAreaHeight / 2) / (PlayAreaHeight / DivisorValue)) / DivisorValue
-                                : 1.0f - Math.Round((touchpos.y + PlayAreaHeight / 2) / (PlayAreaHeight / DivisorValue)) / DivisorValue))
-                        });
-
-                        CalculateTimings();
-                        UpdateTime(CurrentPage.start_time);
-                    }
-                    else if(CurrentTool == NoteType.HOLD) // Add hold note
-                    {
-                        int tick = (int)(CurrentPage.start_tick + CurrentPage.PageSize * (CurrentPage.scan_line_direction == 1 
-                            ? Math.Round((touchpos.y + PlayAreaHeight / 2) / (PlayAreaHeight / DivisorValue)) / DivisorValue
-                            : 1.0f - Math.Round((touchpos.y + PlayAreaHeight / 2) / (PlayAreaHeight / DivisorValue)) / DivisorValue));
-
-                        AddNote(new Note
-                        {
-                            x = (Math.Round(touchpos.x / (PlayAreaWidth / Config.VerticalDivisors)) * (PlayAreaWidth / Config.VerticalDivisors) + PlayAreaWidth / 2) / PlayAreaWidth,
-                            page_index = tick == CurrentPage.end_tick ? CurrentPageIndex + 1 : CurrentPageIndex,
-                            type = (int)NoteType.HOLD,
-                            id = -1,
-                            hold_tick = CurrentChart.time_base / DivisorValue,
-                            next_id = 0,
-                            tick = tick
-                        });
-
-                        CalculateTimings();
-                        UpdateTime(CurrentPage.start_time);
-                    }
-                    else if(CurrentTool == NoteType.LONG_HOLD) // Add long hold note
-                    {
-                        int tick = (int)(CurrentPage.start_tick + CurrentPage.PageSize * (CurrentPage.scan_line_direction == 1 
-                            ? Math.Round((touchpos.y + PlayAreaHeight / 2) / (PlayAreaHeight / DivisorValue)) / DivisorValue 
-                            : 1.0f - Math.Round((touchpos.y + PlayAreaHeight / 2) / (PlayAreaHeight / DivisorValue)) / DivisorValue));
-
-                        AddNote(new Note
-                        {
-                            x = (Math.Round(touchpos.x / (PlayAreaWidth / Config.VerticalDivisors)) * (PlayAreaWidth / Config.VerticalDivisors) + PlayAreaWidth / 2) / PlayAreaWidth,
-                            page_index = tick == CurrentPage.end_tick ? CurrentPageIndex + 1 : CurrentPageIndex,
-                            type = (int)NoteType.LONG_HOLD,
-                            id = -1,
-                            hold_tick = CurrentChart.time_base / DivisorValue,
-                            next_id = 0,
-                            tick = tick
-                        });
-
-                        CalculateTimings();
-                        UpdateTime(CurrentPage.start_time);
-                    }
-                    else if(CurrentTool == NoteType.FLICK) // Add flick note
-                    {
-                        AddNote(new Note
-                        {
-                            x = (Math.Round(touchpos.x / (PlayAreaWidth / Config.VerticalDivisors)) * (PlayAreaWidth / Config.VerticalDivisors) + PlayAreaWidth / 2) / PlayAreaWidth,
-                            page_index = CurrentPageIndex,
-                            type = (int)NoteType.FLICK,
-                            id = -1,
-                            hold_tick = 0,
-                            next_id = 0,
-                            tick = (int)(CurrentPage.start_tick + CurrentPage.PageSize *
-                                (CurrentPage.scan_line_direction == 1 ? Math.Round((touchpos.y + PlayAreaHeight / 2) / (PlayAreaHeight / DivisorValue)) / DivisorValue
-                                : 1.0f - Math.Round((touchpos.y + PlayAreaHeight / 2) / (PlayAreaHeight / DivisorValue)) / DivisorValue))
-                        });
-
-                        CalculateTimings();
-                        UpdateTime(CurrentPage.start_time);
-                    }
-                    else if(CurrentTool == NoteType.DRAG_HEAD) // Add drag head and child
-                    {
-                        bool existsHighlightedDragHead = false;
-                        int IDtoHighlight = -1;
-                        foreach (GameObject obj in GameObject.FindGameObjectsWithTag("Note"))
-                        {
-                            if (obj.GetComponent<IHighlightable>().Highlighted && CurrentChart.note_list[obj.GetComponent<INote>().NoteID].next_id == -1 && (obj.GetComponent<DragHeadNoteController>() != null || obj.GetComponent<DragChildNoteController>() != null))
-                            // Add drag child
+                            CurrentChart.note_list[id].hold_tick += CurrentChart.time_base / DivisorValue;
+                            if (CurrentChart.note_list[id].hold_tick + CurrentChart.note_list[id].tick > CurrentChart.page_list[CurrentChart.note_list[id].page_index].end_tick)
                             {
-                                int tick = (int)(CurrentPage.start_tick + CurrentPage.PageSize *
-                                        (CurrentPage.scan_line_direction == 1 ? Math.Round((touchpos.y + PlayAreaHeight / 2) / (PlayAreaHeight / DivisorValue)) / DivisorValue
-                                        : 1.0f - Math.Round((touchpos.y + PlayAreaHeight / 2) / (PlayAreaHeight / DivisorValue)) / DivisorValue));
-
-                                if (CurrentChart.note_list[obj.GetComponent<INote>().NoteID].tick < tick)
-                                {
-                                    int id = AddNote(new Note
-                                    {
-                                        x = (Math.Round(touchpos.x / (PlayAreaWidth / Config.VerticalDivisors)) * (PlayAreaWidth / Config.VerticalDivisors) + PlayAreaWidth / 2) / PlayAreaWidth,
-                                        page_index = CurrentPageIndex,
-                                        type = (int)NoteType.DRAG_CHILD,
-                                        id = -1,
-                                        hold_tick = 0,
-                                        next_id = -1,
-                                        tick = tick
-                                    });
-                                    IDtoHighlight = id;
-                                    CurrentChart.note_list[obj.GetComponent<INote>().NoteID].next_id = id;
-                                }
-                                existsHighlightedDragHead = true;
-                                break;
+                                CurrentChart.note_list[id].hold_tick = CurrentChart.page_list[CurrentChart.note_list[id].page_index].end_tick - CurrentChart.note_list[id].tick;
                             }
                         }
-
-                        if (!existsHighlightedDragHead) // Add drag head
+                        else if (holdcontroller.DownArrowCollider.OverlapPoint(touchpos))
                         {
-                            IDtoHighlight = AddNote(new Note
+                            CurrentChart.note_list[id].hold_tick -= CurrentChart.time_base / DivisorValue;
+                            if (CurrentChart.note_list[id].hold_tick < 0)
                             {
-                                x = (Math.Round(touchpos.x / (PlayAreaWidth / Config.VerticalDivisors)) * (PlayAreaWidth / Config.VerticalDivisors) + PlayAreaWidth / 2) / PlayAreaWidth,
-                                page_index = CurrentPageIndex,
-                                type = (int)NoteType.DRAG_HEAD,
-                                id = -1,
-                                hold_tick = 0,
-                                next_id = -1,
-                                tick = (int)(CurrentPage.start_tick + CurrentPage.PageSize *
-                                (CurrentPage.scan_line_direction == 1 ? Math.Round((touchpos.y + PlayAreaHeight / 2) / (PlayAreaHeight / DivisorValue)) / DivisorValue
-                                : 1.0f - Math.Round((touchpos.y + PlayAreaHeight / 2) / (PlayAreaHeight / DivisorValue)) / DivisorValue))
-                            });
-                        }
-
-                        CalculateTimings();
-                        UpdateTime(CurrentPage.start_time);
-                        HighlightNoteWithID(IDtoHighlight);
-                    }
-                    else if(CurrentTool == NoteType.CDRAG_HEAD) // Add cdrag head and child
-                    {
-                        bool existsHighlightedDragHead = false;
-                        int IDtoHighlight = -1;
-                        foreach (GameObject obj in GameObject.FindGameObjectsWithTag("Note"))
-                        {
-                            if (obj.GetComponent<IHighlightable>().Highlighted && CurrentChart.note_list[obj.GetComponent<INote>().NoteID].next_id == -1 && (obj.GetComponent<DragHeadNoteController>() != null || obj.GetComponent<DragChildNoteController>() != null))
-                            // Add drag child
-                            {
-                                int tick = (int)(CurrentPage.start_tick + CurrentPage.PageSize *
-                                        (CurrentPage.scan_line_direction == 1 ? Math.Round((touchpos.y + PlayAreaHeight / 2) / (PlayAreaHeight / DivisorValue)) / DivisorValue
-                                        : 1.0f - Math.Round((touchpos.y + PlayAreaHeight / 2) / (PlayAreaHeight / DivisorValue)) / DivisorValue));
-
-                                if (CurrentChart.note_list[obj.GetComponent<INote>().NoteID].tick < tick)
-                                {
-                                    int id = AddNote(new Note
-                                    {
-                                        x = (Math.Round(touchpos.x / (PlayAreaWidth / Config.VerticalDivisors)) * (PlayAreaWidth / Config.VerticalDivisors) + PlayAreaWidth / 2) / PlayAreaWidth,
-                                        page_index = CurrentPageIndex,
-                                        type = (int)NoteType.CDRAG_CHILD,
-                                        id = -1,
-                                        hold_tick = 0,
-                                        next_id = -1,
-                                        tick = tick
-                                    });
-                                    IDtoHighlight = id;
-                                    CurrentChart.note_list[obj.GetComponent<INote>().NoteID].next_id = id;
-                                }
-                                existsHighlightedDragHead = true;
-                                break;
+                                CurrentChart.note_list[id].hold_tick = 1;
                             }
-                        }
-
-                        if (!existsHighlightedDragHead) // Add drag head
-                        {
-                            IDtoHighlight = AddNote(new Note
-                            {
-                                x = (Math.Round(touchpos.x / (PlayAreaWidth / Config.VerticalDivisors)) * (PlayAreaWidth / Config.VerticalDivisors) + PlayAreaWidth / 2) / PlayAreaWidth,
-                                page_index = CurrentPageIndex,
-                                type = (int)NoteType.CDRAG_HEAD,
-                                id = -1,
-                                hold_tick = 0,
-                                next_id = -1,
-                                tick = (int)(CurrentPage.start_tick + CurrentPage.PageSize *
-                                (CurrentPage.scan_line_direction == 1 ? Math.Round((touchpos.y + PlayAreaHeight / 2) / (PlayAreaHeight / DivisorValue)) / DivisorValue
-                                : 1.0f - Math.Round((touchpos.y + PlayAreaHeight / 2) / (PlayAreaHeight / DivisorValue)) / DivisorValue))
-                            });
-                        }
-
-                        CalculateTimings();
-                        UpdateTime(CurrentPage.start_time);
-                        HighlightNoteWithID(IDtoHighlight);
-                    }
-                    else if(CurrentTool == NoteType.SETTINGS) // Add scanline/tempo note
-                    {
-                        AddTempo(new Tempo
-                        {
-                            tick = (int)(CurrentPage.start_tick + CurrentPage.PageSize *
-                                (CurrentPage.scan_line_direction == 1 ? Math.Round((touchpos.y + PlayAreaHeight / 2) / (PlayAreaHeight / DivisorValue)) / DivisorValue
-                                : 1.0f - Math.Round((touchpos.y + PlayAreaHeight / 2) / (PlayAreaHeight / DivisorValue)) / DivisorValue)),
-                            value = 1000000,
-                        });
-
-                        CalculateTimings();
-                        UpdateTime(CurrentPage.start_time);
-                    }
-                }
-            }
-            if(Input.GetMouseButtonUp(0))
-            {
-                if(currentlymoving != null && CurrentTool == NoteType.MOVE) // Finish the move and update the chart
-                {
-                    if(currentlymoving.transform.position.x > PlayAreaWidth / 2 + 2 || currentlymoving.transform.position.x < -PlayAreaWidth / 2 - 2)
-                    {
-                        if(currentlymoving.CompareTag("ScanlineNote"))
-                        {
-                            RemoveTempo(currentlymoving.GetComponent<INote>().NoteID);
                         }
                         else
                         {
-                            RemoveNote(currentlymoving.GetComponent<INote>().NoteID);
+                            continue;
                         }
-                        Destroy(currentlymoving);
+                        CalculateTimings();
                         UpdateTime(CurrentPage.start_time);
+                        HighlightNoteWithID(id);
+                    }
+                    else if (obj.GetComponent<LongHoldNoteController>() != null) // Modifying hold_time for long holds
+                    {
+                        var holdcontroller = obj.GetComponent<LongHoldNoteController>();
+                        int id = holdcontroller.NoteID;
+                        if (holdcontroller.UpArrowCollider.OverlapPoint(touchpos))
+                        {
+                            CurrentChart.note_list[id].hold_tick += CurrentChart.time_base / DivisorValue;
+                        }
+                        else if (holdcontroller.DownArrowCollider.OverlapPoint(touchpos))
+                        {
+                            CurrentChart.note_list[id].hold_tick -= CurrentChart.time_base / DivisorValue;
+
+                            if (CurrentChart.note_list[id].hold_tick < 0)
+                            {
+                                CurrentChart.note_list[id].hold_tick = 1;
+                            }
+                        }
+                        else
+                        {
+                            continue;
+                        }
+                        CalculateTimings();
+                        UpdateTime(CurrentPage.start_time);
+                        foreach (var obj2 in GameObject.FindGameObjectsWithTag("Note"))
+                        {
+                            if (obj2.GetComponent<INote>().NoteID == id)
+                            {
+                                obj2.GetComponent<IHighlightable>().Highlight();
+                            }
+                        }
+                    }
+                }
+            }
+            else if (CurrentTool == NoteType.MOVE) // Starting the move of notes
+            {
+                foreach (GameObject obj in GameObject.FindGameObjectsWithTag("Note"))
+                {
+                    if (obj.GetComponentInChildren<Collider2D>().OverlapPoint(touchpos))
+                    {
+                        currentlymoving = obj;
+                    }
+                }
+                foreach (GameObject obj in GameObject.FindGameObjectsWithTag("ScanlineNote"))
+                {
+                    if (obj.GetComponentInChildren<Collider2D>().OverlapPoint(touchpos))
+                    {
+                        currentlymoving = obj;
+                        break;
+                    }
+                }
+            }
+            else if (CurrentChart != null && touchpos.x < PlayAreaWidth / 2 && touchpos.x > -PlayAreaWidth / 2 && touchpos.y < PlayAreaHeight / 2 && touchpos.y > -PlayAreaHeight / 2)
+            // Adding notes
+            {
+                if (CurrentTool == NoteType.CLICK) // Add click note
+                {
+                    AddNote(new Note
+                    {
+                        x = (Math.Round(touchpos.x / (PlayAreaWidth / Config.VerticalDivisors)) * (PlayAreaWidth / Config.VerticalDivisors) + PlayAreaWidth / 2) / PlayAreaWidth,
+                        page_index = CurrentPageIndex,
+                        type = (int)NoteType.CLICK,
+                        id = -1,
+                        hold_tick = 0,
+                        next_id = 0,
+                        tick = (int)(CurrentPage.start_tick + CurrentPage.PageSize *
+                            (CurrentPage.scan_line_direction == 1 ? Math.Round((touchpos.y + PlayAreaHeight / 2) / (PlayAreaHeight / DivisorValue)) / DivisorValue
+                            : 1.0f - Math.Round((touchpos.y + PlayAreaHeight / 2) / (PlayAreaHeight / DivisorValue)) / DivisorValue))
+                    });
+
+                    CalculateTimings();
+                    UpdateTime(CurrentPage.start_time);
+                }
+                else if (CurrentTool == NoteType.HOLD) // Add hold note
+                {
+                    int tick = (int)(CurrentPage.start_tick + CurrentPage.PageSize * (CurrentPage.scan_line_direction == 1
+                        ? Math.Round((touchpos.y + PlayAreaHeight / 2) / (PlayAreaHeight / DivisorValue)) / DivisorValue
+                        : 1.0f - Math.Round((touchpos.y + PlayAreaHeight / 2) / (PlayAreaHeight / DivisorValue)) / DivisorValue));
+
+                    AddNote(new Note
+                    {
+                        x = (Math.Round(touchpos.x / (PlayAreaWidth / Config.VerticalDivisors)) * (PlayAreaWidth / Config.VerticalDivisors) + PlayAreaWidth / 2) / PlayAreaWidth,
+                        page_index = tick == CurrentPage.end_tick ? CurrentPageIndex + 1 : CurrentPageIndex,
+                        type = (int)NoteType.HOLD,
+                        id = -1,
+                        hold_tick = CurrentChart.time_base / DivisorValue,
+                        next_id = 0,
+                        tick = tick
+                    });
+
+                    CalculateTimings();
+                    UpdateTime(CurrentPage.start_time);
+                }
+                else if (CurrentTool == NoteType.LONG_HOLD) // Add long hold note
+                {
+                    int tick = (int)(CurrentPage.start_tick + CurrentPage.PageSize * (CurrentPage.scan_line_direction == 1
+                        ? Math.Round((touchpos.y + PlayAreaHeight / 2) / (PlayAreaHeight / DivisorValue)) / DivisorValue
+                        : 1.0f - Math.Round((touchpos.y + PlayAreaHeight / 2) / (PlayAreaHeight / DivisorValue)) / DivisorValue));
+
+                    AddNote(new Note
+                    {
+                        x = (Math.Round(touchpos.x / (PlayAreaWidth / Config.VerticalDivisors)) * (PlayAreaWidth / Config.VerticalDivisors) + PlayAreaWidth / 2) / PlayAreaWidth,
+                        page_index = tick == CurrentPage.end_tick ? CurrentPageIndex + 1 : CurrentPageIndex,
+                        type = (int)NoteType.LONG_HOLD,
+                        id = -1,
+                        hold_tick = CurrentChart.time_base / DivisorValue,
+                        next_id = 0,
+                        tick = tick
+                    });
+
+                    CalculateTimings();
+                    UpdateTime(CurrentPage.start_time);
+                }
+                else if (CurrentTool == NoteType.FLICK) // Add flick note
+                {
+                    AddNote(new Note
+                    {
+                        x = (Math.Round(touchpos.x / (PlayAreaWidth / Config.VerticalDivisors)) * (PlayAreaWidth / Config.VerticalDivisors) + PlayAreaWidth / 2) / PlayAreaWidth,
+                        page_index = CurrentPageIndex,
+                        type = (int)NoteType.FLICK,
+                        id = -1,
+                        hold_tick = 0,
+                        next_id = 0,
+                        tick = (int)(CurrentPage.start_tick + CurrentPage.PageSize *
+                            (CurrentPage.scan_line_direction == 1 ? Math.Round((touchpos.y + PlayAreaHeight / 2) / (PlayAreaHeight / DivisorValue)) / DivisorValue
+                            : 1.0f - Math.Round((touchpos.y + PlayAreaHeight / 2) / (PlayAreaHeight / DivisorValue)) / DivisorValue))
+                    });
+
+                    CalculateTimings();
+                    UpdateTime(CurrentPage.start_time);
+                }
+                else if (CurrentTool == NoteType.DRAG_HEAD) // Add drag head and child
+                {
+                    bool existsHighlightedDragHead = false;
+                    int IDtoHighlight = -1;
+                    foreach (GameObject obj in GameObject.FindGameObjectsWithTag("Note"))
+                    {
+                        if (obj.GetComponent<IHighlightable>().Highlighted && CurrentChart.note_list[obj.GetComponent<INote>().NoteID].next_id == -1 && (obj.GetComponent<DragHeadNoteController>() != null || obj.GetComponent<DragChildNoteController>() != null))
+                        // Add drag child
+                        {
+                            int tick = (int)(CurrentPage.start_tick + CurrentPage.PageSize *
+                                    (CurrentPage.scan_line_direction == 1 ? Math.Round((touchpos.y + PlayAreaHeight / 2) / (PlayAreaHeight / DivisorValue)) / DivisorValue
+                                    : 1.0f - Math.Round((touchpos.y + PlayAreaHeight / 2) / (PlayAreaHeight / DivisorValue)) / DivisorValue));
+
+                            if (CurrentChart.note_list[obj.GetComponent<INote>().NoteID].tick < tick)
+                            {
+                                int id = AddNote(new Note
+                                {
+                                    x = (Math.Round(touchpos.x / (PlayAreaWidth / Config.VerticalDivisors)) * (PlayAreaWidth / Config.VerticalDivisors) + PlayAreaWidth / 2) / PlayAreaWidth,
+                                    page_index = CurrentPageIndex,
+                                    type = (int)NoteType.DRAG_CHILD,
+                                    id = -1,
+                                    hold_tick = 0,
+                                    next_id = -1,
+                                    tick = tick
+                                });
+                                IDtoHighlight = id;
+                                CurrentChart.note_list[obj.GetComponent<INote>().NoteID].next_id = id;
+                            }
+                            existsHighlightedDragHead = true;
+                            break;
+                        }
+                    }
+
+                    if (!existsHighlightedDragHead) // Add drag head
+                    {
+                        IDtoHighlight = AddNote(new Note
+                        {
+                            x = (Math.Round(touchpos.x / (PlayAreaWidth / Config.VerticalDivisors)) * (PlayAreaWidth / Config.VerticalDivisors) + PlayAreaWidth / 2) / PlayAreaWidth,
+                            page_index = CurrentPageIndex,
+                            type = (int)NoteType.DRAG_HEAD,
+                            id = -1,
+                            hold_tick = 0,
+                            next_id = -1,
+                            tick = (int)(CurrentPage.start_tick + CurrentPage.PageSize *
+                            (CurrentPage.scan_line_direction == 1 ? Math.Round((touchpos.y + PlayAreaHeight / 2) / (PlayAreaHeight / DivisorValue)) / DivisorValue
+                            : 1.0f - Math.Round((touchpos.y + PlayAreaHeight / 2) / (PlayAreaHeight / DivisorValue)) / DivisorValue))
+                        });
+                    }
+
+                    CalculateTimings();
+                    UpdateTime(CurrentPage.start_time);
+                    HighlightNoteWithID(IDtoHighlight);
+                }
+                else if (CurrentTool == NoteType.CDRAG_HEAD) // Add cdrag head and child
+                {
+                    bool existsHighlightedDragHead = false;
+                    int IDtoHighlight = -1;
+                    foreach (GameObject obj in GameObject.FindGameObjectsWithTag("Note"))
+                    {
+                        if (obj.GetComponent<IHighlightable>().Highlighted && CurrentChart.note_list[obj.GetComponent<INote>().NoteID].next_id == -1 && (obj.GetComponent<DragHeadNoteController>() != null || obj.GetComponent<DragChildNoteController>() != null))
+                        // Add drag child
+                        {
+                            int tick = (int)(CurrentPage.start_tick + CurrentPage.PageSize *
+                                    (CurrentPage.scan_line_direction == 1 ? Math.Round((touchpos.y + PlayAreaHeight / 2) / (PlayAreaHeight / DivisorValue)) / DivisorValue
+                                    : 1.0f - Math.Round((touchpos.y + PlayAreaHeight / 2) / (PlayAreaHeight / DivisorValue)) / DivisorValue));
+
+                            if (CurrentChart.note_list[obj.GetComponent<INote>().NoteID].tick < tick)
+                            {
+                                int id = AddNote(new Note
+                                {
+                                    x = (Math.Round(touchpos.x / (PlayAreaWidth / Config.VerticalDivisors)) * (PlayAreaWidth / Config.VerticalDivisors) + PlayAreaWidth / 2) / PlayAreaWidth,
+                                    page_index = CurrentPageIndex,
+                                    type = (int)NoteType.CDRAG_CHILD,
+                                    id = -1,
+                                    hold_tick = 0,
+                                    next_id = -1,
+                                    tick = tick
+                                });
+                                IDtoHighlight = id;
+                                CurrentChart.note_list[obj.GetComponent<INote>().NoteID].next_id = id;
+                            }
+                            existsHighlightedDragHead = true;
+                            break;
+                        }
+                    }
+
+                    if (!existsHighlightedDragHead) // Add drag head
+                    {
+                        IDtoHighlight = AddNote(new Note
+                        {
+                            x = (Math.Round(touchpos.x / (PlayAreaWidth / Config.VerticalDivisors)) * (PlayAreaWidth / Config.VerticalDivisors) + PlayAreaWidth / 2) / PlayAreaWidth,
+                            page_index = CurrentPageIndex,
+                            type = (int)NoteType.CDRAG_HEAD,
+                            id = -1,
+                            hold_tick = 0,
+                            next_id = -1,
+                            tick = (int)(CurrentPage.start_tick + CurrentPage.PageSize *
+                            (CurrentPage.scan_line_direction == 1 ? Math.Round((touchpos.y + PlayAreaHeight / 2) / (PlayAreaHeight / DivisorValue)) / DivisorValue
+                            : 1.0f - Math.Round((touchpos.y + PlayAreaHeight / 2) / (PlayAreaHeight / DivisorValue)) / DivisorValue))
+                        });
+                    }
+
+                    CalculateTimings();
+                    UpdateTime(CurrentPage.start_time);
+                    HighlightNoteWithID(IDtoHighlight);
+                }
+                else if (CurrentTool == NoteType.SETTINGS) // Add scanline/tempo note
+                {
+                    AddTempo(new Tempo
+                    {
+                        tick = (int)(CurrentPage.start_tick + CurrentPage.PageSize *
+                            (CurrentPage.scan_line_direction == 1 ? Math.Round((touchpos.y + PlayAreaHeight / 2) / (PlayAreaHeight / DivisorValue)) / DivisorValue
+                            : 1.0f - Math.Round((touchpos.y + PlayAreaHeight / 2) / (PlayAreaHeight / DivisorValue)) / DivisorValue)),
+                        value = 1000000,
+                    });
+
+                    CalculateTimings();
+                    UpdateTime(CurrentPage.start_time);
+                }
+                GameObject.Find("NoteCountText").GetComponent<Text>().text = $"Note count: {CurrentChart.note_list.Count}";
+            }
+        }
+        if (Input.GetMouseButtonUp(0))
+        {
+            if (currentlymoving != null && CurrentTool == NoteType.MOVE) // Finish the move and update the chart
+            {
+                if (currentlymoving.transform.position.x > PlayAreaWidth / 2 + 2 || currentlymoving.transform.position.x < -PlayAreaWidth / 2 - 2)
+                {
+                    if (currentlymoving.CompareTag("ScanlineNote"))
+                    {
+                        RemoveTempo(currentlymoving.GetComponent<INote>().NoteID);
                     }
                     else
                     {
-                        currentlymoving.transform.position = new Vector3(Clamp(currentlymoving.transform.position.x, -PlayAreaWidth / 2, PlayAreaWidth / 2),
-                            Clamp(currentlymoving.transform.position.y, -PlayAreaHeight / 2, PlayAreaHeight / 2));
-                        if(currentlymoving.CompareTag("Note"))
-                        {
-                            currentlymoving.transform.position = new Vector3(
-                                (float)Math.Round((currentlymoving.transform.position.x + PlayAreaWidth / 2) / (PlayAreaWidth / Config.VerticalDivisors)) * (PlayAreaWidth / Config.VerticalDivisors) - PlayAreaWidth / 2,
-                                (float)Math.Round((currentlymoving.transform.position.y + PlayAreaHeight / 2) / (PlayAreaHeight / DivisorValue)) * (PlayAreaHeight / DivisorValue) - PlayAreaHeight / 2);
-
-                            int id = currentlymoving.GetComponent<INote>().NoteID;
-                            Note note = CurrentChart.note_list[id];
-                            note.x = (currentlymoving.transform.position.x + PlayAreaWidth / 2) / PlayAreaWidth;
-                            int tick = (int)Math.Round(CurrentChart.page_list[note.page_index].start_tick + CurrentChart.page_list[note.page_index].PageSize *
-                                (CurrentChart.page_list[note.page_index].scan_line_direction == 1 ? (currentlymoving.transform.position.y + PlayAreaHeight / 2) / PlayAreaHeight
-                                : 1.0f - (currentlymoving.transform.position.y + PlayAreaHeight / 2) / PlayAreaHeight));
-
-                            int dragparent = GetDragParent(id), dragchild = note.next_id;
-
-                            if ((dragparent <= -1 || tick > CurrentChart.note_list[dragparent].tick) && (dragchild <= 0 || tick < CurrentChart.note_list[dragchild].tick))
-                            {
-                                note.tick = tick;
-
-                                RemoveNote(id);
-                                int newid = AddNote(note);
-                                if (dragparent > -1)
-                                {
-                                    CurrentChart.note_list[dragparent].next_id = newid;
-                                }
-                                CurrentChart.note_list[newid].next_id = dragchild;
-                                if(dragchild > 0 && CurrentChart.note_list[dragchild].type == (int)NoteType.DRAG_HEAD)
-                                {
-                                    CurrentChart.note_list[dragchild].type = (int)NoteType.DRAG_CHILD;
-                                }
-                                else if(dragchild > 0 && CurrentChart.note_list[dragchild].type == (int)NoteType.CDRAG_HEAD)
-                                {
-                                    CurrentChart.note_list[dragchild].type = (int)NoteType.CDRAG_CHILD;
-                                }
-                            }
-
-                        }
-                        else if(currentlymoving.CompareTag("ScanlineNote"))
-                        {
-                            currentlymoving.transform.position = new Vector3(-PlayAreaWidth / 2 - 1,
-                                (float)Math.Round((currentlymoving.transform.position.y + PlayAreaHeight / 2) / (PlayAreaHeight / DivisorValue)) * (PlayAreaHeight / DivisorValue) - PlayAreaHeight / 2);
-
-                            int id = currentlymoving.GetComponent<INote>().NoteID;
-                            Tempo tempo = CurrentChart.tempo_list[id];
-                            tempo.tick = (int)Math.Round((CurrentPage.scan_line_direction == 1 ? (currentlymoving.transform.position.y + PlayAreaHeight / 2) / PlayAreaHeight :
-                                1.0 - (currentlymoving.transform.position.y + PlayAreaHeight / 2) / PlayAreaHeight) * CurrentPage.PageSize) + CurrentPage.start_tick;
-
-                            RemoveTempo(id);
-                            AddTempo(tempo);
-                        }
-
-                        CalculateTimings();
-
-                        UpdateTime(CurrentPage.start_time);
-
-                        currentlymoving = null;
+                        RemoveNote(currentlymoving.GetComponent<INote>().NoteID);
                     }
+                    Destroy(currentlymoving);
+                    UpdateTime(CurrentPage.start_time);
                 }
-                isTouchHeld = false;
-            }
+                else
+                {
+                    currentlymoving.transform.position = new Vector3(Clamp(currentlymoving.transform.position.x, -PlayAreaWidth / 2, PlayAreaWidth / 2),
+                        Clamp(currentlymoving.transform.position.y, -PlayAreaHeight / 2, PlayAreaHeight / 2));
+                    if (currentlymoving.CompareTag("Note"))
+                    {
+                        currentlymoving.transform.position = new Vector3(
+                            (float)Math.Round((currentlymoving.transform.position.x + PlayAreaWidth / 2) / (PlayAreaWidth / Config.VerticalDivisors)) * (PlayAreaWidth / Config.VerticalDivisors) - PlayAreaWidth / 2,
+                            (float)Math.Round((currentlymoving.transform.position.y + PlayAreaHeight / 2) / (PlayAreaHeight / DivisorValue)) * (PlayAreaHeight / DivisorValue) - PlayAreaHeight / 2);
 
-            if(isTouchHeld && CurrentTool == NoteType.MOVE && currentlymoving != null) // Handle moving notes
-            {
-                Vector2 touchpos = MainCamera.ScreenToWorldPoint(Input.mousePosition);
+                        int id = currentlymoving.GetComponent<INote>().NoteID;
+                        Note note = CurrentChart.note_list[id];
+                        note.x = (currentlymoving.transform.position.x + PlayAreaWidth / 2) / PlayAreaWidth;
+                        int tick = (int)Math.Round(CurrentChart.page_list[note.page_index].start_tick + CurrentChart.page_list[note.page_index].PageSize *
+                            (CurrentChart.page_list[note.page_index].scan_line_direction == 1 ? (currentlymoving.transform.position.y + PlayAreaHeight / 2) / PlayAreaHeight
+                            : 1.0f - (currentlymoving.transform.position.y + PlayAreaHeight / 2) / PlayAreaHeight));
 
-                currentlymoving.transform.position = touchpos;
+                        int dragparent = GetDragParent(id), dragchild = note.next_id;
+
+                        if ((dragparent <= -1 || tick > CurrentChart.note_list[dragparent].tick) && (dragchild <= 0 || tick < CurrentChart.note_list[dragchild].tick))
+                        {
+                            note.tick = tick;
+
+                            RemoveNote(id);
+                            int newid = AddNote(note);
+                            if (dragparent > -1)
+                            {
+                                CurrentChart.note_list[dragparent].next_id = newid;
+                            }
+                            CurrentChart.note_list[newid].next_id = dragchild;
+                            if (dragchild > 0 && CurrentChart.note_list[dragchild].type == (int)NoteType.DRAG_HEAD)
+                            {
+                                CurrentChart.note_list[dragchild].type = (int)NoteType.DRAG_CHILD;
+                            }
+                            else if (dragchild > 0 && CurrentChart.note_list[dragchild].type == (int)NoteType.CDRAG_HEAD)
+                            {
+                                CurrentChart.note_list[dragchild].type = (int)NoteType.CDRAG_CHILD;
+                            }
+                        }
+
+                        if(tick + note.hold_tick > CurrentChart.page_list[note.page_index].end_tick)
+                        {
+                            note.hold_tick = CurrentChart.page_list[note.page_index].end_tick - tick;
+                        }
+                    }
+                    else if (currentlymoving.CompareTag("ScanlineNote"))
+                    {
+                        currentlymoving.transform.position = new Vector3(-PlayAreaWidth / 2 - 1,
+                            (float)Math.Round((currentlymoving.transform.position.y + PlayAreaHeight / 2) / (PlayAreaHeight / DivisorValue)) * (PlayAreaHeight / DivisorValue) - PlayAreaHeight / 2);
+
+                        int id = currentlymoving.GetComponent<INote>().NoteID;
+                        Tempo tempo = CurrentChart.tempo_list[id];
+                        tempo.tick = (int)Math.Round((CurrentPage.scan_line_direction == 1 ? (currentlymoving.transform.position.y + PlayAreaHeight / 2) / PlayAreaHeight :
+                            1.0 - (currentlymoving.transform.position.y + PlayAreaHeight / 2) / PlayAreaHeight) * CurrentPage.PageSize) + CurrentPage.start_tick;
+
+                        RemoveTempo(id);
+                        AddTempo(tempo);
+                    }
+
+                    CalculateTimings();
+
+                    UpdateTime(CurrentPage.start_time);
+
+                    currentlymoving = null;
+                }
             }
+            isTouchHeld = false;
+        }
+
+        if (isTouchHeld && CurrentTool == NoteType.MOVE && currentlymoving != null) // Handle moving notes
+        {
+            Vector2 touchpos = MainCamera.ScreenToWorldPoint(Input.mousePosition);
+
+            currentlymoving.transform.position = touchpos;
         }
     }
 
@@ -1227,14 +1306,51 @@ public class GameLogic : MonoBehaviour
         UpdateTime(CurrentPage.start_time);
     }
 
+    public void IncreaseOffset()
+    {
+        Config.UserOffset += Config.PreciseOffsetDelta ? 1 : 5;
+        UpdateOffsetText();
+    }
+
+    public void DecreaseOffset()
+    {
+        Config.UserOffset -= Config.PreciseOffsetDelta ? 1 : 5;
+        UpdateOffsetText();
+    }
+
+    private void UpdateOffsetText()
+    {
+        GameObject.Find("OffsetText").GetComponent<Text>().text = $"{Config.UserOffset}ms";
+    }
+
     public void SaveChart()
     {
         if(CurrentChart != null)
         {
+            CurrentChart.event_order_list.Clear();
+
+            for(int i = 1; i < CurrentChart.tempo_list.Count; i++)
+            {
+                CurrentChart.event_order_list.Add(new EventOrder
+                {
+                    tick = CurrentChart.tempo_list[i].tick,
+                    event_list = new List<EventOrder.Event>(1)
+                });
+                CurrentChart.event_order_list[i - 1].event_list.Add(new EventOrder.Event()
+                {
+                    type = CurrentChart.tempo_list[i].value > CurrentChart.tempo_list[i - 1].value ? 1 : 0,
+                    args = CurrentChart.tempo_list[i].value > CurrentChart.tempo_list[i - 1].value ? "G" : "R"
+                });
+            }
+
             File.WriteAllText(Path.Combine(CurrentLevelPath, CurrentChart.Data.path), JsonConvert.SerializeObject(CurrentChart, new JsonSerializerSettings()
             {
                 NullValueHandling = NullValueHandling.Ignore
             }));
+
+            LevelDataChanger.SaveLevel();
+
+            GameObject.Find("ToastText").GetComponent<ToastMessageManager>().CreateToast("Saved chart!");
         }
     }
 }

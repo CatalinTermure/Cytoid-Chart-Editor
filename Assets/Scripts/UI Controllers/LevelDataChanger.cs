@@ -23,6 +23,9 @@ public class LevelDataChanger : MonoBehaviour
 
         GameObject.Find("CharterInputField").GetComponent<InputField>().text = GlobalState.CurrentLevel.charter;
         GameObject.Find("StoryboarderInputField").GetComponent<InputField>().text = GlobalState.CurrentLevel.storyboarder;
+
+        GameObject.Find("BackgroundInputField").GetComponent<InputField>().text = GlobalState.CurrentLevel.background.path;
+        GameObject.Find("MusicPreviewInputField").GetComponent<InputField>().text = GlobalState.CurrentLevel.music_preview.path;
     }
 
     public void SaveData()
@@ -42,7 +45,16 @@ public class LevelDataChanger : MonoBehaviour
         GlobalState.CurrentLevel.charter = GameObject.Find("CharterInputField").GetComponent<InputField>().text;
         GlobalState.CurrentLevel.storyboarder = GameObject.Find("StoryboarderInputField").GetComponent<InputField>().text;
 
-        File.WriteAllText(Path.Combine(GlobalState.CurrentLevelPath, "level.json"), JsonConvert.SerializeObject(GlobalState.CurrentLevel, new JsonSerializerSettings() {
+        GlobalState.CurrentLevel.background.path = GameObject.Find("BackgroundInputField").GetComponent<InputField>().text;
+        GlobalState.CurrentLevel.music_preview.path = GameObject.Find("MusicPreviewInputField").GetComponent<InputField>().text;
+
+        SaveLevel();
+    }
+
+    public static void SaveLevel()
+    {
+        File.WriteAllText(Path.Combine(GlobalState.CurrentLevelPath, "level.json"), JsonConvert.SerializeObject(GlobalState.CurrentLevel, new JsonSerializerSettings()
+        {
             NullValueHandling = NullValueHandling.Ignore,
             Formatting = Formatting.Indented
         }));

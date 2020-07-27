@@ -52,7 +52,7 @@ public class GlobalState : MonoBehaviour
     
     public static double Offset
     {
-        get => -CurrentChart.music_offset;
+        get => CurrentChart.music_offset - Config.UserOffset / 1000.0;
     }
 
     public static bool IsGameRunning = false;
@@ -71,6 +71,10 @@ public class GlobalState : MonoBehaviour
                 Config = JsonConvert.DeserializeObject<EditorConfig>(File.ReadAllText(Path.Combine(Application.persistentDataPath, "data.txt")));
             }
             catch(Exception)
+            {
+                Config = new EditorConfig();
+            }
+            if(Config == null)
             {
                 Config = new EditorConfig();
             }
@@ -100,17 +104,9 @@ public class GlobalState : MonoBehaviour
 
     public static void LoadAudio()
     {
-        try
+        if (File.Exists(Path.Combine(CurrentLevelPath, CurrentChart.Data.music_override?.path ?? CurrentLevel.music.path)))
         {
-            if (File.Exists(Path.Combine(CurrentLevelPath, CurrentChart.Data.music_override?.path ?? CurrentLevel.music.path)))
-            {
-                MusicManager = new AudioManager(Path.Combine(CurrentLevelPath, CurrentChart.Data.music_override?.path ?? CurrentLevel.music.path));
-            }
-        }
-        catch(Exception e)
-        {
-            GameObject.Find("ErrorToast").GetComponent<Text>().text = e.StackTrace;
-            File.AppendAllText(Path.Combine(Application.persistentDataPath, "error.log"), e.Message + "\n\n\n\n");
+            MusicManager = new AudioManager(Path.Combine(CurrentLevelPath, CurrentChart.Data.music_override?.path ?? CurrentLevel.music.path));
         }
     }
 
@@ -148,10 +144,9 @@ public class GlobalState : MonoBehaviour
         {
             type = "easy",
             difficulty = 0,
-            path = "PLACEHOLDER.json"
+            path = "chart.json"
         });
-        File.WriteAllText(Path.Combine(CurrentLevelPath, "PLACEHOLDER.json"), "{\"format_version\":0,\"time_base\":480,\"start_offset_time\":0,\"page_list\":[{\"start_tick\":0,\"end_tick\":480,\"scan_line_direction\":-1}],\"tempo_list\":[{\"tick\":0,\"value\":1000000}],\"event_order_list\":[],\"note_list\":[]}");
-        CurrentChart = new Chart(JsonUtility.FromJson<ChartJSON>(File.ReadAllText(Path.Combine(CurrentLevelPath, chart.path))), chart);
+        CurrentChart = new Chart(JsonUtility.FromJson<ChartJSON>("{\"format_version\":0,\"time_base\":480,\"start_offset_time\":0,\"page_list\":[{\"start_tick\":0,\"end_tick\":480,\"scan_line_direction\":-1}],\"tempo_list\":[{\"tick\":0,\"value\":1000000}],\"event_order_list\":[],\"note_list\":[]}"), chart);
     }
 
     public static void LoadBackground()

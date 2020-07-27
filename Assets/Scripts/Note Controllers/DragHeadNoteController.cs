@@ -36,10 +36,11 @@ public class DragHeadNoteController : MonoBehaviour, IHighlightable, INote
 
     struct PathPoint
     {
-        public float x, y, time;
+        public float x, y, time, connector_start_time;
     }
     private readonly List<PathPoint> Paths = new List<PathPoint>();
     private int CurrentPath = 0;
+    private int CurrentlyShownPath = 1;
 
     private readonly List<GameObject> Connectors = new List<GameObject>();
 
@@ -85,11 +86,13 @@ public class DragHeadNoteController : MonoBehaviour, IHighlightable, INote
             {
                 x = (float)(GlobalState.CurrentChart.note_list[NextID].x - 0.5) * GlobalState.PlayAreaWidth,
                 y = (float)(GlobalState.CurrentChart.note_list[NextID].y - 0.5) * GlobalState.PlayAreaHeight,
-                time = (float)(GlobalState.CurrentChart.note_list[NextID].time - StartTime + ApproachTime)
+                time = (float)(GlobalState.CurrentChart.note_list[NextID].time - StartTime + ApproachTime),
+                connector_start_time = (float)(GlobalState.CurrentChart.note_list[NextID].time - GlobalState.CurrentChart.note_list[NextID].approach_time - StartTime + ApproachTime)
             });
 
             float x1 = Paths[Paths.Count - 2].x, x2 = Paths[Paths.Count - 1].x, y1 = Paths[Paths.Count - 2].y, y2 = Paths[Paths.Count - 1].y;
             GameObject obj = Instantiate(DragConnector);
+            obj.SetActive(!GlobalState.IsGameRunning);
             obj.transform.position = new Vector3(x2, y2);
             obj.GetComponent<SpriteRenderer>().size = new Vector2(0.25f, GlobalState.GetDistance(x1, y1, x2, y2));
             obj.transform.rotation = Quaternion.AngleAxis(-90 + (float)(Math.Atan2(y1 - y2, x1 - x2) * 180 / Math.PI), Vector3.forward);
@@ -116,6 +119,13 @@ public class DragHeadNoteController : MonoBehaviour, IHighlightable, INote
         {
             if (!sw.IsRunning)
             {
+                for (int i = 0; i < Connectors.Count; i++)
+                {
+                    if(Connectors[i].activeSelf)
+                    {
+                        Connectors[i].SetActive(false);
+                    }
+                }
                 sw.Start();
             }
         }
@@ -131,24 +141,22 @@ public class DragHeadNoteController : MonoBehaviour, IHighlightable, INote
         UpdateComponentVisuals();
     }
 
-    private bool playedhitsound = false;
-
     private void UpdateComponentVisuals()
     {
         if(GlobalState.IsGameRunning)
         {
-            ApproachPercentage = (Delay + sw.ElapsedMilliseconds / 1000f) / ApproachTime;
+            float time = Delay + sw.ElapsedMilliseconds / 1000f;
+            ApproachPercentage = time / ApproachTime;
+
+            while(CurrentlyShownPath < Paths.Count && Paths[CurrentlyShownPath].connector_start_time <= time)
+            {
+                Connectors[CurrentlyShownPath - 1].SetActive(true);
+                CurrentlyShownPath++;
+            }
 
             if (ApproachPercentage > 1)
             {
-                if (!playedhitsound)
-                {
-                    if(Delay < 1000)
-                    {
-                        GameObject.Find("PlayArea").GetComponent<AudioSource>().Play();
-                    }
-                    playedhitsound = true;
-                }
+                NoteFill.transform.localScale = NoteBorder.transform.localScale = new Vector3(0.8f, 0.8f);
                 if (CurrentPath < Paths.Count)
                 {
                     float pathcompletion = (Delay + sw.ElapsedMilliseconds / 1000f - (CurrentPath > 0 ? Paths[CurrentPath - 1].time : 0)) / (Paths[CurrentPath].time - (CurrentPath > 0 ? Paths[CurrentPath - 1].time : 0));
@@ -197,10 +205,12 @@ public class DragHeadNoteController : MonoBehaviour, IHighlightable, INote
         }
         else
         {
-            playedhitsound = false;
+            for(int i = 0; i < Connectors.Count; i++)
+            {
+                Connectors[i].SetActive(true);
+            }
             NoteFill.transform.localScale = NoteBorder.transform.localScale = new Vector3(0.8f, 0.8f);
         }
-        
     }
 
     public void Highlight()

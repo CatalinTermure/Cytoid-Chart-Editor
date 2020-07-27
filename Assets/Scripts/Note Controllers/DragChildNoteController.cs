@@ -85,10 +85,6 @@ public class DragChildNoteController : MonoBehaviour, IHighlightable, INote
 
             if (ApproachPercentage > 1)
             {
-                if(Delay < 1000)
-                {
-                    GameObject.Find("PlayArea").GetComponent<AudioSource>().Play();
-                }
                 Destroy(gameObject);
             }
         }

@@ -52,9 +52,19 @@ public class AudioManager
             return 0;
         }
 
-        MusicSource.time = (float)timeBeforeStart;
-        lastStartTime = AudioSettings.dspTime + 0.5;
-        MusicSource.PlayScheduled(lastStartTime);
+        if(timeBeforeStart < 0)
+        {
+            MusicSource.time = 0;
+            lastStartTime = AudioSettings.dspTime + 0.5 - timeBeforeStart;
+            timeBeforeStart = 0;
+            MusicSource.PlayScheduled(lastStartTime);
+        }
+        else
+        {
+            MusicSource.time = (float)timeBeforeStart;
+            lastStartTime = AudioSettings.dspTime + 0.5;
+            MusicSource.PlayScheduled(lastStartTime);
+        }
 
         return lastStartTime;
     }

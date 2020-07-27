@@ -20,15 +20,22 @@ public class ChartDataChanger : MonoBehaviour
     private void Start()
     {
         GameObject.Find("NameInputField").GetComponent<InputField>().text = GlobalState.CurrentChart.Data.name;
+
         GameObject.Find("DifficultyInputField").GetComponent<InputField>().text = GlobalState.CurrentChart.Data.difficulty.ToString();
+
         HighlightedButton = GameObject.Find(GlobalState.CurrentChart.Data.type + "Button");
         HighlightedButton.GetComponent<Image>().color = HighlightColor;
+
+        GameObject.Find("FileNameInputField").GetComponent<InputField>().text = Path.GetFileName(GlobalState.CurrentChart.Data.path);
     }
 
     public void SaveData()
     {
         GlobalState.CurrentChart.Data.name = GameObject.Find("NameInputField").GetComponent<InputField>().text;
         GlobalState.CurrentChart.Data.difficulty = int.Parse(GameObject.Find("DifficultyInputField").GetComponent<InputField>().text);
+
+        File.Move(Path.Combine(GlobalState.CurrentLevelPath, GlobalState.CurrentChart.Data.path), Path.Combine(GlobalState.CurrentLevelPath, GameObject.Find("FileNameInputField").GetComponent<InputField>().text));
+        GlobalState.CurrentChart.Data.path = GameObject.Find("FileNameInputField").GetComponent<InputField>().text;
 
         File.WriteAllText(Path.Combine(GlobalState.CurrentLevelPath, "level.json"), JsonConvert.SerializeObject(GlobalState.CurrentLevel, new JsonSerializerSettings()
         {

@@ -9,11 +9,14 @@ public class FrameCounter : MonoBehaviour
 
     void Update()
     {
-        cnt++;
-        if (cnt == 10)
+        if(GlobalState.Config.ShowFPS)
         {
-            gameObject.GetComponent<Text>().text = (1.0 / Time.deltaTime).ToString();
-            cnt = 0;
+            cnt++;
+            if (cnt == 10)
+            {
+                gameObject.GetComponent<Text>().text = (1.0 / Time.deltaTime).ToString();
+                cnt = 0;
+            }
         }
     }
 }
