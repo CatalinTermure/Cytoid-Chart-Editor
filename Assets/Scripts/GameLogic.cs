@@ -644,13 +644,12 @@ public class GameLogic : MonoBehaviour
     {
         for(int i = 0; i < 8; i++)
         {
-            if(AllowedDivisor[i] >= (int)BeatDivisor.value)
+            if(AllowedDivisor[i] == (int)BeatDivisor.value)
             {
-                BeatDivisor.value = AllowedDivisor[i];
+                DivisorValue = (int)BeatDivisor.value;
                 break;
             }
         }
-        DivisorValue = (int)BeatDivisor.value;
         foreach(var obj in GameObject.FindGameObjectsWithTag("DivisorLine"))
         {
             Destroy(obj);
@@ -661,6 +660,8 @@ public class GameLogic : MonoBehaviour
             obj.transform.position = new Vector3(0, PlayAreaHeight / DivisorValue * i - PlayAreaHeight / 2);
             obj.GetComponent<SpriteRenderer>().size = new Vector2(PlayAreaWidth, 0.1f);
         }
+
+        GameObject.Find("BeatDivisorText").GetComponent<Text>().text = $"1/{DivisorValue}";
     }
 
     public void TimelineValueChange()
@@ -672,7 +673,7 @@ public class GameLogic : MonoBehaviour
         }
         if (!IsGameRunning)
         {
-            double time = Timeline.normalizedValue * MusicManager.MaxTime;
+            double time = Timeline.value * MusicManager.MaxTime;
 
             CurrentPageIndex = SnapTimeToPage(time);
 
@@ -973,7 +974,7 @@ public class GameLogic : MonoBehaviour
                 {
                     AddNote(new Note
                     {
-                        x = (Math.Round(touchpos.x / (PlayAreaWidth / Config.VerticalDivisors)) * (PlayAreaWidth / Config.VerticalDivisors) + PlayAreaWidth / 2) / PlayAreaWidth,
+                        x = Math.Round((touchpos.x + PlayAreaWidth / 2) / (PlayAreaWidth / Config.VerticalDivisors)) / Config.VerticalDivisors,
                         page_index = CurrentPageIndex,
                         type = (int)NoteType.CLICK,
                         id = -1,
@@ -995,7 +996,7 @@ public class GameLogic : MonoBehaviour
 
                     AddNote(new Note
                     {
-                        x = (Math.Round(touchpos.x / (PlayAreaWidth / Config.VerticalDivisors)) * (PlayAreaWidth / Config.VerticalDivisors) + PlayAreaWidth / 2) / PlayAreaWidth,
+                        x = Math.Round((touchpos.x + PlayAreaWidth / 2) / (PlayAreaWidth / Config.VerticalDivisors)) / Config.VerticalDivisors,
                         page_index = tick == CurrentPage.end_tick ? CurrentPageIndex + 1 : CurrentPageIndex,
                         type = (int)NoteType.HOLD,
                         id = -1,
@@ -1015,7 +1016,7 @@ public class GameLogic : MonoBehaviour
 
                     AddNote(new Note
                     {
-                        x = (Math.Round(touchpos.x / (PlayAreaWidth / Config.VerticalDivisors)) * (PlayAreaWidth / Config.VerticalDivisors) + PlayAreaWidth / 2) / PlayAreaWidth,
+                        x = Math.Round((touchpos.x + PlayAreaWidth / 2) / (PlayAreaWidth / Config.VerticalDivisors)) / Config.VerticalDivisors,
                         page_index = tick == CurrentPage.end_tick ? CurrentPageIndex + 1 : CurrentPageIndex,
                         type = (int)NoteType.LONG_HOLD,
                         id = -1,
@@ -1031,7 +1032,7 @@ public class GameLogic : MonoBehaviour
                 {
                     AddNote(new Note
                     {
-                        x = (Math.Round(touchpos.x / (PlayAreaWidth / Config.VerticalDivisors)) * (PlayAreaWidth / Config.VerticalDivisors) + PlayAreaWidth / 2) / PlayAreaWidth,
+                        x = Math.Round((touchpos.x + PlayAreaWidth / 2) / (PlayAreaWidth / Config.VerticalDivisors)) / Config.VerticalDivisors,
                         page_index = CurrentPageIndex,
                         type = (int)NoteType.FLICK,
                         id = -1,
@@ -1062,7 +1063,7 @@ public class GameLogic : MonoBehaviour
                             {
                                 int id = AddNote(new Note
                                 {
-                                    x = (Math.Round(touchpos.x / (PlayAreaWidth / Config.VerticalDivisors)) * (PlayAreaWidth / Config.VerticalDivisors) + PlayAreaWidth / 2) / PlayAreaWidth,
+                                    x = Math.Round((touchpos.x + PlayAreaWidth / 2) / (PlayAreaWidth / Config.VerticalDivisors)) / Config.VerticalDivisors,
                                     page_index = CurrentPageIndex,
                                     type = (int)NoteType.DRAG_CHILD,
                                     id = -1,
@@ -1082,7 +1083,7 @@ public class GameLogic : MonoBehaviour
                     {
                         IDtoHighlight = AddNote(new Note
                         {
-                            x = (Math.Round(touchpos.x / (PlayAreaWidth / Config.VerticalDivisors)) * (PlayAreaWidth / Config.VerticalDivisors) + PlayAreaWidth / 2) / PlayAreaWidth,
+                            x = Math.Round((touchpos.x + PlayAreaWidth / 2) / (PlayAreaWidth / Config.VerticalDivisors)) / Config.VerticalDivisors,
                             page_index = CurrentPageIndex,
                             type = (int)NoteType.DRAG_HEAD,
                             id = -1,
@@ -1115,7 +1116,7 @@ public class GameLogic : MonoBehaviour
                             {
                                 int id = AddNote(new Note
                                 {
-                                    x = (Math.Round(touchpos.x / (PlayAreaWidth / Config.VerticalDivisors)) * (PlayAreaWidth / Config.VerticalDivisors) + PlayAreaWidth / 2) / PlayAreaWidth,
+                                    x = Math.Round((touchpos.x + PlayAreaWidth / 2) / (PlayAreaWidth / Config.VerticalDivisors)) / Config.VerticalDivisors,
                                     page_index = CurrentPageIndex,
                                     type = (int)NoteType.CDRAG_CHILD,
                                     id = -1,
@@ -1135,7 +1136,7 @@ public class GameLogic : MonoBehaviour
                     {
                         IDtoHighlight = AddNote(new Note
                         {
-                            x = (Math.Round(touchpos.x / (PlayAreaWidth / Config.VerticalDivisors)) * (PlayAreaWidth / Config.VerticalDivisors) + PlayAreaWidth / 2) / PlayAreaWidth,
+                            x = Math.Round((touchpos.x + PlayAreaWidth / 2) / (PlayAreaWidth / Config.VerticalDivisors)) / Config.VerticalDivisors,
                             page_index = CurrentPageIndex,
                             type = (int)NoteType.CDRAG_HEAD,
                             id = -1,
@@ -1224,7 +1225,7 @@ public class GameLogic : MonoBehaviour
                             }
                         }
 
-                        if(tick + note.hold_tick > CurrentChart.page_list[note.page_index].end_tick)
+                        if(note.type == (int)NoteType.HOLD && tick + note.hold_tick > CurrentChart.page_list[note.page_index].end_tick)
                         {
                             note.hold_tick = CurrentChart.page_list[note.page_index].end_tick - tick;
                         }

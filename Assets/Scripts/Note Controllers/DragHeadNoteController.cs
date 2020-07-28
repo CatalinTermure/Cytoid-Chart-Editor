@@ -40,7 +40,6 @@ public class DragHeadNoteController : MonoBehaviour, IHighlightable, INote
     }
     private readonly List<PathPoint> Paths = new List<PathPoint>();
     private int CurrentPath = 0;
-    private int CurrentlyShownPath = 1;
 
     private readonly List<GameObject> Connectors = new List<GameObject>();
 
@@ -65,8 +64,8 @@ public class DragHeadNoteController : MonoBehaviour, IHighlightable, INote
     void Start()
     {
         sw = Stopwatch.StartNew();
-        NoteFill.transform.localScale = new Vector3(0.4f, 0.4f);
-        NoteBorder.transform.localScale = new Vector3(0.4f, 0.4f);
+        NoteFill.transform.localScale = new Vector3(0.8f, 0.8f);
+        NoteBorder.transform.localScale = new Vector3(0.8f, 0.8f);
         GeneratePath();
         started = true;
         UpdateComponentVisuals();
@@ -121,7 +120,7 @@ public class DragHeadNoteController : MonoBehaviour, IHighlightable, INote
             {
                 for (int i = 0; i < Connectors.Count; i++)
                 {
-                    if(Connectors[i].activeSelf)
+                    if(Connectors[i] != null && Connectors[i].activeSelf)
                     {
                         Connectors[i].SetActive(false);
                     }
@@ -148,10 +147,12 @@ public class DragHeadNoteController : MonoBehaviour, IHighlightable, INote
             float time = Delay + sw.ElapsedMilliseconds / 1000f;
             ApproachPercentage = time / ApproachTime;
 
-            while(CurrentlyShownPath < Paths.Count && Paths[CurrentlyShownPath].connector_start_time <= time)
+            for(int i = 1; i < Paths.Count; i++)
             {
-                Connectors[CurrentlyShownPath - 1].SetActive(true);
-                CurrentlyShownPath++;
+                if(Paths[i].connector_start_time <= time && Connectors[i - 1] != null)
+                {
+                    Connectors[i - 1].SetActive(true);
+                }
             }
 
             if (ApproachPercentage > 1)
@@ -202,14 +203,6 @@ public class DragHeadNoteController : MonoBehaviour, IHighlightable, INote
             {
                 NoteFill.transform.localScale = NoteBorder.transform.localScale = new Vector3(0.4f + ApproachPercentage * 0.4f, 0.4f + ApproachPercentage * 0.4f);
             }
-        }
-        else
-        {
-            for(int i = 0; i < Connectors.Count; i++)
-            {
-                Connectors[i].SetActive(true);
-            }
-            NoteFill.transform.localScale = NoteBorder.transform.localScale = new Vector3(0.8f, 0.8f);
         }
     }
 
