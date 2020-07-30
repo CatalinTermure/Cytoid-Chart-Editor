@@ -7,6 +7,7 @@ using UnityEngine.UI;
 using Newtonsoft.Json;
 
 using static GlobalState;
+using UnityEngine.Audio;
 
 public class GameLogic : MonoBehaviour
 {
@@ -38,6 +39,8 @@ public class GameLogic : MonoBehaviour
     public Camera MainCamera;
 
     public Slider BeatDivisor;
+
+    public AudioMixerGroup HalfSpeedMixer, ThreeQuarterSpeedMixer;
 
     public static int CurrentPageIndexOverride = -1;
 
