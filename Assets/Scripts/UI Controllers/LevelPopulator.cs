@@ -24,11 +24,12 @@ public class LevelPopulator : MonoBehaviour
     }
 
     private int listItemCount = 0;
-    private readonly string LogPath = Path.Combine(Application.persistentDataPath, "LevelPopulatorLog.txt");
+    private string LogPath;
 
     private void Start()
     {
         #if CCE_DEBUG
+        LogPath = Path.Combine(Application.persistentDataPath, "LevelPopulatorLog.txt");
         File.WriteAllText(LogPath, "Starting the log...\n");
         File.AppendAllText(LogPath, "Current DirPath is: " + GlobalState.Config.DirPath + "\n");
         #endif
