@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class GlobalState : MonoBehaviour
 {
@@ -57,8 +56,19 @@ public class GlobalState : MonoBehaviour
 
     public static bool IsGameRunning = false;
 
+    #if CCE_DEBUG
+    private static string LogPath;
+    #endif
     private void Awake()
     {
+        #if CCE_DEBUG
+        LogPath = Path.Combine(Application.persistentDataPath, "LoadChartLog.txt");
+        if(CurrentChart == null)
+        {
+            File.WriteAllText(LogPath, "Starting level loading log...\n");
+        }
+        #endif
+
         Height = Camera.main.orthographicSize;
         Width = AspectRatio * Height;
         PlayAreaWidth = 24 * AspectRatio / NormalAspectRatio;
@@ -97,16 +107,37 @@ public class GlobalState : MonoBehaviour
     /// <param name="path"> The path of the level file. </param>
     public static void LoadLevel(LevelData level, string path)
     {
+        #if CCE_DEBUG
+        File.AppendAllText(LogPath, $"Starting the load of level at path: {path}\n");
+        #endif
+
         CurrentLevel = level;
         CurrentLevelPath = Path.GetDirectoryName(path);
+
         LoadBackground();
+
+        #if CCE_DEBUG
+        File.AppendAllText(LogPath, "Loaded background...\n");
+        #endif
     }
 
     public static void LoadAudio()
     {
+        #if CCE_DEBUG
+        File.AppendAllText(LogPath, "Trying to load music...\n");
+        #endif
+
         if (File.Exists(Path.Combine(CurrentLevelPath, CurrentChart.Data.music_override?.path ?? CurrentLevel.music.path)))
         {
+            #if CCE_DEBUG
+            File.AppendAllText(LogPath, $"Loading music at path: {CurrentChart.Data.music_override?.path ?? CurrentLevel.music.path}\n");
+            #endif
+
             MusicManager = new AudioManager(Path.Combine(CurrentLevelPath, CurrentChart.Data.music_override?.path ?? CurrentLevel.music.path));
+
+            #if CCE_DEBUG
+            File.AppendAllText(LogPath, "Loaded music successfully...\n");
+            #endif
         }
     }
 
@@ -116,6 +147,10 @@ public class GlobalState : MonoBehaviour
     /// <param name="musicPath"> Path to the music file. </param>
     public static void CreateLevel(string musicPath)
     {
+        #if CCE_DEBUG
+        File.AppendAllText(LogPath, $"Starting creation of a level from the music file at {musicPath}\n");
+        #endif
+
         CurrentLevelPath = Path.GetDirectoryName(musicPath);
         CurrentLevel = new LevelData()
         {
@@ -129,7 +164,16 @@ public class GlobalState : MonoBehaviour
             storyboarder = "PLACEHOLDER",
             music = new LevelData.MusicData() { path = Path.GetFileName(musicPath) }
         };
+
+        #if CCE_DEBUG
+        File.AppendAllText(LogPath, "Finished creating the level...\n");
+        #endif
+
         LoadBackground();
+
+        #if CCE_DEBUG
+        File.AppendAllText(LogPath, "Loaded Background...\n");
+        #endif
     }
 
     public static void LoadChart(LevelData.ChartData chart)
@@ -139,6 +183,10 @@ public class GlobalState : MonoBehaviour
 
     public static void CreateChart()
     {
+        #if CCE_DEBUG
+        File.AppendAllText(LogPath, "Creating a new chart...\n");
+        #endif
+
         LevelData.ChartData chart;
         CurrentLevel.charts.Add(chart = new LevelData.ChartData
         {
@@ -147,6 +195,10 @@ public class GlobalState : MonoBehaviour
             path = "chart.json"
         });
         CurrentChart = new Chart(JsonUtility.FromJson<ChartJSON>("{\"format_version\":0,\"time_base\":480,\"start_offset_time\":0,\"page_list\":[{\"start_tick\":0,\"end_tick\":480,\"scan_line_direction\":-1}],\"tempo_list\":[{\"tick\":0,\"value\":1000000}],\"event_order_list\":[],\"note_list\":[]}"), chart);
+
+        #if CCE_DEBUG
+        File.AppendAllText(LogPath, "New chart created...");
+        #endif
     }
 
     public static void LoadBackground()

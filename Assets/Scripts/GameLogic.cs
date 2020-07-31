@@ -71,6 +71,13 @@ public class GameLogic : MonoBehaviour
         EditorSettingsButton.GetComponent<RectTransform>().anchoredPosition = new Vector2(EditorSettingsButton.GetComponent<RectTransform>().anchoredPosition.x * AspectRatio / NormalAspectRatio, EditorSettingsButton.GetComponent<RectTransform>().anchoredPosition.y);
         SaveButton.GetComponent<RectTransform>().anchoredPosition = new Vector2(SaveButton.GetComponent<RectTransform>().anchoredPosition.x * AspectRatio / NormalAspectRatio, SaveButton.GetComponent<RectTransform>().anchoredPosition.y);
 
+        #if CCE_DEBUG
+        if(CurrentChart != null)
+        {
+            File.AppendAllText(LogPath, "Adjusted to resolution...\n");
+        }
+        #endif
+
         // Keep current page index after navigating to editor/level/chart options
         LevelOptionsButton.GetComponent<Button>().onClick.AddListener(() => CurrentPageIndexOverride = CurrentPageIndex);
         EditorSettingsButton.GetComponent<Button>().onClick.AddListener(() => CurrentPageIndexOverride = CurrentPageIndex);
@@ -89,18 +96,44 @@ public class GameLogic : MonoBehaviour
         BeatDivisorValueChanged();
 
         UpdateOffsetText();
+
+        #if CCE_DEBUG
+        if(CurrentChart != null)
+        {
+            File.AppendAllText(LogPath, "PlayArea loaded...\n");
+        }
+        #endif
     }
+
+    #if CCE_DEBUG
+    private static string LogPath;
+    #endif
 
     public void Awake()
     {
         if(CurrentChart != null)
         {
+            #if CCE_DEBUG
+            LogPath = Path.Combine(Application.persistentDataPath, "GameLogicLog.txt");
+            File.WriteAllText(LogPath, "Starting loading the chart...\n");
+            #endif
+
             CalculateTimings();
+
+            #if CCE_DEBUG
+            File.AppendAllText(LogPath, "Calculated timings...\n");
+            #endif
+
             MusicManager.SetSource(MusicSource);
             for (int i = 0; i < HitsoundSources.Length; i++)
             {
                 HitsoundSources[i].volume = Config.HitsoundVolume;
             }
+
+            #if CCE_DEBUG
+            File.AppendAllText(LogPath, "Audio sources loaded\n");
+            #endif
+
             if (CurrentPageIndexOverride != -1)
             {
                 CurrentPageIndex = CurrentPageIndexOverride;
@@ -110,7 +143,13 @@ public class GameLogic : MonoBehaviour
             {
                 CurrentPageIndex = 0;
             }
+
             UpdateTime(CurrentPage.start_time);
+
+            #if CCE_DEBUG
+            File.AppendAllText(LogPath, $"Moved to page {CurrentPageIndex}\n");
+            #endif
+
             GameObject.Find("NoteCountText").GetComponent<Text>().text = $"Note count: {CurrentChart.note_list.Count}";
         }
     }

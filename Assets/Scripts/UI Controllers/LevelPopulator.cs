@@ -24,7 +24,10 @@ public class LevelPopulator : MonoBehaviour
     }
 
     private int listItemCount = 0;
+
+    #if CCE_DEBUG
     private string LogPath;
+    #endif
 
     private void Start()
     {
