@@ -12,8 +12,19 @@ public class LevelData
     public string title;
     public string title_localized;
 
+    public bool ShouldSerializetitle_localized()
+    {
+        return title_localized != null && title_localized != "";
+    }
+
     public string artist;
     public string artist_localized;
+
+    public bool ShouldSerializeartist_localized()
+    {
+        return artist_localized != null && artist_localized != "";
+    }
+
     public string artist_source;
 
     public string illustrator;
@@ -21,6 +32,11 @@ public class LevelData
 
     public string charter;
     public string storyboarder;
+
+    public bool ShouldSerializestoryboarder()
+    {
+        return storyboarder != null && storyboarder != "";
+    }
 
     public MusicData music;
     public MusicData music_preview;

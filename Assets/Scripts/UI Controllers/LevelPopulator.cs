@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using UnityEngine;
+using UnityEngine.Assertions.Must;
 using UnityEngine.UI;
 
 public class LevelPopulator : MonoBehaviour
@@ -7,7 +8,7 @@ public class LevelPopulator : MonoBehaviour
     public GameObject LevelListItem, MusicListItem;
     public GameObject ChartList;
 
-    private static readonly Color NormalColor = new Color(1, 1, 1, 0.8f), HighlightColor = new Color(0.35f, 0.4f, 1f, 0.8f);
+    private static readonly Color NormalColor = new Color(1, 1, 1, 0.5f), HighlightColor = new Color(0.35f, 0.4f, 1f, 0.8f);
     private GameObject _currentLevelItem = null;
     public GameObject CurrentLevelItem
     {
@@ -25,6 +26,8 @@ public class LevelPopulator : MonoBehaviour
 
     private int listItemCount = 0;
 
+    private string SearchPattern = "";
+
     #if CCE_DEBUG
     private string LogPath;
     #endif
@@ -37,6 +40,9 @@ public class LevelPopulator : MonoBehaviour
         File.AppendAllText(LogPath, "Current DirPath is: " + GlobalState.Config.DirPath + "\n");
         #endif
         PopulateLevels(GlobalState.Config.DirPath);
+
+        GameObject.Find("LevelSearchInputField").GetComponent<InputField>().onEndEdit.AddListener((string s) => { SearchPattern = s; PopulateLevels(GlobalState.Config.DirPath); });
+        // Searching time could be improved
     }
 
     /// <summary>
@@ -150,14 +156,20 @@ public class LevelPopulator : MonoBehaviour
                 File.AppendAllText(LogPath, "Level data read.\n");
                 #endif
 
-                AddLevel(l, file);
+                if(l.id.Contains(SearchPattern))
+                {
+                    AddLevel(l, file);
+                }
             }
             else if(file.EndsWith(".mp3") || file.EndsWith(".ogg"))
             {
                 #if CCE_DEBUG
                 File.AppendAllText(LogPath, "Started adding music item for file: " + file + "\n");
                 #endif
-                AddMusicOption(file);
+                if(file.Contains(SearchPattern))
+                {
+                    AddMusicOption(file);
+                }
             }
         }
     }

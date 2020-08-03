@@ -22,6 +22,8 @@ public class DragChildNoteController : MonoBehaviour, IHighlightable, INote
     /// </summary>
     private float Delay;
 
+    public float PlaybackSpeed;
+
     private float ApproachPercentage;
 
     private bool started = false;
@@ -79,7 +81,7 @@ public class DragChildNoteController : MonoBehaviour, IHighlightable, INote
     {
         if(GlobalState.IsGameRunning)
         {
-            ApproachPercentage = (Delay + sw.ElapsedMilliseconds / 1000f) / ApproachTime;
+            ApproachPercentage = (Delay + sw.ElapsedMilliseconds * PlaybackSpeed / 1000f) / ApproachTime;
 
             NoteFill.transform.localScale = new Vector3(0.2f + ApproachPercentage * 0.2f, 0.2f + ApproachPercentage * 0.2f);
 

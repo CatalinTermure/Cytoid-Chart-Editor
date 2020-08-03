@@ -250,6 +250,11 @@ public class GlobalState : MonoBehaviour
             }
         }
 
+        while(l + 1 < p.Count && p[l + 1].start_time < time)
+        {
+            l++;
+        }
+
         return l;
     }
 

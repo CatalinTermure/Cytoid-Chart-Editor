@@ -29,6 +29,8 @@ public class DragHeadNoteController : MonoBehaviour, IHighlightable, INote
     /// </summary>
     private float Delay;
 
+    public float PlaybackSpeed;
+
     public float StartTime;
     public int NextID;
 
@@ -144,7 +146,7 @@ public class DragHeadNoteController : MonoBehaviour, IHighlightable, INote
     {
         if(GlobalState.IsGameRunning)
         {
-            float time = Delay + sw.ElapsedMilliseconds / 1000f;
+            float time = (Delay + sw.ElapsedMilliseconds * PlaybackSpeed / 1000f);
             ApproachPercentage = time / ApproachTime;
 
             for(int i = 1; i < Paths.Count; i++)
@@ -160,7 +162,7 @@ public class DragHeadNoteController : MonoBehaviour, IHighlightable, INote
                 NoteFill.transform.localScale = NoteBorder.transform.localScale = new Vector3(0.8f, 0.8f);
                 if (CurrentPath < Paths.Count)
                 {
-                    float pathcompletion = (Delay + sw.ElapsedMilliseconds / 1000f - (CurrentPath > 0 ? Paths[CurrentPath - 1].time : 0)) / (Paths[CurrentPath].time - (CurrentPath > 0 ? Paths[CurrentPath - 1].time : 0));
+                    float pathcompletion = ((Delay + sw.ElapsedMilliseconds * PlaybackSpeed / 1000f) - (CurrentPath > 0 ? Paths[CurrentPath - 1].time : 0)) / (Paths[CurrentPath].time - (CurrentPath > 0 ? Paths[CurrentPath - 1].time : 0));
                     while (pathcompletion > 1) // for when the note is jumped to during path movement using the timeline
                     {
                         if (CurrentPath > 0 && CurrentPath < Paths.Count)

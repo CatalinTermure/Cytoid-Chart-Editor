@@ -23,6 +23,8 @@ public class ClickNoteController : MonoBehaviour, IHighlightable, INote
     /// </summary>
     private float Delay;
 
+    public float PlaybackSpeed;
+
     private float ApproachPercentage;
 
     private bool started = false;
@@ -83,7 +85,7 @@ public class ClickNoteController : MonoBehaviour, IHighlightable, INote
     {
         if (GlobalState.IsGameRunning)
         {
-            ApproachPercentage = (Delay + sw.ElapsedMilliseconds / 1000f) / ApproachTime;
+            ApproachPercentage = (Delay + sw.ElapsedMilliseconds * PlaybackSpeed / 1000f) / ApproachTime;
 
             NoteFill.transform.localScale = new Vector3(ApproachPercentage, ApproachPercentage);
             NoteBorder.transform.localScale = new Vector3(0.6f + ApproachPercentage * 0.4f, 0.6f + ApproachPercentage * 0.4f);

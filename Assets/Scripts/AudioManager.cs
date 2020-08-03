@@ -13,12 +13,14 @@ public class AudioManager
     private double lastStartTime = -1;
     private double timeBeforeStart = 0;
 
+    public double PlaybackSpeed = 1;
+
     /// <summary>
     /// Gets the time point of the audio.
     /// </summary>
     public double Time
     {
-        get => MusicSource.isPlaying ? AudioSettings.dspTime - lastStartTime + timeBeforeStart : timeBeforeStart;
+        get => MusicSource.isPlaying ? (AudioSettings.dspTime - lastStartTime) * PlaybackSpeed + timeBeforeStart : timeBeforeStart;
     }
 
     public bool IsPlaying
@@ -28,7 +30,7 @@ public class AudioManager
 
     public double MaxTime
     {
-        get => Music.length;
+        get => Music.length * PlaybackSpeed;
     }
 
     public void SetTime(double time)
@@ -124,7 +126,12 @@ public class AudioManager
                 Debug.LogError("CCELog: Audio file type is unsupported.");
                 break;
         }
-        using (var www = UnityWebRequestMultimedia.GetAudioClip("file:///" + path, type))
+
+        #if CCE_DEBUG
+        File.AppendAllText(Path.Combine(Application.persistentDataPath, "LoadChartLog.txt"), $"Loading music file from path: file://{path}\n");
+        #endif
+
+        using (var www = UnityWebRequestMultimedia.GetAudioClip("file://" + path, type))
         {
             var req = www.SendWebRequest();
 

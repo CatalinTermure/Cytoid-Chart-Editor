@@ -24,10 +24,10 @@ public class EditorOptionsChanger : MonoBehaviour
 
         NoteSizeSlider.onValueChanged.AddListener((float value) =>
         {
-            GlobalState.Config.DefaultNoteSize = (float)Math.Round(value, 2);
-            NoteSizeLabel.GetComponent<Text>().text = $"Note size: {value}";
+            GlobalState.Config.DefaultNoteSize = value / 10;
+            NoteSizeLabel.GetComponent<Text>().text = $"Note size: {value / 10}";
         });
-        NoteSizeSlider.value = GlobalState.Config.DefaultNoteSize;
+        NoteSizeSlider.value = GlobalState.Config.DefaultNoteSize * 10;
 
         PreciseOffsetToggle.SetIsOnWithoutNotify(GlobalState.Config.PreciseOffsetDelta);
         PreciseOffsetToggle.onValueChanged.AddListener((bool value) => GlobalState.Config.PreciseOffsetDelta = value);

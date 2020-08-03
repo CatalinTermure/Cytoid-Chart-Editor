@@ -25,6 +25,8 @@ public class HoldNoteController : MonoBehaviour, IHighlightable, INote
     /// </summary>
     private float Delay;
 
+    public float PlaybackSpeed;
+
     private float ApproachPercentage, CompletionPercentage;
 
     /// <summary>
@@ -114,7 +116,7 @@ public class HoldNoteController : MonoBehaviour, IHighlightable, INote
     {
         if(GlobalState.IsGameRunning)
         {
-            ApproachPercentage = (Delay + sw.ElapsedMilliseconds / 1000f) / ApproachTime;
+            ApproachPercentage = (Delay + sw.ElapsedMilliseconds * PlaybackSpeed / 1000f) / ApproachTime;
             if (ApproachPercentage < 1)
             {
                 HollowNoteBody.transform.localScale = new Vector3(0.2f + 0.3f * ApproachPercentage, 1);
@@ -123,7 +125,7 @@ public class HoldNoteController : MonoBehaviour, IHighlightable, INote
             }
             else
             {
-                CompletionPercentage = (Delay + sw.ElapsedMilliseconds / 1000f - ApproachTime) / HoldTime;
+                CompletionPercentage = (Delay + sw.ElapsedMilliseconds * PlaybackSpeed / 1000f - ApproachTime) / HoldTime;
 
                 FillNoteBodyMask.transform.localScale = new Vector3(Size * 50, Height * CompletionPercentage * 100);
 

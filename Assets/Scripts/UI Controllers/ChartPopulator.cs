@@ -7,7 +7,7 @@ public class ChartPopulator : MonoBehaviour
 
     private int listItemCount = 0;
 
-    private static readonly Color NormalColor = new Color(1, 1, 1, 0.8f), HighlightColor = new Color(0.35f, 0.4f, 1f, 0.8f);
+    private static readonly Color NormalColor = new Color(1, 1, 1, 0.5f), HighlightColor = new Color(0.35f, 0.4f, 1f, 0.8f);
 
     private GameObject _currentChartItem = null;
     public GameObject CurrentChartItem

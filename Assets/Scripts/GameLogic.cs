@@ -5,9 +5,10 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 using Newtonsoft.Json;
+using UnityEngine.Audio;
 
 using static GlobalState;
-using UnityEngine.Audio;
+using System.Xml.Schema;
 
 public class GameLogic : MonoBehaviour
 {
@@ -57,6 +58,9 @@ public class GameLogic : MonoBehaviour
     private double ScheduledTime { get; set; }
     private bool IsStartScheduled = false;
 
+    private int PlaybackSpeedIndex = 2;
+    private readonly float[] PlaybackSpeeds = new float[3] { 0.5f, 0.75f, 1.0f };
+
     private void Start()
     {
         // Adjust for different aspect ratios
@@ -96,6 +100,8 @@ public class GameLogic : MonoBehaviour
         BeatDivisorValueChanged();
 
         UpdateOffsetText();
+
+        GameObject.Find("BeatDivisorInputField").GetComponent<InputField>().onEndEdit.AddListener((string s) => SetBeatDivisorValueUnsafe(int.Parse(s)));
 
         #if CCE_DEBUG
         if(CurrentChart != null)
@@ -210,19 +216,24 @@ public class GameLogic : MonoBehaviour
         }
         if(pages[p - 1].end_time < MusicManager.MaxTime) // Add pages in case the page_list ends before the music
         {
-            double lasttempotime = CurrentChart.tempo_list.Last().value * timebase / 1000000; // Calculate the amount of pages necessary in respect to the last tempo
-            int cnt = (int)Math.Ceiling((MusicManager.MaxTime - pages[p - 1].end_time) / lasttempotime) + 1;
-            for(int i = 0; i < cnt; i++)
+            double lasttempotime = CurrentChart.tempo_list.Last().value / 1000000; // Calculate time of the pages in respect to the last tempo
+            while(pages[p - 1].end_time < MusicManager.MaxTime)
             {
-                pages.Add(new Page
+                pages.Add(new Page()
                 {
-                    start_tick = pages.Last().end_tick,
-                    end_tick = pages.Last().end_tick + timebase,
-                    scan_line_direction = -pages.Last().scan_line_direction
+                    start_tick = pages[p - 1].end_tick,
+                    end_tick = pages[p - 1].end_tick + timebase,
+                    start_time = pages[p - 1].end_time,
+                    end_time = pages[p - 1].end_time + lasttempotime,
+                    scan_line_direction = -pages[p - 1].scan_line_direction
                 });
+                p++;
             }
-            CalculateTimings(); // Recursive call to calculate the start/end times for the newly added pages and in case there weren't enough pages even after adding, should not be called more than once
-            return;
+        }
+        while(pages[p - 1].start_time > MusicManager.MaxTime)
+        {
+            pages.RemoveAt(p - 1);
+            p--;
         }
 
         tempos[ti].time = temposum;
@@ -419,6 +430,8 @@ public class GameLogic : MonoBehaviour
 
                 obj.GetComponent<ClickNoteController>().SetDelay((float)delay);
 
+                obj.GetComponent<ClickNoteController>().PlaybackSpeed = PlaybackSpeeds[PlaybackSpeedIndex];
+
                 obj.GetComponent<INote>().NoteType = (int)NoteType.CLICK;
                 obj.GetComponent<INote>().NoteID = note.id;
                 break;
@@ -447,6 +460,8 @@ public class GameLogic : MonoBehaviour
 
                 obj.GetComponent<HoldNoteController>().SetDelay((float)delay);
 
+                obj.GetComponent<HoldNoteController>().PlaybackSpeed = PlaybackSpeeds[PlaybackSpeedIndex];
+
                 obj.GetComponent<INote>().NoteType = (int)NoteType.HOLD;
                 obj.GetComponent<INote>().NoteID = note.id;
                 break;
@@ -470,6 +485,8 @@ public class GameLogic : MonoBehaviour
                 obj.GetComponent<LongHoldNoteController>().HoldTime = (float)note.hold_time;
 
                 obj.GetComponent<LongHoldNoteController>().SetDelay((float)delay);
+
+                obj.GetComponent<LongHoldNoteController>().PlaybackSpeed = PlaybackSpeeds[PlaybackSpeedIndex];
 
                 obj.GetComponent<LongHoldNoteController>().FinishIndicator.transform.position = new Vector3(obj.transform.position.x, CurrentPage.scan_line_direction *
                     (PlayAreaHeight * (note.tick + note.hold_tick - CurrentPage.start_tick) / (int)CurrentPage.PageSize - PlayAreaHeight / 2));
@@ -497,6 +514,8 @@ public class GameLogic : MonoBehaviour
 
                 obj.GetComponent<DragHeadNoteController>().SetDelay((float)delay);
 
+                obj.GetComponent<DragHeadNoteController>().PlaybackSpeed = PlaybackSpeeds[PlaybackSpeedIndex];
+
                 obj.GetComponent<INote>().NoteType = (int)NoteType.DRAG_HEAD;
                 obj.GetComponent<INote>().NoteID = note.id;
                 break;
@@ -517,6 +536,8 @@ public class GameLogic : MonoBehaviour
 
                 obj.GetComponent<DragChildNoteController>().SetDelay((float)delay);
 
+                obj.GetComponent<DragChildNoteController>().PlaybackSpeed = PlaybackSpeeds[PlaybackSpeedIndex];
+
                 obj.GetComponent<INote>().NoteType = (int)NoteType.DRAG_CHILD;
                 obj.GetComponent<INote>().NoteID = note.id;
                 break;
@@ -536,6 +557,8 @@ public class GameLogic : MonoBehaviour
                 obj.GetComponent<ClickNoteController>().ChangeNoteColor(notecolor);
 
                 obj.GetComponent<ClickNoteController>().SetDelay((float)delay);
+
+                obj.GetComponent<ClickNoteController>().PlaybackSpeed = PlaybackSpeeds[PlaybackSpeedIndex];
 
                 obj.GetComponent<INote>().NoteType = (int)NoteType.FLICK;
                 obj.GetComponent<INote>().NoteID = note.id;
@@ -560,6 +583,8 @@ public class GameLogic : MonoBehaviour
 
                 obj.GetComponent<DragHeadNoteController>().SetDelay((float)delay);
 
+                obj.GetComponent<DragHeadNoteController>().PlaybackSpeed = PlaybackSpeeds[PlaybackSpeedIndex];
+
                 obj.GetComponent<INote>().NoteType = (int)NoteType.CDRAG_HEAD;
                 obj.GetComponent<INote>().NoteID = note.id;
                 break;
@@ -579,6 +604,8 @@ public class GameLogic : MonoBehaviour
                 obj.GetComponent<DragChildNoteController>().ChangeNoteColor(notecolor);
 
                 obj.GetComponent<DragChildNoteController>().SetDelay((float)delay);
+
+                obj.GetComponent<DragChildNoteController>().PlaybackSpeed = PlaybackSpeeds[PlaybackSpeedIndex];
 
                 obj.GetComponent<INote>().NoteType = (int)NoteType.CDRAG_CHILD;
                 obj.GetComponent<INote>().NoteID = note.id;
@@ -686,10 +713,9 @@ public class GameLogic : MonoBehaviour
     {
         for(int i = 0; i < 8; i++)
         {
-            if(AllowedDivisor[i] == (int)BeatDivisor.value)
+            if(AllowedDivisor[i] <= (int)BeatDivisor.value)
             {
-                DivisorValue = (int)BeatDivisor.value;
-                break;
+                DivisorValue = AllowedDivisor[i];
             }
         }
         foreach(var obj in GameObject.FindGameObjectsWithTag("DivisorLine"))
@@ -703,7 +729,26 @@ public class GameLogic : MonoBehaviour
             obj.GetComponent<SpriteRenderer>().size = new Vector2(PlayAreaWidth, 0.1f);
         }
 
-        GameObject.Find("BeatDivisorText").GetComponent<Text>().text = $"1/{DivisorValue}";
+        GameObject.Find("BeatDivisorInputField").GetComponent<InputField>().text = DivisorValue.ToString();
+    }
+
+    public void SetBeatDivisorValueUnsafe(int val)
+    {
+        val = Clamp<int>(val, 1, 16);
+        BeatDivisor.SetValueWithoutNotify(val);
+        DivisorValue = val;
+        foreach (var obj in GameObject.FindGameObjectsWithTag("DivisorLine"))
+        {
+            Destroy(obj);
+        }
+        for (int i = 1; i < DivisorValue; i++)
+        {
+            GameObject obj = Instantiate(DivisorLine);
+            obj.transform.position = new Vector3(0, PlayAreaHeight / DivisorValue * i - PlayAreaHeight / 2);
+            obj.GetComponent<SpriteRenderer>().size = new Vector2(PlayAreaWidth, 0.1f);
+        }
+
+        GameObject.Find("BeatDivisorInputField").GetComponent<InputField>().text = DivisorValue.ToString();
     }
 
     public void TimelineValueChange()
@@ -715,7 +760,7 @@ public class GameLogic : MonoBehaviour
         }
         if (!IsGameRunning)
         {
-            double time = Timeline.value * MusicManager.MaxTime;
+            double time = Timeline.value * MusicManager.MaxTime * 1 / PlaybackSpeeds[PlaybackSpeedIndex];
 
             CurrentPageIndex = SnapTimeToPage(time);
 
@@ -806,7 +851,7 @@ public class GameLogic : MonoBehaviour
 
         MusicManager.SetTime(time - Offset);
 
-        Timeline.SetValueWithoutNotify((float)(MusicManager.Time / MusicManager.MaxTime));
+        Timeline.SetValueWithoutNotify((float)(MusicManager.Time / MusicManager.MaxTime) * PlaybackSpeeds[PlaybackSpeedIndex]);
     }
 
     private Note GetLastChild(int parent)
@@ -840,7 +885,7 @@ public class GameLogic : MonoBehaviour
                 return;
             }
 
-            Timeline.SetValueWithoutNotify((float)(MusicManager.Time / MusicManager.MaxTime));
+            Timeline.SetValueWithoutNotify((float)(MusicManager.Time / MusicManager.MaxTime) * PlaybackSpeeds[PlaybackSpeedIndex]);
             double time = MusicManager.Time + Offset;
 
             while(CurrentHitsoundIndex < CurrentChart.note_list.Count && CurrentChart.note_list[CurrentHitsoundIndex].time - 0.05 <= time)
@@ -867,8 +912,8 @@ public class GameLogic : MonoBehaviour
                         {
                             if (HitsoundScheduledTimes[i] < AudioSettings.dspTime)
                             {
-                                HitsoundSources[i].PlayScheduled(CurrentChart.note_list[CurrentHoldHitsoundIndex].time + CurrentChart.note_list[CurrentHoldHitsoundIndex].hold_time - time + AudioSettings.dspTime);
-                                HitsoundScheduledTimes[i] = CurrentChart.note_list[CurrentHoldHitsoundIndex].time + CurrentChart.note_list[CurrentHoldHitsoundIndex].hold_time - time + AudioSettings.dspTime + HitsoundSources[i].clip.length;
+                                HitsoundSources[i].PlayScheduled((CurrentChart.note_list[CurrentHoldHitsoundIndex].time + CurrentChart.note_list[CurrentHoldHitsoundIndex].hold_time - time) * 1.0 / PlaybackSpeeds[PlaybackSpeedIndex] + AudioSettings.dspTime);
+                                HitsoundScheduledTimes[i] = (CurrentChart.note_list[CurrentHoldHitsoundIndex].time + CurrentChart.note_list[CurrentHoldHitsoundIndex].hold_time - time) * 1.0 / PlaybackSpeeds[PlaybackSpeedIndex] + AudioSettings.dspTime + HitsoundSources[i].clip.length;
                                 break;
                             }
                         }
@@ -1002,7 +1047,7 @@ public class GameLogic : MonoBehaviour
                 }
                 foreach (GameObject obj in GameObject.FindGameObjectsWithTag("ScanlineNote"))
                 {
-                    if (obj.GetComponentInChildren<Collider2D>().OverlapPoint(touchpos))
+                    if (obj.GetComponent<INote>().NoteID != 0 && obj.GetComponentInChildren<Collider2D>().OverlapPoint(touchpos))
                     {
                         currentlymoving = obj;
                         break;
@@ -1246,7 +1291,12 @@ public class GameLogic : MonoBehaviour
 
                         int dragparent = GetDragParent(id), dragchild = note.next_id;
 
-                        if ((dragparent <= -1 || tick > CurrentChart.note_list[dragparent].tick) && (dragchild <= 0 || tick < CurrentChart.note_list[dragchild].tick))
+                        if(dragparent >= 0 && tick == CurrentChart.note_list[dragparent].tick)
+                        {
+                            tick++;
+                        }
+
+                        if ((dragparent == -1 || tick > CurrentChart.note_list[dragparent].tick) && (dragchild <= 0 || tick < CurrentChart.note_list[dragchild].tick))
                         {
                             note.tick = tick;
 
@@ -1349,6 +1399,43 @@ public class GameLogic : MonoBehaviour
         UpdateTime(CurrentPage.start_time);
     }
 
+    public void IncreasePlaybackSpeed()
+    {
+        if(CurrentChart != null && PlaybackSpeedIndex != 2 && !IsGameRunning && !IsStartScheduled)
+        {
+            PlaybackSpeedIndex++;
+            UpdatePlaybackSpeed();
+        }
+    }
+
+    public void DecreasePlaybackSpeed()
+    {
+        if(CurrentChart != null && PlaybackSpeedIndex != 0 && !IsGameRunning && !IsStartScheduled)
+        {
+            PlaybackSpeedIndex--;
+            UpdatePlaybackSpeed();
+        }
+    }
+
+    private void UpdatePlaybackSpeed()
+    {
+        if (PlaybackSpeedIndex == 0)
+        {
+            MusicSource.outputAudioMixerGroup = HalfSpeedMixer;
+        }
+        else if (PlaybackSpeedIndex == 1)
+        {
+            MusicSource.outputAudioMixerGroup = ThreeQuarterSpeedMixer;
+        }
+        else if (PlaybackSpeedIndex == 2)
+        {
+            MusicSource.outputAudioMixerGroup = null;
+        }
+        MusicManager.PlaybackSpeed = PlaybackSpeeds[PlaybackSpeedIndex];
+        UpdateTime(CurrentPage.start_time);
+        GameObject.Find("PlaybackSpeedText").GetComponent<Text>().text = $"{(int)(PlaybackSpeeds[PlaybackSpeedIndex] * 100)}%";
+    }
+
     public void IncreaseOffset()
     {
         Config.UserOffset += Config.PreciseOffsetDelta ? 1 : 5;
@@ -1364,6 +1451,17 @@ public class GameLogic : MonoBehaviour
     private void UpdateOffsetText()
     {
         GameObject.Find("OffsetText").GetComponent<Text>().text = $"{Config.UserOffset}ms";
+    }
+
+    public void ChangeSweepDirection()
+    {
+        if(CurrentChart != null)
+        {
+            CurrentPage.scan_line_direction = -CurrentPage.scan_line_direction;
+            GameObject.Find("SweepChangeButton").GetComponentInChildren<Text>().text = CurrentPage.scan_line_direction == 1 ? "Up" : "Down";
+            CalculateTimings();
+            UpdateTime(CurrentPage.start_time);
+        }
     }
 
     public void SaveChart()
@@ -1384,6 +1482,11 @@ public class GameLogic : MonoBehaviour
                     type = CurrentChart.tempo_list[i].value > CurrentChart.tempo_list[i - 1].value ? 1 : 0,
                     args = CurrentChart.tempo_list[i].value > CurrentChart.tempo_list[i - 1].value ? "G" : "R"
                 });
+            }
+
+            while(CurrentChart.note_list[CurrentChart.note_list.Count - 1].page_index >= CurrentChart.page_list.Count)
+            {
+                CurrentChart.note_list.RemoveAt(CurrentChart.note_list.Count - 1);
             }
 
             File.WriteAllText(Path.Combine(CurrentLevelPath, CurrentChart.Data.path), JsonConvert.SerializeObject(CurrentChart, new JsonSerializerSettings()
