@@ -232,11 +232,17 @@ public class GameLogic : MonoBehaviour
             CalculateTimings();
             return;
         }
-        while(pages[p - 1].start_time > MusicManager.MaxTime)
+        if(pages[p - 1].start_time > MusicManager.MaxTime)
         {
-            pages.RemoveAt(p - 1);
-            p--;
+            while (pages[p - 1].start_time > MusicManager.MaxTime)
+            {
+                pages.RemoveAt(p - 1);
+                p--;
+            }
+            CalculateTimings();
+            return;
         }
+        
 
         tempos[ti].time = temposum;
         temposum = 0;
