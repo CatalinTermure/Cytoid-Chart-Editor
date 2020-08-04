@@ -229,6 +229,8 @@ public class GameLogic : MonoBehaviour
                 });
                 p++;
             }
+            CalculateTimings();
+            return;
         }
         while(pages[p - 1].start_time > MusicManager.MaxTime)
         {
@@ -874,6 +876,7 @@ public class GameLogic : MonoBehaviour
             if(AudioSettings.dspTime > ScheduledTime)
             {
                 IsGameRunning = true;
+                IsStartScheduled = false;
             }
         }
         if(IsGameRunning)
