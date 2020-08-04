@@ -666,6 +666,7 @@ public class GameLogic : MonoBehaviour
     private void RemoveTempo(int id)
     {
         CurrentChart.tempo_list.RemoveAt(id);
+        CalculateTimings();
     }
 
     /// <summary>
