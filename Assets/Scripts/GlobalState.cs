@@ -254,7 +254,7 @@ public class GlobalState : MonoBehaviour
         {
             l++;
         }
-
+        // change this to be more efficient
         return l;
     }
 

@@ -216,7 +216,7 @@ public class GameLogic : MonoBehaviour
         }
         if(pages[p - 1].end_time < MusicManager.MaxTime) // Add pages in case the page_list ends before the music
         {
-            double lasttempotime = CurrentChart.tempo_list.Last().value / 1000000; // Calculate time of the pages in respect to the last tempo
+            double lasttempotime = CurrentChart.tempo_list.Last().value / 1000000.0; // Calculate time of the pages in respect to the last tempo
             while(pages[p - 1].end_time < MusicManager.MaxTime)
             {
                 pages.Add(new Page()
@@ -840,6 +840,7 @@ public class GameLogic : MonoBehaviour
             }
         }
 
+        GameObject.Find("SweepChangeButton").GetComponentInChildren<Text>().text = CurrentPage.scan_line_direction == 1 ? "Up" : "Down";
 
         GameObject.Find("TimeText").GetComponent<Text>().text = "Page: " + CurrentPageIndex.ToString() + "\nTime: " + ((int)((time - CurrentChart.music_offset) / 60)).ToString() + ":" + ((int)(time - CurrentChart.music_offset) % 60).ToString("D2") + "." + ((int)((time - CurrentChart.music_offset) * 1000 - Math.Floor(time - CurrentChart.music_offset) * 1000)).ToString("D3");
 
