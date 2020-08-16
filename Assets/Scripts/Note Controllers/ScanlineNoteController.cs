@@ -2,10 +2,10 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class ScanlineNoteController : MonoBehaviour, INote
+public class ScanlineNoteController : MonoBehaviour, ITempo
 {
     public int NoteType { get; set; }
-    public int NoteID { get; set; }
+    public int TempoID { get; set; }
 
     public InputField TimeInputField, BPMInputField;
 

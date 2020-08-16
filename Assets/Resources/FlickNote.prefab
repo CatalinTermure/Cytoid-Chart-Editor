@@ -98,7 +98,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &3363609360239046808
 Transform:
   m_ObjectHideFlags: 0
@@ -129,9 +129,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ApproachTime: 1.367
+  PlaybackSpeed: 0
+  HighlightBorder: {fileID: 5205866059973847349}
+  NoteType: 0
+  NoteID: 0
   NoteFill: {fileID: 3363609359058573527}
   NoteBorder: {fileID: 3363609360720342618}
-  HighlightBorder: {fileID: 5205866059973847349}
 --- !u!58 &4479502243987738749
 CircleCollider2D:
   m_ObjectHideFlags: 0

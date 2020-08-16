@@ -3,100 +3,59 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using UnityEngine;
 
-public class DragChildNoteController : MonoBehaviour, IHighlightable, INote
+public class DragChildNoteController : NoteController
 {
-    /// <summary>
-    /// Time it takes from the note appearing on screen to it's start time.
-    /// </summary>
-    public float ApproachTime;
+    public GameObject NoteFill;
 
-    public GameObject NoteFill, HighlightBorder;
-
-    /// <summary>
-    /// Stopwatch for keeping track of the animation time.
-    /// </summary>
-    private Stopwatch sw;
-
-    /// <summary>
-    /// Time delay from the time the note should first appear to when the stopwatch starts.
-    /// </summary>
-    private float Delay;
-
-    public float PlaybackSpeed;
-
-    private float ApproachPercentage;
-
-    private bool started = false;
-
-    public bool Highlighted { get; set; }
-    public int NoteType { get; set; }
-    public int NoteID { get; set; }
-
-    public void SetDelay(float delay)
-    {
-        Delay = delay;
-        if(started) UpdateComponentVisuals();
-    }
-
-    private void Awake()
-    {
-        Highlighted = false;
-        HighlightBorder.SetActive(false);
-    }
-
-    void Start()
-    {
-        sw = Stopwatch.StartNew();
-        NoteFill.transform.localScale = new Vector3(0.2f, 0.2f);
-        started = true;
-        UpdateComponentVisuals();
-    }
-
-    public void ChangeNoteColor(Color color)
+    public override void ChangeNoteColor(Color color)
     {
         NoteFill.GetComponent<SpriteRenderer>().color = color;
     }
 
-    private void FixedUpdate()
+    public override void Initialize(Note note)
     {
-        if (GlobalState.IsGameRunning)
-        {
-            if (!sw.IsRunning)
-            {
-                sw.Start();
-            }
-        }
-        else
-        {
-            sw.Stop();
-        }
-    }
+        NoteStopwatch = Stopwatch.StartNew();
 
-    void Update()
-    {
-        UpdateComponentVisuals();
-    }
+        gameObject.transform.position = new Vector3((float)(GlobalState.PlayAreaWidth * (note.x - 0.5)), (float)(GlobalState.PlayAreaHeight * (note.y - 0.5)));
+        gameObject.transform.localScale = new Vector3(GlobalState.Config.DefaultNoteSize * (float)note.size, GlobalState.Config.DefaultNoteSize * (float)note.size);
 
-    private void UpdateComponentVisuals()
-    {
+        ApproachTime = (float)note.approach_time;
+
+        Highlighted = true;
+        Highlight();
+
+        NoteType = note.type;
+        NoteID = note.id;
+
         if(GlobalState.IsGameRunning)
         {
-            ApproachPercentage = (Delay + sw.ElapsedMilliseconds * PlaybackSpeed / 1000f) / ApproachTime;
-
-            NoteFill.transform.localScale = new Vector3(0.2f + ApproachPercentage * 0.2f, 0.2f + ApproachPercentage * 0.2f);
-
-            if (ApproachPercentage > 1)
-            {
-                Destroy(gameObject);
-            }
+            NoteFill.transform.localScale = new Vector3(0.2f, 0.2f);
         }
         else
         {
-            NoteFill.transform.localScale = new Vector3(0.4f, 0.4f);
+            ChangeToPausedVisuals();
         }
     }
 
-    public void Highlight()
+    protected override void UpdateVisuals()
+    {
+        ApproachPercentage = (Delay + NoteStopwatch.ElapsedMilliseconds * PlaybackSpeed / 1000f) / ApproachTime;
+
+        NoteFill.transform.localScale = new Vector3(0.2f + ApproachPercentage * 0.2f, 0.2f + ApproachPercentage * 0.2f);
+
+        if (ApproachPercentage > 1)
+        {
+            NoteStopwatch.Stop();
+            ParentPool.ReturnToPool(gameObject, NoteType);
+        }
+    }
+
+    protected override void ChangeToPausedVisuals()
+    {
+        NoteFill.transform.localScale = new Vector3(0.4f, 0.4f);
+    }
+
+    public override void Highlight()
     {
         Highlighted = !Highlighted;
         HighlightBorder.SetActive(Highlighted);

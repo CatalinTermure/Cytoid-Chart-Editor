@@ -6,9 +6,9 @@ using UnityEngine;
 using UnityEngine.UI;
 using Newtonsoft.Json;
 using UnityEngine.Audio;
+using System.Text;
 
 using static GlobalState;
-using System.Xml.Schema;
 
 public class GameLogic : MonoBehaviour
 {
@@ -17,16 +17,12 @@ public class GameLogic : MonoBehaviour
     /// </summary>
     public static NoteType CurrentTool = NoteType.NONE;
 
-    public GameObject ClickNote;
     public GameObject ScanlineNote;
-    public GameObject HoldNote;
-    public GameObject LongHoldNote;
-    public GameObject FlickNote;
-    public GameObject DragHeadNote;
-    public GameObject DragChildNote;
-    public GameObject CDragHeadNote;
-    public GameObject CDragChildNote;
     public GameObject DivisorLine;
+
+    private ChartObjectPool ObjectPool;
+
+    public Text PageText, TimeText;
 
     public GameObject Scanline;
 
@@ -37,6 +33,8 @@ public class GameLogic : MonoBehaviour
     public AudioSource[] HitsoundSources;
     private readonly double[] HitsoundScheduledTimes = new double[4];
 
+    public List<double> HitsoundTimings = new List<double>();
+
     public Camera MainCamera;
 
     public Slider BeatDivisor;
@@ -45,11 +43,10 @@ public class GameLogic : MonoBehaviour
 
     public static int CurrentPageIndexOverride = -1;
 
-    private int CurrentHoldHitsoundIndex { get; set; }
-    private int CurrentHitsoundIndex { get; set; }
-    private int CurrentTempoIndex { get; set; }
-    private int CurrentNoteIndex { get; set; }
-    private int CurrentPageIndex { get; set; }
+    private int CurrentHitsoundIndex = 0;
+    private int CurrentTempoIndex = 0;
+    private int CurrentNoteIndex = 0;
+    public int CurrentPageIndex = 0;
     private Page CurrentPage
     {
         get => CurrentChart.page_list[CurrentPageIndex];
@@ -60,6 +57,8 @@ public class GameLogic : MonoBehaviour
 
     private int PlaybackSpeedIndex = 2;
     private readonly float[] PlaybackSpeeds = new float[3] { 0.5f, 0.75f, 1.0f };
+
+    private readonly StringBuilder TimeTextBuilder = new StringBuilder(32);
 
     private void Start()
     {
@@ -136,6 +135,8 @@ public class GameLogic : MonoBehaviour
                 HitsoundSources[i].volume = Config.HitsoundVolume;
             }
 
+            ObjectPool = new ChartObjectPool();
+
             #if CCE_DEBUG
             File.AppendAllText(LogPath, "Audio sources loaded\n");
             #endif
@@ -169,6 +170,8 @@ public class GameLogic : MonoBehaviour
         List<Note> notes = CurrentChart.note_list;
         List<Tempo> tempos = CurrentChart.tempo_list;
         List<Page> pages = CurrentChart.page_list;
+
+        HitsoundTimings.Clear();
 
         int ni = 0, pi = 0, ti = 0, n = notes.Count, p = pages.Count, t = tempos.Count;
         double temposum = 0; // Time from tick 0 to the start of tempo ti
@@ -263,6 +266,7 @@ public class GameLogic : MonoBehaviour
                 notes[ni].opacity = notes[ni].opacity < 0 ? CurrentChart.opacity : notes[ni].opacity;
 
                 notes[ni].time = temposum + (double)tempos[ti].value * (notes[ni].tick - tempos[ti].tick) / timebase / 1000000;
+                HitsoundTimings.Add(notes[ni].time);
 
                 notes[ni].y = pages[notes[ni].page_index].scan_line_direction == 1 ?
                     (double)(notes[ni].tick - pages[notes[ni].page_index].start_tick) / (pages[notes[ni].page_index].end_tick - pages[notes[ni].page_index].start_tick) :
@@ -303,6 +307,11 @@ public class GameLogic : MonoBehaviour
                     {
                         notes[ni].hold_time = (double)tempos[ti].value * notes[ni].hold_tick / timebase / 1000000;
                     }
+
+                    if(Config.PlayHitsoundsOnHoldEnd)
+                    {
+                        HitsoundTimings.Add(notes[ni].time + notes[ni].hold_time);
+                    }
                 }
                 else
                 {
@@ -335,7 +344,7 @@ public class GameLogic : MonoBehaviour
     /// <returns> Returns the position it was added to. </returns>
     private int AddNote(Note note)
     {
-        int poz = 0; // determine the position to be inserted in
+        int poz = 0; // Determine the position to be inserted in
         // Currently using sequential search and not binary because we already have necessary O(N) complexity following so it does not make much of a difference, to be changed if performance is hit because of this.
         while(poz < CurrentChart.note_list.Count && CurrentChart.note_list[poz].tick < note.tick)
         {
@@ -418,207 +427,24 @@ public class GameLogic : MonoBehaviour
     /// <param name="loweropacity"> If the note should appear with lower(1/3rd) opacity, reserved for notes on the previous page. </param>
     private void SpawnNote(Note note, double delay, bool loweropacity = false)
     {
-        GameObject obj;
-        Color notecolor;
-        switch(note.type)
-        {
-            case 0:
-                obj = Instantiate(ClickNote);
+        GameObject obj = ObjectPool.GetNote((NoteType)note.type);
 
-                obj.transform.position = new Vector3((float)((note.x - 0.5) * PlayAreaWidth), (float)((note.y - 0.5) * PlayAreaHeight), (float)note.y);
-                obj.transform.localScale = new Vector3(Config.DefaultNoteSize * (float)note.size, Config.DefaultNoteSize * (float)note.size);
+        obj.GetComponent<NoteController>().ParentPool = ObjectPool;
+        obj.GetComponent<NoteController>().Initialize(note);
 
-                obj.GetComponent<ClickNoteController>().ApproachTime = (float)note.approach_time;
+        obj.SetActive(true);
 
-                ColorUtility.TryParseHtmlString(note.fill_color ??
-                    CurrentChart.fill_colors[CurrentChart.page_list[note.page_index].scan_line_direction == 1 ? 0 : 1] ??
-                    DefaultFillColors[CurrentChart.page_list[note.page_index].scan_line_direction == 1 ? 0 : 1], out notecolor);
-                notecolor.a = (float)note.opacity / (loweropacity ? 3 : 1);
-                obj.GetComponent<ClickNoteController>().ChangeNoteColor(notecolor);
+        int indx = ColorIndexes[note.type];
 
-                obj.GetComponent<ClickNoteController>().SetDelay((float)delay);
+        ColorUtility.TryParseHtmlString(note.fill_color ??
+            CurrentChart.fill_colors[CurrentChart.page_list[note.page_index].scan_line_direction == 1 ? indx : indx + 1] ??
+            DefaultFillColors[CurrentChart.page_list[note.page_index].scan_line_direction == 1 ? indx : indx + 1], out Color notecolor);
+        notecolor.a = (float)note.opacity / (loweropacity ? 3 : 1);
+        obj.GetComponent<NoteController>().ChangeNoteColor(notecolor);
 
-                obj.GetComponent<ClickNoteController>().PlaybackSpeed = PlaybackSpeeds[PlaybackSpeedIndex];
+        obj.GetComponent<NoteController>().SetDelay((float)delay);
 
-                obj.GetComponent<INote>().NoteType = (int)NoteType.CLICK;
-                obj.GetComponent<INote>().NoteID = note.id;
-                break;
-
-            case 1:
-                obj = Instantiate(HoldNote);
-
-                obj.transform.position = new Vector3((float)((note.x - 0.5) * PlayAreaWidth), (float)((note.y - 0.5) * PlayAreaHeight), (float)note.y);
-                obj.GetComponent<HoldNoteController>().SetSize(Config.DefaultNoteSize * (float)note.size);
-
-                obj.GetComponent<HoldNoteController>().ApproachTime = (float)note.approach_time;
-
-                ColorUtility.TryParseHtmlString(note.fill_color ??
-                    CurrentChart.fill_colors[CurrentChart.page_list[note.page_index].scan_line_direction == 1 ? 0 : 1] ??
-                    DefaultFillColors[CurrentChart.page_list[note.page_index].scan_line_direction == 1 ? 4 : 5], out notecolor);
-                notecolor.a = (float)note.opacity / (loweropacity ? 3 : 1);
-                obj.GetComponent<HoldNoteController>().ChangeNoteColor(notecolor);
-
-                obj.GetComponent<HoldNoteController>().SetHeight((float)(PlayAreaHeight * note.hold_tick / CurrentChart.page_list[note.page_index].PageSize));
-                obj.GetComponent<HoldNoteController>().HoldTime = (float)note.hold_time;
-
-                if(CurrentChart.page_list[note.page_index].scan_line_direction == -1)
-                {
-                    obj.GetComponent<HoldNoteController>().Flip();
-                }
-
-                obj.GetComponent<HoldNoteController>().SetDelay((float)delay);
-
-                obj.GetComponent<HoldNoteController>().PlaybackSpeed = PlaybackSpeeds[PlaybackSpeedIndex];
-
-                obj.GetComponent<INote>().NoteType = (int)NoteType.HOLD;
-                obj.GetComponent<INote>().NoteID = note.id;
-                break;
-
-            case 2:
-                obj = Instantiate(LongHoldNote);
-
-                obj.transform.position = new Vector3((float)((note.x - 0.5) * PlayAreaWidth), (float)((note.y - 0.5) * PlayAreaHeight), (float)note.y);
-                obj.GetComponent<LongHoldNoteController>().SetSize(Config.DefaultNoteSize * (float)note.size);
-
-                obj.GetComponent<LongHoldNoteController>().ApproachTime = (float)note.approach_time;
-
-                ColorUtility.TryParseHtmlString(note.fill_color ??
-                    CurrentChart.fill_colors[CurrentChart.page_list[note.page_index].scan_line_direction == 1 ? 0 : 1] ??
-                    DefaultFillColors[CurrentChart.page_list[note.page_index].scan_line_direction == 1 ? 6 : 7], out notecolor);
-                notecolor.a = (float)note.opacity / (loweropacity ? 3 : 1);
-                obj.GetComponent<LongHoldNoteController>().ChangeNoteColor(notecolor);
-
-                obj.GetComponent<LongHoldNoteController>().SetTopHeight((float)(1.0 - note.y) * PlayAreaHeight);
-                obj.GetComponent<LongHoldNoteController>().SetBottomHeight((float)note.y * PlayAreaHeight);
-                obj.GetComponent<LongHoldNoteController>().HoldTime = (float)note.hold_time;
-
-                obj.GetComponent<LongHoldNoteController>().SetDelay((float)delay);
-
-                obj.GetComponent<LongHoldNoteController>().PlaybackSpeed = PlaybackSpeeds[PlaybackSpeedIndex];
-
-                obj.GetComponent<LongHoldNoteController>().FinishIndicator.transform.position = new Vector3(obj.transform.position.x, CurrentPage.scan_line_direction *
-                    (PlayAreaHeight * (note.tick + note.hold_tick - CurrentPage.start_tick) / (int)CurrentPage.PageSize - PlayAreaHeight / 2));
-                
-                obj.GetComponent<INote>().NoteType = (int)NoteType.LONG_HOLD;
-                obj.GetComponent<INote>().NoteID = note.id;
-                break;
-
-            case 3:
-                obj = Instantiate(DragHeadNote);
-
-                obj.transform.position = new Vector3((float)((note.x - 0.5) * PlayAreaWidth), (float)((note.y - 0.5) * PlayAreaHeight), (float)note.y);
-                obj.transform.localScale = new Vector3(Config.DefaultNoteSize * (float)note.size, Config.DefaultNoteSize * (float)note.size);
-
-                obj.GetComponent<DragHeadNoteController>().ApproachTime = (float)note.approach_time;
-
-                ColorUtility.TryParseHtmlString(note.fill_color ??
-                    CurrentChart.fill_colors[CurrentChart.page_list[note.page_index].scan_line_direction == 1 ? 0 : 1] ??
-                    DefaultFillColors[CurrentChart.page_list[note.page_index].scan_line_direction == 1 ? 2 : 3], out notecolor);
-                notecolor.a = (float)note.opacity / (loweropacity ? 3 : 1);
-                obj.GetComponent<DragHeadNoteController>().ChangeNoteColor(notecolor);
-
-                obj.GetComponent<DragHeadNoteController>().NextID = note.next_id;
-                obj.GetComponent<DragHeadNoteController>().StartTime = (float)note.time;
-
-                obj.GetComponent<DragHeadNoteController>().SetDelay((float)delay);
-
-                obj.GetComponent<DragHeadNoteController>().PlaybackSpeed = PlaybackSpeeds[PlaybackSpeedIndex];
-
-                obj.GetComponent<INote>().NoteType = (int)NoteType.DRAG_HEAD;
-                obj.GetComponent<INote>().NoteID = note.id;
-                break;
-
-            case 4:
-                obj = Instantiate(DragChildNote);
-
-                obj.transform.position = new Vector3((float)((note.x - 0.5) * PlayAreaWidth), (float)((note.y - 0.5) * PlayAreaHeight), (float)note.y);
-                obj.transform.localScale = new Vector3(Config.DefaultNoteSize * (float)note.size, Config.DefaultNoteSize * (float)note.size);
-
-                obj.GetComponent<DragChildNoteController>().ApproachTime = (float)note.approach_time;
-
-                ColorUtility.TryParseHtmlString(note.fill_color ??
-                    CurrentChart.fill_colors[CurrentChart.page_list[note.page_index].scan_line_direction == 1 ? 0 : 1] ??
-                    DefaultFillColors[CurrentChart.page_list[note.page_index].scan_line_direction == 1 ? 2 : 3], out notecolor);
-                notecolor.a = (float)note.opacity / (loweropacity ? 3 : 1);
-                obj.GetComponent<DragChildNoteController>().ChangeNoteColor(notecolor);
-
-                obj.GetComponent<DragChildNoteController>().SetDelay((float)delay);
-
-                obj.GetComponent<DragChildNoteController>().PlaybackSpeed = PlaybackSpeeds[PlaybackSpeedIndex];
-
-                obj.GetComponent<INote>().NoteType = (int)NoteType.DRAG_CHILD;
-                obj.GetComponent<INote>().NoteID = note.id;
-                break;
-
-            case 5:
-                obj = Instantiate(FlickNote);
-
-                obj.transform.position = new Vector3((float)((note.x - 0.5) * PlayAreaWidth), (float)((note.y - 0.5) * PlayAreaHeight), (float)note.y);
-                obj.transform.localScale = new Vector3(Config.DefaultNoteSize * (float)note.size * 0.8f, Config.DefaultNoteSize * (float)note.size * 0.8f);
-
-                obj.GetComponent<ClickNoteController>().ApproachTime = (float)note.approach_time;
-
-                ColorUtility.TryParseHtmlString(note.fill_color ??
-                    CurrentChart.fill_colors[CurrentChart.page_list[note.page_index].scan_line_direction == 1 ? 0 : 1] ??
-                    DefaultFillColors[CurrentChart.page_list[note.page_index].scan_line_direction == 1 ? 10 : 11], out notecolor);
-                notecolor.a = (float)note.opacity / (loweropacity ? 3 : 1);
-                obj.GetComponent<ClickNoteController>().ChangeNoteColor(notecolor);
-
-                obj.GetComponent<ClickNoteController>().SetDelay((float)delay);
-
-                obj.GetComponent<ClickNoteController>().PlaybackSpeed = PlaybackSpeeds[PlaybackSpeedIndex];
-
-                obj.GetComponent<INote>().NoteType = (int)NoteType.FLICK;
-                obj.GetComponent<INote>().NoteID = note.id;
-                break;
-
-            case 6:
-                obj = Instantiate(CDragHeadNote);
-
-                obj.transform.position = new Vector3((float)((note.x - 0.5) * PlayAreaWidth), (float)((note.y - 0.5) * PlayAreaHeight), (float)note.y);
-                obj.transform.localScale = new Vector3(Config.DefaultNoteSize * (float)note.size, Config.DefaultNoteSize * (float)note.size);
-
-                obj.GetComponent<DragHeadNoteController>().ApproachTime = (float)note.approach_time;
-
-                ColorUtility.TryParseHtmlString(note.fill_color ??
-                    CurrentChart.fill_colors[CurrentChart.page_list[note.page_index].scan_line_direction == 1 ? 0 : 1] ??
-                    DefaultFillColors[CurrentChart.page_list[note.page_index].scan_line_direction == 1 ? 10 : 11], out notecolor);
-                notecolor.a = (float)note.opacity / (loweropacity ? 3 : 1);
-                obj.GetComponent<DragHeadNoteController>().ChangeNoteColor(notecolor);
-
-                obj.GetComponent<DragHeadNoteController>().NextID = note.next_id;
-                obj.GetComponent<DragHeadNoteController>().StartTime = (float)note.time;
-
-                obj.GetComponent<DragHeadNoteController>().SetDelay((float)delay);
-
-                obj.GetComponent<DragHeadNoteController>().PlaybackSpeed = PlaybackSpeeds[PlaybackSpeedIndex];
-
-                obj.GetComponent<INote>().NoteType = (int)NoteType.CDRAG_HEAD;
-                obj.GetComponent<INote>().NoteID = note.id;
-                break;
-
-            case 7:
-                obj = Instantiate(DragChildNote);
-
-                obj.transform.position = new Vector3((float)((note.x - 0.5) * PlayAreaWidth), (float)((note.y - 0.5) * PlayAreaHeight), (float)note.y);
-                obj.transform.localScale = new Vector3(Config.DefaultNoteSize * (float)note.size, Config.DefaultNoteSize * (float)note.size);
-
-                obj.GetComponent<DragChildNoteController>().ApproachTime = (float)note.approach_time;
-
-                ColorUtility.TryParseHtmlString(note.fill_color ??
-                    CurrentChart.fill_colors[CurrentChart.page_list[note.page_index].scan_line_direction == 1 ? 0 : 1] ??
-                    DefaultFillColors[CurrentChart.page_list[note.page_index].scan_line_direction == 1 ? 10 : 11], out notecolor);
-                notecolor.a = (float)note.opacity / (loweropacity ? 3 : 1);
-                obj.GetComponent<DragChildNoteController>().ChangeNoteColor(notecolor);
-
-                obj.GetComponent<DragChildNoteController>().SetDelay((float)delay);
-
-                obj.GetComponent<DragChildNoteController>().PlaybackSpeed = PlaybackSpeeds[PlaybackSpeedIndex];
-
-                obj.GetComponent<INote>().NoteType = (int)NoteType.CDRAG_CHILD;
-                obj.GetComponent<INote>().NoteID = note.id;
-                break;
-        };
+        obj.GetComponent<NoteController>().PlaybackSpeed = PlaybackSpeeds[PlaybackSpeedIndex];
     }
 
     /// <summary>
@@ -629,7 +455,7 @@ public class GameLogic : MonoBehaviour
     {
         GameObject obj = Instantiate(ScanlineNote);
 
-        obj.GetComponent<ScanlineNoteController>().NoteID = id;
+        obj.GetComponent<ScanlineNoteController>().TempoID = id;
 
         obj.GetComponent<ScanlineNoteController>().SetPosition(new Vector3(-PlayAreaWidth / 2 - 1, -PlayAreaHeight / 2 + PlayAreaHeight * (float)(CurrentPage.scan_line_direction == 1 ?
             (CurrentChart.tempo_list[id].tick - CurrentPage.start_tick) / CurrentPage.PageSize :
@@ -787,12 +613,12 @@ public class GameLogic : MonoBehaviour
     {
         foreach (var obj in GameObject.FindGameObjectsWithTag("Note"))
         {
-            Destroy(obj);
+            ObjectPool.ReturnToPool(obj, obj.GetComponent<NoteController>().NoteType);
         }
 
         foreach (var obj in GameObject.FindGameObjectsWithTag("Connector"))
         {
-            Destroy(obj);
+            ObjectPool.ReturnToPool(obj, 8);
         }
 
         foreach (var obj in GameObject.FindGameObjectsWithTag("ScanlineNote"))
@@ -801,7 +627,6 @@ public class GameLogic : MonoBehaviour
         }
 
         CurrentHitsoundIndex = 0;
-        CurrentHoldHitsoundIndex = 0;
 
         CurrentNoteIndex = 0;
 
@@ -821,19 +646,19 @@ public class GameLogic : MonoBehaviour
             {
                 SpawnNote(CurrentChart.note_list[i], 10000, true);
             }
-            else if(CurrentChart.note_list[i].time - (Config.ShowApproachingNotesWhilePaused || CurrentChart.note_list[i].page_index == CurrentPageIndex ? CurrentChart.note_list[i].approach_time : 0) <= time)
+            if(CurrentChart.note_list[i].time - (Config.ShowApproachingNotesWhilePaused || CurrentChart.note_list[i].page_index == CurrentPageIndex ? CurrentChart.note_list[i].approach_time : 0) <= time)
             {
                 CurrentNoteIndex = i + 1;
             }
 
-            if(CurrentChart.note_list[i].time < time)
-            {
-                CurrentHitsoundIndex = i + 1;
-            }
+        }
 
-            if((CurrentChart.note_list[i].type == (int)NoteType.HOLD || CurrentChart.note_list[i].type == (int)NoteType.LONG_HOLD) && CurrentChart.note_list[i].time + CurrentChart.note_list[i].hold_time < time)
+        // Optimize if necessary
+        for(int i = 0; i < HitsoundTimings.Count; i++)
+        {
+            if(HitsoundTimings[i] < time)
             {
-                CurrentHoldHitsoundIndex = i + 1;
+                CurrentHitsoundIndex = i;
             }
         }
 
@@ -851,7 +676,8 @@ public class GameLogic : MonoBehaviour
 
         GameObject.Find("SweepChangeButton").GetComponentInChildren<Text>().text = CurrentPage.scan_line_direction == 1 ? "Up" : "Down";
 
-        GameObject.Find("TimeText").GetComponent<Text>().text = "Page: " + CurrentPageIndex.ToString() + "\nTime: " + ((int)((time - CurrentChart.music_offset) / 60)).ToString() + ":" + ((int)(time - CurrentChart.music_offset) % 60).ToString("D2") + "." + ((int)((time - CurrentChart.music_offset) * 1000 - Math.Floor(time - CurrentChart.music_offset) * 1000)).ToString("D3");
+        GameObject.Find("PageText").GetComponent<Text>().text = CurrentPageIndex.ToString();
+        GameObject.Find("TimeText").GetComponent<Text>().text = ((int)((time - CurrentChart.music_offset) / 60)).ToString() + ":" + ((int)(time - CurrentChart.music_offset) % 60).ToString("D2") + "." + ((int)((time - CurrentChart.music_offset) * 1000 - Math.Floor(time - CurrentChart.music_offset) * 1000)).ToString("D3");
 
         Scanline.transform.position = new Vector3(0, CurrentPage.scan_line_direction == 1
             ? PlayAreaHeight * (float)((time - CurrentPage.start_time) /
@@ -896,49 +722,33 @@ public class GameLogic : MonoBehaviour
                 return;
             }
 
-            Timeline.SetValueWithoutNotify((float)(MusicManager.Time / MusicManager.MaxTime) * PlaybackSpeeds[PlaybackSpeedIndex]);
+            if(Config.UpdateTimelineWhileRunning)
+            {
+                Timeline.SetValueWithoutNotify((float)(MusicManager.Time / MusicManager.MaxTime) * PlaybackSpeeds[PlaybackSpeedIndex]);
+            }
+
             double time = MusicManager.Time + Offset;
 
-            while(CurrentHitsoundIndex < CurrentChart.note_list.Count && CurrentChart.note_list[CurrentHitsoundIndex].time - 0.05 <= time)
+            while(CurrentHitsoundIndex < HitsoundTimings.Count && HitsoundTimings[CurrentHitsoundIndex] - 0.05 <= time)
             {
                 for(int i = 0; i < HitsoundSources.Length; i++)
                 {
                     if(HitsoundScheduledTimes[i] < AudioSettings.dspTime)
                     {
-                        HitsoundSources[i].PlayScheduled(CurrentChart.note_list[CurrentHitsoundIndex].time - time + AudioSettings.dspTime);
-                        HitsoundScheduledTimes[i] = CurrentChart.note_list[CurrentHitsoundIndex].time - time + AudioSettings.dspTime + HitsoundSources[i].clip.length;
+                        HitsoundSources[i].PlayScheduled(HitsoundTimings[CurrentHitsoundIndex] - time + AudioSettings.dspTime);
+                        HitsoundScheduledTimes[i] = HitsoundTimings[CurrentHitsoundIndex] - time + AudioSettings.dspTime + HitsoundSources[i].clip.length;
                         break;
                     }
                 }
                 CurrentHitsoundIndex++;
             }
 
-            if(Config.PlayHitsoundsOnHoldEnd)
-            {
-                while (CurrentHoldHitsoundIndex < CurrentChart.note_list.Count && CurrentChart.note_list[CurrentHoldHitsoundIndex].time + CurrentChart.note_list[CurrentHoldHitsoundIndex].hold_time - 0.05 <= time)
-                {
-                    if (CurrentChart.note_list[CurrentHoldHitsoundIndex].type == (int)NoteType.HOLD || CurrentChart.note_list[CurrentHoldHitsoundIndex].type == (int)NoteType.LONG_HOLD)
-                    {
-                        for (int i = 0; i < HitsoundSources.Length; i++)
-                        {
-                            if (HitsoundScheduledTimes[i] < AudioSettings.dspTime)
-                            {
-                                HitsoundSources[i].PlayScheduled((CurrentChart.note_list[CurrentHoldHitsoundIndex].time + CurrentChart.note_list[CurrentHoldHitsoundIndex].hold_time - time) * 1.0 / PlaybackSpeeds[PlaybackSpeedIndex] + AudioSettings.dspTime);
-                                HitsoundScheduledTimes[i] = (CurrentChart.note_list[CurrentHoldHitsoundIndex].time + CurrentChart.note_list[CurrentHoldHitsoundIndex].hold_time - time) * 1.0 / PlaybackSpeeds[PlaybackSpeedIndex] + AudioSettings.dspTime + HitsoundSources[i].clip.length;
-                                break;
-                            }
-                        }
-                    }
-                    CurrentHoldHitsoundIndex++;
-                }
-            }
-
-            while(CurrentNoteIndex < CurrentChart.note_list.Count &&  CurrentChart.note_list[CurrentNoteIndex].time - CurrentChart.note_list[CurrentNoteIndex].approach_time <= time)
+            while (CurrentNoteIndex < CurrentChart.note_list.Count &&  CurrentChart.note_list[CurrentNoteIndex].time - CurrentChart.note_list[CurrentNoteIndex].approach_time <= time)
             {
                 SpawnNote(CurrentChart.note_list[CurrentNoteIndex], time - CurrentChart.note_list[CurrentNoteIndex].time + CurrentChart.note_list[CurrentNoteIndex].approach_time);
                 CurrentNoteIndex++;
             }
-            while(CurrentPageIndex < CurrentChart.page_list.Count && CurrentPage.end_time < time)
+            while (CurrentPageIndex < CurrentChart.page_list.Count && CurrentPage.end_time < time)
             {
                 CurrentPageIndex++;
             }
@@ -946,8 +756,16 @@ public class GameLogic : MonoBehaviour
             {
                 CurrentTempoIndex++;
             }
+        
+            TimeTextBuilder.Clear();
+            TimeTextBuilder.Append((int)((time - CurrentChart.music_offset) / 60));
+            TimeTextBuilder.Append(':');
+            TimeTextBuilder.Append(((int)(time - CurrentChart.music_offset) % 60).ToString("D2"));
+            TimeTextBuilder.Append('.');
+            TimeTextBuilder.Append(((int)((time - CurrentChart.music_offset) * 1000 - Math.Floor(time - CurrentChart.music_offset) * 1000)).ToString("D3"));
 
-            GameObject.Find("TimeText").GetComponent<Text>().text = "Page: " + CurrentPageIndex.ToString() + "\nTime: " + ((int)((time - CurrentChart.music_offset) / 60)).ToString() + ":" + ((int)(time - CurrentChart.music_offset) % 60).ToString("D2") + "." + ((int)((time - CurrentChart.music_offset) * 1000 - Math.Floor(time - CurrentChart.music_offset) * 1000)).ToString("D3");
+            GameObject.Find("PageText").GetComponent<Text>().text = CurrentPageIndex.ToString();
+            GameObject.Find("TimeText").GetComponent<Text>().text = TimeTextBuilder.ToString();
 
             if (CurrentPageIndex < CurrentChart.page_list.Count) // in case the pages don't go to the end of the chart
             {
@@ -966,7 +784,7 @@ public class GameLogic : MonoBehaviour
 
     private void HandleInput()
     {
-        if (Input.GetMouseButtonDown(0)) // Handle input
+        if (Input.GetMouseButtonDown(0))
         {
             Vector2 touchpos = MainCamera.ScreenToWorldPoint(Input.mousePosition);
 
@@ -979,14 +797,14 @@ public class GameLogic : MonoBehaviour
                     if (obj.GetComponentInChildren<CircleCollider2D>().OverlapPoint(touchpos)) // Highlighting notes
                     {
                         obj.GetComponent<IHighlightable>().Highlight();
-                        if (obj.GetComponent<LongHoldNoteController>() != null)
+                        if (obj.GetComponent<NoteController>().NoteType == (int)NoteType.LONG_HOLD)
                         {
-                            Note note = CurrentChart.note_list[obj.GetComponent<INote>().NoteID];
+                            Note note = CurrentChart.note_list[obj.GetComponent<NoteController>().NoteID];
                             obj.GetComponent<LongHoldNoteController>().FinishIndicator.transform.position = new Vector3(obj.transform.position.x, CurrentPage.scan_line_direction *
                                 (PlayAreaHeight * (note.tick + note.hold_tick - CurrentPage.start_tick) / (int)CurrentPage.PageSize - PlayAreaHeight / 2));
                         }
                     }
-                    if (obj.GetComponent<HoldNoteController>() != null) // Modifying hold_time for short holds
+                    if (obj.GetComponent<NoteController>().NoteType == (int)NoteType.HOLD) // Modifying hold_time for short holds
                     {
                         var holdcontroller = obj.GetComponent<HoldNoteController>();
                         int id = holdcontroller.NoteID;
@@ -1014,7 +832,7 @@ public class GameLogic : MonoBehaviour
                         UpdateTime(CurrentPage.start_time);
                         HighlightNoteWithID(id);
                     }
-                    else if (obj.GetComponent<LongHoldNoteController>() != null) // Modifying hold_time for long holds
+                    else if (obj.GetComponent<NoteController>().NoteType == (int)NoteType.LONG_HOLD) // Modifying hold_time for long holds
                     {
                         var holdcontroller = obj.GetComponent<LongHoldNoteController>();
                         int id = holdcontroller.NoteID;
@@ -1039,7 +857,7 @@ public class GameLogic : MonoBehaviour
                         UpdateTime(CurrentPage.start_time);
                         foreach (var obj2 in GameObject.FindGameObjectsWithTag("Note"))
                         {
-                            if (obj2.GetComponent<INote>().NoteID == id)
+                            if (obj2.GetComponent<NoteController>().NoteID == id)
                             {
                                 obj2.GetComponent<IHighlightable>().Highlight();
                             }
@@ -1058,7 +876,7 @@ public class GameLogic : MonoBehaviour
                 }
                 foreach (GameObject obj in GameObject.FindGameObjectsWithTag("ScanlineNote"))
                 {
-                    if (obj.GetComponent<INote>().NoteID != 0 && obj.GetComponentInChildren<Collider2D>().OverlapPoint(touchpos))
+                    if (obj.GetComponent<ITempo>().TempoID != 0 && obj.GetComponentInChildren<Collider2D>().OverlapPoint(touchpos))
                     {
                         currentlymoving = obj;
                         break;
@@ -1068,6 +886,14 @@ public class GameLogic : MonoBehaviour
             else if (CurrentChart != null && touchpos.x < PlayAreaWidth / 2 && touchpos.x > -PlayAreaWidth / 2 && touchpos.y < PlayAreaHeight / 2 && touchpos.y > -PlayAreaHeight / 2)
             // Adding notes
             {
+                foreach(GameObject obj in GameObject.FindGameObjectsWithTag("Note"))
+                {
+                    if (obj.GetComponent<NoteController>().NoteType == (int)CurrentTool && Math.Abs(touchpos.y - obj.transform.position.y) < (PlayAreaHeight / DivisorValue) / 2
+                        && Math.Abs(touchpos.x - obj.transform.position.x) < (PlayAreaHeight / DivisorValue) / 2)
+                    {
+                        return;
+                    }
+                }
                 if (CurrentTool == NoteType.CLICK) // Add click note
                 {
                     AddNote(new Note
@@ -1150,14 +976,14 @@ public class GameLogic : MonoBehaviour
                     int IDtoHighlight = -1;
                     foreach (GameObject obj in GameObject.FindGameObjectsWithTag("Note"))
                     {
-                        if (obj.GetComponent<IHighlightable>().Highlighted && CurrentChart.note_list[obj.GetComponent<INote>().NoteID].next_id == -1 && (obj.GetComponent<DragHeadNoteController>() != null || obj.GetComponent<DragChildNoteController>() != null))
+                        if (obj.GetComponent<IHighlightable>().Highlighted && CurrentChart.note_list[obj.GetComponent<NoteController>().NoteID].next_id == -1 && (obj.GetComponent<DragHeadNoteController>() != null || obj.GetComponent<DragChildNoteController>() != null))
                         // Add drag child
                         {
                             int tick = (int)(CurrentPage.start_tick + CurrentPage.PageSize *
                                     (CurrentPage.scan_line_direction == 1 ? Math.Round((touchpos.y + PlayAreaHeight / 2) / (PlayAreaHeight / DivisorValue)) / DivisorValue
                                     : 1.0f - Math.Round((touchpos.y + PlayAreaHeight / 2) / (PlayAreaHeight / DivisorValue)) / DivisorValue));
 
-                            if (CurrentChart.note_list[obj.GetComponent<INote>().NoteID].tick < tick)
+                            if (CurrentChart.note_list[obj.GetComponent<NoteController>().NoteID].tick < tick)
                             {
                                 int id = AddNote(new Note
                                 {
@@ -1170,7 +996,7 @@ public class GameLogic : MonoBehaviour
                                     tick = tick
                                 });
                                 IDtoHighlight = id;
-                                CurrentChart.note_list[obj.GetComponent<INote>().NoteID].next_id = id;
+                                CurrentChart.note_list[obj.GetComponent<NoteController>().NoteID].next_id = id;
                             }
                             existsHighlightedDragHead = true;
                             break;
@@ -1203,14 +1029,14 @@ public class GameLogic : MonoBehaviour
                     int IDtoHighlight = -1;
                     foreach (GameObject obj in GameObject.FindGameObjectsWithTag("Note"))
                     {
-                        if (obj.GetComponent<IHighlightable>().Highlighted && CurrentChart.note_list[obj.GetComponent<INote>().NoteID].next_id == -1 && (obj.GetComponent<DragHeadNoteController>() != null || obj.GetComponent<DragChildNoteController>() != null))
+                        if (obj.GetComponent<IHighlightable>().Highlighted && CurrentChart.note_list[obj.GetComponent<NoteController>().NoteID].next_id == -1 && (obj.GetComponent<DragHeadNoteController>() != null || obj.GetComponent<DragChildNoteController>() != null))
                         // Add drag child
                         {
                             int tick = (int)(CurrentPage.start_tick + CurrentPage.PageSize *
                                     (CurrentPage.scan_line_direction == 1 ? Math.Round((touchpos.y + PlayAreaHeight / 2) / (PlayAreaHeight / DivisorValue)) / DivisorValue
                                     : 1.0f - Math.Round((touchpos.y + PlayAreaHeight / 2) / (PlayAreaHeight / DivisorValue)) / DivisorValue));
 
-                            if (CurrentChart.note_list[obj.GetComponent<INote>().NoteID].tick < tick)
+                            if (CurrentChart.note_list[obj.GetComponent<NoteController>().NoteID].tick < tick)
                             {
                                 int id = AddNote(new Note
                                 {
@@ -1223,7 +1049,7 @@ public class GameLogic : MonoBehaviour
                                     tick = tick
                                 });
                                 IDtoHighlight = id;
-                                CurrentChart.note_list[obj.GetComponent<INote>().NoteID].next_id = id;
+                                CurrentChart.note_list[obj.GetComponent<NoteController>().NoteID].next_id = id;
                             }
                             existsHighlightedDragHead = true;
                             break;
@@ -1274,13 +1100,14 @@ public class GameLogic : MonoBehaviour
                 {
                     if (currentlymoving.CompareTag("ScanlineNote"))
                     {
-                        RemoveTempo(currentlymoving.GetComponent<INote>().NoteID);
+                        RemoveTempo(currentlymoving.GetComponent<ITempo>().TempoID);
+                        Destroy(currentlymoving);
                     }
                     else
                     {
-                        RemoveNote(currentlymoving.GetComponent<INote>().NoteID);
+                        RemoveNote(currentlymoving.GetComponent<NoteController>().NoteID);
+                        ObjectPool.ReturnToPool(currentlymoving, currentlymoving.GetComponent<NoteController>().NoteType);
                     }
-                    Destroy(currentlymoving);
                     UpdateTime(CurrentPage.start_time);
                 }
                 else
@@ -1293,7 +1120,7 @@ public class GameLogic : MonoBehaviour
                             (float)Math.Round((currentlymoving.transform.position.x + PlayAreaWidth / 2) / (PlayAreaWidth / Config.VerticalDivisors)) * (PlayAreaWidth / Config.VerticalDivisors) - PlayAreaWidth / 2,
                             (float)Math.Round((currentlymoving.transform.position.y + PlayAreaHeight / 2) / (PlayAreaHeight / DivisorValue)) * (PlayAreaHeight / DivisorValue) - PlayAreaHeight / 2);
 
-                        int id = currentlymoving.GetComponent<INote>().NoteID;
+                        int id = currentlymoving.GetComponent<NoteController>().NoteID;
                         Note note = CurrentChart.note_list[id];
                         note.x = (currentlymoving.transform.position.x + PlayAreaWidth / 2) / PlayAreaWidth;
                         int tick = (int)Math.Round(CurrentChart.page_list[note.page_index].start_tick + CurrentChart.page_list[note.page_index].PageSize *
@@ -1338,7 +1165,7 @@ public class GameLogic : MonoBehaviour
                         currentlymoving.transform.position = new Vector3(-PlayAreaWidth / 2 - 1,
                             (float)Math.Round((currentlymoving.transform.position.y + PlayAreaHeight / 2) / (PlayAreaHeight / DivisorValue)) * (PlayAreaHeight / DivisorValue) - PlayAreaHeight / 2);
 
-                        int id = currentlymoving.GetComponent<INote>().NoteID;
+                        int id = currentlymoving.GetComponent<ITempo>().TempoID;
                         Tempo tempo = CurrentChart.tempo_list[id];
                         tempo.tick = (int)Math.Round((CurrentPage.scan_line_direction == 1 ? (currentlymoving.transform.position.y + PlayAreaHeight / 2) / PlayAreaHeight :
                             1.0 - (currentlymoving.transform.position.y + PlayAreaHeight / 2) / PlayAreaHeight) * CurrentPage.PageSize) + CurrentPage.start_tick;
@@ -1350,9 +1177,8 @@ public class GameLogic : MonoBehaviour
                     CalculateTimings();
 
                     UpdateTime(CurrentPage.start_time);
-
-                    currentlymoving = null;
                 }
+                currentlymoving = null;
             }
             isTouchHeld = false;
         }
@@ -1369,7 +1195,7 @@ public class GameLogic : MonoBehaviour
     {
         foreach (var obj in GameObject.FindGameObjectsWithTag("Note"))
         {
-            if (obj.GetComponent<INote>().NoteID == id)
+            if (obj.GetComponent<NoteController>().NoteID == id)
             {
                 obj.GetComponent<IHighlightable>().Highlight();
             }
@@ -1397,7 +1223,7 @@ public class GameLogic : MonoBehaviour
     public void ChangeTempo(GameObject scanlineNote)
     {
         string bpminput = scanlineNote.GetComponent<ScanlineNoteController>().BPMInputField.text, timeinput = scanlineNote.GetComponent<ScanlineNoteController>().TimeInputField.text;
-        int id = scanlineNote.GetComponent<INote>().NoteID;
+        int id = scanlineNote.GetComponent<ITempo>().TempoID;
         if(double.TryParse(bpminput, out double bpm))
         {
             CurrentChart.tempo_list[id].value = (int)Math.Round(120000000 / bpm);

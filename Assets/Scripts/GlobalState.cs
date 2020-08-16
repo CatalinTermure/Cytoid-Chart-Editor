@@ -24,12 +24,13 @@ public class GlobalState : MonoBehaviour
     /// </summary>
     public static float PlayAreaWidth, PlayAreaHeight;
 
-    public static EditorConfig Config;
+    public static EditorConfig Config = null;
 
     public static Sprite BackgroundSprite = null;
 
     public static string DefaultRingColor = "#FFFFFF";
     public static string[] DefaultFillColors = new string[12] { "#35A7FF", "#FF5964", "#39E59E", "#39E59E", "#35A7FF", "#FF5964", "#F2C85A", "#F2C85A", "#35A7FF", "#FF5964", "#39E59E", "#39E59E" };
+    public static readonly int[] ColorIndexes = { 0, 4, 6, 2, 2, 8, 10, 10 };
 
     /// <summary>
     /// The current path to use for relative paths referenced in the level.json
@@ -61,6 +62,8 @@ public class GlobalState : MonoBehaviour
     #endif
     private void Awake()
     {
+        Application.targetFrameRate = 60;
+
         #if CCE_DEBUG
         LogPath = Path.Combine(Application.persistentDataPath, "LoadChartLog.txt");
         if(CurrentChart == null)
@@ -217,7 +220,7 @@ public class GlobalState : MonoBehaviour
 
     public static bool ApproximatelyEqual(double a, double b)
     {
-        return a - b < 0.000001;
+        return a - b < 1e-5;
     }
 
     public static float GetDistance(float x1, float y1, float x2, float y2)

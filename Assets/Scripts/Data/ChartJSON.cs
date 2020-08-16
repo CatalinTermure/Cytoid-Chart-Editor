@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 [Serializable]
 public class ChartJSON
@@ -80,19 +81,9 @@ public class Note
     public string fill_color = null;
     public double opacity = -1;
 
-    public bool ShouldSerializeapproch_rate()
-    {
-        return false;
-    }
-
-    public bool ShouldSerializesize()
-    {
-        return false;
-    }
-
     public bool ShouldSerializeopacity()
     {
-        return false;
+        return opacity > -0.5;
     }
 
     [NonSerialized, JsonIgnore]

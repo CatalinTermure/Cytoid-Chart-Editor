@@ -1,64 +1,27 @@
 ﻿using System.Diagnostics;
 using UnityEngine;
 
-public class HoldNoteController : MonoBehaviour, IHighlightable, INote
+public class HoldNoteController : NoteController
 {
-    /// <summary>
-    /// Stopwatch for keeping track of the animation time.
-    /// </summary>
-    private Stopwatch sw;
-
     /// <summary>
     /// The parts of the hold note object.
     /// </summary>
-    public GameObject NoteFill, NoteBorder, InnerNoteBorder, HollowNoteBody, FillNoteBodyMask, FillNoteBody, NoteHead, HighlightBorder, UpArrow, DownArrow;
+    public GameObject NoteFill, NoteBorder, InnerNoteBorder, HollowNoteBody, FillNoteBodyMask, FillNoteBody, NoteHead, UpArrow, DownArrow;
 
     public Collider2D UpArrowCollider, DownArrowCollider;
 
-    /// <summary>
-    /// Time it takes from the note appearing on screen to it's start time.
-    /// </summary>
-    public float ApproachTime;
-
-    /// <summary>
-    /// Time delay from the time the note should first appear to when the stopwatch starts.
-    /// </summary>
-    private float Delay;
-
-    public float PlaybackSpeed;
-
-    private float ApproachPercentage, CompletionPercentage;
+    private float CompletionPercentage;
 
     /// <summary>
     /// The time the note needs to be held for.
     /// </summary>
+    [HideInInspector]
     public float HoldTime;
 
     private float Height = 3;
     private float Size = 1;
 
-    private bool started = false;
-
-    public bool Highlighted { get; set; }
-    public int NoteType { get; set; }
-    public int NoteID { get; set; }
-
-    private void Awake()
-    {
-        Highlighted = false;
-        HighlightBorder.SetActive(false);
-        UpArrow.SetActive(false);
-        DownArrow.SetActive(false);
-    }
-
-    void Start()
-    {
-        sw = Stopwatch.StartNew();
-        started = true;
-        UpdateComponentVisuals();
-    }
-
-    public void ChangeNoteColor(Color color)
+    public override void ChangeNoteColor(Color color)
     {
         NoteFill.GetComponent<SpriteRenderer>().color = color;
         FillNoteBody.GetComponent<SpriteRenderer>().color = color;
@@ -67,85 +30,87 @@ public class HoldNoteController : MonoBehaviour, IHighlightable, INote
         NoteBorder.GetComponent<SpriteRenderer>().color = new Color(255, 255, 255, color.a);
     }
 
-    public void SetHeight(float height)
+    public override void Initialize(Note note)
     {
-        Height = height;
-        FillNoteBody.GetComponent<SpriteRenderer>().size = new Vector2(Size, height);
-        HollowNoteBody.GetComponent<SpriteRenderer>().size = new Vector2(Size, height);
-    }
+        NoteStopwatch = Stopwatch.StartNew();
 
-    public void SetSize(float size)
-    {
-        NoteHead.transform.localScale = new Vector2(size, size);
-        NoteHead.transform.localPosition = new Vector3(0, size);
-        Size = size;
-    }
+        gameObject.transform.position = new Vector3((float)((note.x - 0.5) * GlobalState.PlayAreaWidth), (float)((note.y - 0.5) * GlobalState.PlayAreaHeight));
 
-    public void SetDelay(float delay)
-    {
-        Delay = delay;
-        if(started) UpdateComponentVisuals();
-    }
+        Size = GlobalState.Config.DefaultNoteSize * (float)note.size;
+        NoteHead.transform.localScale = new Vector2(Size, Size);
+        NoteHead.transform.localPosition = new Vector3(0, Size);
 
-    public void Flip()
-    {
-        transform.rotation = new Quaternion(0, 0, 1, 0);
-    }
+        ApproachTime = (float)note.approach_time;
 
-    private void FixedUpdate()
-    {
-        if(GlobalState.IsGameRunning)
+        Height = (float)(GlobalState.PlayAreaHeight * note.hold_tick / GlobalState.CurrentChart.page_list[note.page_index].PageSize);
+        FillNoteBody.GetComponent<SpriteRenderer>().size = new Vector2(Size, Height);
+        HollowNoteBody.GetComponent<SpriteRenderer>().size = new Vector2(Size, Height);
+
+        HoldTime = (float)note.hold_time;
+
+        if (GlobalState.CurrentChart.page_list[note.page_index].scan_line_direction == -1)
         {
-            if(!sw.IsRunning)
-            {
-                sw.Start();
-            }
+            transform.rotation = new Quaternion(0, 0, 1, 0);
         }
         else
         {
-            sw.Stop();
+            transform.rotation = new Quaternion(0, 0, 0, 0);
         }
-    }
 
-    void Update()
-    {
-        UpdateComponentVisuals();
-    }
+        CompletionPercentage = 0;
+        FillNoteBodyMask.transform.localScale = new Vector3(Size * 50, 0);
 
-    private void UpdateComponentVisuals()
-    {
+        Highlighted = true;
+        Highlight();
+
+        NoteType = note.type;
+        NoteID = note.id;
+
         if(GlobalState.IsGameRunning)
         {
-            ApproachPercentage = (Delay + sw.ElapsedMilliseconds * PlaybackSpeed / 1000f) / ApproachTime;
-            if (ApproachPercentage < 1)
-            {
-                HollowNoteBody.transform.localScale = new Vector3(0.2f + 0.3f * ApproachPercentage, 1);
-                NoteFill.transform.localScale = NoteBorder.transform.localScale = new Vector3(0.6f + 0.4f * ApproachPercentage, 0.6f + 0.4f * ApproachPercentage);
-                InnerNoteBorder.transform.localScale = new Vector3(0.4f + 0.35f * ApproachPercentage, 0.4f + 0.35f * ApproachPercentage);
-            }
-            else
-            {
-                CompletionPercentage = (Delay + sw.ElapsedMilliseconds * PlaybackSpeed / 1000f - ApproachTime) / HoldTime;
-
-                FillNoteBodyMask.transform.localScale = new Vector3(Size * 50, Height * CompletionPercentage * 100);
-
-                if (CompletionPercentage > 1)
-                {
-                    Destroy(gameObject);
-                }
-            }
+            NoteFill.transform.localScale = NoteBorder.transform.localScale = new Vector3(0.6f, 0.6f);
+            InnerNoteBorder.transform.localScale = new Vector3(0.4f, 0.4f);
+            HollowNoteBody.transform.localScale = new Vector3(0.2f, 1);
         }
         else
         {
-            HollowNoteBody.transform.localScale = new Vector3(0.5f, 1);
-            NoteFill.transform.localScale = NoteBorder.transform.localScale = new Vector3(1, 1);
-            InnerNoteBorder.transform.localScale = new Vector3(0.75f, 0.75f);
-
-            FillNoteBodyMask.transform.localScale = new Vector3(Size * 50, 0);
+            ChangeToPausedVisuals();
         }
     }
 
-    public void Highlight()
+    protected override void UpdateVisuals()
+    {
+        ApproachPercentage = (Delay + NoteStopwatch.ElapsedMilliseconds * PlaybackSpeed / 1000f) / ApproachTime;
+        if (ApproachPercentage < 1)
+        {
+            HollowNoteBody.transform.localScale = new Vector3(0.2f + 0.3f * ApproachPercentage, 1);
+            NoteFill.transform.localScale = NoteBorder.transform.localScale = new Vector3(0.6f + 0.4f * ApproachPercentage, 0.6f + 0.4f * ApproachPercentage);
+            InnerNoteBorder.transform.localScale = new Vector3(0.4f + 0.35f * ApproachPercentage, 0.4f + 0.35f * ApproachPercentage);
+        }
+        else
+        {
+            CompletionPercentage = (Delay + NoteStopwatch.ElapsedMilliseconds * PlaybackSpeed / 1000f - ApproachTime) / HoldTime;
+
+            FillNoteBodyMask.transform.localScale = new Vector3(Size * 50, Height * CompletionPercentage * 100);
+
+            if (CompletionPercentage > 1)
+            {
+                NoteStopwatch.Stop();
+                ParentPool.ReturnToPool(gameObject, NoteType);
+            }
+        }
+    }
+
+    protected override void ChangeToPausedVisuals()
+    {
+        HollowNoteBody.transform.localScale = new Vector3(0.5f, 1);
+        NoteFill.transform.localScale = NoteBorder.transform.localScale = new Vector3(1, 1);
+        InnerNoteBorder.transform.localScale = new Vector3(0.75f, 0.75f);
+
+        FillNoteBodyMask.transform.localScale = new Vector3(Size * 50, 0);
+    }
+
+    public override void Highlight()
     {
         Highlighted = !Highlighted;
         HighlightBorder.SetActive(Highlighted);

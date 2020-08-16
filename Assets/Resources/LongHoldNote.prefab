@@ -836,7 +836,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &2734749768777662784
 Transform:
   m_ObjectHideFlags: 0
@@ -866,6 +866,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2b4ae1c7b69d9964e96bb12ecc030bf3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ApproachTime: 1.367
+  PlaybackSpeed: 0
+  HighlightBorder: {fileID: 4977402534739248326}
+  NoteType: 0
+  NoteID: 0
   NoteFill: {fileID: 2734749768216279455}
   NoteBorder: {fileID: 2734749768216879177}
   InnerNoteBorder: {fileID: 2734749768030371557}
@@ -881,8 +886,6 @@ MonoBehaviour:
   FinishIndicator: {fileID: 4761012612634411364}
   UpArrowCollider: {fileID: 1427491040092167919}
   DownArrowCollider: {fileID: 2614016049248198630}
-  HighlightBorder: {fileID: 4977402534739248326}
-  ApproachTime: 1.367
   HoldTime: 5
 --- !u!1 &2734749768972862044
 GameObject:
