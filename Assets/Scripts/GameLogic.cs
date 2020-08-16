@@ -855,13 +855,7 @@ public class GameLogic : MonoBehaviour
                         }
                         CalculateTimings();
                         UpdateTime(CurrentPage.start_time);
-                        foreach (var obj2 in GameObject.FindGameObjectsWithTag("Note"))
-                        {
-                            if (obj2.GetComponent<NoteController>().NoteID == id)
-                            {
-                                obj2.GetComponent<IHighlightable>().Highlight();
-                            }
-                        }
+                        HighlightNoteWithID(id);
                     }
                 }
             }
@@ -1191,13 +1185,19 @@ public class GameLogic : MonoBehaviour
         }
     }
 
-    private static void HighlightNoteWithID(int id)
+    private void HighlightNoteWithID(int id)
     {
         foreach (var obj in GameObject.FindGameObjectsWithTag("Note"))
         {
             if (obj.GetComponent<NoteController>().NoteID == id)
             {
                 obj.GetComponent<IHighlightable>().Highlight();
+                if (obj.GetComponent<NoteController>().NoteType == (int)NoteType.LONG_HOLD)
+                {
+                    Note note = CurrentChart.note_list[obj.GetComponent<NoteController>().NoteID];
+                    obj.GetComponent<LongHoldNoteController>().FinishIndicator.transform.position = new Vector3(obj.transform.position.x, CurrentPage.scan_line_direction *
+                        (PlayAreaHeight * (note.tick + note.hold_tick - CurrentPage.start_tick) / (int)CurrentPage.PageSize - PlayAreaHeight / 2));
+                }
             }
         }
     }
