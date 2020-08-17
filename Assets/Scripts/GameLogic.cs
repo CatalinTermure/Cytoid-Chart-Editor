@@ -217,10 +217,11 @@ public class GameLogic : MonoBehaviour
                 pi++;
             }
         }
-        if(pages[p - 1].end_time < MusicManager.MaxTime) // Add pages in case the page_list ends before the music
+        double realmaxtime = (double)MusicManager.MaxTime / PlaybackSpeeds[PlaybackSpeedIndex];
+        if(pages[p - 1].end_time < realmaxtime) // Add pages in case the page_list ends before the music
         {
             double lasttempotime = CurrentChart.tempo_list.Last().value / 1000000.0; // Calculate time of the pages in respect to the last tempo
-            while(pages[p - 1].end_time < MusicManager.MaxTime)
+            while(pages[p - 1].end_time < realmaxtime)
             {
                 pages.Add(new Page()
                 {
@@ -235,9 +236,9 @@ public class GameLogic : MonoBehaviour
             CalculateTimings();
             return;
         }
-        if(pages[p - 1].start_time > MusicManager.MaxTime)
+        if(pages[p - 1].start_time > realmaxtime)
         {
-            while (pages[p - 1].start_time > MusicManager.MaxTime)
+            while (pages[p - 1].start_time > realmaxtime)
             {
                 pages.RemoveAt(p - 1);
                 p--;
@@ -321,6 +322,7 @@ public class GameLogic : MonoBehaviour
                 ni++;
             }
         }
+        HitsoundTimings.Sort(); // this is not pretty, optimize if needed
     }
 
     private int GetDragParent(int id)
@@ -407,6 +409,25 @@ public class GameLogic : MonoBehaviour
             else if(CurrentChart.note_list[i].next_id == noteID) // If the deleted note is part of a (c)drag chain, then remove it from the chain while keeping the chain valid
             {
                 CurrentChart.note_list[i].next_id = CurrentChart.note_list[noteID].next_id - (CurrentChart.note_list[noteID].next_id > noteID ? 1 : 0);
+            }
+        }
+        for(int i = 0; i < HitsoundTimings.Count; i++)
+        {
+            if(Math.Abs(CurrentChart.note_list[noteID].time - HitsoundTimings[i]) < 0.001)
+            {
+                HitsoundTimings.RemoveAt(i);
+                break;
+            }
+        }
+        if(Config.PlayHitsoundsOnHoldEnd && (CurrentChart.note_list[noteID].type == (int)NoteType.HOLD || CurrentChart.note_list[noteID].type == (int)NoteType.LONG_HOLD))
+        {
+            for (int i = 0; i < HitsoundTimings.Count; i++)
+            {
+                if (Math.Abs(CurrentChart.note_list[noteID].time + CurrentChart.note_list[noteID].hold_time - HitsoundTimings[i]) < 0.001)
+                {
+                    HitsoundTimings.RemoveAt(i);
+                    break;
+                }
             }
         }
         // Use a classic deletion algorithm while modifying ids accordingly
@@ -658,7 +679,7 @@ public class GameLogic : MonoBehaviour
         {
             if(HitsoundTimings[i] < time)
             {
-                CurrentHitsoundIndex = i;
+                CurrentHitsoundIndex = i + 1;
             }
         }
 
