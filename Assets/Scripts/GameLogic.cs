@@ -46,6 +46,7 @@ public class GameLogic : MonoBehaviour
     private int CurrentHitsoundIndex = 0;
     private int CurrentTempoIndex = 0;
     private int CurrentNoteIndex = 0;
+    [HideInInspector]
     public int CurrentPageIndex = 0;
     private Page CurrentPage
     {
@@ -654,10 +655,10 @@ public class GameLogic : MonoBehaviour
         // Can be optimized if necessary with binary search algorithms and a segment tree for the holds, albeit very tricky to implement properly. The last resort if optimization is necessary.
         for (int i = 0; i < CurrentChart.note_list.Count; i++)
         {
-            if (CurrentChart.note_list[i].time - (Config.ShowApproachingNotesWhilePaused || CurrentChart.note_list[i].page_index == CurrentPageIndex ? CurrentChart.note_list[i].approach_time : 0) <= time && CurrentChart.note_list[i].time + CurrentChart.note_list[i].hold_time >= time
-                || ((CurrentChart.note_list[i].type == (int)NoteType.DRAG_HEAD || CurrentChart.note_list[i].type == (int)NoteType.CDRAG_HEAD) && GetLastChild(i).time >= time && CurrentChart.note_list[i].time <= time))
+            if (CurrentChart.note_list[i].time - (Config.ShowApproachingNotesWhilePaused || CurrentChart.note_list[i].page_index == CurrentPageIndex ? CurrentChart.note_list[i].approach_time : 0) <= time && CurrentChart.note_list[i].time + CurrentChart.note_list[i].hold_time >= time)
             {
                 SpawnNote(CurrentChart.note_list[i], time - CurrentChart.note_list[i].time + CurrentChart.note_list[i].approach_time);
+                CurrentNoteIndex = Math.Max(CurrentNoteIndex, i + 1);
             }
             else if (CurrentChart.note_list[i].page_index == CurrentPageIndex)
             {
@@ -667,9 +668,9 @@ public class GameLogic : MonoBehaviour
             {
                 SpawnNote(CurrentChart.note_list[i], 10000, true);
             }
-            if(CurrentChart.note_list[i].time - (Config.ShowApproachingNotesWhilePaused || CurrentChart.note_list[i].page_index == CurrentPageIndex ? CurrentChart.note_list[i].approach_time : 0) <= time)
+            if(CurrentChart.note_list[i].time <= time)
             {
-                CurrentNoteIndex = i + 1;
+                CurrentNoteIndex = Math.Max(CurrentNoteIndex, i + 1);
             }
 
         }
@@ -709,15 +710,6 @@ public class GameLogic : MonoBehaviour
         MusicManager.SetTime(time - Offset);
 
         Timeline.SetValueWithoutNotify((float)(MusicManager.Time / MusicManager.MaxTime) * PlaybackSpeeds[PlaybackSpeedIndex]);
-    }
-
-    private Note GetLastChild(int parent)
-    {
-        while(CurrentChart.note_list[parent].next_id > 0)
-        {
-            parent = CurrentChart.note_list[parent].next_id;
-        }
-        return CurrentChart.note_list[parent];
     }
 
     private bool isTouchHeld = false;
