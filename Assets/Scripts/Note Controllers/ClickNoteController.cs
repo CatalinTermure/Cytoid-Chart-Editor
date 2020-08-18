@@ -20,7 +20,7 @@ public class ClickNoteController : NoteController
         NoteStopwatch = Stopwatch.StartNew();
 
         gameObject.transform.position = new Vector3((float)(GlobalState.PlayAreaWidth * (note.x - 0.5)), (float)(GlobalState.PlayAreaHeight * (note.y - 0.5)));
-        gameObject.transform.localScale = new Vector3(GlobalState.Config.DefaultNoteSize * (float)note.size * (note.type == 0 ? 1 : 0.8f), GlobalState.Config.DefaultNoteSize * (float)note.size * (note.type == 0 ? 1 : 0.8f));
+        gameObject.transform.localScale = new Vector3(GlobalState.Config.DefaultNoteSize * (float)note.actual_size * (note.type == 0 ? 1 : 0.8f), GlobalState.Config.DefaultNoteSize * (float)note.actual_size * (note.type == 0 ? 1 : 0.8f));
 
         ApproachTime = (float)note.approach_time;
 

@@ -242,7 +242,7 @@ public class GlobalState : MonoBehaviour
         {
             step = cnt / 2;
             i = l + step;
-            if(p[i].start_time < time)
+            if(p[i].actual_start_time < time)
             {
                 l = i;
                 cnt -= step + 1;
@@ -253,11 +253,11 @@ public class GlobalState : MonoBehaviour
             }
         }
 
-        while(l + 1 < p.Count && p[l + 1].start_time < time)
+        while(l + 1 < p.Count && p[l + 1].actual_start_time < time)
         {
             l++;
         }
-        // change this to be more efficient
+        // TODO: fix this undershooting the page
         return l;
     }
 

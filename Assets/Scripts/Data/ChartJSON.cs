@@ -34,11 +34,18 @@ public class Page
     public int end_tick;
     public int scan_line_direction;
     [NonSerialized, JsonIgnore]
-    public double start_time, end_time;
+    public double start_time, end_time, actual_start_time;
+    [NonSerialized, JsonIgnore]
+    public int actual_start_tick;
     [JsonIgnore]
     public double PageSize
     {
         get => end_tick - start_tick;
+    }
+    [JsonIgnore]
+    public double ActualPageSize
+    {
+        get => end_tick - actual_start_tick;
     }
 }
 
@@ -76,14 +83,27 @@ public class Note
     public int hold_tick;
     public int next_id;
     public double approach_rate = 1.0;
-    public double size = 1.0;
+    public double size = -1;
     public string ring_color = null;
     public string fill_color = null;
     public double opacity = -1;
 
+    [NonSerialized, JsonIgnore]
+    public double actual_opacity = 1.0, actual_size = 1.0;
+
     public bool ShouldSerializeopacity()
     {
-        return opacity > -0.5;
+        return !(opacity < 0);
+    }
+
+    public bool ShouldSerializesize()
+    {
+        return !(size < 0);
+    }
+
+    public bool ShouldSerializeapproach_rate()
+    {
+        return Math.Abs(approach_rate - 1.0) < 0.001;
     }
 
     [NonSerialized, JsonIgnore]

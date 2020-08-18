@@ -17,7 +17,7 @@ public class DragChildNoteController : NoteController
         NoteStopwatch = Stopwatch.StartNew();
 
         gameObject.transform.position = new Vector3((float)(GlobalState.PlayAreaWidth * (note.x - 0.5)), (float)(GlobalState.PlayAreaHeight * (note.y - 0.5)));
-        gameObject.transform.localScale = new Vector3(GlobalState.Config.DefaultNoteSize * (float)note.size, GlobalState.Config.DefaultNoteSize * (float)note.size);
+        gameObject.transform.localScale = new Vector3(GlobalState.Config.DefaultNoteSize * (float)note.actual_size, GlobalState.Config.DefaultNoteSize * (float)note.actual_size);
 
         ApproachTime = (float)note.approach_time;
 

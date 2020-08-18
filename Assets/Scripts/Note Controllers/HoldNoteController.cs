@@ -36,7 +36,7 @@ public class HoldNoteController : NoteController
 
         gameObject.transform.position = new Vector3((float)((note.x - 0.5) * GlobalState.PlayAreaWidth), (float)((note.y - 0.5) * GlobalState.PlayAreaHeight));
 
-        Size = GlobalState.Config.DefaultNoteSize * (float)note.size;
+        Size = GlobalState.Config.DefaultNoteSize * (float)note.actual_size;
         NoteHead.transform.localScale = new Vector2(Size, Size);
         NoteHead.transform.localPosition = new Vector3(0, Size);
 
