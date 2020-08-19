@@ -15,6 +15,9 @@ public class Chart : ChartJSON
         time_base = chart.time_base;
         music_offset = chart.music_offset;
 
+        opacity = chart.opacity;
+        size = chart.size;
+
         ring_color = chart.ring_color;
         fill_colors = chart.fill_colors;
 

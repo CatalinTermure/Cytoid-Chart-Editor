@@ -362,7 +362,14 @@ public class GameLogic : MonoBehaviour
                 ni++;
             }
         }
-        NoteSpawns.Sort((NoteSpawnTime a, NoteSpawnTime b) => a.time.CompareTo(b.time)); // keeping it like this because inserting *could* be slower and notecount is quite low
+        NoteSpawns.Sort((NoteSpawnTime a, NoteSpawnTime b) =>
+        {
+            if(Math.Abs(a.time - b.time) < 0.0001)
+            {
+                return CurrentChart.note_list[a.id].page_index.CompareTo(CurrentChart.note_list[b.id].page_index);
+            }
+            return a.time.CompareTo(b.time);
+        }); // keeping it like this because inserting *could* be slower and notecount is quite low
         HitsoundTimings.Sort(); // keeping it like this because NlogN is comparable(or higher than) to N*holdcount for inserting
     }
 
@@ -432,6 +439,14 @@ public class GameLogic : MonoBehaviour
     /// <param name="noteID"> The id of the note to be removed. </param>
     private void RemoveNote(int noteID)
     {
+        for(int i = 0; i < NoteSpawns.Count; i++)
+        {
+            if(NoteSpawns[i].id == noteID)
+            {
+                NoteSpawns.RemoveAt(i);
+                break;
+            }
+        }
         if (CurrentChart.note_list[noteID].type == (int)NoteType.CDRAG_HEAD || CurrentChart.note_list[noteID].type == (int)NoteType.DRAG_HEAD)
             // If the deleted note is a (c)drag head, then make the next note the head instead
         {
