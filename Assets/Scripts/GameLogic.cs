@@ -444,6 +444,10 @@ public class GameLogic : MonoBehaviour
             if(NoteSpawns[i].id == noteID)
             {
                 NoteSpawns.RemoveAt(i);
+                for(int j = i; j < NoteSpawns.Count; j++)
+                {
+                    NoteSpawns[j] = new NoteSpawnTime { id = NoteSpawns[j].id - 1, time = NoteSpawns[j].time };
+                }
                 break;
             }
         }
