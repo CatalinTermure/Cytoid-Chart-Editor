@@ -730,6 +730,11 @@ public class GameLogic : MonoBehaviour
                 else if(CurrentChart.note_list[NoteSpawns[i].id].page_index + 1 == CurrentPageIndex)
                 {
                     SpawnNote(CurrentChart.note_list[NoteSpawns[i].id], 10000, true);
+                    CurrentNoteIndex = i + 1;
+                }
+                else if(CurrentChart.note_list[NoteSpawns[i].id].page_index < CurrentPageIndex)
+                {
+                    CurrentNoteIndex = i + 1;
                 }
             }
             else if(CurrentChart.note_list[NoteSpawns[i].id].page_index == CurrentPageIndex)

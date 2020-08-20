@@ -13,6 +13,17 @@ public class ChartJSON
 
     public double size = 1.0;
     public double opacity = 1.0;
+
+    public bool ShouldSerializesize()
+    {
+        return Math.Abs(size - 1.0) > 0.001;
+    }
+
+    public bool ShouldSerializeopacity()
+    {
+        return Math.Abs(opacity - 1.0) > 0.001;
+    }
+
     public string ring_color = null;
     public List<string> fill_colors = new List<string>(12) { null, null, null, null, null, null, null, null, null, null, null, null };
 
@@ -103,7 +114,7 @@ public class Note
 
     public bool ShouldSerializeapproach_rate()
     {
-        return Math.Abs(approach_rate - 1.0) < 0.001;
+        return Math.Abs(approach_rate - 1.0) > 0.001;
     }
 
     [NonSerialized, JsonIgnore]
