@@ -325,8 +325,6 @@ public class GameLogic : MonoBehaviour
                     notes[ni].approach_time = 1.367 / (notes[ni].approach_rate * Math.Max(1.0, 1.367 / ((currPage.end_time - currPage.actual_start_time) * page_ratio + (prevPage.end_time - prevPage.start_time) * (1.367 - page_ratio))));
                 }
 
-                NoteSpawns.Add(new NoteSpawnTime { time = notes[ni].time - notes[ni].approach_time, id = notes[ni].id });
-
                 if(notes[ni].type == 1 || notes[ni].type == 2)
                 {
                     int holdendtick = notes[ni].tick + notes[ni].hold_tick;
@@ -358,6 +356,8 @@ public class GameLogic : MonoBehaviour
                 {
                     notes[ni].hold_time = 0;
                 }
+
+                NoteSpawns.Add(new NoteSpawnTime { time = notes[ni].time - notes[ni].approach_time, id = notes[ni].id });
 
                 ni++;
             }
@@ -717,14 +717,20 @@ public class GameLogic : MonoBehaviour
                     SpawnNote(CurrentChart.note_list[NoteSpawns[i].id], time - NoteSpawns[i].time);
                     CurrentNoteIndex = i + 1;
                 }
+                else if((CurrentChart.note_list[NoteSpawns[i].id].type == (int)NoteType.HOLD || CurrentChart.note_list[NoteSpawns[i].id].type == (int)NoteType.LONG_HOLD)
+                    && CurrentChart.note_list[NoteSpawns[i].id].time + CurrentChart.note_list[NoteSpawns[i].id].hold_time >= time)
+                {
+                    SpawnNote(CurrentChart.note_list[NoteSpawns[i].id], time - NoteSpawns[i].time);
+                    CurrentNoteIndex = i + 1;
+                }
+                else if(CurrentChart.note_list[NoteSpawns[i].id].page_index + 1 == CurrentPageIndex)
+                {
+                    SpawnNote(CurrentChart.note_list[NoteSpawns[i].id], 10000, true);
+                }
             }
             else if(CurrentChart.note_list[NoteSpawns[i].id].page_index == CurrentPageIndex)
             {
                 SpawnNote(CurrentChart.note_list[NoteSpawns[i].id], 10000);
-            }
-            if(CurrentChart.note_list[NoteSpawns[i].id].page_index + 1 == CurrentPageIndex)
-            {
-                SpawnNote(CurrentChart.note_list[NoteSpawns[i].id], 10000, true);
             }
         }
 
