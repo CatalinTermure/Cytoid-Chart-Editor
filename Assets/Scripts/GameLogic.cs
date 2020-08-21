@@ -1183,6 +1183,7 @@ public class GameLogic : MonoBehaviour
                         RemoveNote(currentlymoving.GetComponent<NoteController>().NoteID);
                         ObjectPool.ReturnToPool(currentlymoving, currentlymoving.GetComponent<NoteController>().NoteType);
                     }
+                    CalculateTimings();
                     UpdateTime(CurrentPage.actual_start_time);
                 }
                 else
