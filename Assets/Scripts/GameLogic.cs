@@ -722,7 +722,8 @@ public class GameLogic : MonoBehaviour
                     CurrentNoteIndex = i + 1;
                 }
                 else if((CurrentChart.note_list[NoteSpawns[i].id].type == (int)NoteType.HOLD || CurrentChart.note_list[NoteSpawns[i].id].type == (int)NoteType.LONG_HOLD)
-                    && CurrentChart.note_list[NoteSpawns[i].id].time + CurrentChart.note_list[NoteSpawns[i].id].hold_time >= time)
+                    && CurrentChart.note_list[NoteSpawns[i].id].time + CurrentChart.note_list[NoteSpawns[i].id].hold_time >= time &&
+                    (CurrentChart.note_list[NoteSpawns[i].id].page_index <= CurrentPageIndex || Config.ShowApproachingNotesWhilePaused))
                 {
                     SpawnNote(CurrentChart.note_list[NoteSpawns[i].id], time - NoteSpawns[i].time);
                     CurrentNoteIndex = i + 1;
