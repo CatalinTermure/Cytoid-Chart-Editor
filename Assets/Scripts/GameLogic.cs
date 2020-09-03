@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -19,6 +20,8 @@ public class GameLogic : MonoBehaviour
 
     public GameObject ScanlineNote;
     public GameObject DivisorLine;
+
+    public NotePropertiesManager NotePropsManager;
 
     private ChartObjectPool ObjectPool;
 
@@ -254,9 +257,9 @@ public class GameLogic : MonoBehaviour
             CalculateTimings();
             return;
         }
-        if(pages[p - 1].actual_start_time > realmaxtime)
+        if(pages[p - 1].actual_start_time > realmaxtime && notes[n - 1].page_index + 1 < p)
         {
-            while (pages[p - 1].actual_start_time > realmaxtime)
+            while (pages[p - 1].actual_start_time > realmaxtime && notes[n - 1].page_index + 1 < p)
             {
                 pages.RemoveAt(p - 1);
                 p--;
@@ -613,7 +616,7 @@ public class GameLogic : MonoBehaviour
             {
                 if (obj.GetComponent<IHighlightable>().Highlighted)
                 {
-                    obj.GetComponent<IHighlightable>().Highlight();
+                    HighlightObject(obj);
                 }
             }
         }
@@ -686,12 +689,25 @@ public class GameLogic : MonoBehaviour
         }
     }
 
+    public static void RefreshNote(int noteID)
+    {
+        foreach (var obj in GameObject.FindGameObjectsWithTag("Note"))
+        {
+            if(obj.GetComponent<NoteController>().NoteID == noteID)
+            {
+                obj.GetComponent<NoteController>().Initialize(CurrentChart.note_list[noteID]);
+            }
+        }
+    }
+
     /// <summary>
     /// Updates the current time to the <paramref name="time"/> specified.
     /// </summary>
     /// <param name="time"> The specified time the chart should be at. </param>
     private void UpdateTime(double time)
     {
+        NotePropsManager.Clear();
+
         foreach (var obj in GameObject.FindGameObjectsWithTag("Note"))
         {
             ObjectPool.ReturnToPool(obj, obj.GetComponent<NoteController>().NoteType);
@@ -752,7 +768,7 @@ public class GameLogic : MonoBehaviour
                 CurrentHitsoundIndex = i + 1;
             }
         }
-
+        
         for(int i = 0; i < CurrentChart.tempo_list.Count; i++)
         {
             if(CurrentChart.tempo_list[i].tick <= CurrentPage.end_tick && CurrentChart.tempo_list[i].tick >= CurrentPage.actual_start_tick)
@@ -878,7 +894,7 @@ public class GameLogic : MonoBehaviour
                 {
                     if (obj.GetComponentInChildren<CircleCollider2D>().OverlapPoint(touchpos)) // Highlighting notes
                     {
-                        obj.GetComponent<IHighlightable>().Highlight();
+                        HighlightObject(obj);
                         if (obj.GetComponent<NoteController>().NoteType == (int)NoteType.LONG_HOLD)
                         {
                             Note note = CurrentChart.note_list[obj.GetComponent<NoteController>().NoteID];
@@ -1274,7 +1290,7 @@ public class GameLogic : MonoBehaviour
         {
             if (obj.GetComponent<NoteController>().NoteID == id)
             {
-                obj.GetComponent<IHighlightable>().Highlight();
+                HighlightObject(obj);
                 if (obj.GetComponent<NoteController>().NoteType == (int)NoteType.LONG_HOLD)
                 {
                     Note note = CurrentChart.note_list[obj.GetComponent<NoteController>().NoteID];
@@ -1381,6 +1397,28 @@ public class GameLogic : MonoBehaviour
             GameObject.Find("SweepChangeButton").GetComponentInChildren<Text>().text = CurrentPage.scan_line_direction == 1 ? "Up" : "Down";
             CalculateTimings();
             UpdateTime(CurrentPage.actual_start_time);
+        }
+    }
+
+    public void HighlightObject(GameObject obj)
+    {
+        IHighlightable HighlightInfo = obj.GetComponent<IHighlightable>();
+        HighlightInfo.Highlight();
+        if(HighlightInfo.Highlighted)
+        {
+            if(obj.CompareTag("Note"))
+            {
+                Note note = CurrentChart.note_list[obj.GetComponent<NoteController>().NoteID];
+                NotePropsManager.Add(note);
+            }
+        }
+        else
+        {
+            if (obj.CompareTag("Note"))
+            {
+                Note note = CurrentChart.note_list[obj.GetComponent<NoteController>().NoteID];
+                NotePropsManager.Remove(note);
+            }
         }
     }
 

@@ -122,6 +122,9 @@ public class AudioManager
             case ".mp3":
                 type = AudioType.MPEG;
                 break;
+            case ".wav":
+                type = AudioType.WAV;
+                break;
             default:
                 Debug.LogError("CCELog: Audio file type is unsupported.");
                 break;

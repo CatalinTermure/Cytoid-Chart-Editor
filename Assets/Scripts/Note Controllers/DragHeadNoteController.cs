@@ -120,6 +120,7 @@ public class DragHeadNoteController : NoteController
             if (CurrentPath < Paths.Count)
             {
                 float pathcompletion = (Delay + NoteStopwatch.ElapsedMilliseconds * PlaybackSpeed / 1000f - (CurrentPath > 0 ? Paths[CurrentPath - 1].time : 0)) / (Paths[CurrentPath].time - (CurrentPath > 0 ? Paths[CurrentPath - 1].time : 0));
+                
                 while(float.IsInfinity(pathcompletion))
                 {
                     ParentPool.ReturnToPool(Connectors[CurrentPath - 1], 8);
@@ -128,20 +129,24 @@ public class DragHeadNoteController : NoteController
                     gameObject.transform.rotation = Quaternion.AngleAxis(90 + (float)(Math.Atan2(Paths[CurrentPath - 1].y - Paths[CurrentPath].y,
                             Paths[CurrentPath - 1].x - Paths[CurrentPath].x) * 180 / Math.PI), Vector3.forward);
                 }
+
                 while (pathcompletion > 1) // for when the note is jumped to during path movement using the timeline
                 {
                     if (CurrentPath > 0 && CurrentPath < Paths.Count)
                     {
                         ParentPool.ReturnToPool(Connectors[CurrentPath - 1], 8);
                     }
+
                     if (CurrentPath > 0 && CurrentPath + 1 < Paths.Count)
                     {
                         gameObject.transform.rotation = Quaternion.AngleAxis(90 + (float)(Math.Atan2(Paths[CurrentPath].y - Paths[CurrentPath + 1].y,
                             Paths[CurrentPath].x - Paths[CurrentPath + 1].x) * 180 / Math.PI), Vector3.forward);
                     }
+
                     CurrentPath++;
                     pathcompletion -= 1;
                 }
+
                 if (CurrentPath < Paths.Count)
                 {
                     gameObject.transform.position = new Vector3(Paths[CurrentPath - 1].x + pathcompletion * (Paths[CurrentPath].x - Paths[CurrentPath - 1].x),
@@ -170,9 +175,10 @@ public class DragHeadNoteController : NoteController
     {
         int page = GameObject.Find("UICanvas").GetComponent<GameLogic>().CurrentPageIndex;
         int id = GlobalState.CurrentChart.note_list[NoteID].next_id;
+
         for(int i = 0; i < Connectors.Count; i++)
         {
-            if(GlobalState.CurrentChart.note_list[id].page_index == page) // ahem
+            if(GlobalState.CurrentChart.note_list[id].page_index == page)
             {
                 Connectors[i].SetActive(true);
             }
@@ -180,6 +186,7 @@ public class DragHeadNoteController : NoteController
             {
                 Connectors[i].SetActive(false);
             }
+
             id = GlobalState.CurrentChart.note_list[id].next_id;
         }
 

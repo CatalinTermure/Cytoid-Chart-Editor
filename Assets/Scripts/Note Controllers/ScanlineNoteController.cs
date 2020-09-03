@@ -11,8 +11,18 @@ public class ScanlineNoteController : MonoBehaviour, ITempo
 
     private void Start()
     {
-        TimeInputField.onEndEdit.AddListener((_) => GameObject.Find("UICanvas").GetComponent<GameLogic>().ChangeTempo(gameObject));
-        BPMInputField.onEndEdit.AddListener((_) => GameObject.Find("UICanvas").GetComponent<GameLogic>().ChangeTempo(gameObject));
+        TimeInputField.onEndEdit.AddListener((_) => {
+            if (GameLogic.CurrentTool != global::NoteType.MOVE)
+            {
+                GameObject.Find("UICanvas").GetComponent<GameLogic>().ChangeTempo(gameObject);
+            }
+        });
+        BPMInputField.onEndEdit.AddListener((_) => {
+            if(GameLogic.CurrentTool != global::NoteType.MOVE)
+            {
+                GameObject.Find("UICanvas").GetComponent<GameLogic>().ChangeTempo(gameObject);
+            }
+        });
     }
 
     public void SetPosition(Vector3 pos)
