@@ -130,9 +130,7 @@ public class AudioManager
                 break;
         }
 
-        #if CCE_DEBUG
-        File.AppendAllText(Path.Combine(Application.persistentDataPath, "LoadChartLog.txt"), $"Loading music file from path: file://{path}\n");
-        #endif
+        Logging.AddToLog(Path.Combine(Application.persistentDataPath, "LoadChartLog.txt"), $"Loading music file from path: file://{path}\n");
 
         using (var www = UnityWebRequestMultimedia.GetAudioClip("file://" + path, type))
         {

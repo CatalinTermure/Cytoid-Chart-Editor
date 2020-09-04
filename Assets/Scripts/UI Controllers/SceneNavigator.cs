@@ -5,7 +5,6 @@ public class SceneNavigator : MonoBehaviour
 {
     public void NavigateToFileSelect()
     {
-        GlobalState.MusicManager?.UnloadAudio();
         SceneManager.LoadScene("FileSelectScene");
     }
 
@@ -19,10 +18,6 @@ public class SceneNavigator : MonoBehaviour
 
     public void NavigateToMainScreenUnsafe()
     {
-        if(GlobalState.CurrentChart != null)
-        {
-            GlobalState.LoadAudio();
-        }
         SceneManager.LoadScene("MainScene");
     }
 

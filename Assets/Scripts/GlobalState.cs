@@ -57,20 +57,13 @@ public class GlobalState : MonoBehaviour
 
     public static bool IsGameRunning = false;
 
-    #if CCE_DEBUG
     private static string LogPath;
-    #endif
+
+    public static string InAppLogString = "";
+
     private void Awake()
     {
         Application.targetFrameRate = 60;
-
-        #if CCE_DEBUG
-        LogPath = Path.Combine(Application.persistentDataPath, "LoadChartLog.txt");
-        if(CurrentChart == null)
-        {
-            File.WriteAllText(LogPath, "Starting level loading log...\n");
-        }
-        #endif
 
         Height = Camera.main.orthographicSize;
         Width = AspectRatio * Height;
@@ -96,6 +89,15 @@ public class GlobalState : MonoBehaviour
         {
             Config = new EditorConfig();
         }
+
+        if (Config.DebugMode)
+        {
+            LogPath = Path.Combine(Application.persistentDataPath, "LoadChartLog.txt");
+            if (CurrentChart == null)
+            {
+                Logging.CreateLog(LogPath, "Starting level loading log...\n");
+            }
+        }
     }
 
     public static void SaveConfig()
@@ -110,37 +112,29 @@ public class GlobalState : MonoBehaviour
     /// <param name="path"> The path of the level file. </param>
     public static void LoadLevel(LevelData level, string path)
     {
-        #if CCE_DEBUG
-        File.AppendAllText(LogPath, $"Starting the load of level at path: {path}\n");
-        #endif
+        Logging.AddToLog(LogPath, $"Starting the load of level at path: {path}\n");
 
         CurrentLevel = level;
         CurrentLevelPath = Path.GetDirectoryName(path);
 
         LoadBackground();
 
-        #if CCE_DEBUG
-        File.AppendAllText(LogPath, "Loaded background...\n");
-        #endif
+        Logging.AddToLog(LogPath, "Loaded background...\n");
     }
 
     public static void LoadAudio()
     {
-        #if CCE_DEBUG
-        File.AppendAllText(LogPath, "Trying to load music...\n");
-        #endif
+        Logging.AddToLog(LogPath, "Trying to load music...\n");
 
         if (File.Exists(Path.Combine(CurrentLevelPath, CurrentChart.Data.music_override?.path ?? CurrentLevel.music.path)))
         {
-            #if CCE_DEBUG
-            File.AppendAllText(LogPath, $"Loading music at path: {CurrentChart.Data.music_override?.path ?? CurrentLevel.music.path}\n");
-            #endif
+            Logging.AddToLog(LogPath, $"Loading music at path: {CurrentChart.Data.music_override?.path ?? CurrentLevel.music.path}\n");
+
+            MusicManager?.UnloadAudio();
 
             MusicManager = new AudioManager(Path.Combine(CurrentLevelPath, CurrentChart.Data.music_override?.path ?? CurrentLevel.music.path));
 
-            #if CCE_DEBUG
-            File.AppendAllText(LogPath, "Loaded music successfully...\n");
-            #endif
+            Logging.AddToLog(LogPath, "Loaded music successfully...\n");
         }
     }
 
@@ -150,9 +144,7 @@ public class GlobalState : MonoBehaviour
     /// <param name="musicPath"> Path to the music file. </param>
     public static void CreateLevel(string musicPath)
     {
-        #if CCE_DEBUG
-        File.AppendAllText(LogPath, $"Starting creation of a level from the music file at {musicPath}\n");
-        #endif
+        Logging.AddToLog(LogPath, $"Starting creation of a level from the music file at {musicPath}\n");
 
         CurrentLevelPath = Path.GetDirectoryName(musicPath);
         CurrentLevel = new LevelData()
@@ -168,15 +160,12 @@ public class GlobalState : MonoBehaviour
             music = new LevelData.MusicData() { path = Path.GetFileName(musicPath) }
         };
 
-        #if CCE_DEBUG
-        File.AppendAllText(LogPath, "Finished creating the level...\n");
-        #endif
+
+        Logging.AddToLog(LogPath, "Finished creating the level\n");
 
         LoadBackground();
 
-        #if CCE_DEBUG
-        File.AppendAllText(LogPath, "Loaded Background...\n");
-        #endif
+        Logging.AddToLog(LogPath, "Loaded Background...\n");
     }
 
     public static void LoadChart(LevelData.ChartData chart)
@@ -186,9 +175,7 @@ public class GlobalState : MonoBehaviour
 
     public static void CreateChart()
     {
-        #if CCE_DEBUG
-        File.AppendAllText(LogPath, "Creating a new chart...\n");
-        #endif
+        Logging.AddToLog(LogPath, "Creating a new chart...\n");
 
         LevelData.ChartData chart;
         CurrentLevel.charts.Add(chart = new LevelData.ChartData
@@ -199,9 +186,7 @@ public class GlobalState : MonoBehaviour
         });
         CurrentChart = new Chart(JsonUtility.FromJson<ChartJSON>("{\"format_version\":0,\"time_base\":480,\"start_offset_time\":0,\"page_list\":[{\"start_tick\":0,\"end_tick\":480,\"scan_line_direction\":-1}],\"tempo_list\":[{\"tick\":0,\"value\":1000000}],\"event_order_list\":[],\"note_list\":[]}"), chart);
 
-        #if CCE_DEBUG
-        File.AppendAllText(LogPath, "New chart created...");
-        #endif
+        Logging.AddToLog(LogPath, "New chart created...");
     }
 
     public static void LoadBackground()

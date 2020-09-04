@@ -28,17 +28,16 @@ public class LevelPopulator : MonoBehaviour
 
     private string SearchPattern = "";
 
-    #if CCE_DEBUG
     private string LogPath;
-    #endif
 
     private void Start()
     {
-        #if CCE_DEBUG
-        LogPath = Path.Combine(Application.persistentDataPath, "LevelPopulatorLog.txt");
-        File.WriteAllText(LogPath, "Starting the log...\n");
-        File.AppendAllText(LogPath, "Current DirPath is: " + GlobalState.Config.DirPath + "\n");
-        #endif
+        if(GlobalState.Config.DebugMode)
+        {
+            LogPath = Path.Combine(Application.persistentDataPath, "LevelPopulatorLog.txt");
+            Logging.CreateLog(LogPath, "Starting the log...\n");
+            Logging.AddToLog(LogPath, $"Current DirPath is: {GlobalState.Config.DirPath}\n");
+        }
         PopulateLevels(GlobalState.Config.DirPath);
 
         GameObject.Find("LevelSearchInputField").GetComponent<InputField>().onEndEdit.AddListener((string s) => { SearchPattern = s; PopulateLevels(GlobalState.Config.DirPath); });
@@ -69,7 +68,7 @@ public class LevelPopulator : MonoBehaviour
             ChartList.GetComponent<ChartPopulator>().PopulateCharts(level);
         });
     }
-    
+
     /// <summary>
     /// Adds a list item that allows creation of a level from a music file.
     /// </summary>
@@ -93,9 +92,7 @@ public class LevelPopulator : MonoBehaviour
             ChartList.GetComponent<ChartPopulator>().PopulateCharts(GlobalState.CurrentLevel);
         });
 
-        #if CCE_DEBUG
-        File.AppendAllText(LogPath, "Created music item for file: " + musicPath + "\n");
-        #endif
+        Logging.AddToLog(LogPath, $"Created music item for file: {musicPath}\n");
     }
 
     /// <summary>
@@ -104,11 +101,9 @@ public class LevelPopulator : MonoBehaviour
     /// <param name="dirPath"> Path of the directory to search. </param>
     public void PopulateLevels(string dirPath)
     {
-        #if CCE_DEBUG
-        File.AppendAllText(LogPath, "Starting population of levels...\n");
-        #endif
+        Logging.AddToLog(LogPath, "Starting population of levels...\n");
 
-        foreach (Transform child in gameObject.transform)
+        foreach(Transform child in gameObject.transform)
         {
             Destroy(child.gameObject);
         }
@@ -116,9 +111,7 @@ public class LevelPopulator : MonoBehaviour
         listItemCount = 0;
         (gameObject.transform as RectTransform).sizeDelta = new Vector2(0, 0);
 
-        #if CCE_DEBUG
-        File.AppendAllText(LogPath, "Starting search through root directory...\n");
-        #endif
+        Logging.AddToLog(LogPath, "Starting search through root directory...\n");
 
         PopulateLevelsUtil(dirPath);
 
@@ -134,27 +127,19 @@ public class LevelPopulator : MonoBehaviour
     /// <param name="path"> Path of the directory to search. </param>
     private void PopulateLevelsUtil(string path)
     {
-        #if CCE_DEBUG
-        File.AppendAllText(LogPath, "Searching directory " + path + "\n");
-        #endif
+        Logging.AddToLog(LogPath, $"Searching directory {path}\n");
 
         foreach (string file in Directory.EnumerateFiles(path))
         {
-            #if CCE_DEBUG
-            File.AppendAllText(LogPath, "Found file " + file + "\n");
-            #endif
+            Logging.AddToLog(LogPath, $"Found file {file}\n");
 
             if (file.EndsWith("level.json"))
             {
-                #if CCE_DEBUG
-                File.AppendAllText(LogPath, "Started adding level item for file: " + file + "\n");
-                #endif
+                Logging.AddToLog(LogPath, $"Started adding level item for file: {file}\n");
 
                 LevelData l = JsonUtility.FromJson<LevelData>(File.ReadAllText(file));
 
-                #if CCE_DEBUG
-                File.AppendAllText(LogPath, "Level data read.\n");
-                #endif
+                Logging.AddToLog(LogPath, "Level data read.\n");
 
                 if(l.id.Contains(SearchPattern))
                 {
@@ -163,9 +148,8 @@ public class LevelPopulator : MonoBehaviour
             }
             else if(file.EndsWith(".mp3") || file.EndsWith(".ogg"))
             {
-                #if CCE_DEBUG
-                File.AppendAllText(LogPath, "Started adding music item for file: " + file + "\n");
-                #endif
+                Logging.AddToLog(LogPath, $"Started adding music item for file {file}\n");
+
                 if(file.Contains(SearchPattern))
                 {
                     AddMusicOption(file);

@@ -8,7 +8,7 @@ public class EditorOptionsChanger : MonoBehaviour
 {
     public Slider HitsoundVolumeSlider, VerticalLineCountSlider, NoteSizeSlider;
     public GameObject VerticalLineCountLabel, NoteSizeLabel;
-    public Toggle PreciseOffsetToggle, HoldEndHitsoundsToggle, ShowApproachingNotesToggle, MoveTimelineDuringPlaybackToggle;
+    public Toggle PreciseOffsetToggle, HoldEndHitsoundsToggle, ShowApproachingNotesToggle, MoveTimelineDuringPlaybackToggle, DebugModeToggle;
 
     private void Start()
     {
@@ -40,6 +40,9 @@ public class EditorOptionsChanger : MonoBehaviour
 
         MoveTimelineDuringPlaybackToggle.SetIsOnWithoutNotify(GlobalState.Config.UpdateTimelineWhileRunning);
         MoveTimelineDuringPlaybackToggle.onValueChanged.AddListener((bool value) => GlobalState.Config.UpdateTimelineWhileRunning = value);
+
+        DebugModeToggle.SetIsOnWithoutNotify(GlobalState.Config.DebugMode);
+        DebugModeToggle.onValueChanged.AddListener((bool value) => GlobalState.Config.DebugMode = value);
     }
 
     public void SaveOptions()

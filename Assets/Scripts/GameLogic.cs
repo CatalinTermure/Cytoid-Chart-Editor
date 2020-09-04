@@ -72,6 +72,50 @@ public class GameLogic : MonoBehaviour
 
     private readonly StringBuilder TimeTextBuilder = new StringBuilder(32);
 
+    private static string LogPath;
+
+    public void Awake()
+    {
+        if (CurrentChart != null)
+        {
+            if (Config.DebugMode)
+            {
+                LogPath = Path.Combine(Application.persistentDataPath, "GameLogicLog.txt");
+                Logging.CreateLog(LogPath, "Starting loading the chart...\n");
+            }
+
+            CalculateTimings();
+
+            Logging.AddToLog(LogPath, "Calculated timings...\n");
+
+            MusicManager.SetSource(MusicSource);
+            for (int i = 0; i < HitsoundSources.Length; i++)
+            {
+                HitsoundSources[i].volume = Config.HitsoundVolume;
+            }
+
+            ObjectPool = new ChartObjectPool();
+
+            Logging.AddToLog(LogPath, "Audio sources loaded\n");
+
+            if (CurrentPageIndexOverride != -1)
+            {
+                CurrentPageIndex = CurrentPageIndexOverride;
+                CurrentPageIndexOverride = -1;
+            }
+            else
+            {
+                CurrentPageIndex = 0;
+            }
+
+            UpdateTime(CurrentPage.actual_start_time);
+
+            Logging.AddToLog(LogPath, $"Moved to page {CurrentPageIndex}\n");
+
+            GameObject.Find("NoteCountText").GetComponent<Text>().text = $"Note count: {CurrentChart.note_list.Count}";
+        }
+    }
+
     private void Start()
     {
         // Adjust for different aspect ratios
@@ -85,13 +129,11 @@ public class GameLogic : MonoBehaviour
         LevelOptionsButton.GetComponent<RectTransform>().anchoredPosition = new Vector2(LevelOptionsButton.GetComponent<RectTransform>().anchoredPosition.x * AspectRatio / NormalAspectRatio, LevelOptionsButton.GetComponent<RectTransform>().anchoredPosition.y);
         EditorSettingsButton.GetComponent<RectTransform>().anchoredPosition = new Vector2(EditorSettingsButton.GetComponent<RectTransform>().anchoredPosition.x * AspectRatio / NormalAspectRatio, EditorSettingsButton.GetComponent<RectTransform>().anchoredPosition.y);
         SaveButton.GetComponent<RectTransform>().anchoredPosition = new Vector2(SaveButton.GetComponent<RectTransform>().anchoredPosition.x * AspectRatio / NormalAspectRatio, SaveButton.GetComponent<RectTransform>().anchoredPosition.y);
-
-        #if CCE_DEBUG
-        if(CurrentChart != null)
+        
+        if (CurrentChart != null)
         {
-            File.AppendAllText(LogPath, "Adjusted to resolution...\n");
+            Logging.AddToLog(LogPath, "Adjusted to resolution...\n");
         }
-        #endif
 
         // Keep current page index after navigating to editor/level/chart options
         LevelOptionsButton.GetComponent<Button>().onClick.AddListener(() => CurrentPageIndexOverride = CurrentPageIndex);
@@ -114,62 +156,9 @@ public class GameLogic : MonoBehaviour
 
         GameObject.Find("BeatDivisorInputField").GetComponent<InputField>().onEndEdit.AddListener((string s) => SetBeatDivisorValueUnsafe(int.Parse(s)));
 
-        #if CCE_DEBUG
         if(CurrentChart != null)
         {
-            File.AppendAllText(LogPath, "PlayArea loaded...\n");
-        }
-        #endif
-    }
-
-    #if CCE_DEBUG
-    private static string LogPath;
-    #endif
-
-    public void Awake()
-    {
-        if(CurrentChart != null)
-        {
-            #if CCE_DEBUG
-            LogPath = Path.Combine(Application.persistentDataPath, "GameLogicLog.txt");
-            File.WriteAllText(LogPath, "Starting loading the chart...\n");
-            #endif
-
-            CalculateTimings();
-
-            #if CCE_DEBUG
-            File.AppendAllText(LogPath, "Calculated timings...\n");
-            #endif
-
-            MusicManager.SetSource(MusicSource);
-            for (int i = 0; i < HitsoundSources.Length; i++)
-            {
-                HitsoundSources[i].volume = Config.HitsoundVolume;
-            }
-
-            ObjectPool = new ChartObjectPool();
-
-            #if CCE_DEBUG
-            File.AppendAllText(LogPath, "Audio sources loaded\n");
-            #endif
-
-            if (CurrentPageIndexOverride != -1)
-            {
-                CurrentPageIndex = CurrentPageIndexOverride;
-                CurrentPageIndexOverride = -1;
-            }
-            else
-            {
-                CurrentPageIndex = 0;
-            }
-
-            UpdateTime(CurrentPage.actual_start_time);
-
-            #if CCE_DEBUG
-            File.AppendAllText(LogPath, $"Moved to page {CurrentPageIndex}\n");
-            #endif
-
-            GameObject.Find("NoteCountText").GetComponent<Text>().text = $"Note count: {CurrentChart.note_list.Count}";
+            Logging.AddToLog(LogPath, "PlayArea loaded...\n");
         }
     }
 
@@ -545,7 +534,15 @@ public class GameLogic : MonoBehaviour
             (CurrentChart.tempo_list[id].tick - CurrentPage.actual_start_tick) / CurrentPage.ActualPageSize :
             1.0 - (CurrentChart.tempo_list[id].tick - CurrentPage.actual_start_tick) / CurrentPage.ActualPageSize)));
 
-        obj.GetComponent<ScanlineNoteController>().TimeInputField.text = (CurrentChart.tempo_list[id].time - CurrentChart.music_offset).ToString();
+        if(id == 0)
+        {
+            obj.GetComponent<ScanlineNoteController>().TimeInputField.text = (CurrentChart.music_offset).ToString();
+        }
+        else
+        {
+            obj.GetComponent<ScanlineNoteController>().TimeInputField.text = (CurrentChart.tempo_list[id].time - CurrentChart.music_offset).ToString();
+        }
+        
         obj.GetComponent<ScanlineNoteController>().BPMInputField.text = (Math.Round(120000000.0 / CurrentChart.tempo_list[id].value, 2)).ToString();
     }
 
