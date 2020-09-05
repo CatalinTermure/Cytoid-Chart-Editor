@@ -43,6 +43,9 @@ public class EditorOptionsChanger : MonoBehaviour
 
         DebugModeToggle.SetIsOnWithoutNotify(GlobalState.Config.DebugMode);
         DebugModeToggle.onValueChanged.AddListener((bool value) => GlobalState.Config.DebugMode = value);
+
+        GameObject.Find("NotchFixToggle").GetComponent<Toggle>().SetIsOnWithoutNotify(GlobalState.Config.IsNotchNotWorking);
+        GameObject.Find("NotchFixToggle").GetComponent<Toggle>().onValueChanged.AddListener((bool value) => GlobalState.Config.IsNotchNotWorking = value);
     }
 
     public void SaveOptions()

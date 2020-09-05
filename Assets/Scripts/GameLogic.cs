@@ -130,6 +130,20 @@ public class GameLogic : MonoBehaviour
         EditorSettingsButton.GetComponent<RectTransform>().anchoredPosition = new Vector2(EditorSettingsButton.GetComponent<RectTransform>().anchoredPosition.x * AspectRatio / NormalAspectRatio, EditorSettingsButton.GetComponent<RectTransform>().anchoredPosition.y);
         SaveButton.GetComponent<RectTransform>().anchoredPosition = new Vector2(SaveButton.GetComponent<RectTransform>().anchoredPosition.x * AspectRatio / NormalAspectRatio, SaveButton.GetComponent<RectTransform>().anchoredPosition.y);
         
+        if(Config.IsNotchNotWorking)
+        {
+            GameObject.Find("AddClickNoteButton").GetComponent<RectTransform>().anchoredPosition = new Vector2(100, GameObject.Find("AddClickNoteButton").GetComponent<RectTransform>().anchoredPosition.y);
+            GameObject.Find("AddHoldNoteButton").GetComponent<RectTransform>().anchoredPosition = new Vector2(100, GameObject.Find("AddHoldNoteButton").GetComponent<RectTransform>().anchoredPosition.y);
+            GameObject.Find("AddLongHoldNoteButton").GetComponent<RectTransform>().anchoredPosition = new Vector2(100, GameObject.Find("AddLongHoldNoteButton").GetComponent<RectTransform>().anchoredPosition.y);
+            GameObject.Find("AddDragNoteButton").GetComponent<RectTransform>().anchoredPosition = new Vector2(100, GameObject.Find("AddDragNoteButton").GetComponent<RectTransform>().anchoredPosition.y);
+            GameObject.Find("AddCDragNoteButton").GetComponent<RectTransform>().anchoredPosition = new Vector2(100, GameObject.Find("AddCDragNoteButton").GetComponent<RectTransform>().anchoredPosition.y);
+
+            GameObject.Find("AddFlickNoteButton").GetComponent<RectTransform>().anchoredPosition = new Vector2(-100, GameObject.Find("AddFlickNoteButton").GetComponent<RectTransform>().anchoredPosition.y);
+            GameObject.Find("MoveNoteButton").GetComponent<RectTransform>().anchoredPosition = new Vector2(-100, GameObject.Find("MoveNoteButton").GetComponent<RectTransform>().anchoredPosition.y);
+            GameObject.Find("BPMButton").GetComponent<RectTransform>().anchoredPosition = new Vector2(-100, GameObject.Find("BPMButton").GetComponent<RectTransform>().anchoredPosition.y);
+            GameObject.Find("OtherOptionsScrollView").GetComponent<RectTransform>().anchoredPosition = new Vector2(-100, GameObject.Find("OtherOptionsScrollView").GetComponent<RectTransform>().anchoredPosition.y);
+        }
+
         if (CurrentChart != null)
         {
             Logging.AddToLog(LogPath, "Adjusted to resolution...\n");
@@ -782,6 +796,8 @@ public class GameLogic : MonoBehaviour
 
         GameObject.Find("PageText").GetComponent<Text>().text = CurrentPageIndex.ToString();
         GameObject.Find("TimeText").GetComponent<Text>().text = ((int)((time - CurrentChart.music_offset) / 60)).ToString() + ":" + ((int)(time - CurrentChart.music_offset) % 60).ToString("D2") + "." + ((int)((time - CurrentChart.music_offset) * 1000 - Math.Floor(time - CurrentChart.music_offset) * 1000)).ToString("D3");
+
+        GameObject.Find("NoteCountText").GetComponent<Text>().text = $"Note count: {CurrentChart.note_list.Count}";
 
         Scanline.transform.position = new Vector3(0, CurrentPage.scan_line_direction == 1
             ? PlayAreaHeight * (float)((time - CurrentPage.actual_start_time) /
@@ -1439,7 +1455,7 @@ public class GameLogic : MonoBehaviour
                 });
             }
 
-            while(CurrentChart.note_list[CurrentChart.note_list.Count - 1].page_index >= CurrentChart.page_list.Count)
+            while(CurrentChart.note_list.Count > 0 && CurrentChart.note_list[CurrentChart.note_list.Count - 1].page_index >= CurrentChart.page_list.Count)
             {
                 CurrentChart.note_list.RemoveAt(CurrentChart.note_list.Count - 1);
             }

@@ -15,4 +15,5 @@ public class EditorConfig
     public bool PlayHitsoundsOnHoldEnd = true;
     public bool UpdateTimelineWhileRunning = true;
     public bool DebugMode = false;
+    public bool IsNotchNotWorking = false;
 }
