@@ -34,7 +34,6 @@ public class GameLogic : MonoBehaviour
     public AudioSource MusicSource;
 
     public AudioSource[] HitsoundSources;
-    private readonly double[] HitsoundScheduledTimes = new double[4];
 
     private readonly List<double> HitsoundTimings = new List<double>();
 
@@ -867,6 +866,8 @@ public class GameLogic : MonoBehaviour
 
     private Rect LastSafeArea = new Rect(0, 0, Screen.width, Screen.height);
 
+    private int HitsoundSourceIndex = 0;
+
     private void Update()
     {
         if(SaveOffsetScheduledTime > 0 && Time.time > SaveOffsetScheduledTime)
@@ -901,14 +902,11 @@ public class GameLogic : MonoBehaviour
 
             while(CurrentHitsoundIndex < HitsoundTimings.Count && HitsoundTimings[CurrentHitsoundIndex] - 0.05 <= time)
             {
-                for(int i = 0; i < HitsoundSources.Length; i++)
+                HitsoundSources[HitsoundSourceIndex].PlayScheduled(HitsoundTimings[CurrentHitsoundIndex] - time + AudioSettings.dspTime);
+                HitsoundSourceIndex++;
+                if(HitsoundSourceIndex > 3)
                 {
-                    if(HitsoundScheduledTimes[i] < AudioSettings.dspTime)
-                    {
-                        HitsoundSources[i].PlayScheduled(HitsoundTimings[CurrentHitsoundIndex] - time + AudioSettings.dspTime);
-                        HitsoundScheduledTimes[i] = HitsoundTimings[CurrentHitsoundIndex] - time + AudioSettings.dspTime + HitsoundSources[i].clip.length;
-                        break;
-                    }
+                    HitsoundSourceIndex = 0;
                 }
                 CurrentHitsoundIndex++;
             }
