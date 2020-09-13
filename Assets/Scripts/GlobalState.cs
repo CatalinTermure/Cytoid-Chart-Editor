@@ -142,11 +142,18 @@ public class GlobalState : MonoBehaviour
     /// Creates level file and loads it from a music file.
     /// </summary>
     /// <param name="musicPath"> Path to the music file. </param>
-    public static void CreateLevel(string musicPath)
+    /// <returns> Whether the level can be successfully saved in the path of the music file. </returns>
+    public static bool CreateLevel(string musicPath)
     {
         Logging.AddToLog(LogPath, $"Starting creation of a level from the music file at {musicPath}\n");
 
         CurrentLevelPath = Path.GetDirectoryName(musicPath);
+
+        if(File.Exists(Path.Combine(CurrentLevelPath, "level.json")))
+        {
+            return false;
+        }
+
         CurrentLevel = new LevelData()
         {
             title = "PLACEHOLDER",
@@ -166,6 +173,8 @@ public class GlobalState : MonoBehaviour
         LoadBackground();
 
         Logging.AddToLog(LogPath, "Loaded Background...\n");
+
+        return true;
     }
 
     public static void LoadChart(LevelData.ChartData chart)

@@ -46,6 +46,25 @@ public class FilePopulator : MonoBehaviour
         });
     }
 
+    public void AddPackage(string name)
+    {
+        GameObject obj = Instantiate(FileListItem);
+        (obj.transform as RectTransform).SetParent(gameObject.transform);
+        (obj.transform as RectTransform).localPosition = new Vector3(0, -100 * listItemCount);
+        (obj.transform as RectTransform).sizeDelta = new Vector2(800, 100);
+        obj.transform.localScale = Vector3.one;
+        obj.GetComponentInChildren<Text>().text = Path.GetFileName(name);
+
+        listItemCount++;
+        (gameObject.transform as RectTransform).sizeDelta = new Vector2(0, 100 * listItemCount);
+
+        obj.GetComponent<Button>().onClick.AddListener(() =>
+        {
+            UnpackLevel(name);
+            PopulateList(GlobalState.Config.DirPath);
+        });
+    }
+
     public void PopulateList(string dirName)
     {
         DirectoryText.GetComponent<Text>().text = dirName;
@@ -89,6 +108,25 @@ public class FilePopulator : MonoBehaviour
         foreach (string folder in Directory.EnumerateDirectories(dirName))
         {
             AddFolder(Path.GetFileName(folder));
+        }
+
+        foreach(string file in Directory.EnumerateFiles(dirName, "*.cytoidlevel"))
+        {
+            AddPackage(file);
+        }
+    }
+
+    public void UnpackLevel(string path)
+    {
+        GameObject.Find("ToastText").GetComponent<ToastMessageManager>().CreateToast("Unpacking .cytoidlevel...");
+        try
+        {
+            System.IO.Compression.ZipFile.ExtractToDirectory(path, Path.Combine(Path.GetDirectoryName(path), Path.GetFileNameWithoutExtension(path)));
+            GameObject.Find("ToastText").GetComponent<ToastMessageManager>().CreateToast("Successfully unpacked to " + Path.Combine(Path.GetDirectoryName(path), Path.GetFileNameWithoutExtension(path)));
+        }
+        catch (Exception)
+        {
+            GameObject.Find("ToastText").GetComponent<ToastMessageManager>().CreateToast("Unpacking failed");
         }
     }
 }

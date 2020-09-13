@@ -59,4 +59,17 @@ public class LevelDataChanger : MonoBehaviour
             Formatting = Formatting.Indented
         }));
     }
+
+    public void PackageLevel()
+    {
+        try
+        {
+            System.IO.Compression.ZipFile.CreateFromDirectory(GlobalState.CurrentLevelPath, Path.Combine(Application.persistentDataPath, GlobalState.CurrentLevel.id + ".cytoidlevel"));
+            File.Move(Path.Combine(Application.persistentDataPath, GlobalState.CurrentLevel.id + ".cytoidlevel"), Path.Combine(GlobalState.CurrentLevelPath, GlobalState.CurrentLevel.id + ".cytoidlevel"));
+            GameObject.Find("ToastText").GetComponent<ToastMessageManager>().CreateToast("Created the file " + GlobalState.CurrentLevel.id + ".cytoidlevel");
+        } catch(System.Exception)
+        {
+            GameObject.Find("ToastText").GetComponent<ToastMessageManager>().CreateToast("Could not create .cytoidlevel");
+        }
+    }
 }

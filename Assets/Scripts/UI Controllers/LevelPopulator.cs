@@ -88,8 +88,14 @@ public class LevelPopulator : MonoBehaviour
         obj.GetComponent<Button>().onClick.AddListener(() =>
         {
             CurrentLevelItem = obj;
-            GlobalState.CreateLevel(musicPath);
-            ChartList.GetComponent<ChartPopulator>().PopulateCharts(GlobalState.CurrentLevel);
+            if(GlobalState.CreateLevel(musicPath))
+            {
+                ChartList.GetComponent<ChartPopulator>().PopulateCharts(GlobalState.CurrentLevel);
+            }
+            else
+            {
+                GameObject.Find("ToastText").GetComponent<ToastMessageManager>().CreateToast("There already is a level saved where this audio file is. Please move the audio file in its own folder.");
+            }
         });
 
         Logging.AddToLog(LogPath, $"Created music item for file: {musicPath}\n");

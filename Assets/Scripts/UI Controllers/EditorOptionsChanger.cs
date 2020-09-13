@@ -44,8 +44,11 @@ public class EditorOptionsChanger : MonoBehaviour
         DebugModeToggle.SetIsOnWithoutNotify(GlobalState.Config.DebugMode);
         DebugModeToggle.onValueChanged.AddListener((bool value) => GlobalState.Config.DebugMode = value);
 
-        GameObject.Find("NotchFixToggle").GetComponent<Toggle>().SetIsOnWithoutNotify(GlobalState.Config.IsNotchNotWorking);
-        GameObject.Find("NotchFixToggle").GetComponent<Toggle>().onValueChanged.AddListener((bool value) => GlobalState.Config.IsNotchNotWorking = value);
+        GameObject.Find("NotchFixToggle").GetComponent<Toggle>().SetIsOnWithoutNotify(GlobalState.Config.NotchOverlapFix);
+        GameObject.Find("NotchFixToggle").GetComponent<Toggle>().onValueChanged.AddListener((bool value) => GlobalState.Config.NotchOverlapFix = value);
+
+        GameObject.Find("NoteInteractionToggle").GetComponent<Toggle>().SetIsOnWithoutNotify(GlobalState.Config.InteractWithNotesOnOtherPages);
+        GameObject.Find("NoteInteractionToggle").GetComponent<Toggle>().onValueChanged.AddListener((bool value) => GlobalState.Config.InteractWithNotesOnOtherPages = value);
     }
 
     public void SaveOptions()

@@ -67,7 +67,7 @@ public class GameLogic : MonoBehaviour
     private double ScheduledTime { get; set; }
     private bool IsStartScheduled = false;
 
-    private int PlaybackSpeedIndex = 2;
+    private static int PlaybackSpeedIndex = 2;
     private readonly float[] PlaybackSpeeds = new float[3] { 0.5f, 0.75f, 1.0f };
 
     private readonly StringBuilder TimeTextBuilder = new StringBuilder(32);
@@ -112,6 +112,8 @@ public class GameLogic : MonoBehaviour
 
             Logging.AddToLog(LogPath, $"Moved to page {CurrentPageIndex}\n");
 
+            UpdatePlaybackSpeed();
+
             GameObject.Find("NoteCountText").GetComponent<Text>().text = $"Note count: {CurrentChart.note_list.Count}";
         }
     }
@@ -130,18 +132,23 @@ public class GameLogic : MonoBehaviour
         EditorSettingsButton.GetComponent<RectTransform>().anchoredPosition = new Vector2(EditorSettingsButton.GetComponent<RectTransform>().anchoredPosition.x * AspectRatio / NormalAspectRatio, EditorSettingsButton.GetComponent<RectTransform>().anchoredPosition.y);
         SaveButton.GetComponent<RectTransform>().anchoredPosition = new Vector2(SaveButton.GetComponent<RectTransform>().anchoredPosition.x * AspectRatio / NormalAspectRatio, SaveButton.GetComponent<RectTransform>().anchoredPosition.y);
         
-        if(Config.IsNotchNotWorking)
+        if(Config.NotchOverlapFix)
         {
-            GameObject.Find("AddClickNoteButton").GetComponent<RectTransform>().anchoredPosition = new Vector2(100, GameObject.Find("AddClickNoteButton").GetComponent<RectTransform>().anchoredPosition.y);
-            GameObject.Find("AddHoldNoteButton").GetComponent<RectTransform>().anchoredPosition = new Vector2(100, GameObject.Find("AddHoldNoteButton").GetComponent<RectTransform>().anchoredPosition.y);
-            GameObject.Find("AddLongHoldNoteButton").GetComponent<RectTransform>().anchoredPosition = new Vector2(100, GameObject.Find("AddLongHoldNoteButton").GetComponent<RectTransform>().anchoredPosition.y);
-            GameObject.Find("AddDragNoteButton").GetComponent<RectTransform>().anchoredPosition = new Vector2(100, GameObject.Find("AddDragNoteButton").GetComponent<RectTransform>().anchoredPosition.y);
-            GameObject.Find("AddCDragNoteButton").GetComponent<RectTransform>().anchoredPosition = new Vector2(100, GameObject.Find("AddCDragNoteButton").GetComponent<RectTransform>().anchoredPosition.y);
-
-            GameObject.Find("AddFlickNoteButton").GetComponent<RectTransform>().anchoredPosition = new Vector2(-100, GameObject.Find("AddFlickNoteButton").GetComponent<RectTransform>().anchoredPosition.y);
-            GameObject.Find("MoveNoteButton").GetComponent<RectTransform>().anchoredPosition = new Vector2(-100, GameObject.Find("MoveNoteButton").GetComponent<RectTransform>().anchoredPosition.y);
-            GameObject.Find("BPMButton").GetComponent<RectTransform>().anchoredPosition = new Vector2(-100, GameObject.Find("BPMButton").GetComponent<RectTransform>().anchoredPosition.y);
-            GameObject.Find("OtherOptionsScrollView").GetComponent<RectTransform>().anchoredPosition = new Vector2(-100, GameObject.Find("OtherOptionsScrollView").GetComponent<RectTransform>().anchoredPosition.y);
+            if(Screen.orientation == ScreenOrientation.LandscapeLeft)
+            {
+                GameObject.Find("AddClickNoteButton").GetComponent<RectTransform>().anchoredPosition = new Vector2(Screen.safeArea.x - 15, GameObject.Find("AddClickNoteButton").GetComponent<RectTransform>().anchoredPosition.y);
+                GameObject.Find("AddHoldNoteButton").GetComponent<RectTransform>().anchoredPosition = new Vector2(Screen.safeArea.x - 15, GameObject.Find("AddHoldNoteButton").GetComponent<RectTransform>().anchoredPosition.y);
+                GameObject.Find("AddLongHoldNoteButton").GetComponent<RectTransform>().anchoredPosition = new Vector2(Screen.safeArea.x - 15, GameObject.Find("AddLongHoldNoteButton").GetComponent<RectTransform>().anchoredPosition.y);
+                GameObject.Find("AddDragNoteButton").GetComponent<RectTransform>().anchoredPosition = new Vector2(Screen.safeArea.x - 15, GameObject.Find("AddDragNoteButton").GetComponent<RectTransform>().anchoredPosition.y);
+                GameObject.Find("AddCDragNoteButton").GetComponent<RectTransform>().anchoredPosition = new Vector2(Screen.safeArea.x - 15, GameObject.Find("AddCDragNoteButton").GetComponent<RectTransform>().anchoredPosition.y);
+            }
+            else if(Screen.orientation == ScreenOrientation.LandscapeRight)
+            {
+                GameObject.Find("AddFlickNoteButton").GetComponent<RectTransform>().anchoredPosition = new Vector2(-Screen.safeArea.x + 15, GameObject.Find("AddFlickNoteButton").GetComponent<RectTransform>().anchoredPosition.y);
+                GameObject.Find("MoveNoteButton").GetComponent<RectTransform>().anchoredPosition = new Vector2(-Screen.safeArea.x + 15, GameObject.Find("MoveNoteButton").GetComponent<RectTransform>().anchoredPosition.y);
+                GameObject.Find("BPMButton").GetComponent<RectTransform>().anchoredPosition = new Vector2(-Screen.safeArea.x + 15, GameObject.Find("BPMButton").GetComponent<RectTransform>().anchoredPosition.y);
+                GameObject.Find("OtherOptionsScrollView").GetComponent<RectTransform>().anchoredPosition = new Vector2(-Screen.safeArea.x + 15, GameObject.Find("OtherOptionsScrollView").GetComponent<RectTransform>().anchoredPosition.y);
+            }
         }
 
         if (CurrentChart != null)
@@ -154,13 +161,58 @@ public class GameLogic : MonoBehaviour
         EditorSettingsButton.GetComponent<Button>().onClick.AddListener(() => CurrentPageIndexOverride = CurrentPageIndex);
 
         // Create vertical divisor lines
-        for (int i = 0; i <= Config.VerticalDivisors; i++)
+        if(Config.VerticalLineAccent)
         {
-            GameObject obj = Instantiate(DivisorLine);
-            obj.transform.position = new Vector3(PlayAreaWidth / Config.VerticalDivisors * i - PlayAreaWidth / 2, 0);
+            int mid = (Config.VerticalDivisors - Config.VerticalDivisors % 2) / 2;
+
+            GameObject obj;
+
+            for (int i = 1; i < mid; i++)
+            {
+                obj = Instantiate(DivisorLine);
+                obj.transform.position = new Vector3(PlayAreaWidth / Config.VerticalDivisors * i - PlayAreaWidth / 2, 0);
+                obj.transform.rotation = Quaternion.AngleAxis(90, Vector3.forward);
+                obj.GetComponent<SpriteRenderer>().size = new Vector2(PlayAreaHeight, 0.05f);
+                obj.tag = "GridLine";
+            }
+
+            for (int i = mid + 1 + (Config.VerticalDivisors % 2); i < Config.VerticalDivisors; i++)
+            {
+                obj = Instantiate(DivisorLine);
+                obj.transform.position = new Vector3(PlayAreaWidth / Config.VerticalDivisors * i - PlayAreaWidth / 2, 0);
+                obj.transform.rotation = Quaternion.AngleAxis(90, Vector3.forward);
+                obj.GetComponent<SpriteRenderer>().size = new Vector2(PlayAreaHeight, 0.05f);
+                obj.tag = "GridLine";
+            }
+
+
+            if (Config.VerticalDivisors % 2 == 1)
+            {
+                obj = Instantiate(DivisorLine);
+                obj.transform.position = new Vector3(PlayAreaWidth / Config.VerticalDivisors * (mid + 1) - PlayAreaWidth / 2, 0);
+                obj.transform.rotation = Quaternion.AngleAxis(90, Vector3.forward);
+                obj.GetComponent<SpriteRenderer>().size = new Vector2(PlayAreaHeight, 0.15f);
+                obj.tag = "GridLine";
+                obj.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 0.59f);
+            }
+
+            obj = Instantiate(DivisorLine);
+            obj.transform.position = new Vector3(PlayAreaWidth / Config.VerticalDivisors * mid - PlayAreaWidth / 2, 0);
             obj.transform.rotation = Quaternion.AngleAxis(90, Vector3.forward);
-            obj.GetComponent<SpriteRenderer>().size = new Vector2(PlayAreaHeight, 0.05f);
+            obj.GetComponent<SpriteRenderer>().size = new Vector2(PlayAreaHeight, 0.15f);
             obj.tag = "GridLine";
+            obj.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 0.59f);
+        }
+        else
+        {
+            for (int i = 0; i <= Config.VerticalDivisors; i++)
+            {
+                GameObject obj = Instantiate(DivisorLine);
+                obj.transform.position = new Vector3(PlayAreaWidth / Config.VerticalDivisors * i - PlayAreaWidth / 2, 0);
+                obj.transform.rotation = Quaternion.AngleAxis(90, Vector3.forward);
+                obj.GetComponent<SpriteRenderer>().size = new Vector2(PlayAreaHeight, 0.1f);
+                obj.tag = "GridLine";
+            }
         }
 
         // Create horizontal divisor lines
@@ -241,7 +293,7 @@ public class GameLogic : MonoBehaviour
                 pi++;
             }
         }
-        double realmaxtime = (double)MusicManager.MaxTime / PlaybackSpeeds[PlaybackSpeedIndex];
+        double realmaxtime = (double)MusicManager.MaxTime / PlaybackSpeeds[PlaybackSpeedIndex] + CurrentChart.music_offset;
         if(pages[p - 1].end_time < realmaxtime) // Add pages in case the page_list ends before the music
         {
             double lasttempotime = CurrentChart.tempo_list.Last().value / 1000000.0; // Calculate time of the pages in respect to the last tempo
@@ -260,7 +312,7 @@ public class GameLogic : MonoBehaviour
             CalculateTimings();
             return;
         }
-        if(pages[p - 1].actual_start_time > realmaxtime && notes[n - 1].page_index + 1 < p)
+        if(pages[p - 1].actual_start_time > realmaxtime && n > 0 && notes[n - 1].page_index + 1 < p)
         {
             while (pages[p - 1].actual_start_time > realmaxtime && notes[n - 1].page_index + 1 < p)
             {
@@ -270,7 +322,7 @@ public class GameLogic : MonoBehaviour
             CalculateTimings();
             return;
         }
-        
+
         tempos[ti].time = temposum;
 
         temposum = 0;
@@ -813,9 +865,16 @@ public class GameLogic : MonoBehaviour
     private bool isTouchHeld = false;
     private GameObject currentlymoving;
 
+    private Rect LastSafeArea = new Rect(0, 0, Screen.width, Screen.height);
+
     private void Update()
     {
-        if (IsStartScheduled)
+        if(SaveOffsetScheduledTime > 0 && Time.time > SaveOffsetScheduledTime)
+        {
+            SaveConfig();
+            SaveOffsetScheduledTime = -1;
+        }
+        if(IsStartScheduled)
         {
             if(AudioSettings.dspTime > ScheduledTime)
             {
@@ -890,6 +949,25 @@ public class GameLogic : MonoBehaviour
         else
         {
             HandleInput();
+        }
+        if(Config.NotchOverlapFix && Screen.safeArea != LastSafeArea)
+        {
+            LastSafeArea = Screen.safeArea;
+            if (Screen.orientation == ScreenOrientation.LandscapeLeft)
+            {
+                GameObject.Find("AddClickNoteButton").GetComponent<RectTransform>().anchoredPosition = new Vector2(Screen.safeArea.x - 15, GameObject.Find("AddClickNoteButton").GetComponent<RectTransform>().anchoredPosition.y);
+                GameObject.Find("AddHoldNoteButton").GetComponent<RectTransform>().anchoredPosition = new Vector2(Screen.safeArea.x - 15, GameObject.Find("AddHoldNoteButton").GetComponent<RectTransform>().anchoredPosition.y);
+                GameObject.Find("AddLongHoldNoteButton").GetComponent<RectTransform>().anchoredPosition = new Vector2(Screen.safeArea.x - 15, GameObject.Find("AddLongHoldNoteButton").GetComponent<RectTransform>().anchoredPosition.y);
+                GameObject.Find("AddDragNoteButton").GetComponent<RectTransform>().anchoredPosition = new Vector2(Screen.safeArea.x - 15, GameObject.Find("AddDragNoteButton").GetComponent<RectTransform>().anchoredPosition.y);
+                GameObject.Find("AddCDragNoteButton").GetComponent<RectTransform>().anchoredPosition = new Vector2(Screen.safeArea.x - 15, GameObject.Find("AddCDragNoteButton").GetComponent<RectTransform>().anchoredPosition.y);
+            }
+            else if (Screen.orientation == ScreenOrientation.LandscapeRight)
+            {
+                GameObject.Find("AddFlickNoteButton").GetComponent<RectTransform>().anchoredPosition = new Vector2(-Screen.safeArea.x + 15, GameObject.Find("AddFlickNoteButton").GetComponent<RectTransform>().anchoredPosition.y);
+                GameObject.Find("MoveNoteButton").GetComponent<RectTransform>().anchoredPosition = new Vector2(-Screen.safeArea.x + 15, GameObject.Find("MoveNoteButton").GetComponent<RectTransform>().anchoredPosition.y);
+                GameObject.Find("BPMButton").GetComponent<RectTransform>().anchoredPosition = new Vector2(-Screen.safeArea.x + 15, GameObject.Find("BPMButton").GetComponent<RectTransform>().anchoredPosition.y);
+                GameObject.Find("OtherOptionsScrollView").GetComponent<RectTransform>().anchoredPosition = new Vector2(-Screen.safeArea.x + 15, GameObject.Find("OtherOptionsScrollView").GetComponent<RectTransform>().anchoredPosition.y);
+            }
         }
     }
 
@@ -974,7 +1052,8 @@ public class GameLogic : MonoBehaviour
             {
                 foreach (GameObject obj in GameObject.FindGameObjectsWithTag("Note"))
                 {
-                    if (obj.GetComponentInChildren<Collider2D>().OverlapPoint(touchpos))
+                    if ((Config.InteractWithNotesOnOtherPages || CurrentChart.note_list[obj.GetComponent<NoteController>().NoteID].page_index == CurrentPageIndex)
+                        && obj.GetComponentInChildren<Collider2D>().OverlapPoint(touchpos))
                     {
                         currentlymoving = obj;
                     }
@@ -1385,14 +1464,18 @@ public class GameLogic : MonoBehaviour
         GameObject.Find("PlaybackSpeedText").GetComponent<Text>().text = $"{(int)(PlaybackSpeeds[PlaybackSpeedIndex] * 100)}%";
     }
 
+    private double SaveOffsetScheduledTime = -1;
+
     public void IncreaseOffset()
     {
+        SaveOffsetScheduledTime = Time.time + 5;
         Config.UserOffset += Config.PreciseOffsetDelta ? 1 : 5;
         UpdateOffsetText();
     }
 
     public void DecreaseOffset()
     {
+        SaveOffsetScheduledTime = Time.time + 5;
         Config.UserOffset -= Config.PreciseOffsetDelta ? 1 : 5;
         UpdateOffsetText();
     }

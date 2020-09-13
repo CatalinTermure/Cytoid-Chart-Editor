@@ -15,10 +15,18 @@ public class ToastMessageManager : MonoBehaviour
 
     private void Update()
     {
-        if(toastendtime != -1 && toastendtime < Time.time)
+        if(toastendtime != -1)
         {
-            gameObject.GetComponent<Text>().text = null;
-            toastendtime = -1;
+            if(toastendtime < Time.time)
+            {
+                gameObject.GetComponent<Text>().text = null;
+                toastendtime = -1;
+            }
+            else
+            {
+                Color c = gameObject.GetComponent<Text>().color;
+                gameObject.GetComponent<Text>().color = new Color(c.r, c.g, c.b, toastendtime - Time.time);
+            }
         }
     }
 }
