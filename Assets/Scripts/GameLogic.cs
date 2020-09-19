@@ -18,6 +18,8 @@ public class GameLogic : MonoBehaviour
     /// </summary>
     public static NoteType CurrentTool = NoteType.NONE;
 
+    private GameObject PlayPauseButton;
+
     public GameObject ScanlineNote;
     public GameObject DivisorLine;
 
@@ -75,6 +77,7 @@ public class GameLogic : MonoBehaviour
 
     public void Awake()
     {
+        PlayPauseButton = GameObject.Find("PlayPauseButton");
         if (CurrentChart != null)
         {
             if (Config.DebugMode)
@@ -668,6 +671,7 @@ public class GameLogic : MonoBehaviour
         }
         else
         {
+            PlayPauseButton.SetActive(false);
             ScheduledTime = MusicManager.Play();
             IsStartScheduled = true;
             foreach (GameObject obj in GameObject.FindGameObjectsWithTag("ScanlineNote"))
@@ -880,6 +884,7 @@ public class GameLogic : MonoBehaviour
             if(AudioSettings.dspTime > ScheduledTime)
             {
                 IsGameRunning = true;
+                PlayPauseButton.SetActive(true);
                 IsStartScheduled = false;
             }
         }
