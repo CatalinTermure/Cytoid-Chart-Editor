@@ -31,7 +31,15 @@ public class ChartDataChanger : MonoBehaviour
 
     public void SaveData()
     {
-        GlobalState.CurrentChart.Data.name = GameObject.Find("NameInputField").GetComponent<InputField>().text;
+        string name = GameObject.Find("NameInputField").GetComponent<InputField>().text;
+        if(name.Length > 0)
+        {
+            GlobalState.CurrentChart.Data.name = name;
+        }
+        else
+        {
+            GlobalState.CurrentChart.Data.name = null;
+        }
         GlobalState.CurrentChart.Data.difficulty = int.Parse(GameObject.Find("DifficultyInputField").GetComponent<InputField>().text);
 
         File.Move(Path.Combine(GlobalState.CurrentLevelPath, GlobalState.CurrentChart.Data.path), Path.Combine(GlobalState.CurrentLevelPath, GameObject.Find("FileNameInputField").GetComponent<InputField>().text));

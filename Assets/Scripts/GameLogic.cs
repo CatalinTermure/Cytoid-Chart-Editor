@@ -646,11 +646,11 @@ public class GameLogic : MonoBehaviour
     /// </summary>
     public void PlayPause()
     {
-        if (CurrentChart == null)
+        if (CurrentChart == null || IsStartScheduled)
         {
             return;
         }
-        if (IsGameRunning || IsStartScheduled)
+        if (IsGameRunning)
         {
             MusicManager.Pause();
             IsGameRunning = false;

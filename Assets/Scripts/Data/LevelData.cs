@@ -66,6 +66,11 @@ public class LevelData
             return music_override != null && music_override.path != null;
         }
 
+        public bool ShouldSerializename()
+        {
+            return name != null;
+        }
+
         public bool ShouldSerializestoryboard()
         {
             return storyboard != null && storyboard.path != null;

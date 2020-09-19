@@ -90,6 +90,10 @@ public class GlobalState : MonoBehaviour
             Config = new EditorConfig();
         }
 
+#if UNITY_IOS
+        Config.DirPath = Application.persistentDataPath;
+#endif
+
         if (Config.DebugMode)
         {
             LogPath = Path.Combine(Application.persistentDataPath, "LoadChartLog.txt");
