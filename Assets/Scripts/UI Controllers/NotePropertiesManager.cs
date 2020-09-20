@@ -15,6 +15,11 @@ public class NotePropertiesManager : MonoBehaviour
 
     private double NotesX = -1, NotesAR = -1;
 
+    public bool IsEmpty
+    {
+        get => notes.Count == 0;
+    }
+
     private void Awake()
     {
         NoteXLabel.SetActive(false);

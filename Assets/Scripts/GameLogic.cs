@@ -611,7 +611,7 @@ public class GameLogic : MonoBehaviour
             obj.GetComponent<ScanlineNoteController>().TimeInputField.text = (CurrentChart.tempo_list[id].time - CurrentChart.music_offset).ToString();
         }
         
-        obj.GetComponent<ScanlineNoteController>().BPMInputField.text = (Math.Round(120000000.0 / CurrentChart.tempo_list[id].value, 2)).ToString();
+        obj.GetComponent<ScanlineNoteController>().BPMInputField.text = Math.Round(120000000.0 / CurrentChart.tempo_list[id].value, 2).ToString();
     }
 
 
@@ -847,6 +847,8 @@ public class GameLogic : MonoBehaviour
             }
         }
 
+        GameObject.Find("CurrentBPMText").GetComponentInChildren<Text>().text = $"BPM: {Math.Round(120000000.0 / CurrentChart.tempo_list[CurrentTempoIndex].value, 2)}";
+
         GameObject.Find("SweepChangeButton").GetComponentInChildren<Text>().text = CurrentPage.scan_line_direction == 1 ? "Up" : "Down";
 
         GameObject.Find("PageText").GetComponent<Text>().text = CurrentPageIndex.ToString();
@@ -928,8 +930,9 @@ public class GameLogic : MonoBehaviour
             while(CurrentTempoIndex + 1 < CurrentChart.tempo_list.Count && CurrentChart.tempo_list[CurrentTempoIndex + 1].time < time)
             {
                 CurrentTempoIndex++;
+                GameObject.Find("CurrentBPMText").GetComponentInChildren<Text>().text = $"BPM: {Math.Round(120000000.0 / CurrentChart.tempo_list[CurrentTempoIndex].value, 2)}";
             }
-        
+
             TimeTextBuilder.Clear();
             TimeTextBuilder.Append((int)((time - CurrentChart.music_offset) / 60));
             TimeTextBuilder.Append(':');
