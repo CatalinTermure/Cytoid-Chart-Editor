@@ -773,6 +773,7 @@ public class GameLogic : MonoBehaviour
     private void UpdateTime(double time)
     {
         NotePropsManager.Clear();
+        MakeButtonsInteractable();
 
         foreach (var obj in GameObject.FindGameObjectsWithTag("Note"))
         {
@@ -1512,6 +1513,45 @@ public class GameLogic : MonoBehaviour
             {
                 Note note = CurrentChart.note_list[obj.GetComponent<NoteController>().NoteID];
                 NotePropsManager.Add(note);
+
+                // Fix hold arrows overlapping with buttons/timeline
+                if(obj.GetComponent<NoteController>().NoteType == (int)NoteType.HOLD || obj.GetComponent<NoteController>().NoteType == (int)NoteType.LONG_HOLD)
+                {
+                    Bounds UpBounds = obj.GetComponent<HoldNoteController>().UpArrowCollider.bounds, DownBounds = obj.GetComponent<HoldNoteController>().DownArrowCollider.bounds;
+                    Vector3[] bounds = new Vector3[4];
+
+                    GameObject.Find("LevelOptionsButton").GetComponent<RectTransform>().GetWorldCorners(bounds);
+                    Bounds b = new Bounds(new Vector3((bounds[0].x + bounds[1].x + bounds[2].x + bounds[3].x) / 4, (bounds[0].y + bounds[1].y + bounds[2].y + bounds[3].y) / 4, UpBounds.center.z), 
+                        new Vector3((bounds[3].x - bounds[0].x) / 2, (bounds[1].y - bounds[0].y) / 2, 3));
+                    if(b.Intersects(UpBounds) || b.Intersects(DownBounds))
+                    {
+                        GameObject.Find("LevelOptionsButton").GetComponent<Button>().interactable = false;
+                    }
+                    
+                    GameObject.Find("EditorSettingsButton").GetComponent<RectTransform>().GetWorldCorners(bounds);
+                    b = new Bounds(new Vector3((bounds[0].x + bounds[1].x + bounds[2].x + bounds[3].x) / 4, (bounds[0].y + bounds[1].y + bounds[2].y + bounds[3].y) / 4, UpBounds.center.z),
+                        new Vector3((bounds[3].x - bounds[0].x) / 2, (bounds[1].y - bounds[0].y) / 2, 3));
+                    if (b.Intersects(UpBounds) || b.Intersects(DownBounds))
+                    {
+                        GameObject.Find("EditorSettingsButton").GetComponent<Button>().interactable = false;
+                    }
+
+                    GameObject.Find("SaveButton").GetComponent<RectTransform>().GetWorldCorners(bounds);
+                    b = new Bounds(new Vector3((bounds[0].x + bounds[1].x + bounds[2].x + bounds[3].x) / 4, (bounds[0].y + bounds[1].y + bounds[2].y + bounds[3].y) / 4, UpBounds.center.z),
+                        new Vector3((bounds[3].x - bounds[0].x) / 2, (bounds[1].y - bounds[0].y) / 2, 3));
+                    if (b.Intersects(UpBounds) || b.Intersects(DownBounds))
+                    {
+                        GameObject.Find("SaveButton").GetComponent<Button>().interactable = false;
+                    }
+
+                    GameObject.Find("Timeline").GetComponent<RectTransform>().GetWorldCorners(bounds);
+                    b = new Bounds(new Vector3((bounds[0].x + bounds[1].x + bounds[2].x + bounds[3].x) / 4, (bounds[0].y + bounds[1].y + bounds[2].y + bounds[3].y) / 4, UpBounds.center.z),
+                        new Vector3((bounds[3].x - bounds[0].x) / 2, (bounds[1].y - bounds[0].y) / 2, 3));
+                    if (b.Intersects(UpBounds) || b.Intersects(DownBounds))
+                    {
+                        GameObject.Find("Timeline").GetComponent<Slider>().interactable = false;
+                    }
+                }
             }
         }
         else
@@ -1522,6 +1562,18 @@ public class GameLogic : MonoBehaviour
                 NotePropsManager.Remove(note);
             }
         }
+        if(NotePropsManager.IsEmpty)
+        {
+            MakeButtonsInteractable();
+        }
+    }
+
+    private static void MakeButtonsInteractable()
+    {
+        GameObject.Find("LevelOptionsButton").GetComponent<Button>().interactable = true;
+        GameObject.Find("EditorSettingsButton").GetComponent<Button>().interactable = true;
+        GameObject.Find("SaveButton").GetComponent<Button>().interactable = true;
+        GameObject.Find("Timeline").GetComponent<Slider>().interactable = true;
     }
 
     public void SaveChart()

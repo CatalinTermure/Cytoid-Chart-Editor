@@ -8,7 +8,7 @@ public class HoldNoteController : NoteController
     /// </summary>
     public GameObject NoteFill, NoteBorder, InnerNoteBorder, HollowNoteBody, FillNoteBodyMask, FillNoteBody, NoteHead, UpArrow, DownArrow;
 
-    public Collider2D UpArrowCollider, DownArrowCollider;
+    public BoxCollider2D UpArrowCollider, DownArrowCollider;
 
     private float CompletionPercentage;
 
