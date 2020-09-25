@@ -703,25 +703,19 @@ public class GameLogic : MonoBehaviour
                 DivisorValue = AllowedDivisor[i];
             }
         }
-        foreach(var obj in GameObject.FindGameObjectsWithTag("DivisorLine"))
-        {
-            Destroy(obj);
-        }
-        for(int i = 1; i < DivisorValue; i++)
-        {
-            GameObject obj = Instantiate(DivisorLine);
-            obj.transform.position = new Vector3(0, PlayAreaHeight / DivisorValue * i - PlayAreaHeight / 2);
-            obj.GetComponent<SpriteRenderer>().size = new Vector2(PlayAreaWidth, 0.1f);
-        }
-
-        GameObject.Find("BeatDivisorInputField").GetComponent<InputField>().text = DivisorValue.ToString();
+        RenderDivisorLines();
     }
 
     public void SetBeatDivisorValueUnsafe(int val)
     {
-        val = Clamp<int>(val, 1, 16);
+        val = Clamp(val, 1, 32);
         BeatDivisor.SetValueWithoutNotify(val);
         DivisorValue = val;
+        RenderDivisorLines();
+    }
+
+    private void RenderDivisorLines()
+    {
         foreach (var obj in GameObject.FindGameObjectsWithTag("DivisorLine"))
         {
             Destroy(obj);
@@ -1308,8 +1302,12 @@ public class GameLogic : MonoBehaviour
                         Clamp(currentlymoving.transform.position.y, -PlayAreaHeight / 2, PlayAreaHeight / 2));
                     if (currentlymoving.CompareTag("Note"))
                     {
-                        currentlymoving.transform.position = new Vector3(
-                            (float)Math.Round((currentlymoving.transform.position.x + PlayAreaWidth / 2) / (PlayAreaWidth / Config.VerticalDivisors)) * (PlayAreaWidth / Config.VerticalDivisors) - PlayAreaWidth / 2,
+                        float newX = currentlymoving.transform.position.x;
+                        if (Config.HorizontalSnap)
+                        {
+                            newX = (float)Math.Round((currentlymoving.transform.position.x + PlayAreaWidth / 2) / (PlayAreaWidth / Config.VerticalDivisors)) * (PlayAreaWidth / Config.VerticalDivisors) - PlayAreaWidth / 2;
+                        }
+                        currentlymoving.transform.position = new Vector3(newX,
                             (float)Math.Round((currentlymoving.transform.position.y + PlayAreaHeight / 2) / (PlayAreaHeight / DivisorValue)) * (PlayAreaHeight / DivisorValue) - PlayAreaHeight / 2);
 
                         int id = currentlymoving.GetComponent<NoteController>().NoteID;

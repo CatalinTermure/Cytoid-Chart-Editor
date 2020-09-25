@@ -7,6 +7,7 @@ public class EditorConfig
     public string DirPath = Application.persistentDataPath;
     public float HitsoundVolume = 0.25f, DefaultNoteSize = 2;
     public int VerticalDivisors = 24;
+    public bool HorizontalSnap = true;
     public bool EnableLetterboxing = true; // TODO: implement this
     public bool ShowFPS = false;
     public bool ShowApproachingNotesWhilePaused = false;

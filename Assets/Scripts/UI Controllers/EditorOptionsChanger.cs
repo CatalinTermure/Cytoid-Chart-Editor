@@ -49,6 +49,9 @@ public class EditorOptionsChanger : MonoBehaviour
 
         GameObject.Find("NoteInteractionToggle").GetComponent<Toggle>().SetIsOnWithoutNotify(GlobalState.Config.InteractWithNotesOnOtherPages);
         GameObject.Find("NoteInteractionToggle").GetComponent<Toggle>().onValueChanged.AddListener((bool value) => GlobalState.Config.InteractWithNotesOnOtherPages = value);
+
+        GameObject.Find("HorizontalSnapToggle").GetComponent<Toggle>().SetIsOnWithoutNotify(GlobalState.Config.HorizontalSnap);
+        GameObject.Find("HorizontalSnapToggle").GetComponent<Toggle>().onValueChanged.AddListener((bool value) => GlobalState.Config.HorizontalSnap = value);
     }
 
     public void SaveOptions()

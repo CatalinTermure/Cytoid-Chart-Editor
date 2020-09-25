@@ -7,13 +7,13 @@ using UnityEngine.UI;
 
 public class NotePropertiesManager : MonoBehaviour
 {
-    private bool ChangeNoteAR, ChangeNoteXPosition;
+    private bool ChangeNoteAR, ChangeNoteXPosition, ChangeNoteY;
 
     private static readonly List<int> notes = new List<int>();
 
-    public GameObject NoteXLabel, NoteXInputField, NoteARLabel, NoteARInputField;
+    public GameObject NoteXLabel, NoteXInputField, NoteARLabel, NoteARInputField, NoteYLabel, NoteYInputField;
 
-    private double NotesX = -1, NotesAR = -1;
+    private double NotesX = -1, NotesAR = -1, NotesY = -1;
 
     public bool IsEmpty
     {
@@ -26,6 +26,8 @@ public class NotePropertiesManager : MonoBehaviour
         NoteXInputField.SetActive(false);
         NoteARLabel.SetActive(false);
         NoteARInputField.SetActive(false);
+        NoteYInputField.SetActive(false);
+        NoteYLabel.SetActive(false);
 
         NoteXInputField.GetComponent<InputField>().onEndEdit.AddListener((string s) =>
         {
@@ -36,17 +38,7 @@ public class NotePropertiesManager : MonoBehaviour
                 GlobalState.CurrentChart.note_list[notes[i]].x = x;
                 GameLogic.RefreshNote(notes[i]);
             }
-            notes.Clear();
-
-            NoteXLabel.SetActive(false);
-            NoteXInputField.SetActive(false);
-            ChangeNoteXPosition = false;
-
-            NoteARLabel.SetActive(false);
-            NoteARInputField.SetActive(false);
-            ChangeNoteAR = false;
-
-            NotesX = NotesAR = -1;
+            Clear();
         });
 
         NoteARInputField.GetComponent<InputField>().onEndEdit.AddListener((string s) =>
@@ -58,17 +50,21 @@ public class NotePropertiesManager : MonoBehaviour
                 GlobalState.CurrentChart.note_list[notes[i]].approach_rate = approach_rate;
                 GameLogic.RefreshNote(notes[i]);
             }
-            notes.Clear();
+            Clear();
+        });
 
-            NoteXLabel.SetActive(false);
-            NoteXInputField.SetActive(false);
-            ChangeNoteXPosition = false;
+        NoteYInputField.GetComponent<InputField>().onEndEdit.AddListener((string s) =>
+        {
+            double y = double.Parse(s);
 
-            NoteARLabel.SetActive(false);
-            NoteARInputField.SetActive(false);
-            ChangeNoteAR = false;
-
-            NotesX = NotesAR = -1;
+            for (int i = 0; i < notes.Count; i++)
+            {
+                GlobalState.CurrentChart.note_list[notes[i]].y = y;
+                GlobalState.CurrentChart.note_list[notes[i]].tick = (int)Math.Round(GlobalState.CurrentChart.page_list[GlobalState.CurrentChart.note_list[notes[i]].page_index].start_tick +
+                    GlobalState.CurrentChart.page_list[GlobalState.CurrentChart.note_list[notes[i]].page_index].PageSize * y);
+                GameLogic.RefreshNote(notes[i]);
+            }
+            Clear();
         });
     }
 
@@ -87,6 +83,12 @@ public class NotePropertiesManager : MonoBehaviour
             NoteXLabel.SetActive(true);
             NoteXInputField.SetActive(true);
         }
+        if(!ChangeNoteY)
+        {
+            ChangeNoteY = true;
+            NoteYLabel.SetActive(true);
+            NoteYInputField.SetActive(true);
+        }
         if(notes.Count == 1)
         {
             NotesX = GlobalState.CurrentChart.note_list[notes[0]].x;
@@ -94,6 +96,9 @@ public class NotePropertiesManager : MonoBehaviour
 
             NotesAR = GlobalState.CurrentChart.note_list[notes[0]].approach_rate;
             NoteARInputField.GetComponent<InputField>().text = GlobalState.CurrentChart.note_list[notes[0]].approach_rate.ToString();
+
+            NotesY = GlobalState.CurrentChart.note_list[notes[0]].y;
+            NoteYInputField.GetComponent<InputField>().text = GlobalState.CurrentChart.note_list[notes[0]].y.ToString();
         }
         else
         {
@@ -124,6 +129,20 @@ public class NotePropertiesManager : MonoBehaviour
                 NotesAR = -1;
                 NoteARInputField.GetComponent<InputField>().text = "";
             }
+
+            if(NotesY < -0.6)
+            {
+                NoteYInputField.GetComponent<InputField>().text = "";
+            }
+            else if(Math.Abs(GlobalState.CurrentChart.note_list[notes[notes.Count - 1]].y - NotesY) < 0.001)
+            {
+                NoteYInputField.GetComponent<InputField>().text = NotesY.ToString("F3");
+            }
+            else
+            {
+                NotesY = -1;
+                NoteYInputField.GetComponent<InputField>().text = "";
+            }
         }
     }
 
@@ -137,7 +156,9 @@ public class NotePropertiesManager : MonoBehaviour
             NoteXInputField.SetActive(false);
             NoteARLabel.SetActive(false);
             NoteARInputField.SetActive(false);
-            NotesX = NotesAR = -1;
+            NoteYInputField.SetActive(false);
+            NoteYLabel.SetActive(false);
+            NotesX = NotesAR = NotesY = -1;
         }
         else if (notes.Count == 1)
         {
@@ -146,6 +167,9 @@ public class NotePropertiesManager : MonoBehaviour
 
             NotesAR = GlobalState.CurrentChart.note_list[notes[0]].approach_rate;
             NoteARInputField.GetComponent<InputField>().text = GlobalState.CurrentChart.note_list[notes[0]].approach_rate.ToString();
+
+            NotesY = GlobalState.CurrentChart.note_list[notes[0]].y;
+            NoteYInputField.GetComponent<InputField>().text = GlobalState.CurrentChart.note_list[notes[0]].y.ToString();
         }
         else
         {
@@ -188,17 +212,39 @@ public class NotePropertiesManager : MonoBehaviour
             {
                 NoteARInputField.GetComponent<InputField>().text = NotesAR.ToString("F3");
             }
+
+            bool isNoteYSame = true;
+            NotesY = GlobalState.CurrentChart.note_list[notes[0]].y;
+            for(int i = 1; i < notes.Count; i++)
+            {
+                if (Math.Abs(GlobalState.CurrentChart.note_list[notes[notes.Count - 1]].y - NotesY) > 0.001)
+                {
+                    isNoteYSame = false;
+                    NotesY = -1;
+                }
+            }
+
+            if(NotesY < -0.6)
+            {
+                NoteARInputField.GetComponent<InputField>().text = "";
+            }
+            else if(isNoteYSame)
+            {
+                NoteYInputField.GetComponent<InputField>().text = NotesY.ToString("F3");
+            }
         }
     }
 
     public void Clear()
     {
-        ChangeNoteAR = ChangeNoteXPosition = false;
-        NotesX = NotesAR = -1;
+        ChangeNoteAR = ChangeNoteXPosition = ChangeNoteY = false;
+        NotesX = NotesAR = NotesY = -1;
         NoteXLabel.SetActive(false);
         NoteXInputField.SetActive(false);
         NoteARLabel.SetActive(false);
         NoteARInputField.SetActive(false);
+        NoteYInputField.SetActive(false);
+        NoteYLabel.SetActive(false);
         notes.Clear();
     }
 }
