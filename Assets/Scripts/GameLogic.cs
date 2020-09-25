@@ -685,6 +685,29 @@ public class GameLogic : MonoBehaviour
                     HighlightObject(obj);
                 }
             }
+
+            AddMissingDrags();
+        }
+    }
+
+    private void AddMissingDrags()
+    {
+        for(int i = 0; i < CurrentChart.note_list.Count; i++)
+        {
+            Note note = CurrentChart.note_list[i];
+            if((note.type == (int)NoteType.CDRAG_HEAD || note.type == (int)NoteType.DRAG_HEAD) && note.page_index < CurrentPageIndex)
+            {
+                int id = note.id;
+                while(CurrentChart.note_list[id].next_id > 0)
+                {
+                    if(CurrentChart.note_list[id].page_index == CurrentPageIndex)
+                    {
+                        SpawnNote(note, CurrentPage.actual_start_time - note.time + note.approach_time);
+                        break;
+                    }
+                    id = CurrentChart.note_list[id].next_id;
+                }
+            }
         }
     }
 

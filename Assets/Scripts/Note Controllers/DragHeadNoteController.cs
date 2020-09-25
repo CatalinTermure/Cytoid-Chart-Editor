@@ -82,6 +82,10 @@ public class DragHeadNoteController : NoteController
 
             float x1 = Paths[Paths.Count - 2].x, x2 = Paths[Paths.Count - 1].x, y1 = Paths[Paths.Count - 2].y, y2 = Paths[Paths.Count - 1].y;
             GameObject obj = ParentPool.GetDragConnector();
+            if(obj == null)
+            {
+                UnityEngine.Debug.Log("NYAAAAAAAAAA");
+            }
             obj.SetActive(false);
             obj.transform.position = new Vector3(x2, y2);
             obj.GetComponent<SpriteRenderer>().size = new Vector2(0.25f, GlobalState.GetDistance(x1, y1, x2, y2));

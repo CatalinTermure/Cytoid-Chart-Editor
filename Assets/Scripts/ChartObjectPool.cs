@@ -63,16 +63,28 @@ public class ChartObjectPool
 
     public GameObject GetNote(NoteType type)
     {
+        if(NotePools[(int)type].Count > 0 && NotePools[(int)type].Peek() == null)
+        {
+            Debug.Log("CUNT");
+        }
         return NotePools[(int)type].Count > 0 ? NotePools[(int)type].Dequeue() : Object.Instantiate(Prefabs[(int)type]);
     }
 
     public GameObject GetDragConnector()
     {
+        while(NotePools[8].Count > 0 && NotePools[8].Peek() == null)
+        {
+            NotePools[8].Dequeue();
+        }
         return NotePools[8].Count > 0 ? NotePools[8].Dequeue() : Object.Instantiate(Prefabs[8]);
     }
 
     public void ReturnToPool(GameObject obj, int type)
     {
+        if(obj == null)
+        {
+            return;
+        }
         if(NotePools[type].Count < POOL_SIZES[type])
         {
             obj.SetActive(false);

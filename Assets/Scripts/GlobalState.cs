@@ -226,6 +226,15 @@ public class GlobalState : MonoBehaviour
         return (float)Math.Sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
     }
 
+    public static int GetLastDragChainLink(int index)
+    {
+        while(CurrentChart.note_list[index].next_id > 0)
+        {
+            index = CurrentChart.note_list[index].next_id;
+        }
+        return index;
+    }
+
     /// <summary>
     /// Gets the page that contains <paramref name="time"/>.
     /// </summary>
