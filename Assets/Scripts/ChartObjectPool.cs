@@ -63,10 +63,6 @@ public class ChartObjectPool
 
     public GameObject GetNote(NoteType type)
     {
-        if(NotePools[(int)type].Count > 0 && NotePools[(int)type].Peek() == null)
-        {
-            Debug.Log("CUNT");
-        }
         return NotePools[(int)type].Count > 0 ? NotePools[(int)type].Dequeue() : Object.Instantiate(Prefabs[(int)type]);
     }
 
