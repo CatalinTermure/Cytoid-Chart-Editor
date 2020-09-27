@@ -96,9 +96,22 @@ public class GameLogic : MonoBehaviour
                 HitsoundSources[i].volume = Config.HitsoundVolume;
             }
 
-            ObjectPool = new ChartObjectPool();
+            if (File.Exists(Path.Combine(Application.persistentDataPath, "Hitsound.wav")))
+            {
+                Logging.AddToLog(LogPath, "Trying to load custom hitsound\n");
+                LoadCustomHitsounds(Path.Combine(Application.persistentDataPath, "Hitsound.wav"));
+                for (int i = 0; i < HitsoundSources.Length; i++)
+                {
+                    HitsoundSources[i].clip = Hitsound;
+                }
+                Logging.AddToLog(LogPath, "Custom hitsound loaded\n");
+            }
 
             Logging.AddToLog(LogPath, "Audio sources loaded\n");
+
+            ObjectPool = new ChartObjectPool();
+
+            Logging.AddToLog(LogPath, "Pool created\n");
 
             if (CurrentPageIndexOverride != -1)
             {
@@ -352,25 +365,6 @@ public class GameLogic : MonoBehaviour
                 notes[ni].y = pages[notes[ni].page_index].scan_line_direction == 1 ?
                     (double)(notes[ni].tick - pages[notes[ni].page_index].actual_start_tick) / (pages[notes[ni].page_index].end_tick - pages[notes[ni].page_index].actual_start_tick) :
                     1.0 - (double)(notes[ni].tick - pages[notes[ni].page_index].actual_start_tick) / (pages[notes[ni].page_index].end_tick - pages[notes[ni].page_index].actual_start_tick);
-
-                /*
-                public float CalculateNoteSpeed(ChartModel.Note note)
-                {
-                    var page = Model.page_list[note.page_index];
-                    var previousPage = Model.page_list[note.page_index - 1];
-                    var pageRatio = (float) (
-                        1.0f * (note.tick - page.actual_start_tick) /
-                        (page.end_tick -
-                            page.actual_start_tick));
-                    var tempo =
-                        (page.end_time -
-                            page.actual_start_time) * pageRatio +
-                        (previousPage.end_time -
-                            previousPage.actual_start_time) * (1.367f - pageRatio);
-                    return tempo >= 1.367f ? 1.0f : 1.367f / tempo;
-                }
-                 */
-                // pageindex = 0 -> speed = 1.0 * approach_rate
 
                 if(notes[ni].page_index == 0)
                 {
@@ -1102,11 +1096,16 @@ public class GameLogic : MonoBehaviour
                         return;
                     }
                 }
+                double notex = (touchpos.x + PlayAreaWidth / 2) / PlayAreaWidth;
+                if(Config.HorizontalSnap)
+                {
+                    notex = Math.Round((touchpos.x + PlayAreaWidth / 2) / (PlayAreaWidth / Config.VerticalDivisors)) / Config.VerticalDivisors;
+                }
                 if (CurrentTool == NoteType.CLICK) // Add click note
                 {
                     AddNote(new Note
                     {
-                        x = Math.Round((touchpos.x + PlayAreaWidth / 2) / (PlayAreaWidth / Config.VerticalDivisors)) / Config.VerticalDivisors,
+                        x = notex,
                         page_index = CurrentPageIndex,
                         type = (int)NoteType.CLICK,
                         id = -1,
@@ -1128,7 +1127,7 @@ public class GameLogic : MonoBehaviour
 
                     AddNote(new Note
                     {
-                        x = Math.Round((touchpos.x + PlayAreaWidth / 2) / (PlayAreaWidth / Config.VerticalDivisors)) / Config.VerticalDivisors,
+                        x = notex,
                         page_index = tick == CurrentPage.end_tick ? CurrentPageIndex + 1 : CurrentPageIndex,
                         type = (int)NoteType.HOLD,
                         id = -1,
@@ -1148,7 +1147,7 @@ public class GameLogic : MonoBehaviour
 
                     AddNote(new Note
                     {
-                        x = Math.Round((touchpos.x + PlayAreaWidth / 2) / (PlayAreaWidth / Config.VerticalDivisors)) / Config.VerticalDivisors,
+                        x = notex,
                         page_index = tick == CurrentPage.end_tick ? CurrentPageIndex + 1 : CurrentPageIndex,
                         type = (int)NoteType.LONG_HOLD,
                         id = -1,
@@ -1164,7 +1163,7 @@ public class GameLogic : MonoBehaviour
                 {
                     AddNote(new Note
                     {
-                        x = Math.Round((touchpos.x + PlayAreaWidth / 2) / (PlayAreaWidth / Config.VerticalDivisors)) / Config.VerticalDivisors,
+                        x = notex,
                         page_index = CurrentPageIndex,
                         type = (int)NoteType.FLICK,
                         id = -1,
@@ -1195,7 +1194,7 @@ public class GameLogic : MonoBehaviour
                             {
                                 int id = AddNote(new Note
                                 {
-                                    x = Math.Round((touchpos.x + PlayAreaWidth / 2) / (PlayAreaWidth / Config.VerticalDivisors)) / Config.VerticalDivisors,
+                                    x = notex,
                                     page_index = CurrentPageIndex,
                                     type = (int)NoteType.DRAG_CHILD,
                                     id = -1,
@@ -1215,7 +1214,7 @@ public class GameLogic : MonoBehaviour
                     {
                         IDtoHighlight = AddNote(new Note
                         {
-                            x = Math.Round((touchpos.x + PlayAreaWidth / 2) / (PlayAreaWidth / Config.VerticalDivisors)) / Config.VerticalDivisors,
+                            x = notex,
                             page_index = CurrentPageIndex,
                             type = (int)NoteType.DRAG_HEAD,
                             id = -1,
@@ -1248,7 +1247,7 @@ public class GameLogic : MonoBehaviour
                             {
                                 int id = AddNote(new Note
                                 {
-                                    x = Math.Round((touchpos.x + PlayAreaWidth / 2) / (PlayAreaWidth / Config.VerticalDivisors)) / Config.VerticalDivisors,
+                                    x = notex,
                                     page_index = CurrentPageIndex,
                                     type = (int)NoteType.CDRAG_CHILD,
                                     id = -1,
@@ -1268,7 +1267,7 @@ public class GameLogic : MonoBehaviour
                     {
                         IDtoHighlight = AddNote(new Note
                         {
-                            x = Math.Round((touchpos.x + PlayAreaWidth / 2) / (PlayAreaWidth / Config.VerticalDivisors)) / Config.VerticalDivisors,
+                            x = notex,
                             page_index = CurrentPageIndex,
                             type = (int)NoteType.CDRAG_HEAD,
                             id = -1,
@@ -1538,7 +1537,17 @@ public class GameLogic : MonoBehaviour
                 // Fix hold arrows overlapping with buttons/timeline
                 if(obj.GetComponent<NoteController>().NoteType == (int)NoteType.HOLD || obj.GetComponent<NoteController>().NoteType == (int)NoteType.LONG_HOLD)
                 {
-                    Bounds UpBounds = obj.GetComponent<HoldNoteController>().UpArrowCollider.bounds, DownBounds = obj.GetComponent<HoldNoteController>().DownArrowCollider.bounds;
+                    Bounds UpBounds, DownBounds;
+                    if(obj.GetComponent<NoteController>().NoteType == (int)NoteType.LONG_HOLD)
+                    {
+                        UpBounds = obj.GetComponent<LongHoldNoteController>().UpArrowCollider.bounds;
+                        DownBounds = obj.GetComponent<LongHoldNoteController>().DownArrowCollider.bounds;
+                    }
+                    else
+                    {
+                        UpBounds = obj.GetComponent<HoldNoteController>().UpArrowCollider.bounds;
+                        DownBounds = obj.GetComponent<HoldNoteController>().DownArrowCollider.bounds;
+                    }
                     Vector3[] bounds = new Vector3[4];
 
                     GameObject.Find("LevelOptionsButton").GetComponent<RectTransform>().GetWorldCorners(bounds);
@@ -1631,5 +1640,55 @@ public class GameLogic : MonoBehaviour
 
             GameObject.Find("ToastText").GetComponent<ToastMessageManager>().CreateToast("Saved chart!");
         }
+    }
+
+    public void CopySelection()
+    {
+        Clipboard.Clear();
+        Clipboard.ReferencePageIndex = CurrentPageIndex;
+        Clipboard.ReferenceTick = CurrentPage.actual_start_tick;
+        foreach (GameObject obj in GameObject.FindGameObjectsWithTag("Note"))
+        {
+            if (obj.GetComponent<IHighlightable>().Highlighted)
+            {
+                int id = obj.GetComponent<NoteController>().NoteID;
+                if(CurrentChart.note_list[id].type != (int)NoteType.CDRAG_HEAD && CurrentChart.note_list[id].type != (int)NoteType.DRAG_HEAD)
+                {
+                    Clipboard.Add(CurrentChart.note_list[id]);
+                }
+            }
+        }
+
+        GameObject.Find("ToastText").GetComponent<ToastMessageManager>().CreateToast("Copied to clipboard!");
+    }
+
+    public void Paste()
+    {
+        List<Note> notes = Clipboard.GetNotes();
+        if(notes.Count > 0)
+        {
+            for(int i = 0; i < notes.Count; i++)
+            {
+                notes[i].tick += CurrentPage.start_tick - Clipboard.ReferenceTick;
+                notes[i].page_index += CurrentPageIndex - Clipboard.ReferencePageIndex;
+                notes[i].id = -1;
+                AddNote(notes[i]);
+            }
+        }
+        CalculateTimings();
+        UpdateTime(CurrentPage.actual_start_time);
+    }
+
+    public void MirrorSelection()
+    {
+        foreach(GameObject obj in GameObject.FindGameObjectsWithTag("Note"))
+        {
+            if(obj.GetComponent<IHighlightable>().Highlighted)
+            {
+                int id = obj.GetComponent<NoteController>().NoteID;
+                CurrentChart.note_list[id].x = 1 - CurrentChart.note_list[id].x;
+            }
+        }
+        UpdateTime(CurrentPage.actual_start_time);
     }
 }

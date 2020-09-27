@@ -101,6 +101,32 @@ public class Note
 
     [NonSerialized, JsonIgnore]
     public double actual_opacity = 1.0, actual_size = 1.0;
+    [NonSerialized, JsonIgnore]
+    public double time, hold_time, approach_time, y;
+
+    public Note() { }
+
+    public Note(Note other)
+    {
+        page_index = other.page_index;
+        type = other.type;
+        id = other.id;
+        tick = other.tick;
+        x = other.x;
+        hold_tick = other.hold_tick;
+        next_id = other.next_id;
+        approach_rate = other.approach_rate;
+        size = other.size;
+        ring_color = other.ring_color;
+        fill_color = other.fill_color;
+        opacity = other.opacity;
+        actual_opacity = other.actual_opacity;
+        actual_size = other.actual_size;
+        time = other.time;
+        hold_time = other.hold_time;
+        approach_time = other.approach_time;
+        y = other.y;
+    }
 
     public bool ShouldSerializeopacity()
     {
@@ -116,7 +142,4 @@ public class Note
     {
         return Math.Abs(approach_rate - 1.0) > 0.001;
     }
-
-    [NonSerialized, JsonIgnore]
-    public double time, hold_time, approach_time, y;
 }

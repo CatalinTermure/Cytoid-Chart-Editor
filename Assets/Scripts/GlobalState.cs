@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
+using UnityEngine.Networking;
 
 public class GlobalState : MonoBehaviour
 {
@@ -279,5 +280,46 @@ public class GlobalState : MonoBehaviour
             val = r;
         }
         return val;
+    }
+
+    public static void LoadCustomHitsounds(string path)
+    {
+        AudioType type = AudioType.UNKNOWN;
+        switch (Path.GetExtension(path))
+        {
+            case ".ogg":
+                type = AudioType.OGGVORBIS;
+                break;
+            case ".mp3":
+                type = AudioType.MPEG;
+                break;
+            case ".wav":
+                type = AudioType.WAV;
+                break;
+            default:
+                Debug.LogError("CCELog: Audio file type is unsupported.");
+                break;
+        }
+
+        Logging.AddToLog(Path.Combine(Application.persistentDataPath, "LoadChartLog.txt"), $"Loading music file from path: file://{path}\n");
+
+        using (var www = UnityWebRequestMultimedia.GetAudioClip("file://" + path, type))
+        {
+            var req = www.SendWebRequest();
+
+            while (!req.isDone)
+            {
+
+            }
+
+            if (www.isNetworkError || www.isHttpError)
+            {
+                Debug.LogError("CCELog: " + www.error);
+            }
+            else
+            {
+                Hitsound = DownloadHandlerAudioClip.GetContent(www);
+            }
+        }
     }
 }
