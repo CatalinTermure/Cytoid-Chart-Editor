@@ -10,5 +10,5 @@
     CDRAG_HEAD = 6,
     CDRAG_CHILD = 7,
     MOVE = 8,
-    SETTINGS = 9
+    SCANLINE = 9
 }

@@ -64,7 +64,7 @@ public class Page
 public class Tempo
 {
     public int tick;
-    public int value;
+    public long value;
     [NonSerialized, JsonIgnore]
     public double time;
 }

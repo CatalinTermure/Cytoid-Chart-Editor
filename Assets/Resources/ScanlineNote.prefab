@@ -605,6 +605,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   TimeInputField: {fileID: 2563619202517457078}
   BPMInputField: {fileID: 2563619202778346896}
+  HighlightBorder: {fileID: 0}
 --- !u!1 &2563619204545111082
 GameObject:
   m_ObjectHideFlags: 0

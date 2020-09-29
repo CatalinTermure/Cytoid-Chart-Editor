@@ -308,6 +308,16 @@ public class GameLogic : MonoBehaviour
                 pi++;
             }
         }
+        while(ti + 1 < t)
+        {
+            tempos[ti].time = temposum;
+            temposum += (double)tempos[ti].value * (tempos[ti + 1].tick - tempos[ti].tick) / timebase / 1000000;
+            ti++;
+        }
+        if(ti < t)
+        {
+            tempos[ti].time = temposum;
+        }
         double realmaxtime = (double)MusicManager.MaxTime / PlaybackSpeeds[PlaybackSpeedIndex] + CurrentChart.music_offset;
         if(pages[p - 1].end_time < realmaxtime) // Add pages in case the page_list ends before the music
         {
@@ -1283,7 +1293,7 @@ public class GameLogic : MonoBehaviour
                     UpdateTime(CurrentPage.actual_start_time);
                     HighlightNoteWithID(IDtoHighlight);
                 }
-                else if (CurrentTool == NoteType.SETTINGS) // Add scanline/tempo note
+                else if (CurrentTool == NoteType.SCANLINE) // Add scanline/tempo note
                 {
                     AddTempo(new Tempo
                     {
@@ -1444,7 +1454,7 @@ public class GameLogic : MonoBehaviour
         int id = scanlineNote.GetComponent<ITempo>().TempoID;
         if(double.TryParse(bpminput, out double bpm))
         {
-            CurrentChart.tempo_list[id].value = (int)Math.Round(120000000 / bpm);
+            CurrentChart.tempo_list[id].value = (long)Math.Round(120000000 / bpm);
         }
         if(double.TryParse(timeinput, out double time) && id == 0)
         {
