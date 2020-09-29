@@ -75,6 +75,9 @@ public class GameLogic : MonoBehaviour
 
     private static string LogPath;
 
+    private bool LockX = false;
+    private float LockedX = 0;
+
     public void Awake()
     {
         PlayPauseButton = GameObject.Find("PlayPauseButton");
@@ -747,11 +750,20 @@ public class GameLogic : MonoBehaviour
         {
             Destroy(obj);
         }
+        int interval = 1000;
+        if(DivisorValue % 3 == 0)
+        {
+            interval = 3;
+        }
+        else if(DivisorValue % 4 == 0)
+        {
+            interval = 4;
+        }
         for (int i = 1; i < DivisorValue; i++)
         {
             GameObject obj = Instantiate(DivisorLine);
             obj.transform.position = new Vector3(0, PlayAreaHeight / DivisorValue * i - PlayAreaHeight / 2);
-            obj.GetComponent<SpriteRenderer>().size = new Vector2(PlayAreaWidth, 0.1f);
+            obj.GetComponent<SpriteRenderer>().size = new Vector2(PlayAreaWidth, (i % interval == 0 && Config.HorizontalLineAccents) ? 0.175f : 0.1f);
         }
 
         GameObject.Find("BeatDivisorInputField").GetComponent<InputField>().text = DivisorValue.ToString();
@@ -929,7 +941,7 @@ public class GameLogic : MonoBehaviour
 
             double time = MusicManager.Time + Offset;
 
-            while(CurrentHitsoundIndex < HitsoundTimings.Count && HitsoundTimings[CurrentHitsoundIndex] - 0.05 <= time)
+            while(CurrentHitsoundIndex < HitsoundTimings.Count && HitsoundTimings[CurrentHitsoundIndex] - Config.HitsoundPrepTime <= time)
             {
                 HitsoundSources[HitsoundSourceIndex].PlayScheduled(HitsoundTimings[CurrentHitsoundIndex] - time + AudioSettings.dspTime);
                 HitsoundSourceIndex++;
@@ -1001,7 +1013,7 @@ public class GameLogic : MonoBehaviour
 
     private void HandleInput()
     {
-        if (Input.GetMouseButtonDown(0))
+        if(Input.GetMouseButtonDown(0))
         {
             Vector2 touchpos = MainCamera.ScreenToWorldPoint(Input.mousePosition);
 
@@ -1084,6 +1096,7 @@ public class GameLogic : MonoBehaviour
                         && obj.GetComponentInChildren<Collider2D>().OverlapPoint(touchpos))
                     {
                         currentlymoving = obj;
+                        LockedX = currentlymoving.transform.position.x;
                     }
                 }
                 foreach (GameObject obj in GameObject.FindGameObjectsWithTag("ScanlineNote"))
@@ -1330,8 +1343,9 @@ public class GameLogic : MonoBehaviour
                 }
                 else
                 {
-                    currentlymoving.transform.position = new Vector3(Clamp(currentlymoving.transform.position.x, -PlayAreaWidth / 2, PlayAreaWidth / 2),
+                    currentlymoving.transform.position = new Vector3(LockX ? LockedX : Clamp(currentlymoving.transform.position.x, -PlayAreaWidth / 2, PlayAreaWidth / 2),
                         Clamp(currentlymoving.transform.position.y, -PlayAreaHeight / 2, PlayAreaHeight / 2));
+
                     if (currentlymoving.CompareTag("Note"))
                     {
                         float newX = currentlymoving.transform.position.x;

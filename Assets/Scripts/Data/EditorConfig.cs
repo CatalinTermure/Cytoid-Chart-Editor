@@ -19,4 +19,6 @@ public class EditorConfig
     public bool NotchOverlapFix = false;
     public bool InteractWithNotesOnOtherPages = true;
     public bool VerticalLineAccent = true; // maybe make this visible?
+    public bool HorizontalLineAccents = true; // maybe make this visible?
+    public float HitsoundPrepTime = 0.05f;
 }
