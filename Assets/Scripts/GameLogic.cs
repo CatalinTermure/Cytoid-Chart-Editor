@@ -2165,7 +2165,8 @@ public class GameLogic : MonoBehaviour
             if (obj.GetComponent<IHighlightable>().Highlighted)
             {
                 int id = obj.GetComponent<NoteController>().NoteID;
-                if(CurrentChart.note_list[id].type != (int)NoteType.CDRAG_HEAD && CurrentChart.note_list[id].type != (int)NoteType.DRAG_HEAD)
+                if(CurrentChart.note_list[id].type != (int)NoteType.CDRAG_HEAD && CurrentChart.note_list[id].type != (int)NoteType.DRAG_HEAD &&
+                    CurrentChart.note_list[id].type != (int)NoteType.CDRAG_CHILD && CurrentChart.note_list[id].type != (int)NoteType.DRAG_CHILD)
                 {
                     Clipboard.Add(CurrentChart.note_list[id]);
                 }
