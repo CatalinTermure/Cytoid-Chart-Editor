@@ -35,6 +35,8 @@ public abstract class NoteController : MonoBehaviour, IHighlightable
     [HideInInspector]
     public int NoteType, NoteID;
 
+    private GameObject IDText;
+
     public void SetDelay(float delay)
     {
         Delay = delay;
@@ -75,8 +77,25 @@ public abstract class NoteController : MonoBehaviour, IHighlightable
                 NoteStopwatch.Stop();
                 ChangeToPausedVisuals();
             }
+#if UNITY_EDITOR
+            IDText.transform.position = gameObject.transform.position;
+            IDText.GetComponent<UnityEngine.UI.Text>().text = NoteID.ToString();
+#endif
         }
     }
+
+#if UNITY_EDITOR
+    private void OnEnable()
+    {
+        IDText = Instantiate(GameObject.Find("IDText"), GameObject.Find("OverlayCanvas").transform);
+        IDText.transform.position = new Vector3(0, 0, 0);
+    }
+
+    private void OnDisable()
+    {
+        Destroy(IDText);
+    }
+#endif
 
     protected abstract void UpdateVisuals();
     protected abstract void ChangeToPausedVisuals();

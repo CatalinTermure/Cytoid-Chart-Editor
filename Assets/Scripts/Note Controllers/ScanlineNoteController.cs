@@ -14,12 +14,14 @@ public class ScanlineNoteController : MonoBehaviour, ITempo
         TimeInputField.onEndEdit.AddListener((_) => {
             if (GameLogic.CurrentTool != global::NoteType.MOVE)
             {
+                GameLogic.BlockInput = false;
                 GameObject.Find("UICanvas").GetComponent<GameLogic>().ChangeTempo(gameObject);
             }
         });
         BPMInputField.onEndEdit.AddListener((_) => {
             if (GameLogic.CurrentTool != global::NoteType.MOVE)
             {
+                GameLogic.BlockInput = false;
                 GameObject.Find("UICanvas").GetComponent<GameLogic>().ChangeTempo(gameObject);
             }
         });
@@ -30,5 +32,10 @@ public class ScanlineNoteController : MonoBehaviour, ITempo
         gameObject.transform.position = pos;
         TimeInputField.transform.position -= new Vector3(Screen.width / 2 * (-pos.x / GlobalState.Width), -(pos.y / GlobalState.Height) * Screen.height / 2f);
         BPMInputField.transform.position -= new Vector3(Screen.width / 2 * (-pos.x / GlobalState.Width), -(pos.y / GlobalState.Height) * Screen.height / 2f);
+    }
+
+    public void BlockGlobalInput()
+    {
+        GameLogic.BlockInput = true;
     }
 }

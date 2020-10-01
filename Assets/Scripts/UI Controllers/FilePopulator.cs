@@ -21,10 +21,17 @@ public class FilePopulator : MonoBehaviour
         GameObject.Find("SetDefaultFolderButton").GetComponent<Button>().onClick.AddListener(
             () =>
             {
-                GlobalState.Config.DirPath = GameObject.Find("FolderPathText").GetComponent<Text>().text;
+                GlobalState.Config.DirPath = DirectoryText.GetComponent<InputField>().text;
                 GlobalState.SaveConfig();
                 GameObject.Find("LevelListView").GetComponentInChildren<LevelPopulator>().PopulateLevels(GlobalState.Config.DirPath);
             });
+
+        DirectoryText.GetComponent<InputField>().onEndEdit.AddListener((string s) =>
+        {
+            GlobalState.Config.DirPath = s;
+            GlobalState.SaveConfig();
+            PopulateList(GlobalState.Config.DirPath);
+        });
     }
 
     public void AddFolder(string name)
@@ -67,7 +74,7 @@ public class FilePopulator : MonoBehaviour
 
     public void PopulateList(string dirName)
     {
-        DirectoryText.GetComponent<Text>().text = dirName;
+        DirectoryText.GetComponent<InputField>().text = dirName;
 
         foreach (Transform child in gameObject.transform)
         {

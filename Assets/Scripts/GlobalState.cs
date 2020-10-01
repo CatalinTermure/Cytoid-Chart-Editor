@@ -62,6 +62,8 @@ public class GlobalState : MonoBehaviour
 
     public static string InAppLogString = "";
 
+    private static bool loadedHotkeys = false;
+
     private void Awake()
     {
         Application.targetFrameRate = 60;
@@ -70,18 +72,18 @@ public class GlobalState : MonoBehaviour
         Width = AspectRatio * Height;
         PlayAreaWidth = 24 * AspectRatio / NormalAspectRatio;
         PlayAreaHeight = 12 * AspectRatio / NormalAspectRatio;
-        
-        if(File.Exists(Path.Combine(Application.persistentDataPath, "data.txt")))
+
+        if (File.Exists(Path.Combine(Application.persistentDataPath, "data.txt")))
         {
             try
             {
                 Config = JsonConvert.DeserializeObject<EditorConfig>(File.ReadAllText(Path.Combine(Application.persistentDataPath, "data.txt")));
             }
-            catch(Exception)
+            catch (Exception)
             {
                 Config = new EditorConfig();
             }
-            if(Config == null)
+            if (Config == null)
             {
                 Config = new EditorConfig();
             }
@@ -91,8 +93,17 @@ public class GlobalState : MonoBehaviour
             Config = new EditorConfig();
         }
 
-#if UNITY_IOS
-        Config.DirPath = Application.persistentDataPath;
+        if (!Directory.Exists(Config.DirPath))
+        {
+            Config.DirPath = Application.persistentDataPath;
+        }
+
+#if UNITY_STANDALONE
+        if(!loadedHotkeys)
+        {
+            HotkeyManager.LoadCustomHotkeys();
+            loadedHotkeys = true;
+        }
 #endif
 
         if (Config.DebugMode)
@@ -234,6 +245,15 @@ public class GlobalState : MonoBehaviour
             index = CurrentChart.note_list[index].next_id;
         }
         return index;
+    }
+
+    public static bool WasPressed(KeyValuePair<KeyCode, KeyCode> key)
+    {
+        if(key.Key == KeyCode.None && (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.LeftAlt)))
+        {
+            return false;
+        }
+        return (key.Key == KeyCode.None || Input.GetKey(key.Key)) && (key.Value == KeyCode.None || Input.GetKeyDown(key.Value));
     }
 
     /// <summary>

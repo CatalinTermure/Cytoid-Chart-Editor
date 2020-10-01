@@ -92,13 +92,13 @@ public class NotePropertiesManager : MonoBehaviour
         if(notes.Count == 1)
         {
             NotesX = GlobalState.CurrentChart.note_list[notes[0]].x;
-            NoteXInputField.GetComponent<InputField>().text = GlobalState.CurrentChart.note_list[notes[0]].x.ToString();
+            NoteXInputField.GetComponent<InputField>().text = GlobalState.CurrentChart.note_list[notes[0]].x.ToString("F3");
 
             NotesAR = GlobalState.CurrentChart.note_list[notes[0]].approach_rate;
-            NoteARInputField.GetComponent<InputField>().text = GlobalState.CurrentChart.note_list[notes[0]].approach_rate.ToString();
+            NoteARInputField.GetComponent<InputField>().text = GlobalState.CurrentChart.note_list[notes[0]].approach_rate.ToString("F3");
 
             NotesY = GlobalState.CurrentChart.note_list[notes[0]].y;
-            NoteYInputField.GetComponent<InputField>().text = GlobalState.CurrentChart.note_list[notes[0]].y.ToString();
+            NoteYInputField.GetComponent<InputField>().text = GlobalState.CurrentChart.note_list[notes[0]].y.ToString("F3");
         }
         else
         {
@@ -151,7 +151,7 @@ public class NotePropertiesManager : MonoBehaviour
         notes.Remove(note.id);
         if(notes.Count == 0)
         {
-            ChangeNoteAR = ChangeNoteXPosition = false;
+            ChangeNoteAR = ChangeNoteXPosition = ChangeNoteY = false;
             NoteXLabel.SetActive(false);
             NoteXInputField.SetActive(false);
             NoteARLabel.SetActive(false);
@@ -163,13 +163,13 @@ public class NotePropertiesManager : MonoBehaviour
         else if (notes.Count == 1)
         {
             NotesX = GlobalState.CurrentChart.note_list[notes[0]].x;
-            NoteXInputField.GetComponent<InputField>().text = GlobalState.CurrentChart.note_list[notes[0]].x.ToString();
+            NoteXInputField.GetComponent<InputField>().text = GlobalState.CurrentChart.note_list[notes[0]].x.ToString("F3");
 
             NotesAR = GlobalState.CurrentChart.note_list[notes[0]].approach_rate;
-            NoteARInputField.GetComponent<InputField>().text = GlobalState.CurrentChart.note_list[notes[0]].approach_rate.ToString();
+            NoteARInputField.GetComponent<InputField>().text = GlobalState.CurrentChart.note_list[notes[0]].approach_rate.ToString("F3");
 
             NotesY = GlobalState.CurrentChart.note_list[notes[0]].y;
-            NoteYInputField.GetComponent<InputField>().text = GlobalState.CurrentChart.note_list[notes[0]].y.ToString();
+            NoteYInputField.GetComponent<InputField>().text = GlobalState.CurrentChart.note_list[notes[0]].y.ToString("F3");
         }
         else
         {

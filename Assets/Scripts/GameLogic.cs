@@ -18,6 +18,8 @@ public class GameLogic : MonoBehaviour
     /// </summary>
     public static NoteType CurrentTool = NoteType.NONE;
 
+    public static bool BlockInput = false;
+
     private GameObject PlayPauseButton;
 
     public GameObject ScanlineNote;
@@ -46,7 +48,7 @@ public class GameLogic : MonoBehaviour
     }
     private readonly List<NoteSpawnTime> NoteSpawns = new List<NoteSpawnTime>();
 
-    public Camera MainCamera;
+    public static Camera MainCamera;
 
     public Slider BeatDivisor;
 
@@ -80,7 +82,12 @@ public class GameLogic : MonoBehaviour
 
     public void Awake()
     {
+#if UNITY_STANDALONE
+        SelectionBox = GameObject.Find("SelectionBox");
+        SelectionBox.SetActive(false);
+#endif
         PlayPauseButton = GameObject.Find("PlayPauseButton");
+        MainCamera = Camera.main;
         if (CurrentChart != null)
         {
             if (Config.DebugMode)
@@ -910,7 +917,13 @@ public class GameLogic : MonoBehaviour
 
     private void Update()
     {
-        if(SaveOffsetScheduledTime > 0 && Time.time > SaveOffsetScheduledTime)
+#if UNITY_STANDALONE
+        if (WasPressed(HotkeyManager.PlayPause))
+        {
+            PlayPause();
+        }
+#endif
+        if (SaveOffsetScheduledTime > 0 && Time.time > SaveOffsetScheduledTime)
         {
             SaveConfig();
             SaveOffsetScheduledTime = -1;
@@ -988,6 +1001,9 @@ public class GameLogic : MonoBehaviour
         }
         else
         {
+#if UNITY_STANDALONE
+            HandlePCInput();
+#endif
             HandleInput();
         }
         if(Config.NotchOverlapFix && Screen.safeArea != LastSafeArea)
@@ -1011,6 +1027,446 @@ public class GameLogic : MonoBehaviour
         }
     }
 
+#if UNITY_STANDALONE
+    private const double NUDGE_DISTANCE = 0.02;
+
+    private bool mousedragstarted = false;
+    private Vector2 mousestartpos = new Vector2(0, 0);
+
+    private GameObject SelectionBox;
+
+    private void HandlePCInput()
+    {
+        if(BlockInput)
+        {
+            return;
+        }
+        if(Input.GetMouseButtonDown(0) && CurrentTool == NoteType.NONE)
+        {
+            mousestartpos = MainCamera.ScreenToWorldPoint(Input.mousePosition);
+            if(Math.Abs(mousestartpos.x) < PlayAreaWidth / 2 + 3 && Math.Abs(mousestartpos.y) < PlayAreaHeight / 2 + 2)
+            {
+                SelectionBox.SetActive(true);
+                SelectionBox.GetComponent<SpriteRenderer>().size = new Vector2(0, 0);
+                mousedragstarted = true;
+            }
+        }
+        if(Input.GetMouseButtonUp(0) && mousedragstarted)
+        {
+            SelectionBox.SetActive(false);
+
+            Vector2 pos = MainCamera.ScreenToWorldPoint(Input.mousePosition);
+
+            if(CurrentChart != null && GetDistance(pos.x, pos.y, mousestartpos.x, mousestartpos.y) > 0.1)
+            {
+                if (!Input.GetKey(KeyCode.LeftShift))
+                {
+                    foreach (GameObject obj in GameObject.FindGameObjectsWithTag("Note"))
+                    {
+                        if (obj.GetComponent<IHighlightable>().Highlighted)
+                        {
+                            HighlightObject(obj);
+                        }
+                    }
+                }
+                bool deselectall = true;
+                float lx = Math.Min(pos.x, mousestartpos.x), rx = Math.Max(pos.x, mousestartpos.x), uy = Math.Max(pos.y, mousestartpos.y), dy = Math.Min(pos.y, mousestartpos.y);
+                foreach (GameObject obj in GameObject.FindGameObjectsWithTag("Note"))
+                {
+                    if (obj.transform.position.x >= lx && obj.transform.position.x <= rx && obj.transform.position.y >= dy && obj.transform.position.y <= uy &&
+                        !obj.GetComponent<IHighlightable>().Highlighted)
+                    {
+                        deselectall = false;
+                        HighlightObject(obj);
+                    }
+                }
+
+                if (deselectall)
+                {
+                    foreach (GameObject obj in GameObject.FindGameObjectsWithTag("Note"))
+                    {
+                        if (obj.GetComponent<IHighlightable>().Highlighted)
+                        {
+                            HighlightObject(obj);
+                        }
+                    }
+                }
+            }
+            mousedragstarted = false;
+        }
+        if(Input.GetMouseButton(0) && mousedragstarted)
+        {
+            Vector2 pos = MainCamera.ScreenToWorldPoint(Input.mousePosition);
+            SelectionBox.transform.position = new Vector2((pos.x + mousestartpos.x) / 2, (pos.y + mousestartpos.y) / 2);
+            SelectionBox.GetComponent<SpriteRenderer>().size = new Vector2(Math.Abs(pos.x - mousestartpos.x), Math.Abs(pos.y - mousestartpos.y));
+        }
+
+        List<Note> tohighlight = new List<Note>();
+
+        if(WasPressed(HotkeyManager.MoveTool))
+        {
+            gameObject.GetComponent<SideButtonController>().HighlightButton(GameObject.Find("MoveNoteButton"));
+        }
+        else if(WasPressed(HotkeyManager.ClickNote))
+        {
+            gameObject.GetComponent<SideButtonController>().ChangeTool(NoteType.CLICK);
+        }
+        else if (WasPressed(HotkeyManager.HoldNote))
+        {
+            gameObject.GetComponent<SideButtonController>().ChangeTool(NoteType.HOLD);
+        }
+        else if (WasPressed(HotkeyManager.LongHoldNote))
+        {
+            gameObject.GetComponent<SideButtonController>().ChangeTool(NoteType.LONG_HOLD);
+        }
+        else if (WasPressed(HotkeyManager.DragNote))
+        {
+            gameObject.GetComponent<SideButtonController>().ChangeTool(NoteType.DRAG_HEAD);
+        }
+        else if (WasPressed(HotkeyManager.CDragNote))
+        {
+            gameObject.GetComponent<SideButtonController>().ChangeTool(NoteType.CDRAG_HEAD);
+        }
+        else if (WasPressed(HotkeyManager.FlickNote))
+        {
+            gameObject.GetComponent<SideButtonController>().ChangeTool(NoteType.FLICK);
+        }
+        else if (WasPressed(HotkeyManager.ScanlineNote))
+        {
+            gameObject.GetComponent<SideButtonController>().ChangeTool(NoteType.SCANLINE);
+        }
+
+        if (CurrentChart == null)
+        {
+            return;
+        }
+
+        if(WasPressed(HotkeyManager.Copy))
+        {
+            CopySelection();
+        }
+
+        else if(WasPressed(HotkeyManager.Paste))
+        {
+            Paste();
+        }
+
+        else if(WasPressed(HotkeyManager.SelectAll))
+        {
+            bool allNotesOnCurrentPageSelected = true, noNotesSelected = true, allNotesSelected = true;
+            GameObject[] notes = GameObject.FindGameObjectsWithTag("Note");
+            foreach(GameObject note in notes)
+            {
+                bool highlighted = note.GetComponent<IHighlightable>().Highlighted;
+                if(!highlighted && CurrentChart.note_list[note.GetComponent<NoteController>().NoteID].page_index == CurrentPageIndex)
+                {
+                    allNotesOnCurrentPageSelected = false;
+                }
+                else if(highlighted)
+                {
+                    noNotesSelected = false;
+                }
+                if(!highlighted)
+                {
+                    allNotesSelected = false;
+                }
+            }
+            if(allNotesOnCurrentPageSelected && !allNotesSelected)
+            {
+                foreach(GameObject note in notes)
+                {
+                    if(!note.GetComponent<IHighlightable>().Highlighted)
+                    {
+                        HighlightObject(note);
+                    }
+                }
+            }
+            else if(noNotesSelected)
+            {
+                foreach (GameObject note in notes)
+                {
+                    if (!note.GetComponent<IHighlightable>().Highlighted && CurrentChart.note_list[note.GetComponent<NoteController>().NoteID].page_index == CurrentPageIndex)
+                    {
+                        HighlightObject(note);
+                    }
+                }
+            }
+            else if(!noNotesSelected)
+            {
+                foreach (GameObject note in notes)
+                {
+                    if (note.GetComponent<IHighlightable>().Highlighted)
+                    {
+                        HighlightObject(note);
+                    }
+                }
+            }
+        }
+
+        else if(WasPressed(HotkeyManager.Mirror))
+        {
+            MirrorSelection();
+        }
+        
+        else if(WasPressed(HotkeyManager.Flip))
+        {
+            foreach (GameObject obj in GameObject.FindGameObjectsWithTag("Note"))
+            {
+                if (obj.GetComponent<IHighlightable>().Highlighted)
+                {
+                    int id = obj.GetComponent<NoteController>().NoteID;
+                    tohighlight.Add(CurrentChart.note_list[id]);
+                    CurrentChart.note_list[id].tick = (int)Math.Round(CurrentChart.page_list[CurrentChart.note_list[id].page_index].actual_start_tick +
+                        CurrentChart.page_list[CurrentChart.note_list[id].page_index].ActualPageSize * (1.0 - 
+                        (CurrentChart.note_list[id].tick - CurrentChart.page_list[CurrentChart.note_list[id].page_index].actual_start_tick)
+                        / CurrentChart.page_list[CurrentChart.note_list[id].page_index].ActualPageSize));
+                }
+            }
+            FixIDs();
+            CalculateTimings();
+            UpdateTime(CurrentPage.start_time);
+        }
+
+        else if(WasPressed(HotkeyManager.NudgeLeft))
+        {
+            foreach(GameObject obj in GameObject.FindGameObjectsWithTag("Note"))
+            {
+                if(obj.GetComponent<IHighlightable>().Highlighted)
+                {
+                    tohighlight.Add(CurrentChart.note_list[obj.GetComponent<NoteController>().NoteID]);
+                    CurrentChart.note_list[obj.GetComponent<NoteController>().NoteID].x -= NUDGE_DISTANCE;
+                }
+            }
+            UpdateTime(CurrentPage.start_time);
+        }
+        
+        else if(WasPressed(HotkeyManager.NudgeRight))
+        {
+            foreach(GameObject obj in GameObject.FindGameObjectsWithTag("Note"))
+            {
+                if(obj.GetComponent<IHighlightable>().Highlighted)
+                {
+                    tohighlight.Add(CurrentChart.note_list[obj.GetComponent<NoteController>().NoteID]);
+                    CurrentChart.note_list[obj.GetComponent<NoteController>().NoteID].x += NUDGE_DISTANCE;
+                }
+            }
+            UpdateTime(CurrentPage.start_time);
+        }
+
+        else if(WasPressed(HotkeyManager.NudgeUp))
+        {
+            foreach (GameObject obj in GameObject.FindGameObjectsWithTag("Note"))
+            {
+                if(obj.GetComponent<IHighlightable>().Highlighted)
+                {
+                    int id = obj.GetComponent<NoteController>().NoteID;
+                    tohighlight.Add(CurrentChart.note_list[id]);
+                    if (CurrentChart.page_list[CurrentChart.note_list[id].page_index].scan_line_direction > 0)
+                    {
+                        IncreaseTick(id);
+                    }
+                    else
+                    {
+                        DecreaseTick(id);
+                    }
+                }
+            }
+            FixIDs();
+            CalculateTimings();
+            UpdateTime(CurrentPage.start_time);
+        }
+
+        else if(WasPressed(HotkeyManager.NudgeDown))
+        {
+            foreach (GameObject obj in GameObject.FindGameObjectsWithTag("Note"))
+            {
+                if (obj.GetComponent<IHighlightable>().Highlighted)
+                {
+                    int id = obj.GetComponent<NoteController>().NoteID;
+                    tohighlight.Add(CurrentChart.note_list[id]);
+                    if (CurrentChart.page_list[CurrentChart.note_list[id].page_index].scan_line_direction > 0)
+                    {
+                        DecreaseTick(id);
+                    }
+                    else
+                    {
+                        IncreaseTick(id);
+                    }
+                }
+            }
+            FixIDs();
+            CalculateTimings();
+            UpdateTime(CurrentPage.start_time);
+        }
+        
+        else if(WasPressed(HotkeyManager.PreviousPage))
+        {
+            GoToPreviousPage();
+        }
+
+        else if(WasPressed(HotkeyManager.NextPage))
+        {
+            GoToNextPage();
+        }
+
+        else if(WasPressed(HotkeyManager.BackToStart))
+        {
+            CurrentPageIndex = 0;
+            UpdateTime(CurrentPage.actual_start_time);
+        }
+
+        else if (WasPressed(HotkeyManager.Save))
+        {
+            SaveChart();
+        }
+
+        else if (WasPressed(HotkeyManager.Delete))
+        {
+            List<int> toremove = new List<int>();
+            foreach(GameObject obj in GameObject.FindGameObjectsWithTag("Note"))
+            {
+                if(obj.GetComponent<IHighlightable>().Highlighted)
+                {
+                    toremove.Add(obj.GetComponent<NoteController>().NoteID);
+                }
+            }
+            toremove.Sort();
+            for(int i = 0; i < toremove.Count; i++)
+            {
+                RemoveNote(toremove[i] - i);
+            }
+            UpdateTime(CurrentPage.actual_start_time);
+        }
+
+        for (int i = 0; i < tohighlight.Count; i++)
+        {
+            HighlightNoteWithID(tohighlight[i].id);
+        }
+    }
+#endif
+
+    private void FixIDs()
+    {
+        for(int i = 0; i < CurrentChart.note_list.Count; i++)
+        {
+            int id = i;
+            while (id < CurrentChart.note_list.Count - 1 && CurrentChart.note_list[id].tick > CurrentChart.note_list[id + 1].tick)
+            {
+                int pid1 = GetDragParent(id), pid2 = GetDragParent(id + 1);
+                if (pid1 >= 0)
+                {
+                    CurrentChart.note_list[pid1].next_id++;
+                }
+                if (pid2 >= 0)
+                {
+                    CurrentChart.note_list[pid2].next_id--;
+                }
+                Note aux = CurrentChart.note_list[id];
+                CurrentChart.note_list[id] = CurrentChart.note_list[id + 1];
+                CurrentChart.note_list[id + 1] = aux;
+                CurrentChart.note_list[id].id = id;
+                CurrentChart.note_list[id + 1].id = id + 1;
+                id++;
+            }
+            while (id > 0 && CurrentChart.note_list[id].tick < CurrentChart.note_list[id - 1].tick)
+            {
+                int pid1 = GetDragParent(id), pid2 = GetDragParent(id - 1);
+                if (pid1 >= 0)
+                {
+                    CurrentChart.note_list[pid1].next_id--;
+                }
+                if (pid2 >= 0)
+                {
+                    CurrentChart.note_list[pid2].next_id++;
+                }
+                Note aux = CurrentChart.note_list[id];
+                CurrentChart.note_list[id] = CurrentChart.note_list[id - 1];
+                CurrentChart.note_list[id - 1] = aux;
+                CurrentChart.note_list[id].id = id;
+                CurrentChart.note_list[id - 1].id = id - 1;
+                id--;
+            }
+        }
+    }
+
+    private void IncreaseTick(int id)
+    {
+        Note note = CurrentChart.note_list[id];
+        Page p = CurrentChart.page_list[note.page_index];
+        int deltatick = (int)p.ActualPageSize / DivisorValue;
+        if (note.type == (int)NoteType.HOLD)
+        {
+            if (note.tick + note.hold_tick + deltatick <= p.end_tick)
+            {
+                note.tick += deltatick;
+            }
+            else
+            {
+                note.tick += deltatick;
+                note.hold_tick = p.end_tick - note.tick;
+            }
+        }
+        else if (note.type == (int)NoteType.LONG_HOLD)
+        {
+            note.tick += deltatick;
+        }
+        else if ((note.type == (int)NoteType.DRAG_HEAD || note.type == (int)NoteType.DRAG_CHILD || note.type == (int)NoteType.CDRAG_CHILD || note.type == (int)NoteType.CDRAG_HEAD)
+            && (note.next_id > 0))
+        {
+            if (note.tick + deltatick <= Math.Min(p.end_tick, CurrentChart.note_list[note.next_id].tick))
+            {
+                note.tick += deltatick;
+            }
+            else
+            {
+                note.tick = Math.Min(p.end_tick, CurrentChart.note_list[note.next_id].tick);
+            }
+        }
+        else
+        {
+            if (note.tick + deltatick <= p.end_tick)
+            {
+                note.tick += deltatick;
+            }
+            else
+            {
+                note.tick = p.end_tick;
+            }
+        }
+        
+    }
+
+    private void DecreaseTick(int id)
+    {
+        Note note = CurrentChart.note_list[id];
+        Page p = CurrentChart.page_list[note.page_index];
+        int deltatick = (int)p.ActualPageSize / DivisorValue;
+        if ((note.type == (int)NoteType.DRAG_HEAD || note.type == (int)NoteType.DRAG_CHILD || note.type == (int)NoteType.CDRAG_CHILD || note.type == (int)NoteType.CDRAG_HEAD)
+            && (GetDragParent(note.id) > -1))
+        {
+            int parent = GetDragParent(note.id);
+            if (note.tick - deltatick >= Math.Max(p.actual_start_tick, CurrentChart.note_list[parent].tick))
+            {
+                note.tick -= deltatick;
+            }
+            else
+            {
+                note.tick = Math.Max(p.actual_start_tick, CurrentChart.note_list[parent].tick);
+            }
+        }
+        else
+        {
+            if (note.tick - deltatick >= p.actual_start_tick)
+            {
+                note.tick -= deltatick;
+            }
+            else
+            {
+                note.tick = p.actual_start_tick;
+            }
+        }
+    }
+
     private void HandleInput()
     {
         if(Input.GetMouseButtonDown(0))
@@ -1023,16 +1479,6 @@ public class GameLogic : MonoBehaviour
             {
                 foreach (GameObject obj in GameObject.FindGameObjectsWithTag("Note"))
                 {
-                    if (obj.GetComponentInChildren<CircleCollider2D>().OverlapPoint(touchpos)) // Highlighting notes
-                    {
-                        HighlightObject(obj);
-                        if (obj.GetComponent<NoteController>().NoteType == (int)NoteType.LONG_HOLD)
-                        {
-                            Note note = CurrentChart.note_list[obj.GetComponent<NoteController>().NoteID];
-                            obj.GetComponent<LongHoldNoteController>().FinishIndicator.transform.position = new Vector3(obj.transform.position.x, CurrentPage.scan_line_direction *
-                                (PlayAreaHeight * (note.tick + note.hold_tick - CurrentPage.actual_start_tick) / (int)CurrentPage.ActualPageSize - PlayAreaHeight / 2));
-                        }
-                    }
                     if (obj.GetComponent<NoteController>().NoteType == (int)NoteType.HOLD) // Modifying hold_time for short holds
                     {
                         var holdcontroller = obj.GetComponent<HoldNoteController>();
@@ -1085,6 +1531,49 @@ public class GameLogic : MonoBehaviour
                         CalculateTimings();
                         UpdateTime(CurrentPage.actual_start_time);
                         HighlightNoteWithID(id);
+                    }
+                    if (obj.GetComponentInChildren<CircleCollider2D>().OverlapPoint(touchpos)) // Highlighting notes
+                    {
+#if UNITY_STANDALONE
+                        if(Input.GetKey(KeyCode.LeftShift))
+                        {
+                            HighlightObject(obj);
+                            if (obj.GetComponent<NoteController>().NoteType == (int)NoteType.LONG_HOLD)
+                            {
+                                Note note = CurrentChart.note_list[obj.GetComponent<NoteController>().NoteID];
+                                obj.GetComponent<LongHoldNoteController>().FinishIndicator.transform.position = new Vector3(obj.transform.position.x, CurrentPage.scan_line_direction *
+                                    (PlayAreaHeight * (note.tick + note.hold_tick - CurrentPage.actual_start_tick) / (int)CurrentPage.ActualPageSize - PlayAreaHeight / 2));
+                            }
+                            break;
+                        }
+                        else
+                        {
+                            foreach(GameObject obj2 in GameObject.FindGameObjectsWithTag("Note"))
+                            {
+                                if(obj2.GetComponent<IHighlightable>().Highlighted)
+                                {
+                                    HighlightObject(obj2);
+                                }
+                            }
+                            HighlightObject(obj);
+                            if (obj.GetComponent<NoteController>().NoteType == (int)NoteType.LONG_HOLD)
+                            {
+                                Note note = CurrentChart.note_list[obj.GetComponent<NoteController>().NoteID];
+                                obj.GetComponent<LongHoldNoteController>().FinishIndicator.transform.position = new Vector3(obj.transform.position.x, CurrentPage.scan_line_direction *
+                                    (PlayAreaHeight * (note.tick + note.hold_tick - CurrentPage.actual_start_tick) / (int)CurrentPage.ActualPageSize - PlayAreaHeight / 2));
+                            }
+                            break;
+                        }
+#endif
+#pragma warning disable CS0162 // Unreachable code detected
+                        HighlightObject(obj);
+#pragma warning restore CS0162 // Unreachable code detected
+                        if (obj.GetComponent<NoteController>().NoteType == (int)NoteType.LONG_HOLD)
+                        {
+                            Note note = CurrentChart.note_list[obj.GetComponent<NoteController>().NoteID];
+                            obj.GetComponent<LongHoldNoteController>().FinishIndicator.transform.position = new Vector3(obj.transform.position.x, CurrentPage.scan_line_direction *
+                                (PlayAreaHeight * (note.tick + note.hold_tick - CurrentPage.actual_start_tick) / (int)CurrentPage.ActualPageSize - PlayAreaHeight / 2));
+                        }
                     }
                 }
             }
@@ -1701,18 +2190,28 @@ public class GameLogic : MonoBehaviour
         }
         CalculateTimings();
         UpdateTime(CurrentPage.actual_start_time);
+        for(int i = 0; i < notes.Count; i++)
+        {
+            HighlightNoteWithID(notes[i].id);
+        }
     }
 
     public void MirrorSelection()
     {
+        List<int> notes = new List<int>();
         foreach(GameObject obj in GameObject.FindGameObjectsWithTag("Note"))
         {
             if(obj.GetComponent<IHighlightable>().Highlighted)
             {
                 int id = obj.GetComponent<NoteController>().NoteID;
+                notes.Add(id);
                 CurrentChart.note_list[id].x = 1 - CurrentChart.note_list[id].x;
             }
         }
         UpdateTime(CurrentPage.actual_start_time);
+        for (int i = 0; i < notes.Count; i++)
+        {
+            HighlightNoteWithID(notes[i]);
+        }
     }
 }

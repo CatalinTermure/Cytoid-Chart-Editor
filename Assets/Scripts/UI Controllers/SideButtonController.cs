@@ -15,7 +15,8 @@ public class SideButtonController : MonoBehaviour
     /// </summary>
     public Color HighlightedColor;
 
-    private GameObject highlightedButton;
+    [HideInInspector]
+    public GameObject highlightedButton;
 
     public Sprite HoldNoteButtonSprite, LongHoldNoteButtonSprite, DragNoteButtonSprite, CDragNoteButtonSprite;
 
@@ -121,6 +122,74 @@ public class SideButtonController : MonoBehaviour
         if(highlightedButton != null)
         {
             highlightedButton.GetComponent<Image>().color = HighlightedColor;
+        }
+    }
+
+
+    public void ChangeTool(NoteType tool)
+    {
+        if (highlightedButton != null)
+        {
+            if (highlightedButton.CompareTag("Hold"))
+            {
+                highlightedButton.GetComponent<Image>().sprite = HoldNoteButtonSprite;
+            }
+            else if (highlightedButton.CompareTag("Drag Head"))
+            {
+                highlightedButton.GetComponent<Image>().sprite = DragNoteButtonSprite;
+            }
+
+            highlightedButton.GetComponent<Image>().color = DefaultColor;
+        }
+
+        if(tool == GameLogic.CurrentTool)
+        {
+            GameLogic.CurrentTool = NoteType.NONE;
+            highlightedButton = null;
+        }
+        else
+        {
+            GameLogic.CurrentTool = tool;
+
+            switch (GameLogic.CurrentTool)
+            {
+                case NoteType.CLICK:
+                    highlightedButton = GameObject.Find("AddClickNoteButton");
+                    break;
+                case NoteType.HOLD:
+                    highlightedButton = GameObject.Find("AddHoldNoteButton");
+                    highlightedButton.GetComponent<Image>().sprite = HoldNoteButtonSprite;
+                    break;
+                case NoteType.LONG_HOLD:
+                    highlightedButton = GameObject.Find("AddHoldNoteButton");
+                    highlightedButton.GetComponent<Image>().sprite = LongHoldNoteButtonSprite;
+                    break;
+                case NoteType.DRAG_HEAD:
+                    highlightedButton = GameObject.Find("AddDragNoteButton");
+                    highlightedButton.GetComponent<Image>().sprite = DragNoteButtonSprite;
+                    break;
+                case NoteType.CDRAG_HEAD:
+                    highlightedButton = GameObject.Find("AddDragNoteButton");
+                    highlightedButton.GetComponent<Image>().sprite = CDragNoteButtonSprite;
+                    break;
+                case NoteType.FLICK:
+                    highlightedButton = GameObject.Find("AddFlickNoteButton");
+                    break;
+                case NoteType.MOVE:
+                    highlightedButton = GameObject.Find("MoveNoteButton");
+                    break;
+                case NoteType.SCANLINE:
+                    highlightedButton = GameObject.Find("AddScanlineNoteButton");
+                    break;
+                case NoteType.NONE:
+                    highlightedButton = null;
+                    break;
+            }
+
+            if (highlightedButton != null)
+            {
+                highlightedButton.GetComponent<Image>().color = HighlightedColor;
+            }
         }
     }
 
