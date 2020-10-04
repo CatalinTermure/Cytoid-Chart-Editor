@@ -37,6 +37,8 @@ public class GameLogic : MonoBehaviour
 
     public AudioSource MusicSource;
 
+    private GameObject SelectionBox;
+
     public AudioSource[] HitsoundSources;
 
     private readonly List<double> HitsoundTimings = new List<double>();
@@ -82,10 +84,8 @@ public class GameLogic : MonoBehaviour
 
     public void Awake()
     {
-#if UNITY_STANDALONE
         SelectionBox = GameObject.Find("SelectionBox");
         SelectionBox.SetActive(false);
-#endif
         PlayPauseButton = GameObject.Find("PlayPauseButton");
         MainCamera = Camera.main;
         if (CurrentChart != null)
@@ -445,6 +445,13 @@ public class GameLogic : MonoBehaviour
             return a.time.CompareTo(b.time);
         }); // keeping it like this because inserting *could* be slower and notecount is quite low
         HitsoundTimings.Sort(); // keeping it like this because NlogN is comparable(or higher than) to N*holdcount for inserting
+
+        string s = "";
+        for(int i = 237; i < CurrentChart.page_list.Count; i++)
+        {
+            s += CurrentChart.page_list[i].actual_start_time.ToString() + ", ";
+        }
+        File.WriteAllText("C:\\Users\\CatalinPC\\Desktop\\Cytoid\\Cytoid player beta3\\player\\abc.txt", s);
     }
 
     private int GetDragParent(int id)
@@ -1033,8 +1040,6 @@ public class GameLogic : MonoBehaviour
     private bool mousedragstarted = false;
     private Vector2 mousestartpos = new Vector2(0, 0);
 
-    private GameObject SelectionBox;
-
     private void HandlePCInput()
     {
         if(BlockInput)
@@ -1479,7 +1484,7 @@ public class GameLogic : MonoBehaviour
             {
                 foreach (GameObject obj in GameObject.FindGameObjectsWithTag("Note"))
                 {
-                    if (obj.GetComponent<NoteController>().NoteType == (int)NoteType.HOLD) // Modifying hold_time for short holds
+                    if (obj.GetComponent<IHighlightable>().Highlighted && obj.GetComponent<NoteController>().NoteType == (int)NoteType.HOLD) // Modifying hold_time for short holds
                     {
                         var holdcontroller = obj.GetComponent<HoldNoteController>();
                         int id = holdcontroller.NoteID;
@@ -1490,6 +1495,10 @@ public class GameLogic : MonoBehaviour
                             {
                                 CurrentChart.note_list[id].hold_tick = CurrentChart.page_list[CurrentChart.note_list[id].page_index].end_tick - CurrentChart.note_list[id].tick;
                             }
+
+                            CalculateTimings();
+                            UpdateTime(CurrentPage.actual_start_time);
+                            HighlightNoteWithID(id);
                         }
                         else if (holdcontroller.DownArrowCollider.OverlapPoint(touchpos))
                         {
@@ -1498,22 +1507,24 @@ public class GameLogic : MonoBehaviour
                             {
                                 CurrentChart.note_list[id].hold_tick = 1;
                             }
+
+                            CalculateTimings();
+                            UpdateTime(CurrentPage.actual_start_time);
+                            HighlightNoteWithID(id);
                         }
-                        else
-                        {
-                            continue;
-                        }
-                        CalculateTimings();
-                        UpdateTime(CurrentPage.actual_start_time);
-                        HighlightNoteWithID(id);
+                        
                     }
-                    else if (obj.GetComponent<NoteController>().NoteType == (int)NoteType.LONG_HOLD) // Modifying hold_time for long holds
+                    else if (obj.GetComponent<IHighlightable>().Highlighted && obj.GetComponent<NoteController>().NoteType == (int)NoteType.LONG_HOLD) // Modifying hold_time for long holds
                     {
                         var holdcontroller = obj.GetComponent<LongHoldNoteController>();
                         int id = holdcontroller.NoteID;
                         if (holdcontroller.UpArrowCollider.OverlapPoint(touchpos))
                         {
                             CurrentChart.note_list[id].hold_tick += CurrentChart.time_base / DivisorValue;
+
+                            CalculateTimings();
+                            UpdateTime(CurrentPage.actual_start_time);
+                            HighlightNoteWithID(id);
                         }
                         else if (holdcontroller.DownArrowCollider.OverlapPoint(touchpos))
                         {
@@ -1523,14 +1534,11 @@ public class GameLogic : MonoBehaviour
                             {
                                 CurrentChart.note_list[id].hold_tick = 1;
                             }
+
+                            CalculateTimings();
+                            UpdateTime(CurrentPage.actual_start_time);
+                            HighlightNoteWithID(id);
                         }
-                        else
-                        {
-                            continue;
-                        }
-                        CalculateTimings();
-                        UpdateTime(CurrentPage.actual_start_time);
-                        HighlightNoteWithID(id);
                     }
                     if (obj.GetComponentInChildren<CircleCollider2D>().OverlapPoint(touchpos)) // Highlighting notes
                     {
@@ -2146,7 +2154,7 @@ public class GameLogic : MonoBehaviour
 
             File.WriteAllText(Path.Combine(CurrentLevelPath, CurrentChart.Data.path), JsonConvert.SerializeObject(CurrentChart, new JsonSerializerSettings()
             {
-                NullValueHandling = NullValueHandling.Ignore
+                NullValueHandling = NullValueHandling.Ignore,
             }));
 
             LevelDataChanger.SaveLevel();
@@ -2178,6 +2186,10 @@ public class GameLogic : MonoBehaviour
 
     public void Paste()
     {
+        if (IsGameRunning)
+        {
+            return;
+        }
         List<Note> notes = Clipboard.GetNotes();
         if(notes.Count > 0)
         {
@@ -2199,6 +2211,10 @@ public class GameLogic : MonoBehaviour
 
     public void MirrorSelection()
     {
+        if(IsGameRunning)
+        {
+            return;
+        }
         List<int> notes = new List<int>();
         foreach(GameObject obj in GameObject.FindGameObjectsWithTag("Note"))
         {

@@ -42,8 +42,16 @@ public class ChartDataChanger : MonoBehaviour
         }
         GlobalState.CurrentChart.Data.difficulty = int.Parse(GameObject.Find("DifficultyInputField").GetComponent<InputField>().text);
 
-        File.Move(Path.Combine(GlobalState.CurrentLevelPath, GlobalState.CurrentChart.Data.path), Path.Combine(GlobalState.CurrentLevelPath, GameObject.Find("FileNameInputField").GetComponent<InputField>().text));
-        GlobalState.CurrentChart.Data.path = GameObject.Find("FileNameInputField").GetComponent<InputField>().text;
+        if(File.Exists(Path.Combine(GlobalState.CurrentLevelPath, GlobalState.CurrentChart.Data.path)))
+        {
+            File.Move(Path.Combine(GlobalState.CurrentLevelPath, GlobalState.CurrentChart.Data.path), Path.Combine(GlobalState.CurrentLevelPath, GameObject.Find("FileNameInputField").GetComponent<InputField>().text));
+            GlobalState.CurrentChart.Data.path = GameObject.Find("FileNameInputField").GetComponent<InputField>().text;
+        }
+
+        if(!File.Exists(Path.Combine(GlobalState.CurrentLevelPath, GlobalState.CurrentChart.Data.path)))
+        {
+            return;
+        }
 
         File.WriteAllText(Path.Combine(GlobalState.CurrentLevelPath, "level.json"), JsonConvert.SerializeObject(GlobalState.CurrentLevel, new JsonSerializerSettings()
         {
