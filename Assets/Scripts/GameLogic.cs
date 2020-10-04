@@ -445,13 +445,6 @@ public class GameLogic : MonoBehaviour
             return a.time.CompareTo(b.time);
         }); // keeping it like this because inserting *could* be slower and notecount is quite low
         HitsoundTimings.Sort(); // keeping it like this because NlogN is comparable(or higher than) to N*holdcount for inserting
-
-        string s = "";
-        for(int i = 237; i < CurrentChart.page_list.Count; i++)
-        {
-            s += CurrentChart.page_list[i].actual_start_time.ToString() + ", ";
-        }
-        File.WriteAllText("C:\\Users\\CatalinPC\\Desktop\\Cytoid\\Cytoid player beta3\\player\\abc.txt", s);
     }
 
     private int GetDragParent(int id)
