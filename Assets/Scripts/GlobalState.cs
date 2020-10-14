@@ -62,8 +62,9 @@ public class GlobalState : MonoBehaviour
 
     public static string InAppLogString = "";
 
+#if UNITY_STANDALONE
     private static bool loadedHotkeys = false;
-
+#endif
     private void Awake()
     {
         Application.targetFrameRate = 60;

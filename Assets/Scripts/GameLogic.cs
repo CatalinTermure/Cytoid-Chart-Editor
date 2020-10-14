@@ -82,6 +82,12 @@ public class GameLogic : MonoBehaviour
     private bool LockX = false;
     private float LockedX = 0;
 
+    /// <summary>
+    /// The value of the beat divisor slider.
+    /// </summary>
+    public static int DivisorValue = 8;
+    private readonly int[] AllowedDivisor = { 1, 2, 3, 4, 6, 8, 12, 16 };
+
     public void Awake()
     {
         SelectionBox = GameObject.Find("SelectionBox");
@@ -241,7 +247,9 @@ public class GameLogic : MonoBehaviour
         }
 
         // Create horizontal divisor lines
-        BeatDivisorValueChanged();
+        BeatDivisor.value = DivisorValue;
+
+        RenderDivisorLines();
 
         UpdateOffsetText();
 
@@ -724,12 +732,6 @@ public class GameLogic : MonoBehaviour
             }
         }
     }
-
-    /// <summary>
-    /// The value of the divisor slider.
-    /// </summary>
-    public static int DivisorValue = 8;
-    private readonly int[] AllowedDivisor = {1, 2, 3, 4, 6, 8, 12, 16 };
 
     public void BeatDivisorValueChanged()
     {
@@ -1341,7 +1343,7 @@ public class GameLogic : MonoBehaviour
             HighlightNoteWithID(tohighlight[i].id);
         }
     }
-#endif
+
 
     private void FixIDs()
     {
@@ -1464,6 +1466,7 @@ public class GameLogic : MonoBehaviour
             }
         }
     }
+#endif
 
     private void HandleInput()
     {
