@@ -1839,6 +1839,10 @@ public class GameLogic : MonoBehaviour
                         {
                             newX = (float)Math.Round((currentlymoving.transform.position.x + PlayAreaWidth / 2) / (PlayAreaWidth / Config.VerticalDivisors)) * (PlayAreaWidth / Config.VerticalDivisors) - PlayAreaWidth / 2;
                         }
+                        else
+                        {
+                            newX = (float)Math.Round(newX, 2);
+                        }
                         currentlymoving.transform.position = new Vector3(newX,
                             (float)Math.Round((currentlymoving.transform.position.y + PlayAreaHeight / 2) / (PlayAreaHeight / DivisorValue)) * (PlayAreaHeight / DivisorValue) - PlayAreaHeight / 2);
 
