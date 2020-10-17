@@ -133,7 +133,7 @@ public class FilePopulator : MonoBehaviour
         }
         catch (Exception)
         {
-            GameObject.Find("ToastText").GetComponent<ToastMessageManager>().CreateToast("Unpacking failed");
+            GameObject.Find("ToastText").GetComponent<ToastMessageManager>().CreateToast("Unpacking failed. Check if a folder with the same name as this level already exists.");
         }
     }
 }

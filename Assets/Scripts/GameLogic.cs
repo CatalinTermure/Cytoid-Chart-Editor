@@ -592,8 +592,10 @@ public class GameLogic : MonoBehaviour
     {
         GameObject obj = ObjectPool.GetNote((NoteType)note.type);
 
-        obj.GetComponent<NoteController>().ParentPool = ObjectPool;
-        obj.GetComponent<NoteController>().Initialize(note);
+        NoteController notecontroller = obj.GetComponent<NoteController>();
+
+        notecontroller.ParentPool = ObjectPool;
+        notecontroller.Initialize(note);
 
         obj.SetActive(true);
 
@@ -603,11 +605,24 @@ public class GameLogic : MonoBehaviour
             CurrentChart.fill_colors[CurrentChart.page_list[note.page_index].scan_line_direction == 1 ? indx : indx + 1] ??
             DefaultFillColors[CurrentChart.page_list[note.page_index].scan_line_direction == 1 ? indx : indx + 1], out Color notecolor);
         notecolor.a = (float)note.actual_opacity / (loweropacity ? 3 : 1);
-        obj.GetComponent<NoteController>().ChangeNoteColor(notecolor);
+        notecontroller.ChangeNoteColor(notecolor);
 
-        obj.GetComponent<NoteController>().SetDelay((float)delay);
+        notecontroller.SetDelay((float)delay);
 
-        obj.GetComponent<NoteController>().PlaybackSpeed = PlaybackSpeeds[PlaybackSpeedIndex];
+        notecontroller.PlaybackSpeed = PlaybackSpeeds[PlaybackSpeedIndex];
+
+        if(notecontroller.NoteType == (int)NoteType.LONG_HOLD)
+        {
+            if(note.tick + note.hold_tick >= CurrentPage.start_tick)
+            {
+                obj.GetComponent<LongHoldNoteController>().FinishIndicator.transform.position = new Vector3(obj.transform.position.x, CurrentPage.scan_line_direction *
+                (PlayAreaHeight * (note.tick + note.hold_tick - CurrentPage.actual_start_tick) / (int)CurrentPage.ActualPageSize - PlayAreaHeight / 2));
+            }
+            else
+            {
+                obj.GetComponent<LongHoldNoteController>().FinishIndicator.transform.position = new Vector3(obj.transform.position.x, 10000);
+            }
+        }
     }
 
     /// <summary>
@@ -1535,12 +1550,6 @@ public class GameLogic : MonoBehaviour
                         if(Input.GetKey(KeyCode.LeftShift))
                         {
                             HighlightObject(obj);
-                            if (obj.GetComponent<NoteController>().NoteType == (int)NoteType.LONG_HOLD)
-                            {
-                                Note note = CurrentChart.note_list[obj.GetComponent<NoteController>().NoteID];
-                                obj.GetComponent<LongHoldNoteController>().FinishIndicator.transform.position = new Vector3(obj.transform.position.x, CurrentPage.scan_line_direction *
-                                    (PlayAreaHeight * (note.tick + note.hold_tick - CurrentPage.actual_start_tick) / (int)CurrentPage.ActualPageSize - PlayAreaHeight / 2));
-                            }
                             break;
                         }
                         else
@@ -1553,24 +1562,12 @@ public class GameLogic : MonoBehaviour
                                 }
                             }
                             HighlightObject(obj);
-                            if (obj.GetComponent<NoteController>().NoteType == (int)NoteType.LONG_HOLD)
-                            {
-                                Note note = CurrentChart.note_list[obj.GetComponent<NoteController>().NoteID];
-                                obj.GetComponent<LongHoldNoteController>().FinishIndicator.transform.position = new Vector3(obj.transform.position.x, CurrentPage.scan_line_direction *
-                                    (PlayAreaHeight * (note.tick + note.hold_tick - CurrentPage.actual_start_tick) / (int)CurrentPage.ActualPageSize - PlayAreaHeight / 2));
-                            }
                             break;
                         }
 #endif
 #pragma warning disable CS0162 // Unreachable code detected
                         HighlightObject(obj);
 #pragma warning restore CS0162 // Unreachable code detected
-                        if (obj.GetComponent<NoteController>().NoteType == (int)NoteType.LONG_HOLD)
-                        {
-                            Note note = CurrentChart.note_list[obj.GetComponent<NoteController>().NoteID];
-                            obj.GetComponent<LongHoldNoteController>().FinishIndicator.transform.position = new Vector3(obj.transform.position.x, CurrentPage.scan_line_direction *
-                                (PlayAreaHeight * (note.tick + note.hold_tick - CurrentPage.actual_start_tick) / (int)CurrentPage.ActualPageSize - PlayAreaHeight / 2));
-                        }
                     }
                 }
             }
@@ -1924,12 +1921,6 @@ public class GameLogic : MonoBehaviour
             if (obj.GetComponent<NoteController>().NoteID == id)
             {
                 HighlightObject(obj);
-                if (obj.GetComponent<NoteController>().NoteType == (int)NoteType.LONG_HOLD)
-                {
-                    Note note = CurrentChart.note_list[obj.GetComponent<NoteController>().NoteID];
-                    obj.GetComponent<LongHoldNoteController>().FinishIndicator.transform.position = new Vector3(obj.transform.position.x, CurrentPage.scan_line_direction *
-                        (PlayAreaHeight * (note.tick + note.hold_tick - CurrentPage.actual_start_tick) / (int)CurrentPage.ActualPageSize - PlayAreaHeight / 2));
-                }
             }
         }
     }

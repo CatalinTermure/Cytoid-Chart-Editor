@@ -63,6 +63,8 @@ public class LongHoldNoteController : NoteController
         NoteType = note.type;
         NoteID = note.id;
 
+        FinishIndicator.SetActive(!GlobalState.IsGameRunning);
+
         if(GlobalState.IsGameRunning)
         {
             TopHollowNoteBody.transform.localScale = new Vector3(0.2f, 1);
@@ -78,6 +80,7 @@ public class LongHoldNoteController : NoteController
 
     protected override void UpdateVisuals()
     {
+        FinishIndicator.SetActive(false);
         ApproachPercentage = (Delay + NoteStopwatch.ElapsedMilliseconds * PlaybackSpeed / 1000f) / ApproachTime;
         if (ApproachPercentage < 1)
         {
@@ -109,6 +112,7 @@ public class LongHoldNoteController : NoteController
         InnerNoteBorder.transform.localScale = new Vector3(0.75f, 0.75f);
         TopFillNoteBodyMask.transform.localScale = BottomFillNoteBodyMask.transform.localScale = new Vector3(Size * 50, 0);
         BottomFillNoteBodyMask.transform.localScale = BottomFillNoteBodyMask.transform.localScale = new Vector3(Size * 50, 0);
+        FinishIndicator.SetActive(true);
     }
 
     public override void Highlight()
@@ -117,6 +121,5 @@ public class LongHoldNoteController : NoteController
         HighlightBorder.SetActive(Highlighted);
         UpArrow.SetActive(Highlighted);
         DownArrow.SetActive(Highlighted);
-        FinishIndicator.SetActive(Highlighted);
     }
 }
