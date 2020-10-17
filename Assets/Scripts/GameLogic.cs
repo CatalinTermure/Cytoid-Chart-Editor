@@ -624,14 +624,7 @@ public class GameLogic : MonoBehaviour
             (CurrentChart.tempo_list[id].tick - CurrentPage.actual_start_tick) / CurrentPage.ActualPageSize :
             1.0 - (CurrentChart.tempo_list[id].tick - CurrentPage.actual_start_tick) / CurrentPage.ActualPageSize)));
 
-        if(id == 0)
-        {
-            obj.GetComponent<ScanlineNoteController>().TimeInputField.text = (CurrentChart.music_offset).ToString();
-        }
-        else
-        {
-            obj.GetComponent<ScanlineNoteController>().TimeInputField.text = (CurrentChart.tempo_list[id].time - CurrentChart.music_offset).ToString();
-        }
+        obj.GetComponent<ScanlineNoteController>().TimeInputField.text = (CurrentChart.tempo_list[id].time - CurrentChart.music_offset).ToString();
         
         obj.GetComponent<ScanlineNoteController>().BPMInputField.text = Math.Round(120000000.0 / CurrentChart.tempo_list[id].value, 2).ToString();
     }
@@ -1955,7 +1948,7 @@ public class GameLogic : MonoBehaviour
         }
     }
 
-    public void ChangeTempo(GameObject scanlineNote)
+    public void ChangeTempo(GameObject scanlineNote, bool updateoffset = false)
     {
         string bpminput = scanlineNote.GetComponent<ScanlineNoteController>().BPMInputField.text, timeinput = scanlineNote.GetComponent<ScanlineNoteController>().TimeInputField.text;
         int id = scanlineNote.GetComponent<ITempo>().TempoID;
@@ -1963,9 +1956,9 @@ public class GameLogic : MonoBehaviour
         {
             CurrentChart.tempo_list[id].value = (long)Math.Round(120000000 / bpm);
         }
-        if(double.TryParse(timeinput, out double time) && id == 0)
+        if(updateoffset && double.TryParse(timeinput, out double time) && id == 0)
         {
-            CurrentChart.music_offset = time;
+            CurrentChart.music_offset = -time;
         }
         CalculateTimings();
         UpdateTime(CurrentPage.actual_start_time);

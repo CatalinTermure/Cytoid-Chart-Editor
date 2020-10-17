@@ -15,7 +15,7 @@ public class ScanlineNoteController : MonoBehaviour, ITempo
             if (GameLogic.CurrentTool != global::NoteType.MOVE)
             {
                 GameLogic.BlockInput = false;
-                GameObject.Find("UICanvas").GetComponent<GameLogic>().ChangeTempo(gameObject);
+                GameObject.Find("UICanvas").GetComponent<GameLogic>().ChangeTempo(gameObject, true);
             }
         });
         BPMInputField.onEndEdit.AddListener((_) => {
