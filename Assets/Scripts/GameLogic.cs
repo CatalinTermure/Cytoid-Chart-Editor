@@ -661,6 +661,7 @@ public class GameLogic : MonoBehaviour
             poz++;
             tempo.tick++;
         }
+        tempo.value = CurrentChart.tempo_list[poz > 0 ? poz - 1 : 0].value;
         CurrentChart.tempo_list.Insert(poz, tempo);
     }
 
