@@ -2022,7 +2022,10 @@ public class GameLogic : MonoBehaviour
     {
         if(CurrentChart != null)
         {
-            CurrentPage.scan_line_direction = -CurrentPage.scan_line_direction;
+            for(int i = CurrentPageIndex; i < CurrentChart.page_list.Count; i++)
+            {
+                CurrentChart.page_list[i].scan_line_direction = -CurrentChart.page_list[i].scan_line_direction;
+            }
             GameObject.Find("SweepChangeButton").GetComponentInChildren<Text>().text = CurrentPage.scan_line_direction == 1 ? "Up" : "Down";
             CalculateTimings();
             UpdateTime(CurrentPage.actual_start_time);

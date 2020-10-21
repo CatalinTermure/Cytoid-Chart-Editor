@@ -65,6 +65,10 @@ public class GlobalState : MonoBehaviour
 #if UNITY_STANDALONE
     private static bool loadedHotkeys = false;
 #endif
+
+    public enum NoteInfo { NoteX, NoteY, NoteID };
+    public static NoteInfo ShownNoteInfo = NoteInfo.NoteX;
+
     private void Awake()
     {
         Application.targetFrameRate = 60;
@@ -72,7 +76,7 @@ public class GlobalState : MonoBehaviour
         Height = Camera.main.orthographicSize;
         Width = AspectRatio * Height;
         PlayAreaWidth = 24 * AspectRatio / NormalAspectRatio;
-        PlayAreaHeight = 12 * AspectRatio / NormalAspectRatio;
+        PlayAreaHeight = 12;
 
         if (File.Exists(Path.Combine(Application.persistentDataPath, "data.txt")))
         {

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices.ComTypes;
 using UnityEngine;
+using UnityEngine.UI;
 
 public abstract class NoteController : MonoBehaviour, IHighlightable
 {
@@ -35,7 +36,7 @@ public abstract class NoteController : MonoBehaviour, IHighlightable
     [HideInInspector]
     public int NoteType, NoteID;
 
-    private GameObject IDText;
+    private GameObject InfoText;
 
     public void SetDelay(float delay)
     {
@@ -67,6 +68,7 @@ public abstract class NoteController : MonoBehaviour, IHighlightable
             if(!NoteStopwatch.IsRunning)
             {
                 NoteStopwatch.Start();
+                Destroy(InfoText);
             }
             UpdateVisuals();
         }
@@ -77,25 +79,37 @@ public abstract class NoteController : MonoBehaviour, IHighlightable
                 NoteStopwatch.Stop();
                 ChangeToPausedVisuals();
             }
-#if UNITY_EDITOR
-            IDText.transform.position = gameObject.transform.position;
-            IDText.GetComponent<UnityEngine.UI.Text>().text = NoteID.ToString();
-#endif
+            InfoText.transform.position = gameObject.transform.position;
+            UpdateInfoText();
         }
     }
 
-#if UNITY_EDITOR
     private void OnEnable()
     {
-        IDText = Instantiate(GameObject.Find("IDText"), GameObject.Find("OverlayCanvas").transform);
-        IDText.transform.position = new Vector3(0, 0, 0);
+        InfoText = Instantiate(GameObject.Find("IDText"), GameObject.Find("OverlayCanvas").transform);
+        InfoText.transform.position = gameObject.transform.position;
     }
 
     private void OnDisable()
     {
-        Destroy(IDText);
+        Destroy(InfoText);
     }
-#endif
+
+    public void UpdateInfoText()
+    {
+        switch(GlobalState.ShownNoteInfo)
+        {
+            case GlobalState.NoteInfo.NoteID:
+                InfoText.GetComponent<Text>().text = NoteID.ToString();
+                break;
+            case GlobalState.NoteInfo.NoteX:
+                InfoText.GetComponent<Text>().text = GlobalState.CurrentChart.note_list[NoteID].x.ToString("F2");
+                break;
+            case GlobalState.NoteInfo.NoteY:
+                InfoText.GetComponent<Text>().text = GlobalState.CurrentChart.note_list[NoteID].y.ToString("F2");
+                break;
+        }
+    }
 
     protected abstract void UpdateVisuals();
     protected abstract void ChangeToPausedVisuals();

@@ -30,8 +30,8 @@ public class ScanlineNoteController : MonoBehaviour, ITempo
     public void SetPosition(Vector3 pos)
     {
         gameObject.transform.position = pos;
-        TimeInputField.transform.position -= new Vector3(Screen.width / 2 * (-pos.x / GlobalState.Width), -(pos.y / GlobalState.Height) * Screen.height / 2f);
-        BPMInputField.transform.position -= new Vector3(Screen.width / 2 * (-pos.x / GlobalState.Width), -(pos.y / GlobalState.Height) * Screen.height / 2f);
+        TimeInputField.transform.position -= new Vector3(Screen.width / 2 * (-pos.x / ((float)Screen.width / Screen.height * GlobalState.Height)), -(pos.y / GlobalState.Height) * Screen.height / 2f);
+        BPMInputField.transform.position -= new Vector3(Screen.width / 2 * (-pos.x / ((float)Screen.width / Screen.height * GlobalState.Height)), -(pos.y / GlobalState.Height) * Screen.height / 2f);
     }
 
     public void BlockGlobalInput()
