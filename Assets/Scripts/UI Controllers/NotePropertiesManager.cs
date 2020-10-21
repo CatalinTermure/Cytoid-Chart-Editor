@@ -31,6 +31,8 @@ public class NotePropertiesManager : MonoBehaviour
 
         NoteXInputField.GetComponent<InputField>().onEndEdit.AddListener((string s) =>
         {
+            GameLogic.BlockInput = false;
+
             double x = double.Parse(s);
 
             for(int i = 0; i < notes.Count; i++)
@@ -43,6 +45,8 @@ public class NotePropertiesManager : MonoBehaviour
 
         NoteARInputField.GetComponent<InputField>().onEndEdit.AddListener((string s) =>
         {
+            GameLogic.BlockInput = false;
+
             double approach_rate = double.Parse(s);
 
             for (int i = 0; i < notes.Count; i++)
@@ -55,6 +59,8 @@ public class NotePropertiesManager : MonoBehaviour
 
         NoteYInputField.GetComponent<InputField>().onEndEdit.AddListener((string s) =>
         {
+            GameLogic.BlockInput = false;
+
             double y = double.Parse(s);
 
             for (int i = 0; i < notes.Count; i++)
@@ -246,5 +252,10 @@ public class NotePropertiesManager : MonoBehaviour
         NoteYInputField.SetActive(false);
         NoteYLabel.SetActive(false);
         notes.Clear();
+    }
+
+    public void BlockInput()
+    {
+        GameLogic.BlockInput = true;
     }
 }
