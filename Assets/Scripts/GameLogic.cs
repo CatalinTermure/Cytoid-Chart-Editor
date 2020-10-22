@@ -1894,21 +1894,23 @@ public class GameLogic : MonoBehaviour
 
                     if (currentlymoving.CompareTag("Note"))
                     {
+                        int id = currentlymoving.GetComponent<NoteController>().NoteID;
+                        Note note = CurrentChart.note_list[id];
+
                         float newX = currentlymoving.transform.position.x;
                         if (Config.HorizontalSnap)
                         {
                             newX = (float)Math.Round((currentlymoving.transform.position.x + PlayAreaWidth / 2) / (PlayAreaWidth / Config.VerticalDivisors)) * (PlayAreaWidth / Config.VerticalDivisors) - PlayAreaWidth / 2;
                         }
-                        else
-                        {
-                            newX = (float)Math.Round(newX, 2);
-                        }
                         currentlymoving.transform.position = new Vector3(newX,
                             (float)Math.Round((currentlymoving.transform.position.y + PlayAreaHeight / 2) / (PlayAreaHeight / DivisorValue)) * (PlayAreaHeight / DivisorValue) - PlayAreaHeight / 2);
 
-                        int id = currentlymoving.GetComponent<NoteController>().NoteID;
-                        Note note = CurrentChart.note_list[id];
                         note.x = (currentlymoving.transform.position.x + PlayAreaWidth / 2) / PlayAreaWidth;
+                        if (!Config.HorizontalSnap)
+                        {
+                            note.x = Math.Round(note.x, 2);
+                        }
+                        
                         int tick = (int)Math.Round(CurrentChart.page_list[note.page_index].actual_start_tick + CurrentChart.page_list[note.page_index].ActualPageSize *
                             (CurrentChart.page_list[note.page_index].scan_line_direction == 1 ? (currentlymoving.transform.position.y + PlayAreaHeight / 2) / PlayAreaHeight
                             : 1.0f - (currentlymoving.transform.position.y + PlayAreaHeight / 2) / PlayAreaHeight));
