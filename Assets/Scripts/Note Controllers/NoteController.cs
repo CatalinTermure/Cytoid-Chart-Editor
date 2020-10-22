@@ -84,10 +84,13 @@ public abstract class NoteController : MonoBehaviour, IHighlightable
         }
     }
 
+    private Text infotxt;
+
     private void OnEnable()
     {
         InfoText = Instantiate(GameObject.Find("IDText"), GameObject.Find("OverlayCanvas").transform);
         InfoText.transform.position = gameObject.transform.position;
+        infotxt = InfoText.GetComponent<Text>();
     }
 
     private void OnDisable()
@@ -97,17 +100,24 @@ public abstract class NoteController : MonoBehaviour, IHighlightable
 
     public void UpdateInfoText()
     {
-        switch(GlobalState.ShownNoteInfo)
+        if (GameLogic.CurrentTool != global::NoteType.MOVE)
         {
-            case GlobalState.NoteInfo.NoteID:
-                InfoText.GetComponent<Text>().text = NoteID.ToString();
-                break;
-            case GlobalState.NoteInfo.NoteX:
-                InfoText.GetComponent<Text>().text = GlobalState.CurrentChart.note_list[NoteID].x.ToString("F2");
-                break;
-            case GlobalState.NoteInfo.NoteY:
-                InfoText.GetComponent<Text>().text = GlobalState.CurrentChart.note_list[NoteID].y.ToString("F2");
-                break;
+            infotxt.text = "";
+        }
+        else
+        {
+            switch (GlobalState.ShownNoteInfo)
+            {
+                case GlobalState.NoteInfo.NoteID:
+                    infotxt.text = NoteID.ToString();
+                    break;
+                case GlobalState.NoteInfo.NoteX:
+                    infotxt.text = GlobalState.CurrentChart.note_list[NoteID].x.ToString("F2");
+                    break;
+                case GlobalState.NoteInfo.NoteY:
+                    infotxt.text = GlobalState.CurrentChart.note_list[NoteID].y.ToString("F2");
+                    break;
+            }
         }
     }
 
