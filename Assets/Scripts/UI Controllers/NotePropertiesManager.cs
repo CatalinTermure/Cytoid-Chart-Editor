@@ -66,8 +66,21 @@ public class NotePropertiesManager : MonoBehaviour
             for (int i = 0; i < notes.Count; i++)
             {
                 GlobalState.CurrentChart.note_list[notes[i]].y = y;
-                GlobalState.CurrentChart.note_list[notes[i]].tick = (int)Math.Round(GlobalState.CurrentChart.page_list[GlobalState.CurrentChart.note_list[notes[i]].page_index].start_tick +
+                int tick = (int)Math.Round(GlobalState.CurrentChart.page_list[GlobalState.CurrentChart.note_list[notes[i]].page_index].start_tick +
                     GlobalState.CurrentChart.page_list[GlobalState.CurrentChart.note_list[notes[i]].page_index].PageSize * y);
+
+                if(GlobalState.CurrentChart.note_list[notes[i]].type == (int)NoteType.CDRAG_HEAD || GlobalState.CurrentChart.note_list[notes[i]].type == (int)NoteType.DRAG_HEAD)
+                {
+                    tick = Math.Min(tick, GlobalState.CurrentChart.note_list[notes[i]].next_id >= 0 ? GlobalState.CurrentChart.note_list[GlobalState.CurrentChart.note_list[notes[i]].next_id].tick : 0);
+                }
+                else if(GlobalState.CurrentChart.note_list[notes[i]].type == (int)NoteType.CDRAG_CHILD || GlobalState.CurrentChart.note_list[notes[i]].type == (int)NoteType.DRAG_CHILD)
+                {
+                    tick = GlobalState.Clamp(tick, 
+                        GlobalState.CurrentChart.note_list[notes[i]].next_id >= 0 ? GlobalState.CurrentChart.note_list[GlobalState.CurrentChart.note_list[notes[i]].next_id].tick : 0,
+                        GlobalState.CurrentChart.note_list[GameLogic.GetDragParent(notes[i])].tick);
+                }
+
+                GlobalState.CurrentChart.note_list[notes[i]].tick = tick;
                 GameLogic.RefreshNote(notes[i]);
             }
             Clear();

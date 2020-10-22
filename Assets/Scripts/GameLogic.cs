@@ -104,6 +104,8 @@ public class GameLogic : MonoBehaviour
 
             CalculateTimings();
 
+            CalculateDragIDs();
+
             Logging.AddToLog(LogPath, "Calculated timings...\n");
 
             MusicManager.SetSource(MusicSource);
@@ -455,7 +457,26 @@ public class GameLogic : MonoBehaviour
         HitsoundTimings.Sort(); // keeping it like this because NlogN is comparable(or higher than) to N*holdcount for inserting
     }
 
-    private int GetDragParent(int id)
+    private void CalculateDragIDs()
+    {
+        int dragid = -1;
+        for(int i = 0; i < CurrentChart.note_list.Count; i++)
+        {
+            if(CurrentChart.note_list[i].type == (int)NoteType.CDRAG_HEAD || CurrentChart.note_list[i].type == (int)NoteType.DRAG_HEAD)
+            {
+                dragid++;
+                int id = CurrentChart.note_list[i].id;
+                while(CurrentChart.note_list[id].next_id >= 0)
+                {
+                    CurrentChart.note_list[id].drag_id = dragid;
+                    id = CurrentChart.note_list[id].next_id;
+                }
+                CurrentChart.note_list[id].drag_id = dragid;
+            }
+        }
+    }
+
+    public static int GetDragParent(int id)
     {
         int i = id - 1;
         while(i >= 0)
@@ -808,12 +829,23 @@ public class GameLogic : MonoBehaviour
 
     public static void RefreshNote(int noteID)
     {
+        bool needupdate = false;
         foreach (var obj in GameObject.FindGameObjectsWithTag("Note"))
         {
             if(obj.GetComponent<NoteController>().NoteID == noteID)
             {
+                int type = obj.GetComponent<NoteController>().NoteType;
+                if(type == (int)NoteType.DRAG_HEAD || type == (int)NoteType.DRAG_CHILD || type == (int)NoteType.CDRAG_HEAD || type == (int)NoteType.CDRAG_CHILD)
+                {
+                    needupdate = true;
+                }
                 obj.GetComponent<NoteController>().Initialize(CurrentChart.note_list[noteID]);
             }
+        }
+        if(needupdate)
+        {
+            GameLogic g = GameObject.Find("UICanvas").GetComponent<GameLogic>();
+            g.UpdateTime(g.CurrentPage.start_time);
         }
     }
 
@@ -904,7 +936,12 @@ public class GameLogic : MonoBehaviour
         GameObject.Find("SweepChangeButton").GetComponentInChildren<Text>().text = CurrentPage.scan_line_direction == 1 ? "Up" : "Down";
 
         GameObject.Find("PageText").GetComponent<Text>().text = CurrentPageIndex.ToString();
-        GameObject.Find("TimeText").GetComponent<Text>().text = ((int)((time - CurrentChart.music_offset) / 60)).ToString() + ":" + ((int)(time - CurrentChart.music_offset) % 60).ToString("D2") + "." + ((int)((time - CurrentChart.music_offset) * 1000 - Math.Floor(time - CurrentChart.music_offset) * 1000)).ToString("D3");
+        int milliseconds = (int)((time - CurrentChart.music_offset) * 1000 - Math.Floor(time - CurrentChart.music_offset) * 1000);
+        if(time < CurrentChart.music_offset && milliseconds != 0)
+        {
+            milliseconds = 1000 - milliseconds;
+        }
+        GameObject.Find("TimeText").GetComponent<Text>().text = ((int)((time - CurrentChart.music_offset) / 60)).ToString() + ":" + ((int)(time - CurrentChart.music_offset) % 60).ToString("D2") + "." + milliseconds.ToString("D3");
 
         GameObject.Find("NoteCountText").GetComponent<Text>().text = $"Note count: {CurrentChart.note_list.Count}";
 
@@ -1487,6 +1524,8 @@ public class GameLogic : MonoBehaviour
 
             if (CurrentTool == NoteType.NONE)
             {
+                List<GameObject> tohighlight = new List<GameObject>();
+
                 foreach (GameObject obj in GameObject.FindGameObjectsWithTag("Note"))
                 {
                     if (obj.GetComponent<IHighlightable>().Highlighted && obj.GetComponent<NoteController>().NoteType == (int)NoteType.HOLD) // Modifying hold_time for short holds
@@ -1545,31 +1584,54 @@ public class GameLogic : MonoBehaviour
                             HighlightNoteWithID(id);
                         }
                     }
-                    if (obj.GetComponentInChildren<CircleCollider2D>().OverlapPoint(touchpos)) // Highlighting notes
+                    if (obj.GetComponentInChildren<CircleCollider2D>().OverlapPoint(touchpos)) // Deciding which note to highlight
                     {
 #if UNITY_STANDALONE
                         if(Input.GetKey(KeyCode.LeftShift))
                         {
-                            HighlightObject(obj);
-                            break;
+                            tohighlight.Add(obj);
                         }
                         else
                         {
-                            foreach(GameObject obj2 in GameObject.FindGameObjectsWithTag("Note"))
+                            foreach (GameObject obj2 in GameObject.FindGameObjectsWithTag("Note"))
                             {
-                                if(obj2.GetComponent<IHighlightable>().Highlighted)
+                                if (obj2.GetComponent<IHighlightable>().Highlighted)
                                 {
                                     HighlightObject(obj2);
                                 }
                             }
-                            HighlightObject(obj);
-                            break;
+                            tohighlight.Add(obj);
                         }
 #endif
-#pragma warning disable CS0162 // Unreachable code detected
-                        HighlightObject(obj);
-#pragma warning restore CS0162 // Unreachable code detected
+                        if(Application.isMobilePlatform)
+                        {
+                            tohighlight.Add(obj);
+                        }
                     }
+                }
+
+                int idtohighlight = -1;
+                bool onlycurrentpage = false;
+                for(int i = 0; i < tohighlight.Count; i++)
+                {
+                    int id = tohighlight[i].GetComponent<NoteController>().NoteID;
+                    if(CurrentChart.note_list[id].page_index == CurrentPageIndex)
+                    {
+                        if(!onlycurrentpage)
+                        {
+                            idtohighlight = id;
+                        }
+                        onlycurrentpage = true;
+                        idtohighlight = Math.Max(idtohighlight, id);
+                    }
+                    else if(!onlycurrentpage)
+                    {
+                        idtohighlight = Math.Max(idtohighlight, id);
+                    }
+                }
+                if(idtohighlight >= 0)
+                {
+                    HighlightNoteWithID(idtohighlight);
                 }
             }
             else if (CurrentTool == NoteType.MOVE) // Starting the move of notes

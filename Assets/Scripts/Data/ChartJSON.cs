@@ -103,6 +103,8 @@ public class Note
     public double actual_opacity = 1.0, actual_size = 1.0;
     [NonSerialized, JsonIgnore]
     public double time, hold_time, approach_time, y;
+    [NonSerialized, JsonIgnore]
+    public int drag_id;
 
     public Note() { }
 
