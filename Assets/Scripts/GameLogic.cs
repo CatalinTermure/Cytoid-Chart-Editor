@@ -1184,6 +1184,15 @@ public class GameLogic : MonoBehaviour
             gameObject.GetComponent<SideButtonController>().ChangeTool(NoteType.SCANLINE);
         }
 
+        else if(WasPressed(HotkeyManager.DecreasePlaybackSpeed))
+        {
+            DecreasePlaybackSpeed();
+        }
+        else if(WasPressed(HotkeyManager.IncreasePlaybackSpeed))
+        {
+            IncreasePlaybackSpeed();
+        }
+
         if (CurrentChart == null)
         {
             return;
