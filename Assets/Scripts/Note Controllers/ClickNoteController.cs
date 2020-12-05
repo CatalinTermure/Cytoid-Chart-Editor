@@ -27,7 +27,7 @@ public class ClickNoteController : NoteController
         Highlighted = true;
         Highlight();
 
-        NoteType = note.type;
+        Notetype = note.type;
         NoteID = note.id;
 
         if(GlobalState.IsGameRunning)
@@ -51,7 +51,7 @@ public class ClickNoteController : NoteController
         if (ApproachPercentage > 1)
         {
             NoteStopwatch.Stop();
-            ParentPool.ReturnToPool(gameObject, NoteType);
+            ParentPool.ReturnToPool(gameObject, Notetype);
         }
     }
 

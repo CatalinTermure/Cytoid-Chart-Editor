@@ -67,7 +67,7 @@ public class GlobalState : MonoBehaviour
 #endif
 
     public enum NoteInfo { NoteX, NoteY, NoteID };
-    public static NoteInfo ShownNoteInfo = NoteInfo.NoteX;
+    public static NoteInfo ShownNoteInfo = NoteInfo.NoteID;
 
     private void Awake()
     {
@@ -259,6 +259,15 @@ public class GlobalState : MonoBehaviour
             return false;
         }
         return (key.Key == KeyCode.None || Input.GetKey(key.Key)) && (key.Value == KeyCode.None || Input.GetKeyDown(key.Value));
+    }
+
+    public static bool IsKeyHeld(KeyValuePair<KeyCode, KeyCode> key)
+    {
+        if (key.Key == KeyCode.None && (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.LeftAlt)))
+        {
+            return false;
+        }
+        return (key.Key == KeyCode.None || Input.GetKeyDown(key.Key)) && (key.Value == KeyCode.None || Input.GetKeyDown(key.Value));
     }
 
     /// <summary>

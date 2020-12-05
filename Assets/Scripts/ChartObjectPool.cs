@@ -14,9 +14,8 @@ public class ChartObjectPool
     private const int DRAG_CHILD_POOL_SIZE = 48;
     private const int CDRAG_HEAD_POOL_SIZE = 4;
     private const int CDRAG_CHILD_POOL_SIZE = 48;
-    private const int DRAG_CONNECTOR_POOL_SIZE = 48;
 
-    private static readonly int[] POOL_SIZES = new int[9]
+    private static readonly int[] POOL_SIZES = new int[8]
     {
         CLICK_NOTE_POOL_SIZE,
         HOLD_NOTE_POOL_SIZE,
@@ -25,13 +24,12 @@ public class ChartObjectPool
         DRAG_CHILD_POOL_SIZE,
         FLICK_NOTE_POOL_SIZE,
         CDRAG_HEAD_POOL_SIZE,
-        CDRAG_CHILD_POOL_SIZE,
-        DRAG_CONNECTOR_POOL_SIZE
+        CDRAG_CHILD_POOL_SIZE
     };
 
     #endregion
 
-    private static readonly GameObject[] Prefabs = new GameObject[9]
+    private static readonly GameObject[] Prefabs = new GameObject[8]
     {
         (GameObject)Resources.Load("ClickNote"),
         (GameObject)Resources.Load("HoldNote"),
@@ -40,11 +38,10 @@ public class ChartObjectPool
         (GameObject)Resources.Load("DragChildNote"),
         (GameObject)Resources.Load("FlickNote"),
         (GameObject)Resources.Load("CDragHead"),
-        (GameObject)Resources.Load("DragChildNote"),
-        (GameObject)Resources.Load("DragConnector")
+        (GameObject)Resources.Load("DragChildNote")
     };
 
-    private readonly Queue<GameObject>[] NotePools = new Queue<GameObject>[9] {
+    private readonly Queue<GameObject>[] NotePools = new Queue<GameObject>[8] {
         new Queue<GameObject>(CLICK_NOTE_POOL_SIZE),
         new Queue<GameObject>(HOLD_NOTE_POOL_SIZE),
         new Queue<GameObject>(LONG_HOLD_NOTE_POOL_SIZE),
@@ -52,8 +49,7 @@ public class ChartObjectPool
         new Queue<GameObject>(DRAG_CHILD_POOL_SIZE),
         new Queue<GameObject>(FLICK_NOTE_POOL_SIZE),
         new Queue<GameObject>(CDRAG_HEAD_POOL_SIZE),
-        new Queue<GameObject>(CDRAG_CHILD_POOL_SIZE),
-        new Queue<GameObject>(DRAG_CONNECTOR_POOL_SIZE)
+        new Queue<GameObject>(CDRAG_CHILD_POOL_SIZE)
     };
 
     public ChartObjectPool()
@@ -64,15 +60,6 @@ public class ChartObjectPool
     public GameObject GetNote(NoteType type)
     {
         return NotePools[(int)type].Count > 0 ? NotePools[(int)type].Dequeue() : Object.Instantiate(Prefabs[(int)type]);
-    }
-
-    public GameObject GetDragConnector()
-    {
-        while(NotePools[8].Count > 0 && NotePools[8].Peek() == null)
-        {
-            NotePools[8].Dequeue();
-        }
-        return NotePools[8].Count > 0 ? NotePools[8].Dequeue() : Object.Instantiate(Prefabs[8]);
     }
 
     public void ReturnToPool(GameObject obj, int type)
@@ -94,7 +81,7 @@ public class ChartObjectPool
 
     private void InitializePool()
     {
-        for(int i = 0; i < 9; i++)
+        for(int i = 0; i < 8; i++)
         {
             Prefabs[i].SetActive(false);
             NotePools[i].Clear();
@@ -109,7 +96,7 @@ public class ChartObjectPool
     {
         StringBuilder sb = new StringBuilder();
         sb.Append("Pools: ");
-        for(int i = 0; i < 9; i++)
+        for(int i = 0; i < 8; i++)
         {
             sb.Append(NotePools[i].Count);
             sb.Append(" ");

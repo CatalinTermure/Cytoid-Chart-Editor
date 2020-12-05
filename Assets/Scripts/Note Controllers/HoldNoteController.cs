@@ -63,7 +63,7 @@ public class HoldNoteController : NoteController
         Highlighted = true;
         Highlight();
 
-        NoteType = note.type;
+        Notetype = note.type;
         NoteID = note.id;
 
         if(GlobalState.IsGameRunning)
@@ -96,7 +96,7 @@ public class HoldNoteController : NoteController
             if (CompletionPercentage > 1)
             {
                 NoteStopwatch.Stop();
-                ParentPool.ReturnToPool(gameObject, NoteType);
+                ParentPool.ReturnToPool(gameObject, Notetype);
             }
         }
     }

@@ -34,7 +34,7 @@ public abstract class NoteController : MonoBehaviour, IHighlightable
     public bool Highlighted { get; set; }
 
     [HideInInspector]
-    public int NoteType, NoteID;
+    public int Notetype, NoteID;
 
     private GameObject InfoText;
 

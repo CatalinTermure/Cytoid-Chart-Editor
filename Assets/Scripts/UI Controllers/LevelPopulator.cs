@@ -152,7 +152,7 @@ public class LevelPopulator : MonoBehaviour
                     AddLevel(l, file);
                 }
             }
-            else if(file.EndsWith(".mp3") || file.EndsWith(".ogg"))
+            else if(file.EndsWith(".mp3") || file.EndsWith(".ogg") || file.EndsWith(".wav"))
             {
                 Logging.AddToLog(LogPath, $"Started adding music item for file {file}\n");
 

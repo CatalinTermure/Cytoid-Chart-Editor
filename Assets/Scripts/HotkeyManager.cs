@@ -30,6 +30,9 @@ public static class HotkeyManager
     public static KeyValuePair<KeyCode, KeyCode> NextPage = new KeyValuePair<KeyCode, KeyCode>(KeyCode.None, KeyCode.RightArrow);
     public static KeyValuePair<KeyCode, KeyCode> PreviousPage = new KeyValuePair<KeyCode, KeyCode>(KeyCode.None, KeyCode.LeftArrow);
 
+    public static KeyValuePair<KeyCode, KeyCode> IncreaseHoldTime = new KeyValuePair<KeyCode, KeyCode>(KeyCode.None, KeyCode.UpArrow);
+    public static KeyValuePair<KeyCode, KeyCode> DecreaseHoldTime = new KeyValuePair<KeyCode, KeyCode>(KeyCode.None, KeyCode.DownArrow);
+
     public static KeyValuePair<KeyCode, KeyCode> BackToStart = new KeyValuePair<KeyCode, KeyCode>(KeyCode.None, KeyCode.F);
 
     public static KeyValuePair<KeyCode, KeyCode> PlayPause = new KeyValuePair<KeyCode, KeyCode>(KeyCode.None, KeyCode.Space);

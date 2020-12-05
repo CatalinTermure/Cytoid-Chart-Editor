@@ -11,7 +11,7 @@ public class DragHeadNoteController : NoteController
     /// <summary>
     /// The parts of the note.
     /// </summary>
-    public GameObject NoteFill, NoteBorder;
+    public GameObject NoteFill, NoteBorder, DragConnector;
 
     public float StartTime;
     public int NextID;
@@ -22,9 +22,6 @@ public class DragHeadNoteController : NoteController
     }
     private readonly List<PathPoint> Paths = new List<PathPoint>();
     private int CurrentPath = 0;
-    private int CurrentConnector = 0;
-
-    private readonly List<GameObject> Connectors = new List<GameObject>();
 
     public override void Initialize(Note note)
     {
@@ -38,21 +35,19 @@ public class DragHeadNoteController : NoteController
         NextID = note.next_id;
         StartTime = (float)note.time;
 
-        Connectors.Clear();
-        Paths.Clear();
-
-        CurrentPath = 0;
-        CurrentConnector = 0;
-
-        NoteType = note.type;
+        Notetype = note.type;
         NoteID = note.id;
 
         Highlighted = true;
         Highlight();
 
+        Paths.Clear();
+
+        CurrentPath = 0;
+
         GeneratePath();
 
-        if(GlobalState.IsGameRunning)
+        if (GlobalState.IsGameRunning)
         {
             NoteFill.transform.localScale = NoteBorder.transform.localScale = new Vector3(0.4f, 0.4f);
         }
@@ -80,23 +75,24 @@ public class DragHeadNoteController : NoteController
                 connector_start_time = (float)(GlobalState.CurrentChart.note_list[NextID].time - GlobalState.CurrentChart.note_list[NextID].approach_time - StartTime + ApproachTime),
             });
 
-            float x1 = Paths[Paths.Count - 2].x, x2 = Paths[Paths.Count - 1].x, y1 = Paths[Paths.Count - 2].y, y2 = Paths[Paths.Count - 1].y;
-            GameObject obj = ParentPool.GetDragConnector();
-            if(obj == null)
-            {
-                UnityEngine.Debug.Log("NYAAAAAAAAAA");
-            }
-            obj.SetActive(false);
-            obj.transform.position = new Vector3(x2, y2);
-            obj.GetComponent<SpriteRenderer>().size = new Vector2(0.25f, GlobalState.GetDistance(x1, y1, x2, y2));
-            obj.transform.rotation = Quaternion.AngleAxis(-90 + (float)(Math.Atan2(y1 - y2, x1 - x2) * 180 / Math.PI), Vector3.forward);
-            gameObject.transform.rotation = Quaternion.AngleAxis(-90 + (float)(Math.Atan2(y1 - y2, x1 - x2) * 180 / Math.PI), Vector3.forward);
-            Connectors.Add(obj);
             NextID = GlobalState.CurrentChart.note_list[NextID].next_id;
         }
         if(Paths.Count > 1)
         {
-            gameObject.transform.rotation = Quaternion.AngleAxis(90 + (float)(Math.Atan2(Paths[0].y - Paths[1].y, Paths[0].x - Paths[1].x) * 180 / Math.PI), Vector3.forward);
+            DragConnector.GetComponent<SpriteRenderer>().size = new Vector2(0.2f, GlobalState.GetDistance(Paths[1].x, Paths[1].y, Paths[0].x, Paths[0].y) / 2);
+            if(Notetype == (int)NoteType.CDRAG_HEAD)
+            {
+                gameObject.transform.rotation = Quaternion.AngleAxis(90 + (float)(Math.Atan2(Paths[0].y - Paths[1].y, Paths[0].x - Paths[1].x) * 180 / Math.PI), Vector3.forward);
+            }
+            else
+            {
+                DragConnector.transform.rotation = Quaternion.AngleAxis(90 + (float)(Math.Atan2(Paths[0].y - Paths[1].y, Paths[0].x - Paths[1].x) * 180 / Math.PI), Vector3.forward);
+            }
+            DragConnector.SetActive(true);
+        }
+        else
+        {
+            DragConnector.SetActive(false);
         }
     }
 
@@ -112,61 +108,75 @@ public class DragHeadNoteController : NoteController
         float time = Delay + NoteStopwatch.ElapsedMilliseconds * PlaybackSpeed / 1000f;
         ApproachPercentage = time / ApproachTime;
 
-        while(CurrentConnector < Connectors.Count && time > Paths[CurrentConnector].connector_start_time)
+        if (!DragConnector.activeSelf && NextID > 0)
         {
-            Connectors[CurrentConnector].SetActive(true);
-            CurrentConnector++;
+            DragConnector.SetActive(true);
         }
 
         if (ApproachPercentage > 1)
         {
             NoteFill.transform.localScale = NoteBorder.transform.localScale = new Vector3(0.8f, 0.8f);
+
             if (CurrentPath < Paths.Count)
             {
-                float pathcompletion = (Delay + NoteStopwatch.ElapsedMilliseconds * PlaybackSpeed / 1000f - (CurrentPath > 0 ? Paths[CurrentPath - 1].time : 0)) / (Paths[CurrentPath].time - (CurrentPath > 0 ? Paths[CurrentPath - 1].time : 0));
+                float pathcompletion = (Delay + NoteStopwatch.ElapsedMilliseconds * PlaybackSpeed / 1000f - (CurrentPath > 0 ? Paths[CurrentPath - 1].time : 0)) /
+                    (Paths[CurrentPath].time - (CurrentPath > 0 ? Paths[CurrentPath - 1].time : 0));
                 
                 while(float.IsInfinity(pathcompletion))
                 {
-                    ParentPool.ReturnToPool(Connectors[CurrentPath - 1], 8);
                     CurrentPath++;
-                    pathcompletion = (Delay + NoteStopwatch.ElapsedMilliseconds * PlaybackSpeed / 1000f - (CurrentPath > 0 ? Paths[CurrentPath - 1].time : 0)) / (Paths[CurrentPath].time - (CurrentPath > 0 ? Paths[CurrentPath - 1].time : 0));
-                    gameObject.transform.rotation = Quaternion.AngleAxis(90 + (float)(Math.Atan2(Paths[CurrentPath - 1].y - Paths[CurrentPath].y,
-                            Paths[CurrentPath - 1].x - Paths[CurrentPath].x) * 180 / Math.PI), Vector3.forward);
+                    if(CurrentPath < Paths.Count)
+                    {
+                        pathcompletion = (Delay + NoteStopwatch.ElapsedMilliseconds * PlaybackSpeed / 1000f - (CurrentPath > 0 ? Paths[CurrentPath - 1].time : 0)) /
+                        (Paths[CurrentPath].time - (CurrentPath > 0 ? Paths[CurrentPath - 1].time : 0));
+
+                        gameObject.transform.rotation = Quaternion.AngleAxis(90 + (float)(Math.Atan2(Paths[CurrentPath - 1].y - Paths[CurrentPath].y,
+                                Paths[CurrentPath - 1].x - Paths[CurrentPath].x) * 180 / Math.PI), Vector3.forward);
+                    }
+                    else
+                    {
+                        pathcompletion = 0;
+                    }
                 }
 
-                while (pathcompletion > 1) // for when the note is jumped to during path movement using the timeline
+                while (pathcompletion > 1)
                 {
-                    if (CurrentPath > 0 && CurrentPath < Paths.Count)
-                    {
-                        ParentPool.ReturnToPool(Connectors[CurrentPath - 1], 8);
-                    }
-
-                    if (CurrentPath > 0 && CurrentPath + 1 < Paths.Count)
+                    if (CurrentPath > 0 && CurrentPath + 1 < Paths.Count && Notetype == (int)NoteType.CDRAG_HEAD)
                     {
                         gameObject.transform.rotation = Quaternion.AngleAxis(90 + (float)(Math.Atan2(Paths[CurrentPath].y - Paths[CurrentPath + 1].y,
                             Paths[CurrentPath].x - Paths[CurrentPath + 1].x) * 180 / Math.PI), Vector3.forward);
                     }
 
                     CurrentPath++;
-                    pathcompletion -= 1;
+                    if(CurrentPath < Paths.Count)
+                    {
+                        pathcompletion = (Delay + NoteStopwatch.ElapsedMilliseconds * PlaybackSpeed / 1000f - (CurrentPath > 0 ? Paths[CurrentPath - 1].time : 0)) /
+                                (Paths[CurrentPath].time - (CurrentPath > 0 ? Paths[CurrentPath - 1].time : 0));
+                    }
+                    else
+                    {
+                        pathcompletion = 0;
+                    }
                 }
 
-                if (CurrentPath < Paths.Count)
+                if(CurrentPath < Paths.Count)
                 {
                     gameObject.transform.position = new Vector3(Paths[CurrentPath - 1].x + pathcompletion * (Paths[CurrentPath].x - Paths[CurrentPath - 1].x),
                         Paths[CurrentPath - 1].y + pathcompletion * (Paths[CurrentPath].y - Paths[CurrentPath - 1].y));
 
                     if (CurrentPath > 0)
                     {
-                        Connectors[CurrentPath - 1].GetComponent<SpriteRenderer>().size = new Vector2(0.25f, (1.0f - pathcompletion) *
-                            GlobalState.GetDistance(Paths[CurrentPath - 1].x, Paths[CurrentPath - 1].y, Paths[CurrentPath].x, Paths[CurrentPath].y));
+                        DragConnector.GetComponent<SpriteRenderer>().size = new Vector2(0.2f, (1.0f - pathcompletion) *
+                            GlobalState.GetDistance(Paths[CurrentPath - 1].x, Paths[CurrentPath - 1].y, Paths[CurrentPath].x, Paths[CurrentPath].y) / 2);
+
+                        DragConnector.transform.rotation = Quaternion.AngleAxis(90 + (float)(Math.Atan2(Paths[CurrentPath - 1].y - Paths[CurrentPath].y, Paths[CurrentPath - 1].x - Paths[CurrentPath].x) * 180 / Math.PI), Vector3.forward);
                     }
                 }
             }
 
             if (CurrentPath >= Paths.Count)
             {
-                ParentPool.ReturnToPool(gameObject, NoteType);
+                ParentPool.ReturnToPool(gameObject, Notetype);
             }
         }
         else
@@ -177,21 +187,9 @@ public class DragHeadNoteController : NoteController
 
     protected override void ChangeToPausedVisuals()
     {
-        int page = GameObject.Find("UICanvas").GetComponent<GameLogic>().CurrentPageIndex;
-        int id = GlobalState.CurrentChart.note_list[NoteID].next_id;
-
-        for(int i = 0; i < Connectors.Count; i++)
+        if (GlobalState.CurrentChart.note_list[NoteID].page_index != GameObject.Find("UICanvas").GetComponent<GameLogic>().CurrentPageIndex && NextID > 0)
         {
-            if(GlobalState.CurrentChart.note_list[id].page_index == page)
-            {
-                Connectors[i].SetActive(true);
-            }
-            else
-            {
-                Connectors[i].SetActive(false);
-            }
-
-            id = GlobalState.CurrentChart.note_list[id].next_id;
+            DragConnector.SetActive(false);
         }
 
         NoteBorder.transform.localScale = NoteFill.transform.localScale = new Vector3(0.8f, 0.8f);

@@ -60,7 +60,7 @@ public class LongHoldNoteController : NoteController
         Highlighted = true;
         Highlight();
 
-        NoteType = note.type;
+        Notetype = note.type;
         NoteID = note.id;
 
         FinishIndicator.SetActive(!GlobalState.IsGameRunning);
@@ -99,7 +99,7 @@ public class LongHoldNoteController : NoteController
             if (CompletionPercentage > 1)
             {
                 NoteStopwatch.Stop();
-                ParentPool.ReturnToPool(gameObject, NoteType);
+                ParentPool.ReturnToPool(gameObject, Notetype);
             }
         }
     }

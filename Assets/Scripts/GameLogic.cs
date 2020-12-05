@@ -82,6 +82,8 @@ public class GameLogic : MonoBehaviour
     private bool LockX = false;
     private float LockedX = 0;
 
+    private int CurrentDragID = 0;
+
     /// <summary>
     /// The value of the beat divisor slider.
     /// </summary>
@@ -171,15 +173,13 @@ public class GameLogic : MonoBehaviour
             {
                 GameObject.Find("AddClickNoteButton").GetComponent<RectTransform>().anchoredPosition = new Vector2(Screen.safeArea.x - 15, GameObject.Find("AddClickNoteButton").GetComponent<RectTransform>().anchoredPosition.y);
                 GameObject.Find("AddHoldNoteButton").GetComponent<RectTransform>().anchoredPosition = new Vector2(Screen.safeArea.x - 15, GameObject.Find("AddHoldNoteButton").GetComponent<RectTransform>().anchoredPosition.y);
-                GameObject.Find("AddLongHoldNoteButton").GetComponent<RectTransform>().anchoredPosition = new Vector2(Screen.safeArea.x - 15, GameObject.Find("AddLongHoldNoteButton").GetComponent<RectTransform>().anchoredPosition.y);
-                GameObject.Find("AddDragNoteButton").GetComponent<RectTransform>().anchoredPosition = new Vector2(Screen.safeArea.x - 15, GameObject.Find("AddDragNoteButton").GetComponent<RectTransform>().anchoredPosition.y);
-                GameObject.Find("AddCDragNoteButton").GetComponent<RectTransform>().anchoredPosition = new Vector2(Screen.safeArea.x - 15, GameObject.Find("AddCDragNoteButton").GetComponent<RectTransform>().anchoredPosition.y);
+                GameObject.Find("AddDragNoteButon").GetComponent<RectTransform>().anchoredPosition = new Vector2(Screen.safeArea.x - 15, GameObject.Find("AddDragNoteButon").GetComponent<RectTransform>().anchoredPosition.y);
+                GameObject.Find("AddFlickNoteButton").GetComponent<RectTransform>().anchoredPosition = new Vector2(Screen.safeArea.x - 15, GameObject.Find("AddFlickNoteButton").GetComponent<RectTransform>().anchoredPosition.y);
+                GameObject.Find("AddScanlineNoteButton").GetComponent<RectTransform>().anchoredPosition = new Vector2(Screen.safeArea.x - 15, GameObject.Find("AddScanlineNoteButton").GetComponent<RectTransform>().anchoredPosition.y);
             }
             else if(Screen.orientation == ScreenOrientation.LandscapeRight)
             {
-                GameObject.Find("AddFlickNoteButton").GetComponent<RectTransform>().anchoredPosition = new Vector2(-Screen.safeArea.x + 15, GameObject.Find("AddFlickNoteButton").GetComponent<RectTransform>().anchoredPosition.y);
                 GameObject.Find("MoveNoteButton").GetComponent<RectTransform>().anchoredPosition = new Vector2(-Screen.safeArea.x + 15, GameObject.Find("MoveNoteButton").GetComponent<RectTransform>().anchoredPosition.y);
-                GameObject.Find("BPMButton").GetComponent<RectTransform>().anchoredPosition = new Vector2(-Screen.safeArea.x + 15, GameObject.Find("BPMButton").GetComponent<RectTransform>().anchoredPosition.y);
                 GameObject.Find("OtherOptionsScrollView").GetComponent<RectTransform>().anchoredPosition = new Vector2(-Screen.safeArea.x + 15, GameObject.Find("OtherOptionsScrollView").GetComponent<RectTransform>().anchoredPosition.y);
             }
         }
@@ -474,6 +474,7 @@ public class GameLogic : MonoBehaviour
                 CurrentChart.note_list[id].drag_id = dragid;
             }
         }
+        CurrentDragID = dragid + 1;
     }
 
     public static int GetDragParent(int id)
@@ -632,7 +633,7 @@ public class GameLogic : MonoBehaviour
 
         notecontroller.PlaybackSpeed = PlaybackSpeeds[PlaybackSpeedIndex];
 
-        if(notecontroller.NoteType == (int)NoteType.LONG_HOLD)
+        if(notecontroller.Notetype == (int)NoteType.LONG_HOLD)
         {
             if(note.tick + note.hold_tick >= CurrentPage.start_tick)
             {
@@ -834,7 +835,7 @@ public class GameLogic : MonoBehaviour
         {
             if(obj.GetComponent<NoteController>().NoteID == noteID)
             {
-                int type = obj.GetComponent<NoteController>().NoteType;
+                int type = obj.GetComponent<NoteController>().Notetype;
                 if(type == (int)NoteType.DRAG_HEAD || type == (int)NoteType.DRAG_CHILD || type == (int)NoteType.CDRAG_HEAD || type == (int)NoteType.CDRAG_CHILD)
                 {
                     needupdate = true;
@@ -860,12 +861,7 @@ public class GameLogic : MonoBehaviour
 
         foreach (var obj in GameObject.FindGameObjectsWithTag("Note"))
         {
-            ObjectPool.ReturnToPool(obj, obj.GetComponent<NoteController>().NoteType);
-        }
-
-        foreach (var obj in GameObject.FindGameObjectsWithTag("Connector"))
-        {
-            ObjectPool.ReturnToPool(obj, 8);
+            ObjectPool.ReturnToPool(obj, obj.GetComponent<NoteController>().Notetype);
         }
 
         foreach (var obj in GameObject.FindGameObjectsWithTag("ScanlineNote"))
@@ -905,6 +901,11 @@ public class GameLogic : MonoBehaviour
                 }
             }
             else if(CurrentChart.note_list[NoteSpawns[i].id].page_index == CurrentPageIndex)
+            {
+                SpawnNote(CurrentChart.note_list[NoteSpawns[i].id], 10000);
+            }
+            else if(CurrentChart.note_list[NoteSpawns[i].id].tick == CurrentPage.end_tick && 
+                (CurrentChart.note_list[NoteSpawns[i].id].type == (int)NoteType.HOLD || CurrentChart.note_list[NoteSpawns[i].id].type == (int)NoteType.LONG_HOLD))
             {
                 SpawnNote(CurrentChart.note_list[NoteSpawns[i].id], 10000);
             }
@@ -1076,7 +1077,7 @@ public class GameLogic : MonoBehaviour
     }
 
 #if UNITY_STANDALONE
-    private const double NUDGE_DISTANCE = 0.02;
+    private const double NUDGE_DISTANCE = 0.01;
 
     private bool mousedragstarted = false;
     private Vector2 mousestartpos = new Vector2(0, 0);
@@ -1087,6 +1088,7 @@ public class GameLogic : MonoBehaviour
         {
             return;
         }
+
         if(Input.GetMouseButtonDown(0) && CurrentTool == NoteType.NONE)
         {
             mousestartpos = MainCamera.ScreenToWorldPoint(Input.mousePosition);
@@ -1187,7 +1189,43 @@ public class GameLogic : MonoBehaviour
             return;
         }
 
-        if(WasPressed(HotkeyManager.Copy))
+        if (Input.GetMouseButtonDown(1))
+        {
+            Vector2 touchpos = MainCamera.ScreenToWorldPoint(Input.mousePosition);
+            bool toupdate = false;
+            List<int> toremove = new List<int>();
+
+            foreach (GameObject obj in GameObject.FindGameObjectsWithTag("Note"))
+            {
+                if (obj.GetComponentInChildren<Collider2D>().OverlapPoint(touchpos))
+                {
+                    toremove.Add(obj.GetComponent<NoteController>().NoteID);
+                    toupdate = true;
+                }
+            }
+
+            if (toupdate)
+            {
+                toremove.Sort();
+                for (int i = 0; i < toremove.Count; i++)
+                {
+                    RemoveNote(toremove[i] - i);
+                }
+                UpdateTime(CurrentPage.start_time);
+            }
+        }
+
+        float axis = Input.GetAxis("Mouse ScrollWheel");
+
+        if (Math.Abs(axis) > 0.05f)
+        {
+            int pagecnt = (int)Math.Round(axis * 10, 1);
+            CurrentPageIndex += pagecnt;
+            Clamp(CurrentPageIndex, 0, CurrentChart.page_list.Count - 1);
+            UpdateTime(CurrentPage.actual_start_time);
+        }
+
+        if (WasPressed(HotkeyManager.Copy))
         {
             CopySelection();
         }
@@ -1345,6 +1383,43 @@ public class GameLogic : MonoBehaviour
             UpdateTime(CurrentPage.start_time);
         }
         
+        else if(WasPressed(HotkeyManager.IncreaseHoldTime))
+        {
+            foreach(GameObject obj in GameObject.FindGameObjectsWithTag("Note"))
+            {
+                NoteController controller = obj.GetComponent<NoteController>();
+                if(obj.GetComponent<IHighlightable>().Highlighted && (controller.Notetype == (int)NoteType.HOLD || controller.Notetype == (int)NoteType.LONG_HOLD))
+                {
+                    int id = controller.NoteID;
+                    int deltatick = CurrentChart.time_base / DivisorValue;
+                    CurrentChart.note_list[id].hold_tick += deltatick;
+                    if(controller.Notetype == (int)NoteType.HOLD)
+                    {
+                        CurrentChart.note_list[id].hold_tick = Math.Min(CurrentChart.note_list[id].hold_tick, CurrentChart.page_list[CurrentChart.note_list[id].page_index].end_tick - CurrentChart.note_list[id].tick);
+                    }
+                    RefreshNote(controller.NoteID);
+                    HighlightNoteWithID(controller.NoteID);
+                }
+            }
+        }
+
+        else if (WasPressed(HotkeyManager.DecreaseHoldTime))
+        {
+            foreach (GameObject obj in GameObject.FindGameObjectsWithTag("Note"))
+            {
+                NoteController controller = obj.GetComponent<NoteController>();
+                if (obj.GetComponent<IHighlightable>().Highlighted && (controller.Notetype == (int)NoteType.HOLD || controller.Notetype == (int)NoteType.LONG_HOLD))
+                {
+                    int id = controller.NoteID;
+                    int deltatick = CurrentChart.time_base / DivisorValue;
+                    CurrentChart.note_list[id].hold_tick -= deltatick;
+                    CurrentChart.note_list[id].hold_tick = Math.Max(CurrentChart.note_list[id].hold_tick, 0);
+                    RefreshNote(controller.NoteID);
+                    HighlightNoteWithID(controller.NoteID);
+                }
+            }
+        }
+
         else if(WasPressed(HotkeyManager.PreviousPage))
         {
             GoToPreviousPage();
@@ -1516,7 +1591,7 @@ public class GameLogic : MonoBehaviour
 
     private void HandleInput()
     {
-        if(Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(0))
         {
             Vector2 touchpos = MainCamera.ScreenToWorldPoint(Input.mousePosition);
 
@@ -1528,7 +1603,7 @@ public class GameLogic : MonoBehaviour
 
                 foreach (GameObject obj in GameObject.FindGameObjectsWithTag("Note"))
                 {
-                    if (obj.GetComponent<IHighlightable>().Highlighted && obj.GetComponent<NoteController>().NoteType == (int)NoteType.HOLD) // Modifying hold_time for short holds
+                    if (obj.GetComponent<IHighlightable>().Highlighted && obj.GetComponent<NoteController>().Notetype == (int)NoteType.HOLD) // Modifying hold_time for short holds
                     {
                         var holdcontroller = obj.GetComponent<HoldNoteController>();
                         int id = holdcontroller.NoteID;
@@ -1558,7 +1633,7 @@ public class GameLogic : MonoBehaviour
                         }
                         
                     }
-                    else if (obj.GetComponent<IHighlightable>().Highlighted && obj.GetComponent<NoteController>().NoteType == (int)NoteType.LONG_HOLD) // Modifying hold_time for long holds
+                    else if (obj.GetComponent<IHighlightable>().Highlighted && obj.GetComponent<NoteController>().Notetype == (int)NoteType.LONG_HOLD) // Modifying hold_time for long holds
                     {
                         var holdcontroller = obj.GetComponent<LongHoldNoteController>();
                         int id = holdcontroller.NoteID;
@@ -1659,7 +1734,7 @@ public class GameLogic : MonoBehaviour
             {
                 foreach(GameObject obj in GameObject.FindGameObjectsWithTag("Note"))
                 {
-                    if (obj.GetComponent<NoteController>().NoteType == (int)CurrentTool && Math.Abs(touchpos.y - obj.transform.position.y) < (PlayAreaHeight / DivisorValue) / 2
+                    if (obj.GetComponent<NoteController>().Notetype == (int)CurrentTool && Math.Abs(touchpos.y - obj.transform.position.y) < (PlayAreaHeight / DivisorValue) / 2
                         && Math.Abs(touchpos.x - obj.transform.position.x) < (PlayAreaHeight / DivisorValue) / 2)
                     {
                         return;
@@ -1752,14 +1827,16 @@ public class GameLogic : MonoBehaviour
                     int IDtoHighlight = -1;
                     foreach (GameObject obj in GameObject.FindGameObjectsWithTag("Note"))
                     {
-                        if (obj.GetComponent<IHighlightable>().Highlighted && CurrentChart.note_list[obj.GetComponent<NoteController>().NoteID].next_id == -1 && (obj.GetComponent<DragHeadNoteController>() != null || obj.GetComponent<DragChildNoteController>() != null))
+                        int notetype = obj.GetComponent<NoteController>().Notetype;
+                        int noteid = obj.GetComponent<NoteController>().NoteID;
+                        if (obj.GetComponent<IHighlightable>().Highlighted && CurrentChart.note_list[noteid].next_id == -1 && (notetype == (int)NoteType.DRAG_HEAD || notetype == (int)NoteType.DRAG_CHILD))
                         // Add drag child
                         {
                             int tick = (int)(CurrentPage.actual_start_tick + CurrentPage.ActualPageSize *
                                     (CurrentPage.scan_line_direction == 1 ? Math.Round((touchpos.y + PlayAreaHeight / 2) / (PlayAreaHeight / DivisorValue)) / DivisorValue
                                     : 1.0f - Math.Round((touchpos.y + PlayAreaHeight / 2) / (PlayAreaHeight / DivisorValue)) / DivisorValue));
 
-                            if (CurrentChart.note_list[obj.GetComponent<NoteController>().NoteID].tick < tick)
+                            if (CurrentChart.note_list[noteid].tick < tick)
                             {
                                 int id = AddNote(new Note
                                 {
@@ -1769,10 +1846,11 @@ public class GameLogic : MonoBehaviour
                                     id = -1,
                                     hold_tick = 0,
                                     next_id = -1,
-                                    tick = tick
+                                    tick = tick,
+                                    drag_id = CurrentChart.note_list[noteid].drag_id
                                 });
                                 IDtoHighlight = id;
-                                CurrentChart.note_list[obj.GetComponent<NoteController>().NoteID].next_id = id;
+                                CurrentChart.note_list[noteid].next_id = id;
                             }
                             existsHighlightedDragHead = true;
                             break;
@@ -1791,8 +1869,10 @@ public class GameLogic : MonoBehaviour
                             next_id = -1,
                             tick = (int)(CurrentPage.actual_start_tick + CurrentPage.ActualPageSize *
                             (CurrentPage.scan_line_direction == 1 ? Math.Round((touchpos.y + PlayAreaHeight / 2) / (PlayAreaHeight / DivisorValue)) / DivisorValue
-                            : 1.0f - Math.Round((touchpos.y + PlayAreaHeight / 2) / (PlayAreaHeight / DivisorValue)) / DivisorValue))
+                            : 1.0f - Math.Round((touchpos.y + PlayAreaHeight / 2) / (PlayAreaHeight / DivisorValue)) / DivisorValue)),
+                            drag_id = CurrentDragID + 1
                         });
+                        CurrentDragID++;
                     }
 
                     CalculateTimings();
@@ -1805,8 +1885,10 @@ public class GameLogic : MonoBehaviour
                     int IDtoHighlight = -1;
                     foreach (GameObject obj in GameObject.FindGameObjectsWithTag("Note"))
                     {
-                        if (obj.GetComponent<IHighlightable>().Highlighted && CurrentChart.note_list[obj.GetComponent<NoteController>().NoteID].next_id == -1 && (obj.GetComponent<DragHeadNoteController>() != null || obj.GetComponent<DragChildNoteController>() != null))
-                        // Add drag child
+                        int noteid = obj.GetComponent<NoteController>().NoteID;
+                        int notetype = obj.GetComponent<NoteController>().Notetype;
+                        if (obj.GetComponent<IHighlightable>().Highlighted && CurrentChart.note_list[noteid].next_id == -1 && (notetype == (int)NoteType.CDRAG_HEAD || notetype == (int)NoteType.CDRAG_CHILD))
+                        // Add cdrag child
                         {
                             int tick = (int)(CurrentPage.actual_start_tick + CurrentPage.ActualPageSize *
                                     (CurrentPage.scan_line_direction == 1 ? Math.Round((touchpos.y + PlayAreaHeight / 2) / (PlayAreaHeight / DivisorValue)) / DivisorValue
@@ -1822,7 +1904,8 @@ public class GameLogic : MonoBehaviour
                                     id = -1,
                                     hold_tick = 0,
                                     next_id = -1,
-                                    tick = tick
+                                    tick = tick,
+                                    drag_id = CurrentChart.note_list[noteid].tick
                                 });
                                 IDtoHighlight = id;
                                 CurrentChart.note_list[obj.GetComponent<NoteController>().NoteID].next_id = id;
@@ -1832,7 +1915,7 @@ public class GameLogic : MonoBehaviour
                         }
                     }
 
-                    if (!existsHighlightedDragHead) // Add drag head
+                    if (!existsHighlightedDragHead) // Add cdrag head
                     {
                         IDtoHighlight = AddNote(new Note
                         {
@@ -1844,8 +1927,10 @@ public class GameLogic : MonoBehaviour
                             next_id = -1,
                             tick = (int)(CurrentPage.actual_start_tick + CurrentPage.ActualPageSize *
                             (CurrentPage.scan_line_direction == 1 ? Math.Round((touchpos.y + PlayAreaHeight / 2) / (PlayAreaHeight / DivisorValue)) / DivisorValue
-                            : 1.0f - Math.Round((touchpos.y + PlayAreaHeight / 2) / (PlayAreaHeight / DivisorValue)) / DivisorValue))
+                            : 1.0f - Math.Round((touchpos.y + PlayAreaHeight / 2) / (PlayAreaHeight / DivisorValue)) / DivisorValue)),
+                            drag_id = CurrentDragID + 1
                         });
+                        CurrentDragID++;
                     }
 
                     CalculateTimings();
@@ -1882,7 +1967,7 @@ public class GameLogic : MonoBehaviour
                     else
                     {
                         RemoveNote(currentlymoving.GetComponent<NoteController>().NoteID);
-                        ObjectPool.ReturnToPool(currentlymoving, currentlymoving.GetComponent<NoteController>().NoteType);
+                        ObjectPool.ReturnToPool(currentlymoving, currentlymoving.GetComponent<NoteController>().Notetype);
                     }
                     CalculateTimings();
                     UpdateTime(CurrentPage.actual_start_time);
@@ -2108,10 +2193,10 @@ public class GameLogic : MonoBehaviour
                 NotePropsManager.Add(note);
 
                 // Fix hold arrows overlapping with buttons/timeline
-                if(obj.GetComponent<NoteController>().NoteType == (int)NoteType.HOLD || obj.GetComponent<NoteController>().NoteType == (int)NoteType.LONG_HOLD)
+                if(obj.GetComponent<NoteController>().Notetype == (int)NoteType.HOLD || obj.GetComponent<NoteController>().Notetype == (int)NoteType.LONG_HOLD)
                 {
                     Bounds UpBounds, DownBounds;
-                    if(obj.GetComponent<NoteController>().NoteType == (int)NoteType.LONG_HOLD)
+                    if(obj.GetComponent<NoteController>().Notetype == (int)NoteType.LONG_HOLD)
                     {
                         UpBounds = obj.GetComponent<LongHoldNoteController>().UpArrowCollider.bounds;
                         DownBounds = obj.GetComponent<LongHoldNoteController>().DownArrowCollider.bounds;
@@ -2225,11 +2310,7 @@ public class GameLogic : MonoBehaviour
             if (obj.GetComponent<IHighlightable>().Highlighted)
             {
                 int id = obj.GetComponent<NoteController>().NoteID;
-                if(CurrentChart.note_list[id].type != (int)NoteType.CDRAG_HEAD && CurrentChart.note_list[id].type != (int)NoteType.DRAG_HEAD &&
-                    CurrentChart.note_list[id].type != (int)NoteType.CDRAG_CHILD && CurrentChart.note_list[id].type != (int)NoteType.DRAG_CHILD)
-                {
-                    Clipboard.Add(CurrentChart.note_list[id]);
-                }
+                Clipboard.Add(CurrentChart.note_list[id]);
             }
         }
 
