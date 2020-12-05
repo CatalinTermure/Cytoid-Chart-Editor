@@ -50,6 +50,8 @@ public class LevelDataChanger : MonoBehaviour
         GlobalState.CurrentLevel.music_preview.path = GameObject.Find("MusicPreviewInputField").GetComponent<InputField>().text;
 
         SaveLevel();
+
+        GlobalState.LoadBackground();
     }
 
     public static void SaveLevel()
@@ -78,7 +80,7 @@ public class LevelDataChanger : MonoBehaviour
         {
             GameObject.Find("ToastText").GetComponent<ToastMessageManager>().CreateToast("Please make sure you have a background, otherwise the chart cannot be played in Cytoid.");
         }
-        if (File.Exists(Path.Combine(GlobalState.CurrentLevelPath, "storyboard.json")) || File.Exists(Path.Combine(GlobalState.CurrentLevelPath, GlobalState.CurrentChart.Data.storyboard.path)))
+        if (File.Exists(Path.Combine(GlobalState.CurrentLevelPath, GlobalState.CurrentChart.Data.storyboard?.path ?? "storyboard.json")))
         { // TODO: Properly parse storyboards and check what should and what shouldn't be added to the .cytoidlevel
             try
             {
@@ -152,7 +154,9 @@ public class LevelDataChanger : MonoBehaviour
         }
 
         File.Move(intermediatepath, finalpath);
-        
+
+        CleanupTempFiles();
+
         GameObject.Find("ToastText").GetComponent<ToastMessageManager>().CreateToast("Created the file " + GlobalState.CurrentLevel.id + ".cytoidlevel");
     }
 }
