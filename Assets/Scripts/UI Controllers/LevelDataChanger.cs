@@ -4,6 +4,7 @@ using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
 using Newtonsoft.Json;
+using System;
 
 public class LevelDataChanger : MonoBehaviour
 {
@@ -60,16 +61,98 @@ public class LevelDataChanger : MonoBehaviour
         }));
     }
 
+    private void CleanupTempFiles()
+    {
+        Directory.Delete(Path.Combine(GlobalState.CurrentLevelPath, "tmp"), true);
+        File.Delete(Path.Combine(Application.persistentDataPath, GlobalState.CurrentLevel.id + ".cytoidlevel"));
+    }
+
     public void PackageLevel()
     {
-        try
+        string intermediatepath = Path.Combine(Application.persistentDataPath, GlobalState.CurrentLevel.id + ".cytoidlevel"), finalpath = Path.Combine(GlobalState.CurrentLevelPath, GlobalState.CurrentLevel.id + ".cytoidlevel");
+        if (File.Exists(intermediatepath))
         {
-            System.IO.Compression.ZipFile.CreateFromDirectory(GlobalState.CurrentLevelPath, Path.Combine(Application.persistentDataPath, GlobalState.CurrentLevel.id + ".cytoidlevel"));
-            File.Move(Path.Combine(Application.persistentDataPath, GlobalState.CurrentLevel.id + ".cytoidlevel"), Path.Combine(GlobalState.CurrentLevelPath, GlobalState.CurrentLevel.id + ".cytoidlevel"));
-            GameObject.Find("ToastText").GetComponent<ToastMessageManager>().CreateToast("Created the file " + GlobalState.CurrentLevel.id + ".cytoidlevel");
-        } catch(System.Exception)
-        {
-            GameObject.Find("ToastText").GetComponent<ToastMessageManager>().CreateToast("Could not create .cytoidlevel");
+            File.Delete(intermediatepath);
         }
+        if (!File.Exists(Path.Combine(GlobalState.CurrentLevelPath, GlobalState.CurrentLevel.background.path)))
+        {
+            GameObject.Find("ToastText").GetComponent<ToastMessageManager>().CreateToast("Please make sure you have a background, otherwise the chart cannot be played in Cytoid.");
+        }
+        if (File.Exists(Path.Combine(GlobalState.CurrentLevelPath, "storyboard.json")) || File.Exists(Path.Combine(GlobalState.CurrentLevelPath, GlobalState.CurrentChart.Data.storyboard.path)))
+        { // TODO: Properly parse storyboards and check what should and what shouldn't be added to the .cytoidlevel
+            try
+            {
+                System.IO.Compression.ZipFile.CreateFromDirectory(GlobalState.CurrentLevelPath, intermediatepath);
+            }
+            catch (Exception e)
+            {
+                GameObject.Find("ToastText").GetComponent<ToastMessageManager>().CreateToast("Could not zip the .cytoidlevel.");
+                File.WriteAllText(Path.Combine(Application.persistentDataPath, "error.log"), e.StackTrace);
+                CleanupTempFiles();
+                return;
+            }
+        }
+        else
+        {
+            Directory.CreateDirectory(Path.Combine(GlobalState.CurrentLevelPath, "tmp"));
+
+            try
+            {
+                File.Copy(Path.Combine(GlobalState.CurrentLevelPath, "level.json"), Path.Combine(GlobalState.CurrentLevelPath, "tmp", "level.json"));
+
+                File.Copy(Path.Combine(GlobalState.CurrentLevelPath, GlobalState.CurrentLevel.background.path), 
+                    Path.Combine(GlobalState.CurrentLevelPath, "tmp", GlobalState.CurrentLevel.background.path));
+
+                File.Copy(Path.Combine(GlobalState.CurrentLevelPath, GlobalState.CurrentLevel.music.path), 
+                    Path.Combine(GlobalState.CurrentLevelPath, "tmp", GlobalState.CurrentLevel.music.path));
+
+                if(File.Exists(Path.Combine(GlobalState.CurrentLevelPath, GlobalState.CurrentLevel.music_preview.path)))
+                {
+                    File.Copy(Path.Combine(GlobalState.CurrentLevelPath, GlobalState.CurrentLevel.music_preview.path), 
+                        Path.Combine(GlobalState.CurrentLevelPath, "tmp", GlobalState.CurrentLevel.music_preview.path));
+                }
+
+                foreach(LevelData.ChartData chart in GlobalState.CurrentLevel.charts)
+                {
+                    File.Copy(Path.Combine(GlobalState.CurrentLevelPath, chart.path),
+                        Path.Combine(GlobalState.CurrentLevelPath, "tmp", chart.path));
+
+                    if(File.Exists(Path.Combine(GlobalState.CurrentLevelPath, chart.music_override.path)))
+                    {
+                        File.Copy(Path.Combine(GlobalState.CurrentLevelPath, chart.music_override.path), 
+                            Path.Combine(GlobalState.CurrentLevelPath, "tmp", chart.music_override.path));
+                    }
+
+                    // TODO: storyboard
+                }
+            }
+            catch (Exception e)
+            {
+                GameObject.Find("ToastText").GetComponent<ToastMessageManager>().CreateToast("Could not prepare the files for zipping.");
+                File.WriteAllText(Path.Combine(Application.persistentDataPath, "error.log"), e.StackTrace);
+            }
+            
+
+            try
+            {
+                System.IO.Compression.ZipFile.CreateFromDirectory(Path.Combine(GlobalState.CurrentLevelPath, "tmp"), intermediatepath);
+            }
+            catch (Exception e)
+            {
+                GameObject.Find("ToastText").GetComponent<ToastMessageManager>().CreateToast("Could not zip the .cytoidlevel.");
+                File.WriteAllText(Path.Combine(Application.persistentDataPath, "error.log"), e.StackTrace);
+                CleanupTempFiles();
+                return;
+            }
+        }
+
+        if (File.Exists(finalpath))
+        {
+            File.Delete(finalpath);
+        }
+
+        File.Move(intermediatepath, finalpath);
+        
+        GameObject.Find("ToastText").GetComponent<ToastMessageManager>().CreateToast("Created the file " + GlobalState.CurrentLevel.id + ".cytoidlevel");
     }
 }

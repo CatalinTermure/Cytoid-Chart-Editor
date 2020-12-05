@@ -40,6 +40,9 @@ public static class HotkeyManager
     public static KeyValuePair<KeyCode, KeyCode> Delete = new KeyValuePair<KeyCode, KeyCode>(KeyCode.None, KeyCode.Delete);
     public static KeyValuePair<KeyCode, KeyCode> Flip = new KeyValuePair<KeyCode, KeyCode>(KeyCode.LeftControl, KeyCode.F);
 
+    public static KeyValuePair<KeyCode, KeyCode> IncreasePlaybackSpeed = new KeyValuePair<KeyCode, KeyCode>(KeyCode.None, KeyCode.Plus);
+    public static KeyValuePair<KeyCode, KeyCode> DecreasePlaybackSpeed = new KeyValuePair<KeyCode, KeyCode>(KeyCode.None, KeyCode.Minus);
+
     public static void LoadCustomHotkeys()
     {
         if(File.Exists(Path.Combine(Application.persistentDataPath, "Hotkeys.txt")))

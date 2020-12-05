@@ -35,7 +35,7 @@ public class DragChildNoteController : NoteController
             float x1 = (float)(GlobalState.CurrentChart.note_list[NoteID].x - 0.5) * GlobalState.PlayAreaWidth, y1 = (float)(GlobalState.CurrentChart.note_list[NoteID].y - 0.5) * GlobalState.PlayAreaHeight;
             float x2 = (float)(GlobalState.CurrentChart.note_list[NextID].x - 0.5) * GlobalState.PlayAreaWidth, y2 = (float)(GlobalState.CurrentChart.note_list[NextID].y - 0.5) * GlobalState.PlayAreaHeight;
             DragConnector.transform.rotation = Quaternion.AngleAxis(90 + (float)(System.Math.Atan2(y1 - y2, x1 - x2) * 180 / System.Math.PI), Vector3.forward);
-            DragConnector.GetComponent<SpriteRenderer>().size = new Vector2(0.2f, GlobalState.GetDistance(x2, y2, x1, y1) / 2);
+            DragConnector.GetComponent<SpriteRenderer>().size = new Vector2(0.175f, GlobalState.GetDistance(x2, y2, x1, y1) / 2);
             DragConnector.SetActive(true);
         }
         else

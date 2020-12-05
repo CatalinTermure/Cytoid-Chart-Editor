@@ -38,7 +38,14 @@ public class LevelPopulator : MonoBehaviour
             Logging.CreateLog(LogPath, "Starting the log...\n");
             Logging.AddToLog(LogPath, $"Current DirPath is: {GlobalState.Config.DirPath}\n");
         }
-        PopulateLevels(GlobalState.Config.DirPath);
+        if(Application.platform == RuntimePlatform.IPhonePlayer)
+        {
+            PopulateLevelsUnbound(Application.persistentDataPath);
+        }
+        else
+        {
+            PopulateLevels(GlobalState.Config.DirPath);
+        }
 
         GameObject.Find("LevelSearchInputField").GetComponent<InputField>().onEndEdit.AddListener((string s) => { SearchPattern = s; PopulateLevels(GlobalState.Config.DirPath); });
         // Searching time could be improved
@@ -128,7 +135,7 @@ public class LevelPopulator : MonoBehaviour
     }
 
     /// <summary>
-    /// Utility function for <see cref="PopulateLevels(string)"/>. Searches only files in the directory referenced by <paramref name="path"/>
+    /// Utility function for <see cref="PopulateLevels"/>. Searches only files in the directory referenced by <paramref name="path"/>
     /// </summary>
     /// <param name="path"> Path of the directory to search. </param>
     private void PopulateLevelsUtil(string path)
@@ -147,20 +154,83 @@ public class LevelPopulator : MonoBehaviour
 
                 Logging.AddToLog(LogPath, "Level data read.\n");
 
-                if(l.id.Contains(SearchPattern))
+                if (l.id.Contains(SearchPattern))
                 {
                     AddLevel(l, file);
                 }
             }
-            else if(file.EndsWith(".mp3") || file.EndsWith(".ogg") || file.EndsWith(".wav"))
+            else if (file.EndsWith(".mp3") || file.EndsWith(".ogg") || file.EndsWith(".wav"))
             {
                 Logging.AddToLog(LogPath, $"Started adding music item for file {file}\n");
 
-                if(file.Contains(SearchPattern))
+                if (file.Contains(SearchPattern))
                 {
                     AddMusicOption(file);
                 }
             }
+        }
+    }
+
+    /// <summary>
+    /// Populates the level list with levels and music files to create new levels from. Searches as deep as it can.
+    /// </summary>
+    /// <param name="dirPath"> Path of the directory to search. </param>
+    private void PopulateLevelsUnbound(string dirPath)
+    {
+        Logging.AddToLog(LogPath, "Starting population of levels...\n");
+
+        foreach (Transform child in gameObject.transform)
+        {
+            Destroy(child.gameObject);
+        }
+
+        listItemCount = 0;
+        (gameObject.transform as RectTransform).sizeDelta = new Vector2(0, 0);
+
+        Logging.AddToLog(LogPath, "Starting search through root directory...\n");
+
+        PopulateLevelsUtilRec(dirPath);
+    }
+
+    /// <summary>
+    /// Utility function for <see cref="PopulateLevelsUnbound"/>. Searches all files in the directory referenced by <paramref name="path"/> and recursively searches the directories inside.
+    /// </summary>
+    /// <param name="path"> Path of the directory to search. </param>
+    private void PopulateLevelsUtilRec(string path)
+    {
+        Logging.AddToLog(LogPath, $"Searching directory {path}\n");
+
+        foreach (string file in Directory.EnumerateFiles(path))
+        {
+            Logging.AddToLog(LogPath, $"Found file {file}\n");
+
+            if (file.EndsWith("level.json"))
+            {
+                Logging.AddToLog(LogPath, $"Started adding level item for file: {file}\n");
+
+                LevelData l = JsonUtility.FromJson<LevelData>(File.ReadAllText(file));
+
+                Logging.AddToLog(LogPath, "Level data read.\n");
+
+                if (l.id.Contains(SearchPattern))
+                {
+                    AddLevel(l, file);
+                }
+            }
+            else if (file.EndsWith(".mp3") || file.EndsWith(".ogg") || file.EndsWith(".wav"))
+            {
+                Logging.AddToLog(LogPath, $"Started adding music item for file {file}\n");
+
+                if (file.Contains(SearchPattern))
+                {
+                    AddMusicOption(file);
+                }
+            }
+        }
+
+        foreach(string directory in Directory.EnumerateDirectories(path))
+        {
+            PopulateLevelsUtilRec(directory);
         }
     }
 }

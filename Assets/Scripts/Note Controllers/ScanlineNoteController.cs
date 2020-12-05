@@ -34,8 +34,11 @@ public class ScanlineNoteController : MonoBehaviour, ITempo
         BPMInputField.transform.position -= new Vector3(Screen.width / 2 * (-pos.x / ((float)Screen.width / Screen.height * GlobalState.Height)), -(pos.y / GlobalState.Height) * Screen.height / 2f);
     }
 
-    public void BlockGlobalInput()
+    public void BlockGlobalInput() // added as a click event
     {
-        GameLogic.BlockInput = true;
+        if(GameLogic.CurrentTool != global::NoteType.MOVE)
+        {
+            GameLogic.BlockInput = true;
+        }
     }
 }
