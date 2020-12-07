@@ -65,7 +65,6 @@ public class NotePropertiesManager : MonoBehaviour
 
             for (int i = 0; i < notes.Count; i++)
             {
-                GlobalState.CurrentChart.note_list[notes[i]].y = y;
                 int tick = (int)Math.Round(GlobalState.CurrentChart.page_list[GlobalState.CurrentChart.note_list[notes[i]].page_index].start_tick +
                     GlobalState.CurrentChart.page_list[GlobalState.CurrentChart.note_list[notes[i]].page_index].PageSize * y);
 
@@ -75,14 +74,29 @@ public class NotePropertiesManager : MonoBehaviour
                 }
                 else if(GlobalState.CurrentChart.note_list[notes[i]].type == (int)NoteType.CDRAG_CHILD || GlobalState.CurrentChart.note_list[notes[i]].type == (int)NoteType.DRAG_CHILD)
                 {
-                    tick = GlobalState.Clamp(tick, 
-                        GlobalState.CurrentChart.note_list[notes[i]].next_id >= 0 ? GlobalState.CurrentChart.note_list[GlobalState.CurrentChart.note_list[notes[i]].next_id].tick : 0,
-                        GlobalState.CurrentChart.note_list[GameLogic.GetDragParent(notes[i])].tick);
+                    tick = GlobalState.Clamp(tick, GlobalState.CurrentChart.note_list[GameLogic.GetDragParent(notes[i])].tick,
+                        GlobalState.CurrentChart.note_list[notes[i]].next_id >= 0 ? GlobalState.CurrentChart.note_list[GlobalState.CurrentChart.note_list[notes[i]].next_id].tick : 0);
                 }
 
                 GlobalState.CurrentChart.note_list[notes[i]].tick = tick;
-                GameLogic.RefreshNote(notes[i]);
+
+                int id = notes[i];
+                while(id + 1 < GlobalState.CurrentChart.note_list.Count && GlobalState.CurrentChart.note_list[id].tick > GlobalState.CurrentChart.note_list[id + 1].tick)
+                {
+                    int dragparent = GameLogic.GetDragParent(id);
+                    if(dragparent > -1)
+                    {
+                        GlobalState.CurrentChart.note_list[dragparent].next_id++;
+                    }
+                    Note aux = GlobalState.CurrentChart.note_list[id];
+                    GlobalState.CurrentChart.note_list[id] = GlobalState.CurrentChart.note_list[id + 1];
+                    GlobalState.CurrentChart.note_list[id + 1] = aux;
+                    GlobalState.CurrentChart.note_list[id + 1].id = id + 1;
+                    GlobalState.CurrentChart.note_list[id].id = id;
+                    id++;
+                }
             }
+            GameLogic.ForceUpdate();
             Clear();
         });
     }

@@ -18,7 +18,7 @@ public class EditorOptionsChanger : MonoBehaviour
         VerticalLineCountSlider.onValueChanged.AddListener((float value) =>
         {
             GlobalState.Config.VerticalDivisors = (int)Math.Round(value);
-            VerticalLineCountLabel.GetComponent<Text>().text = $"Vertical lines: {GlobalState.Config.VerticalDivisors}";
+            VerticalLineCountLabel.GetComponent<Text>().text = $"Vertical lines: {GlobalState.Config.VerticalDivisors + 1}";
         });
         VerticalLineCountSlider.value = GlobalState.Config.VerticalDivisors;
 
@@ -41,17 +41,17 @@ public class EditorOptionsChanger : MonoBehaviour
         MoveTimelineDuringPlaybackToggle.SetIsOnWithoutNotify(GlobalState.Config.UpdateTimelineWhileRunning);
         MoveTimelineDuringPlaybackToggle.onValueChanged.AddListener((bool value) => GlobalState.Config.UpdateTimelineWhileRunning = value);
 
-        DebugModeToggle.SetIsOnWithoutNotify(GlobalState.Config.DebugMode);
-        DebugModeToggle.onValueChanged.AddListener((bool value) => GlobalState.Config.DebugMode = value);
-
-        GameObject.Find("NotchFixToggle").GetComponent<Toggle>().SetIsOnWithoutNotify(GlobalState.Config.NotchOverlapFix);
-        GameObject.Find("NotchFixToggle").GetComponent<Toggle>().onValueChanged.AddListener((bool value) => GlobalState.Config.NotchOverlapFix = value);
-
         GameObject.Find("NoteInteractionToggle").GetComponent<Toggle>().SetIsOnWithoutNotify(GlobalState.Config.InteractWithNotesOnOtherPages);
         GameObject.Find("NoteInteractionToggle").GetComponent<Toggle>().onValueChanged.AddListener((bool value) => GlobalState.Config.InteractWithNotesOnOtherPages = value);
 
         GameObject.Find("HorizontalSnapToggle").GetComponent<Toggle>().SetIsOnWithoutNotify(GlobalState.Config.HorizontalSnap);
         GameObject.Find("HorizontalSnapToggle").GetComponent<Toggle>().onValueChanged.AddListener((bool value) => GlobalState.Config.HorizontalSnap = value);
+
+        GameObject.Find("HorizontalAccentsToggle").GetComponent<Toggle>().SetIsOnWithoutNotify(GlobalState.Config.HorizontalLineAccents);
+        GameObject.Find("HorizontalAccentsToggle").GetComponent<Toggle>().onValueChanged.AddListener((bool value) => GlobalState.Config.HorizontalLineAccents = value);
+
+        GameObject.Find("VerticalAccentsToggle").GetComponent<Toggle>().SetIsOnWithoutNotify(GlobalState.Config.VerticalLineAccent);
+        GameObject.Find("VerticalAccentsToggle").GetComponent<Toggle>().onValueChanged.AddListener((bool value) => GlobalState.Config.VerticalLineAccent = value);
     }
 
     public void SaveOptions()

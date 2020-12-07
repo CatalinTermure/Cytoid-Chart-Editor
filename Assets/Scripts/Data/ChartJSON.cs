@@ -104,7 +104,7 @@ public class Note
     [NonSerialized, JsonIgnore]
     public double time, hold_time, approach_time, y;
     [NonSerialized, JsonIgnore]
-    public int drag_id;
+    public int drag_id = -1;
 
     public Note() { }
 

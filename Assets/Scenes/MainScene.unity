@@ -4229,12 +4229,12 @@ GameObject:
   - component: {fileID: 847677719}
   - component: {fileID: 847677718}
   m_Layer: 5
-  m_Name: LockXText
+  m_Name: LockYText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &847677717
 RectTransform:
   m_ObjectHideFlags: 0
@@ -4252,7 +4252,7 @@ RectTransform:
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: -410, y: -202}
-  m_SizeDelta: {x: 200, y: 60}
+  m_SizeDelta: {x: 250, y: 60}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &847677718
 MonoBehaviour:
@@ -4286,7 +4286,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: X axis locked
+  m_Text: Y position locked
 --- !u!222 &847677719
 CanvasRenderer:
   m_ObjectHideFlags: 0

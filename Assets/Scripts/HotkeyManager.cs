@@ -17,7 +17,7 @@ public static class HotkeyManager
     public static KeyValuePair<KeyCode, KeyCode> NudgeDown = new KeyValuePair<KeyCode, KeyCode>(KeyCode.None, KeyCode.S);
 
     public static KeyValuePair<KeyCode, KeyCode> MoveTool = new KeyValuePair<KeyCode, KeyCode>(KeyCode.None, KeyCode.Z);
-    public static KeyValuePair<KeyCode, KeyCode> LockX = new KeyValuePair<KeyCode, KeyCode>(KeyCode.None, KeyCode.X);
+    public static KeyValuePair<KeyCode, KeyCode> LockY = new KeyValuePair<KeyCode, KeyCode>(KeyCode.None, KeyCode.X);
 
     public static KeyValuePair<KeyCode, KeyCode> ClickNote = new KeyValuePair<KeyCode, KeyCode>(KeyCode.None, KeyCode.Alpha1);
     public static KeyValuePair<KeyCode, KeyCode> HoldNote = new KeyValuePair<KeyCode, KeyCode>(KeyCode.None, KeyCode.Alpha2);
@@ -26,6 +26,13 @@ public static class HotkeyManager
     public static KeyValuePair<KeyCode, KeyCode> CDragNote = new KeyValuePair<KeyCode, KeyCode>(KeyCode.None, KeyCode.Alpha5);
     public static KeyValuePair<KeyCode, KeyCode> FlickNote = new KeyValuePair<KeyCode, KeyCode>(KeyCode.None, KeyCode.Alpha6);
     public static KeyValuePair<KeyCode, KeyCode> ScanlineNote = new KeyValuePair<KeyCode, KeyCode>(KeyCode.None, KeyCode.Alpha7);
+
+    public static KeyValuePair<KeyCode, KeyCode> ClickNoteTransform = new KeyValuePair<KeyCode, KeyCode>(KeyCode.LeftControl, KeyCode.Alpha1);
+    public static KeyValuePair<KeyCode, KeyCode> HoldNoteTransform = new KeyValuePair<KeyCode, KeyCode>(KeyCode.LeftControl, KeyCode.Alpha2);
+    public static KeyValuePair<KeyCode, KeyCode> LongHoldNoteTransform = new KeyValuePair<KeyCode, KeyCode>(KeyCode.LeftControl, KeyCode.Alpha3);
+    public static KeyValuePair<KeyCode, KeyCode> DragNoteTransform = new KeyValuePair<KeyCode, KeyCode>(KeyCode.LeftControl, KeyCode.D);
+    public static KeyValuePair<KeyCode, KeyCode> CDragNoteTransform = new KeyValuePair<KeyCode, KeyCode>(KeyCode.LeftControl, KeyCode.Alpha5);
+    public static KeyValuePair<KeyCode, KeyCode> FlickNoteTransform = new KeyValuePair<KeyCode, KeyCode>(KeyCode.LeftControl, KeyCode.Alpha6);
 
     public static KeyValuePair<KeyCode, KeyCode> NextPage = new KeyValuePair<KeyCode, KeyCode>(KeyCode.None, KeyCode.RightArrow);
     public static KeyValuePair<KeyCode, KeyCode> PreviousPage = new KeyValuePair<KeyCode, KeyCode>(KeyCode.None, KeyCode.LeftArrow);

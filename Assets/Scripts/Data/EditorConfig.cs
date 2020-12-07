@@ -16,9 +16,8 @@ public class EditorConfig
     public bool PlayHitsoundsOnHoldEnd = true;
     public bool UpdateTimelineWhileRunning = true;
     public bool DebugMode = false;
-    public bool NotchOverlapFix = false;
     public bool InteractWithNotesOnOtherPages = true;
-    public bool VerticalLineAccent = true; // maybe make this visible?
-    public bool HorizontalLineAccents = true; // maybe make this visible?
+    public bool VerticalLineAccent = true;
+    public bool HorizontalLineAccents = true;
     public float HitsoundPrepTime = 0.05f;
 }
