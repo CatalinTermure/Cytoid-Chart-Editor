@@ -16,5 +16,7 @@ public class BackgroundChanger : MonoBehaviour
             gameObject.GetComponent<Image>().sprite = GlobalState.BackgroundSprite;
         }
         gameObject.GetComponent<Image>().color = new Color(Brightness, Brightness, Brightness);
+        gameObject.GetComponent<Image>().preserveAspect = true;
+        (gameObject.transform as RectTransform).sizeDelta = new Vector2(gameObject.GetComponentInParent<RectTransform>().sizeDelta.x, gameObject.GetComponentInParent<RectTransform>().sizeDelta.x);
     }
 }

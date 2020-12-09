@@ -214,6 +214,17 @@ public class GlobalState : MonoBehaviour
             difficulty = 0,
             path = "chart.json"
         });
+        if(File.Exists(Path.Combine(CurrentLevelPath, "chart.json")))
+        {
+            for(int i = 1; i < 10; i++)
+            {
+                if(!File.Exists(Path.Combine(CurrentLevelPath, $"chart{i}.json")))
+                {
+                    CurrentLevel.charts[CurrentLevel.charts.Count - 1].path = $"chart{i}.json";
+                    break;
+                }
+            }
+        }
         CurrentChart = new Chart(JsonUtility.FromJson<ChartJSON>("{\"format_version\":0,\"time_base\":480,\"start_offset_time\":0,\"page_list\":[{\"start_tick\":0,\"end_tick\":480,\"scan_line_direction\":-1}],\"tempo_list\":[{\"tick\":0,\"value\":1000000}],\"event_order_list\":[],\"note_list\":[]}"), chart);
 
         Logging.AddToLog(LogPath, "New chart created...");

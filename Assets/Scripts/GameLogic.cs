@@ -181,7 +181,7 @@ public class GameLogic : MonoBehaviour
         {
             GameObject.Find("AddClickNoteButton").GetComponent<RectTransform>().anchoredPosition = new Vector2(Screen.safeArea.x - 15, GameObject.Find("AddClickNoteButton").GetComponent<RectTransform>().anchoredPosition.y);
             GameObject.Find("AddHoldNoteButton").GetComponent<RectTransform>().anchoredPosition = new Vector2(Screen.safeArea.x - 15, GameObject.Find("AddHoldNoteButton").GetComponent<RectTransform>().anchoredPosition.y);
-            GameObject.Find("AddDragNoteButon").GetComponent<RectTransform>().anchoredPosition = new Vector2(Screen.safeArea.x - 15, GameObject.Find("AddDragNoteButon").GetComponent<RectTransform>().anchoredPosition.y);
+            GameObject.Find("AddDragNoteButton").GetComponent<RectTransform>().anchoredPosition = new Vector2(Screen.safeArea.x - 15, GameObject.Find("AddDragNoteButton").GetComponent<RectTransform>().anchoredPosition.y);
             GameObject.Find("AddFlickNoteButton").GetComponent<RectTransform>().anchoredPosition = new Vector2(Screen.safeArea.x - 15, GameObject.Find("AddFlickNoteButton").GetComponent<RectTransform>().anchoredPosition.y);
             GameObject.Find("AddScanlineNoteButton").GetComponent<RectTransform>().anchoredPosition = new Vector2(Screen.safeArea.x - 15, GameObject.Find("AddScanlineNoteButton").GetComponent<RectTransform>().anchoredPosition.y);
         }
@@ -979,6 +979,15 @@ public class GameLogic : MonoBehaviour
 
     private bool isTouchHeld = false;
     private GameObject currentlymoving;
+    private readonly Dictionary<int, bool> ismoving = new Dictionary<int, bool>();
+    private struct MovingNote
+    {
+        public GameObject obj;
+        public int noteid;
+        public Vector2 refpos;
+    }
+    private List<MovingNote> movingnotes = new List<MovingNote>();
+    private Vector2 startmovepos;
 
     private Rect LastSafeArea = new Rect(0, 0, Screen.width, Screen.height);
 
@@ -1109,59 +1118,6 @@ public class GameLogic : MonoBehaviour
             return;
         }
 
-        if(Input.GetMouseButtonDown(0) && CurrentTool == NoteType.NONE)
-        {
-            mousestartpos = MainCamera.ScreenToWorldPoint(Input.mousePosition);
-            if(Math.Abs(mousestartpos.x) < PlayAreaWidth / 2 + 3 && Math.Abs(mousestartpos.y) < PlayAreaHeight / 2 + 2)
-            {
-                SelectionBox.SetActive(true);
-                SelectionBox.GetComponent<SpriteRenderer>().size = new Vector2(0, 0);
-                mousedragstarted = true;
-            }
-        }
-        if(Input.GetMouseButtonUp(0) && mousedragstarted)
-        {
-            SelectionBox.SetActive(false);
-
-            Vector2 pos = MainCamera.ScreenToWorldPoint(Input.mousePosition);
-
-            if(CurrentChart != null && GetDistance(pos.x, pos.y, mousestartpos.x, mousestartpos.y) > 0.1)
-            {
-                if (!Input.GetKey(KeyCode.LeftShift))
-                {
-                    foreach (GameObject obj in GameObject.FindGameObjectsWithTag("Note"))
-                    {
-                        if (obj.GetComponent<IHighlightable>().Highlighted)
-                        {
-                            HighlightObject(obj);
-                        }
-                    }
-                }
-                bool deselectall = true;
-                float lx = Math.Min(pos.x, mousestartpos.x), rx = Math.Max(pos.x, mousestartpos.x), uy = Math.Max(pos.y, mousestartpos.y), dy = Math.Min(pos.y, mousestartpos.y);
-                foreach (GameObject obj in GameObject.FindGameObjectsWithTag("Note"))
-                {
-                    if (obj.transform.position.x >= lx && obj.transform.position.x <= rx && obj.transform.position.y >= dy && obj.transform.position.y <= uy &&
-                        !obj.GetComponent<IHighlightable>().Highlighted)
-                    {
-                        deselectall = false;
-                        HighlightObject(obj);
-                    }
-                }
-
-                if (deselectall)
-                {
-                    foreach (GameObject obj in GameObject.FindGameObjectsWithTag("Note"))
-                    {
-                        if (obj.GetComponent<IHighlightable>().Highlighted)
-                        {
-                            HighlightObject(obj);
-                        }
-                    }
-                }
-            }
-            mousedragstarted = false;
-        }
         if(Input.GetMouseButton(0) && mousedragstarted)
         {
             Vector2 pos = MainCamera.ScreenToWorldPoint(Input.mousePosition);
@@ -1638,51 +1594,6 @@ public class GameLogic : MonoBehaviour
         }
     }
 
-
-    private void FixIDs()
-    {
-        for(int i = 0; i < CurrentChart.note_list.Count; i++)
-        {
-            int id = i;
-            while (id < CurrentChart.note_list.Count - 1 && CurrentChart.note_list[id].tick > CurrentChart.note_list[id + 1].tick)
-            {
-                int pid1 = GetDragParent(id), pid2 = GetDragParent(id + 1);
-                if (pid1 >= 0)
-                {
-                    CurrentChart.note_list[pid1].next_id++;
-                }
-                if (pid2 >= 0)
-                {
-                    CurrentChart.note_list[pid2].next_id--;
-                }
-                Note aux = CurrentChart.note_list[id];
-                CurrentChart.note_list[id] = CurrentChart.note_list[id + 1];
-                CurrentChart.note_list[id + 1] = aux;
-                CurrentChart.note_list[id].id = id;
-                CurrentChart.note_list[id + 1].id = id + 1;
-                id++;
-            }
-            while (id > 0 && CurrentChart.note_list[id].tick < CurrentChart.note_list[id - 1].tick)
-            {
-                int pid1 = GetDragParent(id), pid2 = GetDragParent(id - 1);
-                if (pid1 >= 0)
-                {
-                    CurrentChart.note_list[pid1].next_id--;
-                }
-                if (pid2 >= 0)
-                {
-                    CurrentChart.note_list[pid2].next_id++;
-                }
-                Note aux = CurrentChart.note_list[id];
-                CurrentChart.note_list[id] = CurrentChart.note_list[id - 1];
-                CurrentChart.note_list[id - 1] = aux;
-                CurrentChart.note_list[id].id = id;
-                CurrentChart.note_list[id - 1].id = id - 1;
-                id--;
-            }
-        }
-    }
-
     private void IncreaseTick(int id)
     {
         Note note = CurrentChart.note_list[id];
@@ -1762,6 +1673,50 @@ public class GameLogic : MonoBehaviour
     }
 #endif
 
+    private void FixIDs()
+    {
+        for (int i = 0; i < CurrentChart.note_list.Count; i++)
+        {
+            int id = i;
+            while (id < CurrentChart.note_list.Count - 1 && CurrentChart.note_list[id].tick > CurrentChart.note_list[id + 1].tick)
+            {
+                int pid1 = GetDragParent(id), pid2 = GetDragParent(id + 1);
+                if (pid1 >= 0)
+                {
+                    CurrentChart.note_list[pid1].next_id++;
+                }
+                if (pid2 >= 0)
+                {
+                    CurrentChart.note_list[pid2].next_id--;
+                }
+                Note aux = CurrentChart.note_list[id];
+                CurrentChart.note_list[id] = CurrentChart.note_list[id + 1];
+                CurrentChart.note_list[id + 1] = aux;
+                CurrentChart.note_list[id].id = id;
+                CurrentChart.note_list[id + 1].id = id + 1;
+                id++;
+            }
+            while (id > 0 && CurrentChart.note_list[id].tick < CurrentChart.note_list[id - 1].tick)
+            {
+                int pid1 = GetDragParent(id), pid2 = GetDragParent(id - 1);
+                if (pid1 >= 0)
+                {
+                    CurrentChart.note_list[pid1].next_id--;
+                }
+                if (pid2 >= 0)
+                {
+                    CurrentChart.note_list[pid2].next_id++;
+                }
+                Note aux = CurrentChart.note_list[id];
+                CurrentChart.note_list[id] = CurrentChart.note_list[id - 1];
+                CurrentChart.note_list[id - 1] = aux;
+                CurrentChart.note_list[id].id = id;
+                CurrentChart.note_list[id - 1].id = id - 1;
+                id--;
+            }
+        }
+    }
+
     private void HandleInput()
     {
         if (Input.GetMouseButtonDown(0))
@@ -1772,6 +1727,15 @@ public class GameLogic : MonoBehaviour
 
             if (CurrentTool == NoteType.NONE)
             {
+#if UNITY_STANDALONE
+                mousestartpos = MainCamera.ScreenToWorldPoint(Input.mousePosition);
+                if (Math.Abs(mousestartpos.x) < PlayAreaWidth / 2 + 3 && Math.Abs(mousestartpos.y) < PlayAreaHeight / 2 + 2)
+                {
+                    SelectionBox.SetActive(true);
+                    SelectionBox.GetComponent<SpriteRenderer>().size = new Vector2(0, 0);
+                    mousedragstarted = true;
+                }
+#endif
                 List<GameObject> tohighlight = new List<GameObject>();
 
                 foreach (GameObject obj in GameObject.FindGameObjectsWithTag("Note"))
@@ -1886,11 +1850,38 @@ public class GameLogic : MonoBehaviour
             {
                 foreach (GameObject obj in GameObject.FindGameObjectsWithTag("Note"))
                 {
-                    if ((Config.InteractWithNotesOnOtherPages || CurrentChart.note_list[obj.GetComponent<NoteController>().NoteID].page_index == CurrentPageIndex)
-                        && obj.GetComponentInChildren<Collider2D>().OverlapPoint(touchpos) && currentlymoving != obj)
+                    int noteID = obj.GetComponent<NoteController>().NoteID;
+                    if ((Config.InteractWithNotesOnOtherPages || CurrentChart.note_list[noteID].page_index == CurrentPageIndex)
+                        && obj.GetComponentInChildren<Collider2D>().OverlapPoint(touchpos) && currentlymoving != obj && !ismoving.ContainsKey(noteID)) // TODO: replace the Contains() with something more efficient
                     {
-                        currentlymoving = obj;
-                        LockedY = currentlymoving.transform.position.y;
+                        if (obj.GetComponent<IHighlightable>().Highlighted)
+                        {
+                            startmovepos = touchpos;
+                            foreach(GameObject obj2 in GameObject.FindGameObjectsWithTag("Note"))
+                            {
+                                if((Config.InteractWithNotesOnOtherPages || CurrentChart.note_list[obj2.GetComponent<NoteController>().NoteID].page_index == CurrentPageIndex) 
+                                    && obj2.GetComponent<IHighlightable>().Highlighted)
+                                {
+                                    movingnotes.Add(new MovingNote
+                                    {
+                                        obj = obj2,
+                                        noteid = obj2.GetComponent<NoteController>().NoteID,
+                                        refpos = obj2.transform.position
+                                    });
+                                    ismoving.Add(obj2.GetComponent<NoteController>().NoteID, true);
+                                }
+                            }
+                            movingnotes.Sort((MovingNote a, MovingNote b) => a.noteid.CompareTo(b.noteid));
+                            currentlymoving = null;
+                            break;
+                        }
+                        else
+                        {
+                            currentlymoving = obj;
+                            LockedY = currentlymoving.transform.position.y;
+                            movingnotes.Clear();
+                            ismoving.Clear();
+                        }
                     }
                 }
                 foreach (GameObject obj in GameObject.FindGameObjectsWithTag("ScanlineNote"))
@@ -1917,6 +1908,10 @@ public class GameLogic : MonoBehaviour
                 if(Config.HorizontalSnap)
                 {
                     notex = Math.Round((touchpos.x + PlayAreaWidth / 2) / (PlayAreaWidth / Config.VerticalDivisors)) / Config.VerticalDivisors;
+                }
+                else
+                {
+                    notex = Math.Round(notex, 2);
                 }
                 if (CurrentTool == NoteType.CLICK) // Add click note
                 {
@@ -2128,7 +2123,53 @@ public class GameLogic : MonoBehaviour
         }
         if (Input.GetMouseButtonUp(0))
         {
-            if (currentlymoving != null && CurrentTool == NoteType.MOVE) // Finish the move and update the chart
+#if UNITY_STANDALONE
+            if (mousedragstarted)
+            {
+                SelectionBox.SetActive(false);
+
+                Vector2 pos = MainCamera.ScreenToWorldPoint(Input.mousePosition);
+
+                if (CurrentChart != null && GetDistance(pos.x, pos.y, mousestartpos.x, mousestartpos.y) > 0.1)
+                {
+                    if (!Input.GetKey(KeyCode.LeftShift))
+                    {
+                        foreach (GameObject obj in GameObject.FindGameObjectsWithTag("Note"))
+                        {
+                            if (obj.GetComponent<IHighlightable>().Highlighted)
+                            {
+                                HighlightObject(obj);
+                            }
+                        }
+                    }
+                    bool deselectall = true;
+                    float lx = Math.Min(pos.x, mousestartpos.x), rx = Math.Max(pos.x, mousestartpos.x), uy = Math.Max(pos.y, mousestartpos.y), dy = Math.Min(pos.y, mousestartpos.y);
+                    foreach (GameObject obj in GameObject.FindGameObjectsWithTag("Note"))
+                    {
+                        if (obj.transform.position.x >= lx && obj.transform.position.x <= rx && obj.transform.position.y >= dy && obj.transform.position.y <= uy &&
+                            !obj.GetComponent<IHighlightable>().Highlighted)
+                        {
+                            deselectall = false;
+                            HighlightObject(obj);
+                        }
+                    }
+
+                    if (deselectall)
+                    {
+                        foreach (GameObject obj in GameObject.FindGameObjectsWithTag("Note"))
+                        {
+                            if (obj.GetComponent<IHighlightable>().Highlighted)
+                            {
+                                HighlightObject(obj);
+                            }
+                        }
+                    }
+                }
+                mousedragstarted = false;
+            }
+#endif
+
+            if (currentlymoving != null) // Finish the move and update the chart
             {
                 if (currentlymoving.transform.position.x > PlayAreaWidth / 2 + 2 || currentlymoving.transform.position.x < -PlayAreaWidth / 2 - 2)
                 {
@@ -2226,14 +2267,90 @@ public class GameLogic : MonoBehaviour
                 }
                 currentlymoving = null;
             }
+            else if(movingnotes.Count > 0)
+            {
+                int cntdel = 0;
+                for(int i = 0; i < movingnotes.Count; i++)
+                {
+                    if(movingnotes[i].obj.transform.position.x > PlayAreaWidth / 2 + 2 || movingnotes[i].obj.transform.position.x < -PlayAreaWidth / 2 - 2)
+                    {
+                        RemoveNote(movingnotes[i].noteid - cntdel);
+                    }
+                }
+                for (int i = 0; i < movingnotes.Count; i++)
+                {
+                    if (movingnotes[i].obj.transform.position.x < PlayAreaWidth / 2 + 2 && movingnotes[i].obj.transform.position.x > -PlayAreaWidth / 2 - 2)
+                    {
+                        movingnotes[i].obj.transform.position = new Vector3(Clamp(movingnotes[i].obj.transform.position.x, -PlayAreaWidth / 2, PlayAreaWidth / 2),
+                        LockY ? movingnotes[i].refpos.y : Clamp(movingnotes[i].obj.transform.position.y, -PlayAreaHeight / 2, PlayAreaHeight / 2));
+
+                        float notex = movingnotes[i].obj.transform.position.x;
+                        if(Config.HorizontalSnap)
+                        {
+                            notex = (float)Math.Round((notex + PlayAreaWidth / 2) / (PlayAreaWidth / Config.VerticalDivisors)) * (PlayAreaWidth / Config.VerticalDivisors) - PlayAreaWidth / 2;
+                        }
+                        else
+                        {
+                            notex = (float)Math.Round(notex, 2);
+                        }
+
+                        CurrentChart.note_list[movingnotes[i].noteid].x = (notex + PlayAreaWidth / 2) / PlayAreaWidth;
+
+                        movingnotes[i].obj.transform.position = new Vector3(notex,
+                            (float)Math.Round((movingnotes[i].obj.transform.position.y + PlayAreaHeight / 2) / (PlayAreaHeight / DivisorValue)) * (PlayAreaHeight / DivisorValue) - PlayAreaHeight / 2);
+
+                        int pageindex = CurrentChart.note_list[movingnotes[i].noteid].page_index;
+
+                        int tick = (int)Math.Round(CurrentChart.page_list[pageindex].actual_start_tick + CurrentChart.page_list[pageindex].ActualPageSize *
+                            (CurrentChart.page_list[pageindex].scan_line_direction == 1 ? (movingnotes[i].obj.transform.position.y + PlayAreaHeight / 2) / PlayAreaHeight
+                            : 1.0f - (movingnotes[i].obj.transform.position.y + PlayAreaHeight / 2) / PlayAreaHeight));
+
+                        tick = Clamp(tick, CurrentChart.page_list[pageindex].actual_start_tick, CurrentChart.page_list[pageindex].end_tick);
+
+                        int dragparent = GetDragParent(movingnotes[i].noteid);
+                        if(dragparent > 0)
+                        {
+                            tick = Math.Max(tick, CurrentChart.note_list[dragparent].tick);
+                        }
+                        if(CurrentChart.note_list[movingnotes[i].noteid].next_id > 0)
+                        {
+                            tick = Math.Min(tick, CurrentChart.note_list[CurrentChart.note_list[movingnotes[i].noteid].next_id].tick);
+                        }
+                        CurrentChart.note_list[movingnotes[i].noteid].tick = tick;
+                    }
+                }
+
+                FixIDs();
+                CalculateTimings();
+                UpdateTime(CurrentPage.actual_start_time);
+
+                for (int i = 0; i < movingnotes.Count; i++)
+                {
+                    HighlightNoteWithID(movingnotes[i].noteid);
+                }
+                movingnotes.Clear();
+            }
+            ismoving.Clear();
             isTouchHeld = false;
         }
 
-        if (isTouchHeld && CurrentTool == NoteType.MOVE && currentlymoving != null) // Handle moving notes
+        if (isTouchHeld && CurrentTool == NoteType.MOVE) // Handle moving notes
         {
-            Vector2 touchpos = MainCamera.ScreenToWorldPoint(Input.mousePosition);
+            if(currentlymoving != null)
+            {
+                Vector2 touchpos = MainCamera.ScreenToWorldPoint(Input.mousePosition);
 
-            currentlymoving.transform.position = new Vector3(touchpos.x, LockY ? LockedY : touchpos.y);
+                currentlymoving.transform.position = new Vector3(touchpos.x, LockY ? LockedY : touchpos.y);
+            }
+            else if(movingnotes.Count > 0)
+            {
+                Vector2 touchpos = MainCamera.ScreenToWorldPoint(Input.mousePosition);
+
+                for(int i = 0; i < movingnotes.Count; i++)
+                {
+                    movingnotes[i].obj.transform.position = new Vector3(movingnotes[i].refpos.x + (touchpos.x - startmovepos.x), LockY ? movingnotes[i].refpos.y : movingnotes[i].refpos.y + (touchpos.y - startmovepos.y));
+                }
+            }
         }
     }
 

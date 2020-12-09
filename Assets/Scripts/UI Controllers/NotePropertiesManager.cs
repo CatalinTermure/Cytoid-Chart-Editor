@@ -54,6 +54,7 @@ public class NotePropertiesManager : MonoBehaviour
                 GlobalState.CurrentChart.note_list[notes[i]].approach_rate = approach_rate;
                 GameLogic.RefreshNote(notes[i]);
             }
+            GameLogic.ForceUpdate();
             Clear();
         });
 
