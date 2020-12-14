@@ -79,7 +79,7 @@ public class DragHeadNoteController : NoteController
         }
         if(Paths.Count > 1)
         {
-            DragConnector.GetComponent<SpriteRenderer>().size = new Vector2(0.35f / gameObject.transform.localScale.x, GlobalState.GetDistance(Paths[1].x, Paths[1].y, Paths[0].x, Paths[0].y) / gameObject.transform.localScale.x);
+            DragConnector.GetComponent<SpriteRenderer>().size = new Vector2(0.175f, GlobalState.GetDistance(Paths[1].x, Paths[1].y, Paths[0].x, Paths[0].y) / gameObject.transform.localScale.x);
             if(Notetype == (int)NoteType.CDRAG_HEAD)
             {
                 gameObject.transform.rotation = Quaternion.AngleAxis(90 + (float)(Math.Atan2(Paths[0].y - Paths[1].y, Paths[0].x - Paths[1].x) * 180 / Math.PI), Vector3.forward);
@@ -166,7 +166,7 @@ public class DragHeadNoteController : NoteController
 
                     if (CurrentPath > 0)
                     {
-                        DragConnector.GetComponent<SpriteRenderer>().size = new Vector2(0.35f / gameObject.transform.localScale.x, (1.0f - pathcompletion) *
+                        DragConnector.GetComponent<SpriteRenderer>().size = new Vector2(0.175f, (1.0f - pathcompletion) *
                             GlobalState.GetDistance(Paths[CurrentPath - 1].x, Paths[CurrentPath - 1].y, Paths[CurrentPath].x, Paths[CurrentPath].y) / gameObject.transform.localScale.x);
 
                         DragConnector.transform.rotation = Quaternion.AngleAxis(90 + (float)(Math.Atan2(Paths[CurrentPath - 1].y - Paths[CurrentPath].y, Paths[CurrentPath - 1].x - Paths[CurrentPath].x) * 180 / Math.PI), Vector3.forward);

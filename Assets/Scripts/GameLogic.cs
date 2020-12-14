@@ -158,6 +158,8 @@ public class GameLogic : MonoBehaviour
 
     private void Start()
     {
+        gameObject.GetComponent<SideButtonController>().ChangeTool(CurrentTool);
+
         // Adjust for different aspect ratios
         GameObject.Find("PlayAreaBorder").GetComponent<SpriteRenderer>().size = new Vector2(PlayAreaWidth, PlayAreaHeight);
         Scanline.GetComponent<SpriteRenderer>().size = new Vector2(PlayAreaWidth, 0.1f);
@@ -696,7 +698,6 @@ public class GameLogic : MonoBehaviour
             poz++;
             tempo.tick++;
         }
-        tempo.value = CurrentChart.tempo_list[poz > 0 ? poz - 1 : 0].value;
         CurrentChart.tempo_list.Insert(poz, tempo);
     }
 
@@ -786,12 +787,13 @@ public class GameLogic : MonoBehaviour
                 DivisorValue = AllowedDivisor[i];
             }
         }
+        BeatDivisor.SetValueWithoutNotify(DivisorValue);
         RenderDivisorLines();
     }
 
     public void SetBeatDivisorValueUnsafe(int val)
     {
-        val = Clamp(val, 1, 32);
+        val = Clamp(val, 1, 64);
         BeatDivisor.SetValueWithoutNotify(val);
         DivisorValue = val;
         RenderDivisorLines();
@@ -854,6 +856,20 @@ public class GameLogic : MonoBehaviour
                     needupdate = true;
                 }
                 obj.GetComponent<NoteController>().Initialize(CurrentChart.note_list[noteID]);
+                if (type == (int)NoteType.LONG_HOLD)
+                {
+                    Note note = CurrentChart.note_list[obj.GetComponent<NoteController>().NoteID];
+                    Page CurrentPage = GameObject.Find("UICanvas").GetComponent<GameLogic>().CurrentPage;
+                    if (note.tick + note.hold_tick >= CurrentPage.start_tick)
+                    {
+                        obj.GetComponent<LongHoldNoteController>().FinishIndicator.transform.position = new Vector3(obj.transform.position.x, CurrentPage.scan_line_direction *
+                        (PlayAreaHeight * (note.tick + note.hold_tick - CurrentPage.actual_start_tick) / (int)CurrentPage.ActualPageSize - PlayAreaHeight / 2));
+                    }
+                    else
+                    {
+                        obj.GetComponent<LongHoldNoteController>().FinishIndicator.transform.position = new Vector3(obj.transform.position.x, 10000);
+                    }
+                }
             }
         }
         if(needupdate)
@@ -924,11 +940,6 @@ public class GameLogic : MonoBehaviour
             {
                 SpawnNote(CurrentChart.note_list[NoteSpawns[i].id], 10000);
             }
-            else if(CurrentChart.note_list[NoteSpawns[i].id].tick == CurrentPage.end_tick && 
-                (CurrentChart.note_list[NoteSpawns[i].id].type == (int)NoteType.HOLD || CurrentChart.note_list[NoteSpawns[i].id].type == (int)NoteType.LONG_HOLD))
-            {
-                SpawnNote(CurrentChart.note_list[NoteSpawns[i].id], 10000);
-            }
         }
 
         // Optimize if necessary
@@ -986,7 +997,7 @@ public class GameLogic : MonoBehaviour
         public int noteid;
         public Vector2 refpos;
     }
-    private List<MovingNote> movingnotes = new List<MovingNote>();
+    private readonly List<MovingNote> movingnotes = new List<MovingNote>();
     private Vector2 startmovepos;
 
     private Rect LastSafeArea = new Rect(0, 0, Screen.width, Screen.height);
@@ -1380,7 +1391,8 @@ public class GameLogic : MonoBehaviour
                     {
                         CurrentChart.note_list[id].hold_tick = Math.Min(CurrentChart.note_list[id].hold_tick, CurrentChart.page_list[CurrentChart.note_list[id].page_index].end_tick - CurrentChart.note_list[id].tick);
                     }
-                    RefreshNote(controller.NoteID);
+                    CalculateTimings();
+                    UpdateTime(CurrentPage.actual_start_time);
                     HighlightNoteWithID(controller.NoteID);
                 }
             }
@@ -1397,7 +1409,8 @@ public class GameLogic : MonoBehaviour
                     int deltatick = CurrentChart.time_base / DivisorValue;
                     CurrentChart.note_list[id].hold_tick -= deltatick;
                     CurrentChart.note_list[id].hold_tick = Math.Max(CurrentChart.note_list[id].hold_tick, 0);
-                    RefreshNote(controller.NoteID);
+                    CalculateTimings();
+                    UpdateTime(CurrentPage.actual_start_time);
                     HighlightNoteWithID(controller.NoteID);
                 }
             }
@@ -1458,6 +1471,21 @@ public class GameLogic : MonoBehaviour
                     CurrentChart.note_list[id].type = (int)NoteType.CLICK;
                     CurrentChart.note_list[id].hold_tick = 0;
                     CurrentChart.note_list[id].drag_id = -1;
+
+                    if(CurrentChart.note_list[id].next_id > 0)
+                    {
+                        Note note = CurrentChart.note_list[CurrentChart.note_list[id].next_id];
+
+                        if(note.type == (int)NoteType.CDRAG_CHILD)
+                        {
+                            note.type = (int)NoteType.CDRAG_HEAD;
+                        }
+                        else if (note.type == (int)NoteType.DRAG_CHILD)
+                        {
+                            note.type = (int)NoteType.DRAG_HEAD;
+                        }
+                    }
+
                     CurrentChart.note_list[id].next_id = 0;
                 }
             }
@@ -1476,6 +1504,21 @@ public class GameLogic : MonoBehaviour
                     CurrentChart.note_list[id].type = (int)NoteType.FLICK;
                     CurrentChart.note_list[id].hold_tick = 0;
                     CurrentChart.note_list[id].drag_id = -1;
+
+                    if (CurrentChart.note_list[id].next_id > 0)
+                    {
+                        Note note = CurrentChart.note_list[CurrentChart.note_list[id].next_id];
+
+                        if (note.type == (int)NoteType.CDRAG_CHILD)
+                        {
+                            note.type = (int)NoteType.CDRAG_HEAD;
+                        }
+                        else if (note.type == (int)NoteType.DRAG_CHILD)
+                        {
+                            note.type = (int)NoteType.DRAG_HEAD;
+                        }
+                    }
+
                     CurrentChart.note_list[id].next_id = 0;
                 }
             }
@@ -1496,6 +1539,21 @@ public class GameLogic : MonoBehaviour
                         (CurrentChart.page_list[CurrentChart.note_list[id].page_index].end_tick - CurrentChart.page_list[CurrentChart.note_list[id].page_index].actual_start_tick) / DivisorValue,
                         CurrentChart.page_list[CurrentChart.note_list[id].page_index].end_tick - CurrentChart.note_list[id].tick);
                     CurrentChart.note_list[id].drag_id = -1;
+
+                    if (CurrentChart.note_list[id].next_id > 0)
+                    {
+                        Note note = CurrentChart.note_list[CurrentChart.note_list[id].next_id];
+
+                        if (note.type == (int)NoteType.CDRAG_CHILD)
+                        {
+                            note.type = (int)NoteType.CDRAG_HEAD;
+                        }
+                        else if (note.type == (int)NoteType.DRAG_CHILD)
+                        {
+                            note.type = (int)NoteType.DRAG_HEAD;
+                        }
+                    }
+
                     CurrentChart.note_list[id].next_id = 0;
                 }
             }
@@ -1516,6 +1574,21 @@ public class GameLogic : MonoBehaviour
                         (CurrentChart.page_list[CurrentChart.note_list[id].page_index].end_tick - CurrentChart.page_list[CurrentChart.note_list[id].page_index].actual_start_tick) / DivisorValue,
                         CurrentChart.page_list[CurrentChart.note_list[id].page_index].end_tick - CurrentChart.note_list[id].tick);
                     CurrentChart.note_list[id].drag_id = -1;
+
+                    if (CurrentChart.note_list[id].next_id > 0)
+                    {
+                        Note note = CurrentChart.note_list[CurrentChart.note_list[id].next_id];
+
+                        if (note.type == (int)NoteType.CDRAG_CHILD)
+                        {
+                            note.type = (int)NoteType.CDRAG_HEAD;
+                        }
+                        else if (note.type == (int)NoteType.DRAG_CHILD)
+                        {
+                            note.type = (int)NoteType.DRAG_HEAD;
+                        }
+                    }
+
                     CurrentChart.note_list[id].next_id = 0;
                 }
             }
@@ -1548,7 +1621,21 @@ public class GameLogic : MonoBehaviour
                     CurrentChart.note_list[ids[i]].next_id = ids[i + 1];
                 }
                 CurrentChart.note_list[ids[ids.Count - 1]].type = (int)NoteType.DRAG_CHILD;
-                CurrentChart.note_list[ids[ids.Count - 1]].next_id = -1;
+
+                if (CurrentChart.note_list[ids[ids.Count - 1]].next_id > 0)
+                {
+                    int id = CurrentChart.note_list[ids[ids.Count - 1]].next_id;
+
+                    while(id > 0)
+                    {
+                        CurrentChart.note_list[id].type = (int)NoteType.DRAG_CHILD;
+                        id = CurrentChart.note_list[id].next_id;
+                    }
+                }
+                else
+                {
+                    CurrentChart.note_list[ids[ids.Count - 1]].next_id = -1;
+                }
             }
 
             CalculateTimings();
@@ -1579,7 +1666,21 @@ public class GameLogic : MonoBehaviour
                     CurrentChart.note_list[ids[i]].next_id = ids[i + 1];
                 }
                 CurrentChart.note_list[ids[ids.Count - 1]].type = (int)NoteType.CDRAG_CHILD;
-                CurrentChart.note_list[ids[ids.Count - 1]].next_id = -1;
+
+                if (CurrentChart.note_list[ids[ids.Count - 1]].next_id > 0)
+                {
+                    int id = CurrentChart.note_list[ids[ids.Count - 1]].next_id;
+
+                    while (id > 0)
+                    {
+                        CurrentChart.note_list[id].type = (int)NoteType.CDRAG_CHILD;
+                        id = CurrentChart.note_list[id].next_id;
+                    }
+                }
+                else
+                {
+                    CurrentChart.note_list[ids[ids.Count - 1]].next_id = -1;
+                }
             }
 
             CalculateTimings();
@@ -1716,6 +1817,111 @@ public class GameLogic : MonoBehaviour
 
 #endif
 
+    public void Dragify()
+    {
+        List<int> highlighted = new List<int>();
+
+        bool isfulldrag = true, isfullcdrag = true;
+
+        foreach(GameObject obj in GameObject.FindGameObjectsWithTag("Note"))
+        {
+            if(obj.GetComponent<IHighlightable>().Highlighted)
+            {
+                highlighted.Add(obj.GetComponent<NoteController>().NoteID);
+                int notetype = obj.GetComponent<NoteController>().Notetype;
+                if(notetype != (int)NoteType.DRAG_HEAD && notetype != (int)NoteType.DRAG_CHILD)
+                {
+                    isfulldrag = false;
+                }
+                if (notetype != (int)NoteType.CDRAG_HEAD && notetype != (int)NoteType.CDRAG_CHILD)
+                {
+                    isfullcdrag = false;
+                }
+            }
+        }
+
+        highlighted.Sort();
+
+        if(highlighted.Count > 1)
+        {
+            int targettype;
+            if(isfulldrag)
+            {
+                CurrentChart.note_list[highlighted[0]].type = (int)NoteType.CDRAG_HEAD;
+                CurrentChart.note_list[highlighted[0]].next_id = highlighted[1];
+                CurrentChart.note_list[highlighted[0]].hold_tick = 0;
+                targettype = (int)NoteType.CDRAG_CHILD;
+            }
+            else if(isfullcdrag)
+            {
+                targettype = (int)NoteType.CLICK;
+            }
+            else
+            {
+                CurrentChart.note_list[highlighted[0]].type = (int)NoteType.DRAG_HEAD;
+                CurrentChart.note_list[highlighted[0]].next_id = highlighted[1];
+                CurrentChart.note_list[highlighted[0]].hold_tick = 0;
+                targettype = (int)NoteType.DRAG_CHILD;
+            }
+
+            if(targettype == (int)NoteType.CLICK)
+            {
+                if(CurrentChart.note_list[highlighted[highlighted.Count - 1]].next_id > 0)
+                {
+                    Note note = CurrentChart.note_list[CurrentChart.note_list[highlighted[highlighted.Count - 1]].next_id];
+                    if(note.type == (int)NoteType.CDRAG_CHILD)
+                    {
+                        note.type = (int)NoteType.CDRAG_HEAD;
+                    }
+                    else if(note.type == (int)NoteType.DRAG_CHILD)
+                    {
+                        note.type = (int)NoteType.DRAG_HEAD;
+                    }
+                }
+                for(int i = 0; i < highlighted.Count; i++)
+                {
+                    CurrentChart.note_list[highlighted[i]].type = targettype;
+                    CurrentChart.note_list[highlighted[i]].next_id = -1;
+                    CurrentChart.note_list[highlighted[i]].hold_tick = 0;
+                    CurrentChart.note_list[highlighted[i]].drag_id = -1;
+                }
+            }
+            else
+            {
+                for (int i = 1; i + 1 < highlighted.Count; i++)
+                {
+                    CurrentChart.note_list[highlighted[i]].type = targettype;
+                    CurrentChart.note_list[highlighted[i]].next_id = highlighted[i + 1];
+                    CurrentChart.note_list[highlighted[i]].hold_tick = 0;
+                }
+                CurrentChart.note_list[highlighted[highlighted.Count - 1]].type = targettype;
+                CurrentChart.note_list[highlighted[highlighted.Count - 1]].hold_tick = 0;
+
+                if(targettype == (int)NoteType.CDRAG_CHILD)
+                {
+                    int id = CurrentChart.note_list[highlighted.Count - 1].next_id;
+                    while(id > 0)
+                    {
+                        CurrentChart.note_list[id].type = targettype;
+                        id = CurrentChart.note_list[id].next_id;
+                    }
+                }
+                else
+                {
+                    CurrentChart.note_list[highlighted[highlighted.Count - 1]].next_id = -1;
+                }
+            }
+        }
+
+        CalculateTimings();
+        UpdateTime(CurrentPage.actual_start_time);
+
+        for(int i = 0; i < highlighted.Count; i++)
+        {
+            HighlightNoteWithID(highlighted[i]);
+        }
+    }
+
     private void HandleInput()
     {
         if (Input.GetMouseButtonDown(0))
@@ -1813,11 +2019,9 @@ public class GameLogic : MonoBehaviour
                             }
                             tohighlight.Add(obj);
                         }
+                        continue;
 #endif
-                        if(Application.isMobilePlatform)
-                        {
-                            tohighlight.Add(obj);
-                        }
+                        tohighlight.Add(obj);
                     }
                 }
 
@@ -1936,10 +2140,15 @@ public class GameLogic : MonoBehaviour
                         ? Math.Round((touchpos.y + PlayAreaHeight / 2) / (PlayAreaHeight / DivisorValue)) / DivisorValue
                         : 1.0f - Math.Round((touchpos.y + PlayAreaHeight / 2) / (PlayAreaHeight / DivisorValue)) / DivisorValue));
 
+                    if(!Config.ShowApproachingNotesWhilePaused && tick == CurrentPage.end_tick)
+                    {
+                        return;
+                    }
+
                     AddNote(new Note
                     {
                         x = notex,
-                        page_index = tick == CurrentPage.end_tick ? CurrentPageIndex + 1 : CurrentPageIndex,
+                        page_index = CurrentPageIndex + (tick == CurrentPage.end_tick ? 1 : 0),
                         type = (int)NoteType.HOLD,
                         id = -1,
                         hold_tick = CurrentChart.time_base / DivisorValue,
@@ -1956,10 +2165,15 @@ public class GameLogic : MonoBehaviour
                         ? Math.Round((touchpos.y + PlayAreaHeight / 2) / (PlayAreaHeight / DivisorValue)) / DivisorValue
                         : 1.0f - Math.Round((touchpos.y + PlayAreaHeight / 2) / (PlayAreaHeight / DivisorValue)) / DivisorValue));
 
+                    if(!Config.ShowApproachingNotesWhilePaused && tick == CurrentPage.end_tick)
+                    {
+                        return;
+                    }
+
                     AddNote(new Note
                     {
                         x = notex,
-                        page_index = tick == CurrentPage.end_tick ? CurrentPageIndex + 1 : CurrentPageIndex,
+                        page_index = CurrentPageIndex + (tick == CurrentPage.end_tick ? 1 : 0),
                         type = (int)NoteType.LONG_HOLD,
                         id = -1,
                         hold_tick = CurrentChart.time_base / DivisorValue,
@@ -2111,7 +2325,7 @@ public class GameLogic : MonoBehaviour
                         tick = (int)(CurrentPage.actual_start_tick + CurrentPage.ActualPageSize *
                             (CurrentPage.scan_line_direction == 1 ? Math.Round((touchpos.y + PlayAreaHeight / 2) / (PlayAreaHeight / DivisorValue)) / DivisorValue
                             : 1.0f - Math.Round((touchpos.y + PlayAreaHeight / 2) / (PlayAreaHeight / DivisorValue)) / DivisorValue)),
-                        value = 1000000,
+                        value = CurrentChart.tempo_list[CurrentTempoIndex > 0 ? CurrentTempoIndex - 1 : 0].value,
                     });
 
                     CalculateTimings();

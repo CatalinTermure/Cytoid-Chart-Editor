@@ -35,15 +35,24 @@ public class NotePropertiesManager : MonoBehaviour
 
             double x;
 
-            if(s.Contains("/"))
+            try
             {
-                string[] numbers = s.Split('/');
-                x = (double)int.Parse(numbers[0]) / int.Parse(numbers[1]);
-            }
-            else
+                if (s.Contains("/"))
+                {
+                    string[] numbers = s.Split('/');
+                    x = (double)int.Parse(numbers[0]) / int.Parse(numbers[1]);
+                }
+                else
+                {
+                    x = double.Parse(s);
+                }
+            } catch(FormatException)
             {
-                x = double.Parse(s);
+                return;
             }
+            
+
+            x = GlobalState.Clamp(x, 0.0, 1.0);
 
             for(int i = 0; i < notes.Count; i++)
             {
@@ -59,15 +68,22 @@ public class NotePropertiesManager : MonoBehaviour
 
             double approach_rate;
 
-            if (s.Contains("/"))
+            try
             {
-                string[] numbers = s.Split('/');
-                approach_rate = (double)int.Parse(numbers[0]) / int.Parse(numbers[1]);
-            }
-            else
+                if (s.Contains("/"))
+                {
+                    string[] numbers = s.Split('/');
+                    approach_rate = (double)int.Parse(numbers[0]) / int.Parse(numbers[1]);
+                }
+                else
+                {
+                    approach_rate = double.Parse(s);
+                }
+            } catch(FormatException)
             {
-                approach_rate = double.Parse(s);
+                return;
             }
+            
 
             for (int i = 0; i < notes.Count; i++)
             {
@@ -84,15 +100,24 @@ public class NotePropertiesManager : MonoBehaviour
 
             double y;
 
-            if (s.Contains("/"))
+            try
             {
-                string[] numbers = s.Split('/');
-                y = (double)int.Parse(numbers[0]) / int.Parse(numbers[1]);
-            }
-            else
+                if (s.Contains("/"))
+                {
+                    string[] numbers = s.Split('/');
+                    y = (double)int.Parse(numbers[0]) / int.Parse(numbers[1]);
+                }
+                else
+                {
+                    y = double.Parse(s);
+                }
+            } catch(FormatException)
             {
-                y = double.Parse(s);
+                return;
             }
+            
+
+            y = GlobalState.Clamp(y, 0.0, 1.0);
 
             for (int i = 0; i < notes.Count; i++)
             {
