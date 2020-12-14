@@ -179,16 +179,16 @@ public class GameLogic : MonoBehaviour
 
         if(Screen.orientation == ScreenOrientation.LandscapeLeft)
         {
-            GameObject.Find("AddClickNoteButton").GetComponent<RectTransform>().anchoredPosition = new Vector2(Screen.safeArea.x - 15, GameObject.Find("AddClickNoteButton").GetComponent<RectTransform>().anchoredPosition.y);
-            GameObject.Find("AddHoldNoteButton").GetComponent<RectTransform>().anchoredPosition = new Vector2(Screen.safeArea.x - 15, GameObject.Find("AddHoldNoteButton").GetComponent<RectTransform>().anchoredPosition.y);
-            GameObject.Find("AddDragNoteButton").GetComponent<RectTransform>().anchoredPosition = new Vector2(Screen.safeArea.x - 15, GameObject.Find("AddDragNoteButton").GetComponent<RectTransform>().anchoredPosition.y);
-            GameObject.Find("AddFlickNoteButton").GetComponent<RectTransform>().anchoredPosition = new Vector2(Screen.safeArea.x - 15, GameObject.Find("AddFlickNoteButton").GetComponent<RectTransform>().anchoredPosition.y);
-            GameObject.Find("AddScanlineNoteButton").GetComponent<RectTransform>().anchoredPosition = new Vector2(Screen.safeArea.x - 15, GameObject.Find("AddScanlineNoteButton").GetComponent<RectTransform>().anchoredPosition.y);
+            GameObject.Find("AddClickNoteButton").GetComponent<RectTransform>().anchoredPosition = new Vector2(Screen.safeArea.x, GameObject.Find("AddClickNoteButton").GetComponent<RectTransform>().anchoredPosition.y);
+            GameObject.Find("AddHoldNoteButton").GetComponent<RectTransform>().anchoredPosition = new Vector2(Screen.safeArea.x, GameObject.Find("AddHoldNoteButton").GetComponent<RectTransform>().anchoredPosition.y);
+            GameObject.Find("AddDragNoteButton").GetComponent<RectTransform>().anchoredPosition = new Vector2(Screen.safeArea.x, GameObject.Find("AddDragNoteButton").GetComponent<RectTransform>().anchoredPosition.y);
+            GameObject.Find("AddFlickNoteButton").GetComponent<RectTransform>().anchoredPosition = new Vector2(Screen.safeArea.x, GameObject.Find("AddFlickNoteButton").GetComponent<RectTransform>().anchoredPosition.y);
+            GameObject.Find("AddScanlineNoteButton").GetComponent<RectTransform>().anchoredPosition = new Vector2(Screen.safeArea.x, GameObject.Find("AddScanlineNoteButton").GetComponent<RectTransform>().anchoredPosition.y);
         }
         else if(Screen.orientation == ScreenOrientation.LandscapeRight)
         {
-            GameObject.Find("MoveNoteButton").GetComponent<RectTransform>().anchoredPosition = new Vector2(-Screen.safeArea.x + 15, GameObject.Find("MoveNoteButton").GetComponent<RectTransform>().anchoredPosition.y);
-            GameObject.Find("OtherOptionsScrollView").GetComponent<RectTransform>().anchoredPosition = new Vector2(-Screen.safeArea.x + 15, GameObject.Find("OtherOptionsScrollView").GetComponent<RectTransform>().anchoredPosition.y);
+            GameObject.Find("MoveNoteButton").GetComponent<RectTransform>().anchoredPosition = new Vector2(-Screen.safeArea.x, GameObject.Find("MoveNoteButton").GetComponent<RectTransform>().anchoredPosition.y);
+            GameObject.Find("OtherOptionsScrollView").GetComponent<RectTransform>().anchoredPosition = new Vector2(-Screen.safeArea.x, GameObject.Find("OtherOptionsScrollView").GetComponent<RectTransform>().anchoredPosition.y);
         }
 
         if (CurrentChart != null)
@@ -413,7 +413,7 @@ public class GameLogic : MonoBehaviour
                     prevPage = pages[notes[ni].page_index - 1];
                     page_ratio = (double)(notes[ni].tick - currPage.actual_start_tick) / (currPage.end_tick - currPage.actual_start_tick);
 
-                    notes[ni].approach_time = 1.367 / (notes[ni].approach_rate * Math.Max(1.0, 1.367 / ((currPage.end_time - currPage.actual_start_time) * page_ratio + (prevPage.end_time - prevPage.start_time) * (1.367 - page_ratio))));
+                    notes[ni].approach_time = 1.367 / (notes[ni].approach_rate * Math.Max(1.0, 1.367 / ((currPage.end_time - currPage.actual_start_time) * page_ratio + (prevPage.end_time - prevPage.actual_start_time) * (1.367 - page_ratio))));
                 }
 
                 if(notes[ni].type == 1 || notes[ni].type == 2)
@@ -1089,18 +1089,16 @@ public class GameLogic : MonoBehaviour
             LastSafeArea = Screen.safeArea;
             if (Screen.orientation == ScreenOrientation.LandscapeLeft)
             {
-                GameObject.Find("AddClickNoteButton").GetComponent<RectTransform>().anchoredPosition = new Vector2(Screen.safeArea.x - 15, GameObject.Find("AddClickNoteButton").GetComponent<RectTransform>().anchoredPosition.y);
-                GameObject.Find("AddHoldNoteButton").GetComponent<RectTransform>().anchoredPosition = new Vector2(Screen.safeArea.x - 15, GameObject.Find("AddHoldNoteButton").GetComponent<RectTransform>().anchoredPosition.y);
-                GameObject.Find("AddLongHoldNoteButton").GetComponent<RectTransform>().anchoredPosition = new Vector2(Screen.safeArea.x - 15, GameObject.Find("AddLongHoldNoteButton").GetComponent<RectTransform>().anchoredPosition.y);
-                GameObject.Find("AddDragNoteButton").GetComponent<RectTransform>().anchoredPosition = new Vector2(Screen.safeArea.x - 15, GameObject.Find("AddDragNoteButton").GetComponent<RectTransform>().anchoredPosition.y);
-                GameObject.Find("AddCDragNoteButton").GetComponent<RectTransform>().anchoredPosition = new Vector2(Screen.safeArea.x - 15, GameObject.Find("AddCDragNoteButton").GetComponent<RectTransform>().anchoredPosition.y);
+                GameObject.Find("AddClickNoteButton").GetComponent<RectTransform>().anchoredPosition = new Vector2(Screen.safeArea.x, GameObject.Find("AddClickNoteButton").GetComponent<RectTransform>().anchoredPosition.y);
+                GameObject.Find("AddHoldNoteButton").GetComponent<RectTransform>().anchoredPosition = new Vector2(Screen.safeArea.x, GameObject.Find("AddHoldNoteButton").GetComponent<RectTransform>().anchoredPosition.y);
+                GameObject.Find("AddLongHoldNoteButton").GetComponent<RectTransform>().anchoredPosition = new Vector2(Screen.safeArea.x, GameObject.Find("AddLongHoldNoteButton").GetComponent<RectTransform>().anchoredPosition.y);
+                GameObject.Find("AddDragNoteButton").GetComponent<RectTransform>().anchoredPosition = new Vector2(Screen.safeArea.x, GameObject.Find("AddDragNoteButton").GetComponent<RectTransform>().anchoredPosition.y);
+                GameObject.Find("AddCDragNoteButton").GetComponent<RectTransform>().anchoredPosition = new Vector2(Screen.safeArea.x, GameObject.Find("AddCDragNoteButton").GetComponent<RectTransform>().anchoredPosition.y);
             }
             else if (Screen.orientation == ScreenOrientation.LandscapeRight)
             {
-                GameObject.Find("AddFlickNoteButton").GetComponent<RectTransform>().anchoredPosition = new Vector2(-Screen.safeArea.x + 15, GameObject.Find("AddFlickNoteButton").GetComponent<RectTransform>().anchoredPosition.y);
-                GameObject.Find("MoveNoteButton").GetComponent<RectTransform>().anchoredPosition = new Vector2(-Screen.safeArea.x + 15, GameObject.Find("MoveNoteButton").GetComponent<RectTransform>().anchoredPosition.y);
-                GameObject.Find("BPMButton").GetComponent<RectTransform>().anchoredPosition = new Vector2(-Screen.safeArea.x + 15, GameObject.Find("BPMButton").GetComponent<RectTransform>().anchoredPosition.y);
-                GameObject.Find("OtherOptionsScrollView").GetComponent<RectTransform>().anchoredPosition = new Vector2(-Screen.safeArea.x + 15, GameObject.Find("OtherOptionsScrollView").GetComponent<RectTransform>().anchoredPosition.y);
+                GameObject.Find("MoveNoteButton").GetComponent<RectTransform>().anchoredPosition = new Vector2(-Screen.safeArea.x, GameObject.Find("MoveNoteButton").GetComponent<RectTransform>().anchoredPosition.y);
+                GameObject.Find("OtherOptionsScrollView").GetComponent<RectTransform>().anchoredPosition = new Vector2(-Screen.safeArea.x, GameObject.Find("OtherOptionsScrollView").GetComponent<RectTransform>().anchoredPosition.y);
             }
         }
     }
@@ -1671,7 +1669,6 @@ public class GameLogic : MonoBehaviour
             }
         }
     }
-#endif
 
     private void FixIDs()
     {
@@ -1716,6 +1713,8 @@ public class GameLogic : MonoBehaviour
             }
         }
     }
+
+#endif
 
     private void HandleInput()
     {
@@ -2214,37 +2213,62 @@ public class GameLogic : MonoBehaviour
                             (CurrentChart.page_list[note.page_index].scan_line_direction == 1 ? (currentlymoving.transform.position.y + PlayAreaHeight / 2) / PlayAreaHeight
                             : 1.0f - (currentlymoving.transform.position.y + PlayAreaHeight / 2) / PlayAreaHeight));
 
-                        int dragparent = GetDragParent(id), dragchild = note.next_id;
 
-                        if(dragparent >= 0 && tick == CurrentChart.note_list[dragparent].tick)
+                        tick = Clamp(tick, CurrentChart.page_list[note.page_index].actual_start_tick, CurrentChart.page_list[note.page_index].end_tick);
+
+                        int dragparent = GetDragParent(note.id);
+                        if (dragparent > 0)
                         {
-                            tick++;
+                            tick = Math.Max(tick, CurrentChart.note_list[dragparent].tick);
+                        }
+                        if (CurrentChart.note_list[note.id].next_id > 0)
+                        {
+                            tick = Math.Min(tick, CurrentChart.note_list[CurrentChart.note_list[note.id].next_id].tick);
                         }
 
-                        if ((dragparent == -1 || tick > CurrentChart.note_list[dragparent].tick) && (dragchild <= 0 || tick < CurrentChart.note_list[dragchild].tick))
-                        {
-                            note.tick = tick;
+                        note.tick = tick;
 
-                            RemoveNote(id);
-                            int newid = AddNote(note);
-                            if (dragparent > -1)
-                            {
-                                CurrentChart.note_list[dragparent].next_id = newid;
-                            }
-                            CurrentChart.note_list[newid].next_id = dragchild;
-                            if (dragchild > 0 && CurrentChart.note_list[dragchild].type == (int)NoteType.DRAG_HEAD)
-                            {
-                                CurrentChart.note_list[dragchild].type = (int)NoteType.DRAG_CHILD;
-                            }
-                            else if (dragchild > 0 && CurrentChart.note_list[dragchild].type == (int)NoteType.CDRAG_HEAD)
-                            {
-                                CurrentChart.note_list[dragchild].type = (int)NoteType.CDRAG_CHILD;
-                            }
-                        }
-
-                        if(note.type == (int)NoteType.HOLD && tick + note.hold_tick > CurrentChart.page_list[note.page_index].end_tick)
+                        if (note.type == (int)NoteType.HOLD && tick + note.hold_tick > CurrentChart.page_list[note.page_index].end_tick)
                         {
                             note.hold_tick = CurrentChart.page_list[note.page_index].end_tick - tick;
+                        }
+
+                        // Fixing ID
+                        while (id < CurrentChart.note_list.Count - 1 && CurrentChart.note_list[id].tick > CurrentChart.note_list[id + 1].tick)
+                        {
+                            int pid1 = GetDragParent(id), pid2 = GetDragParent(id + 1);
+                            if (pid1 >= 0)
+                            {
+                                CurrentChart.note_list[pid1].next_id++;
+                            }
+                            if (pid2 >= 0)
+                            {
+                                CurrentChart.note_list[pid2].next_id--;
+                            }
+                            Note aux = CurrentChart.note_list[id];
+                            CurrentChart.note_list[id] = CurrentChart.note_list[id + 1];
+                            CurrentChart.note_list[id + 1] = aux;
+                            CurrentChart.note_list[id].id = id;
+                            CurrentChart.note_list[id + 1].id = id + 1;
+                            id++;
+                        }
+                        while (id > 0 && CurrentChart.note_list[id].tick < CurrentChart.note_list[id - 1].tick)
+                        {
+                            int pid1 = GetDragParent(id), pid2 = GetDragParent(id - 1);
+                            if (pid1 >= 0)
+                            {
+                                CurrentChart.note_list[pid1].next_id--;
+                            }
+                            if (pid2 >= 0)
+                            {
+                                CurrentChart.note_list[pid2].next_id++;
+                            }
+                            Note aux = CurrentChart.note_list[id];
+                            CurrentChart.note_list[id] = CurrentChart.note_list[id - 1];
+                            CurrentChart.note_list[id - 1] = aux;
+                            CurrentChart.note_list[id].id = id;
+                            CurrentChart.note_list[id - 1].id = id - 1;
+                            id--;
                         }
                     }
                     else if (currentlymoving.CompareTag("ScanlineNote"))
@@ -2267,16 +2291,8 @@ public class GameLogic : MonoBehaviour
                 }
                 currentlymoving = null;
             }
-            else if(movingnotes.Count > 0)
+            else if(movingnotes.Count > 0) // finishing the move for multiple notes
             {
-                int cntdel = 0;
-                for(int i = 0; i < movingnotes.Count; i++)
-                {
-                    if(movingnotes[i].obj.transform.position.x > PlayAreaWidth / 2 + 2 || movingnotes[i].obj.transform.position.x < -PlayAreaWidth / 2 - 2)
-                    {
-                        RemoveNote(movingnotes[i].noteid - cntdel);
-                    }
-                }
                 for (int i = 0; i < movingnotes.Count; i++)
                 {
                     if (movingnotes[i].obj.transform.position.x < PlayAreaWidth / 2 + 2 && movingnotes[i].obj.transform.position.x > -PlayAreaWidth / 2 - 2)
@@ -2317,16 +2333,80 @@ public class GameLogic : MonoBehaviour
                             tick = Math.Min(tick, CurrentChart.note_list[CurrentChart.note_list[movingnotes[i].noteid].next_id].tick);
                         }
                         CurrentChart.note_list[movingnotes[i].noteid].tick = tick;
+
+                        Note note = CurrentChart.note_list[movingnotes[i].noteid];
+                        if (note.type == (int)NoteType.HOLD && tick + note.hold_tick > CurrentChart.page_list[note.page_index].end_tick)
+                        {
+                            note.hold_tick = CurrentChart.page_list[note.page_index].end_tick - tick;
+                        }
                     }
                 }
 
-                FixIDs();
+                List<int> ids = new List<int>();
+
+                int cntdel = 0;
+                for (int i = 0; i < movingnotes.Count; i++)
+                {
+                    if (movingnotes[i].obj.transform.position.x > PlayAreaWidth / 2 + 2 || movingnotes[i].obj.transform.position.x < -PlayAreaWidth / 2 - 2)
+                    {
+                        RemoveNote(movingnotes[i].noteid - cntdel);
+                        cntdel++;
+                    }
+                    else
+                    {
+                        ids.Add(movingnotes[i].noteid - cntdel);
+                    }
+                }
+
+                // fixing IDs
+                for (int i = 0; i < ids.Count; i++)
+                {
+                    int id = ids[i];
+                    while (id < CurrentChart.note_list.Count - 1 && CurrentChart.note_list[id].tick > CurrentChart.note_list[id + 1].tick)
+                    {
+                        int pid1 = GetDragParent(id), pid2 = GetDragParent(id + 1);
+                        if (pid1 >= 0)
+                        {
+                            CurrentChart.note_list[pid1].next_id++;
+                        }
+                        if (pid2 >= 0)
+                        {
+                            CurrentChart.note_list[pid2].next_id--;
+                        }
+                        Note aux = CurrentChart.note_list[id];
+                        CurrentChart.note_list[id] = CurrentChart.note_list[id + 1];
+                        CurrentChart.note_list[id + 1] = aux;
+                        CurrentChart.note_list[id].id = id;
+                        CurrentChart.note_list[id + 1].id = id + 1;
+                        id++;
+                    }
+                    while (id > 0 && CurrentChart.note_list[id].tick < CurrentChart.note_list[id - 1].tick)
+                    {
+                        int pid1 = GetDragParent(id), pid2 = GetDragParent(id - 1);
+                        if (pid1 >= 0)
+                        {
+                            CurrentChart.note_list[pid1].next_id--;
+                        }
+                        if (pid2 >= 0)
+                        {
+                            CurrentChart.note_list[pid2].next_id++;
+                        }
+                        Note aux = CurrentChart.note_list[id];
+                        CurrentChart.note_list[id] = CurrentChart.note_list[id - 1];
+                        CurrentChart.note_list[id - 1] = aux;
+                        CurrentChart.note_list[id].id = id;
+                        CurrentChart.note_list[id - 1].id = id - 1;
+                        id--;
+                    }
+                    ids[i] = id;
+                }
+
                 CalculateTimings();
                 UpdateTime(CurrentPage.actual_start_time);
 
-                for (int i = 0; i < movingnotes.Count; i++)
+                for(int i = 0; i < ids.Count; i++)
                 {
-                    HighlightNoteWithID(movingnotes[i].noteid);
+                    HighlightNoteWithID(ids[i]);
                 }
                 movingnotes.Clear();
             }

@@ -67,7 +67,7 @@ public class GlobalState : MonoBehaviour
 #endif
 
     public enum NoteInfo { NoteX, NoteY, NoteID };
-    public static NoteInfo ShownNoteInfo = NoteInfo.NoteID;
+    public static NoteInfo ShownNoteInfo = NoteInfo.NoteX;
 
     private void Awake()
     {

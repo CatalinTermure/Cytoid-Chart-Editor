@@ -2563,7 +2563,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 37d8d6accce38434b9bcec24457bb9dd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Brightness: 0.75
+  Brightness: 0.5
 --- !u!1 &509696341
 GameObject:
   m_ObjectHideFlags: 0

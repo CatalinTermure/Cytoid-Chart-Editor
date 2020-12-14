@@ -33,7 +33,17 @@ public class NotePropertiesManager : MonoBehaviour
         {
             GameLogic.BlockInput = false;
 
-            double x = double.Parse(s);
+            double x;
+
+            if(s.Contains("/"))
+            {
+                string[] numbers = s.Split('/');
+                x = (double)int.Parse(numbers[0]) / int.Parse(numbers[1]);
+            }
+            else
+            {
+                x = double.Parse(s);
+            }
 
             for(int i = 0; i < notes.Count; i++)
             {
@@ -47,7 +57,17 @@ public class NotePropertiesManager : MonoBehaviour
         {
             GameLogic.BlockInput = false;
 
-            double approach_rate = double.Parse(s);
+            double approach_rate;
+
+            if (s.Contains("/"))
+            {
+                string[] numbers = s.Split('/');
+                approach_rate = (double)int.Parse(numbers[0]) / int.Parse(numbers[1]);
+            }
+            else
+            {
+                approach_rate = double.Parse(s);
+            }
 
             for (int i = 0; i < notes.Count; i++)
             {
@@ -62,7 +82,17 @@ public class NotePropertiesManager : MonoBehaviour
         {
             GameLogic.BlockInput = false;
 
-            double y = double.Parse(s);
+            double y;
+
+            if (s.Contains("/"))
+            {
+                string[] numbers = s.Split('/');
+                y = (double)int.Parse(numbers[0]) / int.Parse(numbers[1]);
+            }
+            else
+            {
+                y = double.Parse(s);
+            }
 
             for (int i = 0; i < notes.Count; i++)
             {
