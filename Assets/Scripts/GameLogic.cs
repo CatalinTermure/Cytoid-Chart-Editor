@@ -1848,6 +1848,20 @@ public class GameLogic : MonoBehaviour
             if(isfulldrag)
             {
                 CurrentChart.note_list[highlighted[0]].type = (int)NoteType.CDRAG_HEAD;
+
+                if (CurrentChart.note_list[highlighted[0]].next_id > 0)
+                {
+                    Note note = CurrentChart.note_list[CurrentChart.note_list[highlighted[0]].next_id];
+                    if (note.type == (int)NoteType.CDRAG_CHILD)
+                    {
+                        note.type = (int)NoteType.CDRAG_HEAD;
+                    }
+                    else
+                    {
+                        note.type = (int)NoteType.DRAG_HEAD;
+                    }
+                }
+
                 CurrentChart.note_list[highlighted[0]].next_id = highlighted[1];
                 CurrentChart.note_list[highlighted[0]].hold_tick = 0;
                 targettype = (int)NoteType.CDRAG_CHILD;
@@ -1866,21 +1880,30 @@ public class GameLogic : MonoBehaviour
 
             if(targettype == (int)NoteType.CLICK)
             {
-                if(CurrentChart.note_list[highlighted[highlighted.Count - 1]].next_id > 0)
-                {
-                    Note note = CurrentChart.note_list[CurrentChart.note_list[highlighted[highlighted.Count - 1]].next_id];
-                    if(note.type == (int)NoteType.CDRAG_CHILD)
-                    {
-                        note.type = (int)NoteType.CDRAG_HEAD;
-                    }
-                    else if(note.type == (int)NoteType.DRAG_CHILD)
-                    {
-                        note.type = (int)NoteType.DRAG_HEAD;
-                    }
-                }
                 for(int i = 0; i < highlighted.Count; i++)
                 {
                     CurrentChart.note_list[highlighted[i]].type = targettype;
+
+                    int dragparent = GetDragParent(highlighted[i]);
+
+                    if(dragparent > -1)
+                    {
+                        CurrentChart.note_list[dragparent].next_id = -1;
+                    }
+
+                    if(CurrentChart.note_list[highlighted[i]].next_id > 0)
+                    {
+                        Note note = CurrentChart.note_list[CurrentChart.note_list[highlighted[i]].next_id];
+                        if (note.type == (int)NoteType.CDRAG_CHILD)
+                        {
+                            note.type = (int)NoteType.CDRAG_HEAD;
+                        }
+                        else if (note.type == (int)NoteType.DRAG_CHILD)
+                        {
+                            note.type = (int)NoteType.DRAG_HEAD;
+                        }
+                    }
+
                     CurrentChart.note_list[highlighted[i]].next_id = -1;
                     CurrentChart.note_list[highlighted[i]].hold_tick = 0;
                     CurrentChart.note_list[highlighted[i]].drag_id = -1;
@@ -1888,9 +1911,32 @@ public class GameLogic : MonoBehaviour
             }
             else
             {
+                for(int i = 0; i < highlighted.Count; i++)
+                {
+                    int dragparent = GetDragParent(highlighted[i]);
+                    if(dragparent > -1 && dragparent != highlighted[0])
+                    {
+                        CurrentChart.note_list[dragparent].next_id = -1;
+                    }
+                }
+
                 for (int i = 1; i + 1 < highlighted.Count; i++)
                 {
                     CurrentChart.note_list[highlighted[i]].type = targettype;
+
+                    if(CurrentChart.note_list[highlighted[i]].next_id > 0)
+                    {
+                        Note note = CurrentChart.note_list[CurrentChart.note_list[highlighted[i]].next_id];
+                        if(note.type == (int)NoteType.CDRAG_CHILD)
+                        {
+                            note.type = (int)NoteType.CDRAG_HEAD;
+                        }
+                        else
+                        {
+                            note.type = (int)NoteType.DRAG_HEAD;
+                        }
+                    }
+
                     CurrentChart.note_list[highlighted[i]].next_id = highlighted[i + 1];
                     CurrentChart.note_list[highlighted[i]].hold_tick = 0;
                 }
