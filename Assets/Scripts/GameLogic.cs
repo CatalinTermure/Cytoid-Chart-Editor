@@ -1472,6 +1472,12 @@ public class GameLogic : MonoBehaviour
                     CurrentChart.note_list[id].hold_tick = 0;
                     CurrentChart.note_list[id].drag_id = -1;
 
+                    int dragparent = GetDragParent(id);
+                    if(dragparent > -1)
+                    {
+                        CurrentChart.note_list[dragparent].next_id = -1;
+                    }
+
                     if(CurrentChart.note_list[id].next_id > 0)
                     {
                         Note note = CurrentChart.note_list[CurrentChart.note_list[id].next_id];
@@ -1504,6 +1510,12 @@ public class GameLogic : MonoBehaviour
                     CurrentChart.note_list[id].type = (int)NoteType.FLICK;
                     CurrentChart.note_list[id].hold_tick = 0;
                     CurrentChart.note_list[id].drag_id = -1;
+
+                    int dragparent = GetDragParent(id);
+                    if (dragparent > -1)
+                    {
+                        CurrentChart.note_list[dragparent].next_id = -1;
+                    }
 
                     if (CurrentChart.note_list[id].next_id > 0)
                     {
@@ -1540,6 +1552,12 @@ public class GameLogic : MonoBehaviour
                         CurrentChart.page_list[CurrentChart.note_list[id].page_index].end_tick - CurrentChart.note_list[id].tick);
                     CurrentChart.note_list[id].drag_id = -1;
 
+                    int dragparent = GetDragParent(id);
+                    if (dragparent > -1)
+                    {
+                        CurrentChart.note_list[dragparent].next_id = -1;
+                    }
+
                     if (CurrentChart.note_list[id].next_id > 0)
                     {
                         Note note = CurrentChart.note_list[CurrentChart.note_list[id].next_id];
@@ -1575,6 +1593,12 @@ public class GameLogic : MonoBehaviour
                         CurrentChart.page_list[CurrentChart.note_list[id].page_index].end_tick - CurrentChart.note_list[id].tick);
                     CurrentChart.note_list[id].drag_id = -1;
 
+                    int dragparent = GetDragParent(id);
+                    if (dragparent > -1)
+                    {
+                        CurrentChart.note_list[dragparent].next_id = -1;
+                    }
+
                     if (CurrentChart.note_list[id].next_id > 0)
                     {
                         Note note = CurrentChart.note_list[CurrentChart.note_list[id].next_id];
@@ -1607,6 +1631,13 @@ public class GameLogic : MonoBehaviour
                     int id = obj.GetComponent<NoteController>().NoteID;
                     CurrentChart.note_list[id].hold_tick = 0;
                     CurrentChart.note_list[id].drag_id = CurrentDragID + 1;
+
+                    int dragparent = GetDragParent(id);
+                    if (dragparent > -1)
+                    {
+                        CurrentChart.note_list[dragparent].next_id = -1;
+                    }
+
                     ids.Add(id);
                 }
             }
@@ -1618,6 +1649,20 @@ public class GameLogic : MonoBehaviour
                 for (int i = 1; i + 1 < ids.Count; i++)
                 {
                     CurrentChart.note_list[ids[i]].type = (int)NoteType.DRAG_CHILD;
+
+                    if (CurrentChart.note_list[ids[i]].next_id > 0)
+                    {
+                        Note note = CurrentChart.note_list[CurrentChart.note_list[ids[i]].next_id];
+                        if (note.type == (int)NoteType.CDRAG_CHILD)
+                        {
+                            note.type = (int)NoteType.CDRAG_HEAD;
+                        }
+                        else
+                        {
+                            note.type = (int)NoteType.DRAG_HEAD;
+                        }
+                    }
+
                     CurrentChart.note_list[ids[i]].next_id = ids[i + 1];
                 }
                 CurrentChart.note_list[ids[ids.Count - 1]].type = (int)NoteType.DRAG_CHILD;
@@ -1652,6 +1697,13 @@ public class GameLogic : MonoBehaviour
                     int id = obj.GetComponent<NoteController>().NoteID;
                     CurrentChart.note_list[id].hold_tick = 0;
                     CurrentChart.note_list[id].drag_id = CurrentDragID + 1;
+
+                    int dragparent = GetDragParent(id);
+                    if (dragparent > -1)
+                    {
+                        CurrentChart.note_list[dragparent].next_id = -1;
+                    }
+
                     ids.Add(id);
                 }
             }
@@ -1663,6 +1715,20 @@ public class GameLogic : MonoBehaviour
                 for (int i = 1; i + 1 < ids.Count; i++)
                 {
                     CurrentChart.note_list[ids[i]].type = (int)NoteType.CDRAG_CHILD;
+
+                    if (CurrentChart.note_list[ids[i]].next_id > 0)
+                    {
+                        Note note = CurrentChart.note_list[CurrentChart.note_list[ids[i]].next_id];
+                        if (note.type == (int)NoteType.CDRAG_CHILD)
+                        {
+                            note.type = (int)NoteType.CDRAG_HEAD;
+                        }
+                        else
+                        {
+                            note.type = (int)NoteType.DRAG_HEAD;
+                        }
+                    }
+
                     CurrentChart.note_list[ids[i]].next_id = ids[i + 1];
                 }
                 CurrentChart.note_list[ids[ids.Count - 1]].type = (int)NoteType.CDRAG_CHILD;
