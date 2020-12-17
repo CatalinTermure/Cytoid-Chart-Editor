@@ -2437,7 +2437,7 @@ public class GameLogic : MonoBehaviour
                         tick = (int)(CurrentPage.actual_start_tick + CurrentPage.ActualPageSize *
                             (CurrentPage.scan_line_direction == 1 ? Math.Round((touchpos.y + PlayAreaHeight / 2) / (PlayAreaHeight / DivisorValue)) / DivisorValue
                             : 1.0f - Math.Round((touchpos.y + PlayAreaHeight / 2) / (PlayAreaHeight / DivisorValue)) / DivisorValue)),
-                        value = CurrentChart.tempo_list[CurrentTempoIndex > 0 ? CurrentTempoIndex - 1 : 0].value,
+                        value = CurrentChart.tempo_list[CurrentTempoIndex].value,
                     });
 
                     CalculateTimings();
