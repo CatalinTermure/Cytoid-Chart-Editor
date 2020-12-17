@@ -112,7 +112,7 @@ public abstract class NoteController : MonoBehaviour, IHighlightable
                     infotxt.text = NoteID.ToString();
                     break;
                 case GlobalState.NoteInfo.NoteX:
-                    infotxt.text = System.Math.Floor(GlobalState.CurrentChart.note_list[NoteID].x).ToString("F2");
+                    infotxt.text = (System.Math.Floor(GlobalState.CurrentChart.note_list[NoteID].x * 100) / 100).ToString("F2");
                     break;
                 case GlobalState.NoteInfo.NoteY:
                     infotxt.text = GlobalState.CurrentChart.note_list[NoteID].y.ToString("F2");
