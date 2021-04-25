@@ -31,7 +31,7 @@ namespace LunarConsoleEditorInternal
         {
             new EditorCallback(action).ScheduleDelayCall();
         }
-        
+
         private sealed class EditorCallback
         {
             private readonly Action action;

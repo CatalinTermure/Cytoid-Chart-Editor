@@ -1,91 +1,95 @@
 ﻿using System;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 
-[Serializable]
-public class LevelData
+namespace CCE.Data
 {
-    public int schema_version = 2;
-    public int version = 1;
-
-    public string id;
-
-    public string title;
-    public string title_localized;
-
-    public bool ShouldSerializetitle_localized()
+    public class LevelData
     {
-        return title_localized != null && title_localized != "";
-    }
+        [JsonProperty("artist")] public string Artist;
+        [JsonProperty("artist_localized")] public string ArtistLocalized;
 
-    public string artist;
-    public string artist_localized;
+        [JsonProperty("artist_source")] public string ArtistSource;
 
-    public bool ShouldSerializeartist_localized()
-    {
-        return artist_localized != null && artist_localized != "";
-    }
+        [JsonProperty("background")] public BackgroundData Background;
 
-    public string artist_source;
+        [JsonProperty("charter")] public string Charter;
 
-    public string illustrator;
-    public string illustrator_source;
+        [JsonProperty("charts")] public List<ChartFileData> Charts = new List<ChartFileData>();
 
-    public string charter;
-    public string storyboarder;
+        [JsonProperty("id")] public string ID;
 
-    public bool ShouldSerializestoryboarder()
-    {
-        return storyboarder != null && storyboarder != "";
-    }
+        [JsonProperty("illustrator")] public string Illustrator;
+        [JsonProperty("illustrator_source")] public string IllustratorSource;
 
-    public MusicData music;
-    public MusicData music_preview;
+        [JsonProperty("music")] public MusicData Music;
+        [JsonProperty("music_preview")] public MusicData MusicPreview;
+        [JsonProperty("schema_version")] public int SchemaVersion = 2;
+        [JsonProperty("storyboarder")] public string Storyboarder;
 
-    public BackgroundData background;
+        [JsonProperty("title")] public string Title;
+        [JsonProperty("title_localized")] public string TitleLocalized;
+        [JsonProperty("version")] public int Version = 1;
 
-    public List<ChartData> charts = new List<ChartData>();
+        [JsonIgnore] public string DisplayTitle => TitleLocalized?.Length > 0 ? TitleLocalized : Title;
 
-    [Serializable]
-    public class MusicData
-    {
-        public string path;
-    }
+        [JsonIgnore] public string DisplayArtist => ArtistLocalized?.Length > 0 ? ArtistLocalized : Artist;
 
-    [Serializable]
-    public class ChartData
-    {
-        public string type;
-        public string name;
-        public int difficulty;
-        public string path;
-        public MusicData music_override;
-        public StoryboardData storyboard;
-
-        public bool ShouldSerializemusic_override()
+        public bool ShouldSerializeTitleLocalized()
         {
-            return music_override != null && music_override.path != null;
+            return !String.IsNullOrEmpty(TitleLocalized);
         }
 
-        public bool ShouldSerializename()
+        public bool ShouldSerializeLocalizedArtist()
         {
-            return name != null;
+            return !String.IsNullOrEmpty(ArtistLocalized);
         }
 
-        public bool ShouldSerializestoryboard()
+        public bool ShouldSerializeStoryboarder()
         {
-            return storyboard != null && storyboard.path != null;
+            return !String.IsNullOrEmpty(Storyboarder);
         }
 
-        [Serializable]
-        public class StoryboardData
+        public class MusicData
         {
-            public string path;
+            [JsonProperty("path")] public string Path;
         }
-    }
 
-    [Serializable]
-    public class BackgroundData
-    {
-        public string path;
+        public class BackgroundData
+        {
+            [JsonProperty("path")] public string Path;
+        }
+
+        public class ChartFileData
+        {
+            [JsonProperty("difficulty")] public int Difficulty;
+            [JsonProperty("music_override")] public MusicData MusicOverride;
+            [JsonProperty("name")] public string Name;
+            [JsonProperty("path")] public string Path;
+            [JsonProperty("storyboard")] public StoryboardData Storyboard;
+            [JsonProperty("type")] public string Type;
+
+            [JsonIgnore] public string DisplayName => Name?.Length > 0 ? Name : Type;
+
+            public bool ShouldSerializeMusicOverride()
+            {
+                return !String.IsNullOrEmpty(MusicOverride?.Path);
+            }
+
+            public bool ShouldSerializeName()
+            {
+                return !String.IsNullOrEmpty(Name);
+            }
+
+            public bool ShouldSerializeStoryboard()
+            {
+                return !String.IsNullOrEmpty(Storyboard?.Path);
+            }
+
+            public class StoryboardData
+            {
+                [JsonProperty("path")] public string Path;
+            }
+        }
     }
 }

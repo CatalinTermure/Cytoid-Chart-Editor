@@ -1,14 +1,15 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Runtime.InteropServices.ComTypes;
+﻿using System.Diagnostics;
+using CCE;
+using CCE.Core;
 using UnityEngine;
 using UnityEngine.UI;
+using CCE.Data;
+using CCE.Game;
 
 public abstract class NoteController : MonoBehaviour, IHighlightable
 {
     /// <summary>
-    /// Time it takes from the note appearing on screen to it's start time.
+    /// Time it takes from the note appearing on screen to its start time.
     /// </summary>
     [HideInInspector]
     public float ApproachTime;
@@ -51,7 +52,7 @@ public abstract class NoteController : MonoBehaviour, IHighlightable
 
     void Start()
     {
-        if(GlobalState.IsGameRunning)
+        if (GlobalState.IsGameRunning)
         {
             UpdateVisuals();
         }
@@ -63,9 +64,9 @@ public abstract class NoteController : MonoBehaviour, IHighlightable
 
     void Update()
     {
-        if(GlobalState.IsGameRunning)
+        if (GlobalState.IsGameRunning)
         {
-            if(!NoteStopwatch.IsRunning)
+            if (!NoteStopwatch.IsRunning)
             {
                 NoteStopwatch.Start();
                 Destroy(InfoText);
@@ -74,7 +75,7 @@ public abstract class NoteController : MonoBehaviour, IHighlightable
         }
         else
         {
-            if(NoteStopwatch.IsRunning)
+            if (NoteStopwatch.IsRunning)
             {
                 NoteStopwatch.Stop();
                 ChangeToPausedVisuals();
@@ -100,7 +101,7 @@ public abstract class NoteController : MonoBehaviour, IHighlightable
 
     public void UpdateInfoText()
     {
-        if (GameLogic.CurrentTool != global::NoteType.MOVE)
+        if (GameLogic.CurrentTool != global::CCE.Data.NoteType.Move)
         {
             infotxt.text = "";
         }
@@ -112,10 +113,10 @@ public abstract class NoteController : MonoBehaviour, IHighlightable
                     infotxt.text = NoteID.ToString();
                     break;
                 case GlobalState.NoteInfo.NoteX:
-                    infotxt.text = (System.Math.Floor(GlobalState.CurrentChart.note_list[NoteID].x * 100) / 100).ToString("F2");
+                    infotxt.text = (System.Math.Floor(GlobalState.CurrentChart.NoteList[NoteID].X * 100) / 100).ToString("F2");
                     break;
                 case GlobalState.NoteInfo.NoteY:
-                    infotxt.text = GlobalState.CurrentChart.note_list[NoteID].y.ToString("F2");
+                    infotxt.text = GlobalState.CurrentChart.NoteList[NoteID].Y.ToString("F2");
                     break;
             }
         }

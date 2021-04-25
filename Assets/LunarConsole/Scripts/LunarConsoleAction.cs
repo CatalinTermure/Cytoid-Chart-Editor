@@ -182,7 +182,7 @@ namespace LunarConsolePluginInternal
             typeof(bool)
         };
 
-        #pragma warning disable 0649
+#pragma warning disable 0649
 
         [SerializeField]
         Object m_target;
@@ -196,7 +196,7 @@ namespace LunarConsolePluginInternal
         [SerializeField]
         LunarArgumentCache m_arguments;
 
-        #pragma warning restore 0649
+#pragma warning restore 0649
 
         public void Invoke()
         {
@@ -251,7 +251,7 @@ namespace LunarConsolePluginInternal
 
         static MethodInfo ResolveMethod(object target, string methodName, Type paramType)
         {
-            var methods = ClassUtils.ListInstanceMethods(target.GetType(), delegate(MethodInfo method)
+            var methods = ClassUtils.ListInstanceMethods(target.GetType(), delegate (MethodInfo method)
             {
                 if (method.Name != methodName)
                 {
@@ -388,7 +388,7 @@ namespace LunarConsolePluginInternal
 
     public class LunarConsoleAction : MonoBehaviour
     {
-        #pragma warning disable 0649
+#pragma warning disable 0649
 
         [SerializeField]
         string m_title = "Untitled Action";
@@ -397,7 +397,7 @@ namespace LunarConsolePluginInternal
         [HideInInspector]
         List<LunarConsoleActionCall> m_calls;
 
-        #pragma warning restore 0649
+#pragma warning restore 0649
 
         void Awake()
         {
@@ -434,14 +434,14 @@ namespace LunarConsolePluginInternal
         {
             if (call.target == null)
             {
-                Debug.LogWarning(string.Format("Action '{0}' ({1}) is missing a target object", m_title, gameObject.name), gameObject); 
+                Debug.LogWarning(string.Format("Action '{0}' ({1}) is missing a target object", m_title, gameObject.name), gameObject);
             }
             else if (!LunarConsoleActionCall.IsPersistantListenerValid(call.target, call.methodName, call.mode))
             {
-                Debug.LogWarning(string.Format("Action '{0}' ({1}) is missing a handler <{2}.{3} ({4})>", m_title, gameObject.name, call.target.GetType(), call.methodName, ModeParamTypeName(call.mode)), gameObject); 
+                Debug.LogWarning(string.Format("Action '{0}' ({1}) is missing a handler <{2}.{3} ({4})>", m_title, gameObject.name, call.target.GetType(), call.methodName, ModeParamTypeName(call.mode)), gameObject);
             }
         }
-        
+
         void OnDestroy()
         {
             if (actionsEnabled)
@@ -449,7 +449,7 @@ namespace LunarConsolePluginInternal
                 UnregisterAction();
             }
         }
-        
+
         public List<LunarConsoleActionCall> calls
         {
             get { return m_calls; }

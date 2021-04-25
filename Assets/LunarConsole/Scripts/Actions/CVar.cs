@@ -20,7 +20,7 @@
 //
 
 
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
@@ -74,16 +74,16 @@ namespace LunarConsolePlugin
     }
 
     public enum CFlags
-    {   
+    {
         /// <summary>
         /// No flags (default value)
         /// </summary>
-        None      = 0,
+        None = 0,
 
         /// <summary>
         /// Won't be listed in UI
         /// </summary>
-        Hidden    = 1 << 1,
+        Hidden = 1 << 1,
 
         /// <summary>
         /// Don't save between sessions
@@ -484,7 +484,7 @@ namespace LunarConsolePlugin
         }
     }
 
-    [AttributeUsage (AttributeTargets.Field, Inherited = true, AllowMultiple = false)]
+    [AttributeUsage(AttributeTargets.Field, Inherited = true, AllowMultiple = false)]
     public sealed class CVarRangeAttribute : Attribute
     {
         public readonly float min;

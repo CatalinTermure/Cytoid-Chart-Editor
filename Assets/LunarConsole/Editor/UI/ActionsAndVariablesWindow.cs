@@ -20,7 +20,7 @@
 //
 
 
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
@@ -44,18 +44,18 @@ namespace LunarConsoleEditorInternal
 
         public ActionsAndVariablesWindow()
         {
-            #if UNITY_5_0
+#if UNITY_5_0
             this.title = "Actions & Vars";
-            #else
+#else
             this.titleContent = new GUIContent("Actions & Vars");
-            #endif
+#endif
         }
 
         void OnEnable()
         {
             m_filterText = EditorPrefs.GetString(PrefsKeyFilterText, "");
         }
-        
+
         void OnGUI()
         {
             if (Application.isPlaying)

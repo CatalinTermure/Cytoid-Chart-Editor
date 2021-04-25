@@ -1,0 +1,16 @@
+{
+    "name": "Core",
+    "rootNamespace": "CCE",
+    "references": [
+        "GUID:819db1f776cc1504abf6b703a197db89"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using CCE;
+using CCE.Core;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class SceneNavigator : MonoBehaviour
@@ -10,7 +12,7 @@ public class SceneNavigator : MonoBehaviour
 
     public void NavigatoToMainScreen()
     {
-        if(GlobalState.CurrentChart != null)
+        if (GlobalState.CurrentChart != null)
         {
             SceneManager.LoadScene("MainScene");
         }
@@ -23,7 +25,7 @@ public class SceneNavigator : MonoBehaviour
 
     public void NavigateToLevelOptions()
     {
-        if(GlobalState.CurrentChart != null)
+        if (GlobalState.CurrentChart != null)
         {
             SceneManager.LoadScene("LevelOptionsScene");
         }

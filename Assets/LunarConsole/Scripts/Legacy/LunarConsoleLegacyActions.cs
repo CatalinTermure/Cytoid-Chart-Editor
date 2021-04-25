@@ -20,7 +20,7 @@
 //
 
 
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
@@ -37,9 +37,9 @@ namespace LunarConsolePluginInternal
     [Serializable]
     public class LunarConsoleLegacyAction
     {
-        #pragma warning disable 0649
+#pragma warning disable 0649
 
-        static readonly object[] kEmptyArgs = {};
+        static readonly object[] kEmptyArgs = { };
 
         [SerializeField]
         string m_name;
@@ -56,7 +56,7 @@ namespace LunarConsolePluginInternal
         Type m_componentType;
         MethodInfo m_componentMethod;
 
-        #pragma warning restore 0649
+#pragma warning restore 0649
 
         public void Register()
         {
@@ -143,7 +143,7 @@ namespace LunarConsolePluginInternal
                     return false;
                 }
 
-                m_componentMethod = m_componentType.GetMethod(m_componentMethodName, BindingFlags.Instance|BindingFlags.Public|BindingFlags.NonPublic);
+                m_componentMethod = m_componentType.GetMethod(m_componentMethodName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
                 if (m_componentMethod == null)
                 {
                     Log.w("Can't resolve method {0} of type {1}", m_componentMethod, m_componentType);
@@ -181,7 +181,7 @@ namespace LunarConsolePluginInternal
     [Obsolete("Use 'Lunar Console Action' instead")]
     public class LunarConsoleLegacyActions : MonoBehaviour
     {
-        #pragma warning disable 0649
+#pragma warning disable 0649
 
         [SerializeField]
         bool m_dontDestroyOnLoad;
@@ -190,7 +190,7 @@ namespace LunarConsolePluginInternal
         [HideInInspector]
         List<LunarConsoleLegacyAction> m_actions;
 
-        #pragma warning restore 0649
+#pragma warning restore 0649
 
         void Awake()
         {

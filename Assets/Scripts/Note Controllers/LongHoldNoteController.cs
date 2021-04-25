@@ -1,5 +1,8 @@
 ﻿using System.Diagnostics;
+using CCE;
+using CCE.Core;
 using UnityEngine;
+using CCE.Data;
 
 public class LongHoldNoteController : NoteController
 {
@@ -37,35 +40,35 @@ public class LongHoldNoteController : NoteController
     {
         NoteStopwatch = Stopwatch.StartNew();
 
-        gameObject.transform.position = new Vector3((float)((note.x - 0.5) * GlobalState.PlayAreaWidth), (float)((note.y - 0.5) * GlobalState.PlayAreaHeight));
+        gameObject.transform.position = new Vector3((float)((note.X - 0.5) * GlobalState.PlayAreaWidth), (float)((note.Y - 0.5) * GlobalState.PlayAreaHeight));
 
-        Size = GlobalState.Config.DefaultNoteSize * (float)note.actual_size;
+        Size = GlobalState.Config.DefaultNoteSize * (float)note.ActualSize;
         NoteHead.transform.localScale = new Vector2(Size, Size);
 
-        ApproachTime = (float)note.approach_time;
+        ApproachTime = (float)note.ApproachTime;
 
-        TopHeight = (float)(1.0 - note.y) * GlobalState.PlayAreaHeight;
+        TopHeight = (float)(1.0 - note.Y) * GlobalState.PlayAreaHeight;
         TopFillNoteBody.GetComponent<SpriteRenderer>().size = new Vector2(Size, TopHeight);
         TopHollowNoteBody.GetComponent<SpriteRenderer>().size = new Vector2(Size, TopHeight);
 
-        BottomHeight = (float)note.y * GlobalState.PlayAreaHeight;
+        BottomHeight = (float)note.Y * GlobalState.PlayAreaHeight;
         BottomFillNoteBody.GetComponent<SpriteRenderer>().size = new Vector2(Size, BottomHeight);
         BottomHollowNoteBody.GetComponent<SpriteRenderer>().size = new Vector2(Size, BottomHeight);
 
         CompletionPercentage = 0;
         TopFillNoteBodyMask.transform.localScale = BottomFillNoteBodyMask.transform.localScale = new Vector3(Size * 50, 0);
 
-        HoldTime = (float)note.hold_time;
+        HoldTime = (float)note.HoldTime;
 
         Highlighted = true;
         Highlight();
 
-        Notetype = note.type;
-        NoteID = note.id;
+        Notetype = note.Type;
+        NoteID = note.ID;
 
         FinishIndicator.SetActive(!GlobalState.IsGameRunning);
 
-        if(GlobalState.IsGameRunning)
+        if (GlobalState.IsGameRunning)
         {
             TopHollowNoteBody.transform.localScale = new Vector3(0.2f, 1);
             BottomHollowNoteBody.transform.localScale = new Vector3(0.2f, 1);

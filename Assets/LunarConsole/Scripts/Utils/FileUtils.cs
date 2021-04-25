@@ -20,7 +20,7 @@
 //
 
 
-﻿#if UNITY_EDITOR
+#if UNITY_EDITOR
 
 using System.Collections;
 using System.Collections.Generic;
@@ -40,7 +40,7 @@ namespace LunarConsolePluginInternal
 
         static FileUtils()
         {
-            projectDir = new DirectoryInfo(Application.dataPath).Parent.FullName; 
+            projectDir = new DirectoryInfo(Application.dataPath).Parent.FullName;
             assetsDir = new DirectoryInfo(Application.dataPath).FullName;
         }
 
@@ -73,23 +73,23 @@ namespace LunarConsolePluginInternal
 
         public static string FixPath(string path)
         {
-            #if UNITY_EDITOR_WIN
+#if UNITY_EDITOR_WIN
             return path.Replace('/', '\\');
-            #else
+#else
             return path.Replace('\\', '/');
-            #endif
+#endif
         }
 
-        #pragma warning disable 0612
-        #pragma warning disable 0618
+#pragma warning disable 0612
+#pragma warning disable 0618
 
         public static string MakeRelativePath(string parentPath, string filePath)
         {
             return Uri.UnescapeDataString(new Uri(parentPath, false).MakeRelative(new Uri(filePath)));
         }
 
-        #pragma warning restore 0612
-        #pragma warning restore 0618
+#pragma warning restore 0612
+#pragma warning restore 0618
     }
 }
 

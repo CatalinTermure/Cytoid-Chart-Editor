@@ -20,7 +20,7 @@
 //
 
 
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -48,7 +48,7 @@ namespace LunarConsolePluginInternal
         {
             try
             {
-                return (T) Activator.CreateInstance(t, args);
+                return (T)Activator.CreateInstance(t, args);
             }
             catch (Exception e)
             {

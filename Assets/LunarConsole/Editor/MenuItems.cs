@@ -20,7 +20,7 @@
 //
 
 
-﻿//
+//
 //  MenuItems.cs
 //
 //  Lunar Unity Mobile Console
@@ -53,7 +53,7 @@ namespace LunarConsoleEditorInternal
     {
         private const string DisableMenuItem = "Window/Lunar Mobile Console/Disable";
         private const string EnableMenuItem = "Window/Lunar Mobile Console/Enable";
-        
+
         [MenuItem(DisableMenuItem)]
         static void DisablePlugin()
         {
@@ -65,7 +65,7 @@ namespace LunarConsoleEditorInternal
         {
             return LunarConsoleConfig.consoleEnabled;
         }
-        
+
         [MenuItem(EnableMenuItem)]
         static void EnablePlugin()
         {
@@ -110,12 +110,12 @@ namespace LunarConsoleEditorInternal
             Application.OpenURL("https://github.com/SpaceMadness/lunar-unity-console/issues/new");
         }
 
-        #if LUNAR_CONSOLE_DEVELOPMENT
+#if LUNAR_CONSOLE_DEVELOPMENT
         [MenuItem("Window/Lunar Mobile Console/Reset")]
         static void Reset()
         {
             Updater.Reset();
         }
-        #endif
+#endif
     }
 }

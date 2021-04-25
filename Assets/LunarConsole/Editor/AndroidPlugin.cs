@@ -46,7 +46,7 @@ namespace LunarConsoleEditorInternal
                 return;
             }
 
-            var importer = (PluginImporter) AssetImporter.GetAtPath(androidPathAAR);
+            var importer = (PluginImporter)AssetImporter.GetAtPath(androidPathAAR);
             if (importer == null)
             {
                 // mleenhardt: Added delayed retry attempt to fix error caused by the fact that importer is

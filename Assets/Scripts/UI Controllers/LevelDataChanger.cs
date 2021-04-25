@@ -5,49 +5,52 @@ using UnityEngine;
 using UnityEngine.UI;
 using Newtonsoft.Json;
 using System;
+using CCE;
+using CCE.Core;
+using CCE.Data;
 
 public class LevelDataChanger : MonoBehaviour
 {
     private void Start()
     {
-        GameObject.Find("IDInputField").GetComponent<InputField>().text = GlobalState.CurrentLevel.id;
+        GameObject.Find("IDInputField").GetComponent<InputField>().text = GlobalState.CurrentLevel.ID;
 
-        GameObject.Find("TitleInputField").GetComponent<InputField>().text = GlobalState.CurrentLevel.title;
-        GameObject.Find("TitleLocInputField").GetComponent<InputField>().text = GlobalState.CurrentLevel.title_localized;
+        GameObject.Find("TitleInputField").GetComponent<InputField>().text = GlobalState.CurrentLevel.Title;
+        GameObject.Find("TitleLocInputField").GetComponent<InputField>().text = GlobalState.CurrentLevel.TitleLocalized;
 
-        GameObject.Find("ArtistInputField").GetComponent<InputField>().text = GlobalState.CurrentLevel.artist;
-        GameObject.Find("ArtistLocInputField").GetComponent<InputField>().text = GlobalState.CurrentLevel.artist_localized;
-        GameObject.Find("ArtistSrcInputField").GetComponent<InputField>().text = GlobalState.CurrentLevel.artist_source;
+        GameObject.Find("ArtistInputField").GetComponent<InputField>().text = GlobalState.CurrentLevel.Artist;
+        GameObject.Find("ArtistLocInputField").GetComponent<InputField>().text = GlobalState.CurrentLevel.ArtistLocalized;
+        GameObject.Find("ArtistSrcInputField").GetComponent<InputField>().text = GlobalState.CurrentLevel.ArtistSource;
 
-        GameObject.Find("IllustratorInputField").GetComponent<InputField>().text = GlobalState.CurrentLevel.illustrator;
-        GameObject.Find("IllustratorSrcInputField").GetComponent<InputField>().text = GlobalState.CurrentLevel.illustrator_source;
+        GameObject.Find("IllustratorInputField").GetComponent<InputField>().text = GlobalState.CurrentLevel.Illustrator;
+        GameObject.Find("IllustratorSrcInputField").GetComponent<InputField>().text = GlobalState.CurrentLevel.IllustratorSource;
 
-        GameObject.Find("CharterInputField").GetComponent<InputField>().text = GlobalState.CurrentLevel.charter;
-        GameObject.Find("StoryboarderInputField").GetComponent<InputField>().text = GlobalState.CurrentLevel.storyboarder;
+        GameObject.Find("CharterInputField").GetComponent<InputField>().text = GlobalState.CurrentLevel.Charter;
+        GameObject.Find("StoryboarderInputField").GetComponent<InputField>().text = GlobalState.CurrentLevel.Storyboarder;
 
-        GameObject.Find("BackgroundInputField").GetComponent<InputField>().text = GlobalState.CurrentLevel.background.path;
-        GameObject.Find("MusicPreviewInputField").GetComponent<InputField>().text = GlobalState.CurrentLevel.music_preview.path;
+        GameObject.Find("BackgroundInputField").GetComponent<InputField>().text = GlobalState.CurrentLevel.Background.Path;
+        GameObject.Find("MusicPreviewInputField").GetComponent<InputField>().text = GlobalState.CurrentLevel.MusicPreview.Path;
     }
 
     public void SaveData()
     {
-        GlobalState.CurrentLevel.id = GameObject.Find("IDInputField").GetComponent<InputField>().text;
+        GlobalState.CurrentLevel.ID = GameObject.Find("IDInputField").GetComponent<InputField>().text;
 
-        GlobalState.CurrentLevel.title = GameObject.Find("TitleInputField").GetComponent<InputField>().text;
-        GlobalState.CurrentLevel.title_localized = GameObject.Find("TitleLocInputField").GetComponent<InputField>().text;
+        GlobalState.CurrentLevel.Title = GameObject.Find("TitleInputField").GetComponent<InputField>().text;
+        GlobalState.CurrentLevel.TitleLocalized = GameObject.Find("TitleLocInputField").GetComponent<InputField>().text;
 
-        GlobalState.CurrentLevel.artist = GameObject.Find("ArtistInputField").GetComponent<InputField>().text;
-        GlobalState.CurrentLevel.artist_localized = GameObject.Find("ArtistLocInputField").GetComponent<InputField>().text;
-        GlobalState.CurrentLevel.artist_source = GameObject.Find("ArtistSrcInputField").GetComponent<InputField>().text;
+        GlobalState.CurrentLevel.Artist = GameObject.Find("ArtistInputField").GetComponent<InputField>().text;
+        GlobalState.CurrentLevel.ArtistLocalized = GameObject.Find("ArtistLocInputField").GetComponent<InputField>().text;
+        GlobalState.CurrentLevel.ArtistSource = GameObject.Find("ArtistSrcInputField").GetComponent<InputField>().text;
 
-        GlobalState.CurrentLevel.illustrator = GameObject.Find("IllustratorInputField").GetComponent<InputField>().text;
-        GlobalState.CurrentLevel.illustrator_source = GameObject.Find("IllustratorSrcInputField").GetComponent<InputField>().text;
+        GlobalState.CurrentLevel.Illustrator = GameObject.Find("IllustratorInputField").GetComponent<InputField>().text;
+        GlobalState.CurrentLevel.IllustratorSource = GameObject.Find("IllustratorSrcInputField").GetComponent<InputField>().text;
 
-        GlobalState.CurrentLevel.charter = GameObject.Find("CharterInputField").GetComponent<InputField>().text;
-        GlobalState.CurrentLevel.storyboarder = GameObject.Find("StoryboarderInputField").GetComponent<InputField>().text;
+        GlobalState.CurrentLevel.Charter = GameObject.Find("CharterInputField").GetComponent<InputField>().text;
+        GlobalState.CurrentLevel.Storyboarder = GameObject.Find("StoryboarderInputField").GetComponent<InputField>().text;
 
-        GlobalState.CurrentLevel.background.path = GameObject.Find("BackgroundInputField").GetComponent<InputField>().text;
-        GlobalState.CurrentLevel.music_preview.path = GameObject.Find("MusicPreviewInputField").GetComponent<InputField>().text;
+        GlobalState.CurrentLevel.Background.Path = GameObject.Find("BackgroundInputField").GetComponent<InputField>().text;
+        GlobalState.CurrentLevel.MusicPreview.Path = GameObject.Find("MusicPreviewInputField").GetComponent<InputField>().text;
 
         SaveLevel();
 
@@ -66,21 +69,21 @@ public class LevelDataChanger : MonoBehaviour
     private void CleanupTempFiles()
     {
         Directory.Delete(Path.Combine(GlobalState.CurrentLevelPath, "tmp"), true);
-        File.Delete(Path.Combine(Application.persistentDataPath, GlobalState.CurrentLevel.id + ".cytoidlevel"));
+        File.Delete(Path.Combine(Application.persistentDataPath, GlobalState.CurrentLevel.ID + ".cytoidlevel"));
     }
 
     public void PackageLevel()
     {
-        string intermediatepath = Path.Combine(Application.persistentDataPath, GlobalState.CurrentLevel.id + ".cytoidlevel"), finalpath = Path.Combine(GlobalState.CurrentLevelPath, GlobalState.CurrentLevel.id + ".cytoidlevel");
+        string intermediatepath = Path.Combine(Application.persistentDataPath, GlobalState.CurrentLevel.ID + ".cytoidlevel"), finalpath = Path.Combine(GlobalState.CurrentLevelPath, GlobalState.CurrentLevel.ID + ".cytoidlevel");
         if (File.Exists(intermediatepath))
         {
             File.Delete(intermediatepath);
         }
-        if (!File.Exists(Path.Combine(GlobalState.CurrentLevelPath, GlobalState.CurrentLevel.background.path)))
+        if (!File.Exists(Path.Combine(GlobalState.CurrentLevelPath, GlobalState.CurrentLevel.Background.Path)))
         {
             GameObject.Find("ToastText").GetComponent<ToastMessageManager>().CreateToast("Please make sure you have a background, otherwise the chart cannot be played in Cytoid.");
         }
-        if (File.Exists(Path.Combine(GlobalState.CurrentLevelPath, GlobalState.CurrentChart.Data.storyboard?.path ?? "storyboard.json")))
+        if (File.Exists(Path.Combine(GlobalState.CurrentLevelPath, GlobalState.CurrentChart.Data.Storyboard?.Path ?? "storyboard.json")))
         { // TODO: Properly parse storyboards and check what should and what shouldn't be added to the .cytoidlevel
             try
             {
@@ -102,27 +105,27 @@ public class LevelDataChanger : MonoBehaviour
             {
                 File.Copy(Path.Combine(GlobalState.CurrentLevelPath, "level.json"), Path.Combine(GlobalState.CurrentLevelPath, "tmp", "level.json"));
 
-                File.Copy(Path.Combine(GlobalState.CurrentLevelPath, GlobalState.CurrentLevel.background.path), 
-                    Path.Combine(GlobalState.CurrentLevelPath, "tmp", GlobalState.CurrentLevel.background.path));
+                File.Copy(Path.Combine(GlobalState.CurrentLevelPath, GlobalState.CurrentLevel.Background.Path),
+                    Path.Combine(GlobalState.CurrentLevelPath, "tmp", GlobalState.CurrentLevel.Background.Path));
 
-                File.Copy(Path.Combine(GlobalState.CurrentLevelPath, GlobalState.CurrentLevel.music.path), 
-                    Path.Combine(GlobalState.CurrentLevelPath, "tmp", GlobalState.CurrentLevel.music.path));
+                File.Copy(Path.Combine(GlobalState.CurrentLevelPath, GlobalState.CurrentLevel.Music.Path),
+                    Path.Combine(GlobalState.CurrentLevelPath, "tmp", GlobalState.CurrentLevel.Music.Path));
 
-                if(File.Exists(Path.Combine(GlobalState.CurrentLevelPath, GlobalState.CurrentLevel.music_preview.path)))
+                if (File.Exists(Path.Combine(GlobalState.CurrentLevelPath, GlobalState.CurrentLevel.MusicPreview.Path)))
                 {
-                    File.Copy(Path.Combine(GlobalState.CurrentLevelPath, GlobalState.CurrentLevel.music_preview.path), 
-                        Path.Combine(GlobalState.CurrentLevelPath, "tmp", GlobalState.CurrentLevel.music_preview.path));
+                    File.Copy(Path.Combine(GlobalState.CurrentLevelPath, GlobalState.CurrentLevel.MusicPreview.Path),
+                        Path.Combine(GlobalState.CurrentLevelPath, "tmp", GlobalState.CurrentLevel.MusicPreview.Path));
                 }
 
-                foreach(LevelData.ChartData chart in GlobalState.CurrentLevel.charts)
+                foreach (LevelData.ChartFileData chart in GlobalState.CurrentLevel.Charts)
                 {
-                    File.Copy(Path.Combine(GlobalState.CurrentLevelPath, chart.path),
-                        Path.Combine(GlobalState.CurrentLevelPath, "tmp", chart.path));
+                    File.Copy(Path.Combine(GlobalState.CurrentLevelPath, chart.Path),
+                        Path.Combine(GlobalState.CurrentLevelPath, "tmp", chart.Path));
 
-                    if(File.Exists(Path.Combine(GlobalState.CurrentLevelPath, chart.music_override.path)))
+                    if (File.Exists(Path.Combine(GlobalState.CurrentLevelPath, chart.MusicOverride.Path)))
                     {
-                        File.Copy(Path.Combine(GlobalState.CurrentLevelPath, chart.music_override.path), 
-                            Path.Combine(GlobalState.CurrentLevelPath, "tmp", chart.music_override.path));
+                        File.Copy(Path.Combine(GlobalState.CurrentLevelPath, chart.MusicOverride.Path),
+                            Path.Combine(GlobalState.CurrentLevelPath, "tmp", chart.MusicOverride.Path));
                     }
 
                     // TODO: storyboard
@@ -133,7 +136,7 @@ public class LevelDataChanger : MonoBehaviour
                 GameObject.Find("ToastText").GetComponent<ToastMessageManager>().CreateToast("Could not prepare the files for zipping.");
                 File.WriteAllText(Path.Combine(Application.persistentDataPath, "error.log"), e.StackTrace);
             }
-            
+
 
             try
             {
@@ -157,6 +160,6 @@ public class LevelDataChanger : MonoBehaviour
 
         CleanupTempFiles();
 
-        GameObject.Find("ToastText").GetComponent<ToastMessageManager>().CreateToast("Created the file " + GlobalState.CurrentLevel.id + ".cytoidlevel");
+        GameObject.Find("ToastText").GetComponent<ToastMessageManager>().CreateToast("Created the file " + GlobalState.CurrentLevel.ID + ".cytoidlevel");
     }
 }

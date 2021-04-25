@@ -20,7 +20,7 @@
 //
 
 
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
@@ -92,7 +92,7 @@ namespace LunarConsolePluginInternal
         }
 
         public static int ParseInt(string str, int defValue)
-        {   
+        {
             if (!string.IsNullOrEmpty(str))
             {
                 int value;
@@ -562,54 +562,54 @@ namespace LunarConsolePluginInternal
         {
             if (value.a > 0.0f)
             {
-                return string.Format("{0} {1} {2} {3}", 
-                    value.r.ToString("G"), 
-                    value.g.ToString("G"), 
-                    value.b.ToString("G"), 
+                return string.Format("{0} {1} {2} {3}",
+                    value.r.ToString("G"),
+                    value.g.ToString("G"),
+                    value.b.ToString("G"),
                     value.a.ToString("G")
                 );
             }
 
-            return string.Format("{0} {1} {2}", 
-                value.r.ToString("G"), 
-                value.g.ToString("G"), 
+            return string.Format("{0} {1} {2}",
+                value.r.ToString("G"),
+                value.g.ToString("G"),
                 value.b.ToString("G")
             );
         }
 
         internal static string ToString(ref Rect value)
         {
-            return string.Format("{0} {1} {2} {3}", 
-                value.x.ToString("G"), 
-                value.y.ToString("G"), 
-                value.width.ToString("G"), 
+            return string.Format("{0} {1} {2} {3}",
+                value.x.ToString("G"),
+                value.y.ToString("G"),
+                value.width.ToString("G"),
                 value.height.ToString("G")
             );
         }
 
         internal static string ToString(ref Vector2 value)
         {
-            return string.Format("{0} {1}", 
-                value.x.ToString("G"), 
+            return string.Format("{0} {1}",
+                value.x.ToString("G"),
                 value.y.ToString("G")
             );
         }
 
         internal static string ToString(ref Vector3 value)
         {
-            return string.Format("{0} {1} {2}", 
-                value.x.ToString("G"), 
-                value.y.ToString("G"), 
+            return string.Format("{0} {1} {2}",
+                value.x.ToString("G"),
+                value.y.ToString("G"),
                 value.z.ToString("G")
             );
         }
 
         internal static string ToString(ref Vector4 value)
         {
-            return string.Format("{0} {1} {2} {3}", 
-                value.x.ToString("G"), 
-                value.y.ToString("G"), 
-                value.z.ToString("G"), 
+            return string.Format("{0} {1} {2} {3}",
+                value.x.ToString("G"),
+                value.y.ToString("G"),
+                value.z.ToString("G"),
                 value.w.ToString("G")
             );
         }
@@ -620,7 +620,7 @@ namespace LunarConsolePluginInternal
             for (int i = 0; i < list.Count; ++i)
             {
                 builder.Append(list[i]);
-                if (i < list.Count-1) builder.Append(separator);
+                if (i < list.Count - 1) builder.Append(separator);
             }
             return builder.ToString();
         }

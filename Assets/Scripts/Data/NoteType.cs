@@ -1,14 +1,17 @@
-﻿public enum NoteType
+﻿namespace CCE.Data
 {
-    NONE = -1,
-    CLICK = 0,
-    HOLD = 1,
-    LONG_HOLD = 2,
-    DRAG_HEAD = 3,
-    DRAG_CHILD = 4,
-    FLICK = 5,
-    CDRAG_HEAD = 6,
-    CDRAG_CHILD = 7,
-    MOVE = 8,
-    SCANLINE = 9
+    public enum NoteType
+    {
+        None = -1,
+        Click = 0,
+        Hold = 1,
+        LongHold = 2,
+        DragHead = 3,
+        DragChild = 4,
+        Flick = 5,
+        CDragHead = 6,
+        CDragChild = 7,
+        Move = 8,
+        Scanline = 9
+    }
 }

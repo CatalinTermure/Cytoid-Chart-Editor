@@ -8,7 +8,7 @@ public class IOSPlistChanger
     [PostProcessBuild]
     public static void ChangeXCodePlist(BuildTarget target, string pathToBuiltProject)
     {
-        if(target == BuildTarget.iOS)
+        if (target == BuildTarget.iOS)
         {
             //
             string plistPath = Path.Combine(pathToBuiltProject, "Info.plist");

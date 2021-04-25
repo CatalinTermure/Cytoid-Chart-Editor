@@ -1,5 +1,8 @@
 ﻿using System.Diagnostics;
+using CCE;
+using CCE.Core;
 using UnityEngine;
+using CCE.Data;
 
 public class ClickNoteController : NoteController
 {
@@ -19,18 +22,18 @@ public class ClickNoteController : NoteController
     {
         NoteStopwatch = Stopwatch.StartNew();
 
-        gameObject.transform.position = new Vector3((float)(GlobalState.PlayAreaWidth * (note.x - 0.5)), (float)(GlobalState.PlayAreaHeight * (note.y - 0.5)));
-        gameObject.transform.localScale = new Vector3(GlobalState.Config.DefaultNoteSize * (float)note.actual_size * (note.type == 0 ? 1 : 0.8f), GlobalState.Config.DefaultNoteSize * (float)note.actual_size * (note.type == 0 ? 1 : 0.8f));
+        gameObject.transform.position = new Vector3((float)(GlobalState.PlayAreaWidth * (note.X - 0.5)), (float)(GlobalState.PlayAreaHeight * (note.Y - 0.5)));
+        gameObject.transform.localScale = new Vector3(GlobalState.Config.DefaultNoteSize * (float)note.ActualSize * (note.Type == 0 ? 1 : 0.8f), GlobalState.Config.DefaultNoteSize * (float)note.ActualSize * (note.Type == 0 ? 1 : 0.8f));
 
-        ApproachTime = (float)note.approach_time;
+        ApproachTime = (float)note.ApproachTime;
 
         Highlighted = true;
         Highlight();
 
-        Notetype = note.type;
-        NoteID = note.id;
+        Notetype = note.Type;
+        NoteID = note.ID;
 
-        if(GlobalState.IsGameRunning)
+        if (GlobalState.IsGameRunning)
         {
             NoteFill.transform.localScale = new Vector3(0, 0);
             NoteBorder.transform.localScale = new Vector3(0.6f, 0.6f);

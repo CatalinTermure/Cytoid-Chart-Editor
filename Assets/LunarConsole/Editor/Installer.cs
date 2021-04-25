@@ -20,7 +20,7 @@
 //
 
 
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEditor;
 
 using System.Collections;
@@ -68,9 +68,9 @@ namespace LunarConsoleEditorInternal
             lunarConsole.name = objectName;
 
             // starting Unity 5.3 we need to add an undo operation or the scene would not be marked dirty
-            #if UNITY_5_3_OR_NEWER
+#if UNITY_5_3_OR_NEWER
             Undo.RegisterCreatedObjectUndo(lunarConsole, "Install Lunar Console");
-            #endif
+#endif
 
             if (!silent)
             {

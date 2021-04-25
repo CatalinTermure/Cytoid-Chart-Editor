@@ -20,7 +20,7 @@
 //
 
 
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEditor;
 using UnityEditor.Callbacks;
 using System;
@@ -38,7 +38,7 @@ namespace LunarConsoleEditorInternal
 {
     static class BuildPostProcessor
     {
-        #if UNITY_IOS || UNITY_IPHONE
+#if UNITY_IOS || UNITY_IPHONE
         [PostProcessBuild(1000)]
         static void OnPostprocessBuild(BuildTarget target, string buildPath)
         {
@@ -57,7 +57,7 @@ namespace LunarConsoleEditorInternal
             // FileNotFoundException: Could not load file or assembly 'UnityEditor.iOS.Extensions.Xcode, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null' or one of its dependencies.
             // For more information see: http://answers.unity3d.com/questions/1016975/filenotfoundexception-when-using-xcode-api.html
             // Copy plugin files to the build directory so you can later move to another machine and build it there
-            #if LUNAR_CONSOLE_EXPORT_IOS_FILES
+#if LUNAR_CONSOLE_EXPORT_IOS_FILES
             var pluginPath = Path.Combine(buildPath, Constants.PluginName);
             FileUtil.DeleteFileOrDirectory(pluginPath);
             FileUtil.CopyFileOrDirectory(EditorConstants.EditorPathIOS, pluginPath);
@@ -67,17 +67,17 @@ namespace LunarConsoleEditorInternal
             {
                 FileUtil.DeleteFileOrDirectory(file);
             }
-            #else  // LUNAR_CONSOLE_EXPORT_IOS_FILES
+#else  // LUNAR_CONSOLE_EXPORT_IOS_FILES
             var pluginPath = EditorConstants.EditorPathIOS;
-            #endif // LUNAR_CONSOLE_EXPORT_IOS_FILES
+#endif // LUNAR_CONSOLE_EXPORT_IOS_FILES
 
             var projectMod = new XcodeProjMod(buildPath, pluginPath);
             projectMod.UpdateProject();
         }
-        #endif //UNITY_IOS || UNITY_IPHONE
+#endif //UNITY_IOS || UNITY_IPHONE
     }
 
-    #if UNITY_IOS || UNITY_IPHONE
+#if UNITY_IOS || UNITY_IPHONE
     class XcodeProjMod
     {
         private readonly string m_buildPath;
@@ -157,8 +157,8 @@ namespace LunarConsoleEditorInternal
         }
     }
 
-    #pragma warning disable 0649
-    #pragma warning disable 0414
+#pragma warning disable 0649
+#pragma warning disable 0414
 
     [System.Serializable]
     class ProjMod
@@ -168,8 +168,8 @@ namespace LunarConsoleEditorInternal
         public string[] files;
     }
 
-    #pragma warning restore 0649
-    #pragma warning restore 0414
+#pragma warning restore 0649
+#pragma warning restore 0414
 
-    #endif // UNITY_IOS || UNITY_IPHONE
+#endif // UNITY_IOS || UNITY_IPHONE
 }

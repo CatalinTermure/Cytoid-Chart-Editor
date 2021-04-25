@@ -1,4 +1,7 @@
 ﻿using System;
+using CCE;
+using CCE.Core;
+using CCE.Game;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -11,15 +14,17 @@ public class ScanlineNoteController : MonoBehaviour, ITempo
 
     private void Start()
     {
-        TimeInputField.onEndEdit.AddListener((_) => {
-            if (GameLogic.CurrentTool != global::NoteType.MOVE)
+        TimeInputField.onEndEdit.AddListener((_) =>
+        {
+            if (GameLogic.CurrentTool != global::CCE.Data.NoteType.Move)
             {
                 GameLogic.BlockInput = false;
                 GameObject.Find("UICanvas").GetComponent<GameLogic>().ChangeTempo(gameObject, true);
             }
         });
-        BPMInputField.onEndEdit.AddListener((_) => {
-            if (GameLogic.CurrentTool != global::NoteType.MOVE)
+        BPMInputField.onEndEdit.AddListener((_) =>
+        {
+            if (GameLogic.CurrentTool != global::CCE.Data.NoteType.Move)
             {
                 GameLogic.BlockInput = false;
                 GameObject.Find("UICanvas").GetComponent<GameLogic>().ChangeTempo(gameObject);
@@ -36,7 +41,7 @@ public class ScanlineNoteController : MonoBehaviour, ITempo
 
     public void BlockGlobalInput() // added as a click event
     {
-        if(GameLogic.CurrentTool != global::NoteType.MOVE)
+        if (GameLogic.CurrentTool != global::CCE.Data.NoteType.Move)
         {
             GameLogic.BlockInput = true;
         }

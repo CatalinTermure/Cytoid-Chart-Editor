@@ -147,9 +147,9 @@ namespace LunarConsolePlugin
         [SerializeField]
         public ExceptionWarningSettings exceptionWarning = new ExceptionWarningSettings();
 
-        #if LUNAR_CONSOLE_FREE
+#if LUNAR_CONSOLE_FREE
         [HideInInspector]
-        #endif
+#endif
         [SerializeField]
         public LogOverlaySettings logOverlay = new LogOverlaySettings();
 
@@ -171,15 +171,15 @@ namespace LunarConsolePlugin
         [SerializeField]
         public bool richTextTags;
 
-        #if LUNAR_CONSOLE_FREE
+#if LUNAR_CONSOLE_FREE
         [HideInInspector]
-        #endif
+#endif
         [SerializeField]
         public bool sortActions = true;
 
-        #if LUNAR_CONSOLE_FREE
+#if LUNAR_CONSOLE_FREE
         [HideInInspector]
-        #endif
+#endif
         [SerializeField]
         public bool sortVariables = true;
 
@@ -189,8 +189,8 @@ namespace LunarConsolePlugin
 
     public sealed class LunarConsole : MonoBehaviour
     {
-        #pragma warning disable 0649
-        #pragma warning disable 0414
+#pragma warning disable 0649
+#pragma warning disable 0414
 
         [SerializeField]
         LunarConsoleSettings m_settings = new LunarConsoleSettings();
@@ -200,10 +200,10 @@ namespace LunarConsolePlugin
         CRegistry m_registry;
         bool m_variablesDirty;
 
-        #pragma warning restore 0649
-        #pragma warning restore 0414
+#pragma warning restore 0649
+#pragma warning restore 0414
 
-        #if LUNAR_CONSOLE_ENABLED
+#if LUNAR_CONSOLE_ENABLED
 
         IPlatform m_platform;
 
@@ -291,15 +291,15 @@ namespace LunarConsolePlugin
 
         static bool IsPlatformSupported()
         {
-            #if UNITY_EDITOR
+#if UNITY_EDITOR
             return true;
-            #elif UNITY_IOS || UNITY_IPHONE
+#elif UNITY_IOS || UNITY_IPHONE
             return Application.platform == RuntimePlatform.IPhonePlayer;
-            #elif UNITY_ANDROID
+#elif UNITY_ANDROID
             return Application.platform == RuntimePlatform.Android;
-            #else
+#else
             return false;
-            #endif
+#endif
         }
 
         #endregion
@@ -320,10 +320,10 @@ namespace LunarConsolePlugin
 
                         Application.logMessageReceivedThreaded += OnLogMessageReceived;
 
-                        #if LUNAR_CONSOLE_FULL
+#if LUNAR_CONSOLE_FULL
                         ResolveVariables();
                         LoadVariables();
-                        #endif // LUNAR_CONSOLE_FULL
+#endif // LUNAR_CONSOLE_FULL
 
                         return true;
                     }
@@ -360,25 +360,25 @@ namespace LunarConsolePlugin
 
         IPlatform CreatePlatform(LunarConsoleSettings settings)
         {
-            #if UNITY_IOS || UNITY_IPHONE
+#if UNITY_IOS || UNITY_IPHONE
             if (Application.platform == RuntimePlatform.IPhonePlayer)
             {
                 LunarConsoleNativeMessageCallback callback = NativeMessageCallback;
                 return new PlatformIOS(gameObject.name, callback.Method.Name, Constants.Version, settings);
             }
-            #elif UNITY_ANDROID
+#elif UNITY_ANDROID
             if (Application.platform == RuntimePlatform.Android)
             {
                 LunarConsoleNativeMessageCallback callback = NativeMessageCallback;
                 return new PlatformAndroid(gameObject.name, callback.Method.Name, Constants.Version, settings);
             }
-            #endif
+#endif
 
-            #if UNITY_EDITOR
+#if UNITY_EDITOR
             return new PlatformEditor();
-            #else
+#else
             return null;
-            #endif
+#endif
         }
 
         void DestroyInstance()
@@ -410,7 +410,7 @@ namespace LunarConsolePlugin
         private void ResolveVariables()
         {
             try
-            {   
+            {
                 foreach (var assembly in ListAssemblies())
                 {
                     Log.dev("Checking '{0}'...", assembly);
@@ -622,7 +622,7 @@ namespace LunarConsolePlugin
 
         #endregion
 
-        #if UNITY_IOS || UNITY_IPHONE
+#if UNITY_IOS || UNITY_IPHONE
 
         class PlatformIOS : IPlatform
         {
@@ -727,7 +727,7 @@ namespace LunarConsolePlugin
             }
         }
 
-        #elif UNITY_ANDROID
+#elif UNITY_ANDROID
 
         class PlatformAndroid : IPlatform
         {
@@ -1023,9 +1023,9 @@ namespace LunarConsolePlugin
             }
         }
 
-        #endif // UNITY_ANDROID
+#endif // UNITY_ANDROID
 
-        #if UNITY_EDITOR
+#if UNITY_EDITOR
 
         class PlatformEditor : IPlatform
         {
@@ -1072,7 +1072,7 @@ namespace LunarConsolePlugin
             }
         }
 
-        #endif // UNITY_ANDROID
+#endif // UNITY_ANDROID
 
         #endregion
 
@@ -1220,61 +1220,61 @@ namespace LunarConsolePlugin
 
             try
             {
-                switch(variable.Type)
+                switch (variable.Type)
                 {
                     case CVarType.Boolean:
-                    {
-                        int intValue;
-                        if (int.TryParse(value, out intValue) && (intValue == 0 || intValue == 1))
                         {
-                            variable.BoolValue = intValue == 1;
-                            m_variablesDirty = true;
+                            int intValue;
+                            if (int.TryParse(value, out intValue) && (intValue == 0 || intValue == 1))
+                            {
+                                variable.BoolValue = intValue == 1;
+                                m_variablesDirty = true;
+                            }
+                            else
+                            {
+                                Log.e("Invalid boolean value: '{0}'", value);
+                            }
+                            break;
                         }
-                        else
-                        {
-                            Log.e("Invalid boolean value: '{0}'", value);
-                        }
-                        break;
-                    }
                     case CVarType.Integer:
-                    {
-                        int intValue;
-                        if (int.TryParse(value, out intValue))
                         {
-                            variable.IntValue = intValue;
-                            m_variablesDirty = true;
+                            int intValue;
+                            if (int.TryParse(value, out intValue))
+                            {
+                                variable.IntValue = intValue;
+                                m_variablesDirty = true;
+                            }
+                            else
+                            {
+                                Log.e("Invalid integer value: '{0}'", value);
+                            }
+                            break;
                         }
-                        else
-                        {
-                            Log.e("Invalid integer value: '{0}'", value);
-                        }
-                        break;
-                    }
                     case CVarType.Float:
-                    {
-                        float floatValue;
-                        if (float.TryParse(value, out floatValue))
                         {
-                            variable.FloatValue = floatValue;
-                            m_variablesDirty = true;
+                            float floatValue;
+                            if (float.TryParse(value, out floatValue))
+                            {
+                                variable.FloatValue = floatValue;
+                                m_variablesDirty = true;
+                            }
+                            else
+                            {
+                                Log.e("Invalid float value: '{0}'", value);
+                            }
+                            break;
                         }
-                        else
-                        {
-                            Log.e("Invalid float value: '{0}'", value);
-                        }
-                        break;
-                    }
                     case CVarType.String:
-                    {
-                        variable.Value = value;
-                        m_variablesDirty = true;
-                        break;
-                    }
+                        {
+                            variable.Value = value;
+                            m_variablesDirty = true;
+                            break;
+                        }
                     default:
-                    {
-                        Log.e("Unexpected variable type: {0}", variable.Type);
-                        break;
-                    }
+                        {
+                            Log.e("Unexpected variable type: {0}", variable.Type);
+                            break;
+                        }
                 }
             }
             catch (Exception e)
@@ -1285,7 +1285,7 @@ namespace LunarConsolePlugin
 
         void TrackEventHandler(IDictionary<string, string> data)
         {
-            #if LUNAR_CONSOLE_ANALYTICS_ENABLED
+#if LUNAR_CONSOLE_ANALYTICS_ENABLED
             string category;
             if (!data.TryGetValue("category", out category) || category.Length == 0)
             {
@@ -1300,7 +1300,7 @@ namespace LunarConsolePlugin
                 return;
             }
 
-            int value = LunarConsoleAnalytics.kUndefinedValue;;
+            int value = LunarConsoleAnalytics.kUndefinedValue; ;
             string valueStr;
             if (data.TryGetValue("value", out valueStr))
             {
@@ -1312,23 +1312,23 @@ namespace LunarConsolePlugin
             }
 
             LunarConsoleAnalytics.TrackEvent(category, action, value);
-            #endif // LUNAR_CONSOLE_ANALYTICS_ENABLED
+#endif // LUNAR_CONSOLE_ANALYTICS_ENABLED
         }
 
         #region Analytics
 
         void TrackEvent(string category, string action, int value = LunarConsoleAnalytics.kUndefinedValue)
         {
-            #if LUNAR_CONSOLE_ANALYTICS_ENABLED
+#if LUNAR_CONSOLE_ANALYTICS_ENABLED
             StartCoroutine(LunarConsoleAnalytics.TrackEvent(category, action, value));
-            #endif // LUNAR_CONSOLE_ANALYTICS_ENABLED
+#endif // LUNAR_CONSOLE_ANALYTICS_ENABLED
         }
 
         #endregion
 
         #endregion
 
-        #endif // LUNAR_CONSOLE_ENABLED
+#endif // LUNAR_CONSOLE_ENABLED
 
         #region Public API
 
@@ -1337,8 +1337,8 @@ namespace LunarConsolePlugin
         /// </summary>
         public static void Show()
         {
-            #if LUNAR_CONSOLE_PLATFORM_SUPPORTED
-            #if LUNAR_CONSOLE_ENABLED
+#if LUNAR_CONSOLE_PLATFORM_SUPPORTED
+#if LUNAR_CONSOLE_ENABLED
             if (s_instance != null)
             {
                 s_instance.ShowConsole();
@@ -1347,12 +1347,12 @@ namespace LunarConsolePlugin
             {
                 Log.w("Can't show console: instance is not initialized. Make sure you've installed it correctly");
             }
-            #else
+#else
             Log.w("Can't show console: plugin is disabled");
-            #endif
-            #else
+#endif
+#else
             Log.w("Can't show console: current platform is not supported");
-            #endif
+#endif
         }
 
         /// <summary>
@@ -1360,8 +1360,8 @@ namespace LunarConsolePlugin
         /// </summary>
         public static void Hide()
         {
-            #if LUNAR_CONSOLE_PLATFORM_SUPPORTED
-            #if LUNAR_CONSOLE_ENABLED
+#if LUNAR_CONSOLE_PLATFORM_SUPPORTED
+#if LUNAR_CONSOLE_ENABLED
             if (s_instance != null)
             {
                 s_instance.HideConsole();
@@ -1370,12 +1370,12 @@ namespace LunarConsolePlugin
             {
                 Log.w("Can't hide console: instance is not initialized. Make sure you've installed it correctly");
             }
-            #else
+#else
             Log.w("Can't hide console: plugin is disabled");
-            #endif
-            #else
+#endif
+#else
             Log.w("Can't hide console: current platform is not supported");
-            #endif
+#endif
         }
 
         /// <summary>
@@ -1383,8 +1383,8 @@ namespace LunarConsolePlugin
         /// </summary>
         public static void Clear()
         {
-            #if LUNAR_CONSOLE_PLATFORM_SUPPORTED
-            #if LUNAR_CONSOLE_ENABLED
+#if LUNAR_CONSOLE_PLATFORM_SUPPORTED
+#if LUNAR_CONSOLE_ENABLED
             if (s_instance != null)
             {
                 s_instance.ClearConsole();
@@ -1393,12 +1393,12 @@ namespace LunarConsolePlugin
             {
                 Log.w("Can't clear console: instance is not initialized. Make sure you've installed it correctly");
             }
-            #else
+#else
             Log.w("Can't clear console: plugin is disabled");
-            #endif
-            #else
+#endif
+#else
             Log.w("Can't clear console: current platform is not supported");
-            #endif
+#endif
         }
 
         /// <summary>
@@ -1409,9 +1409,9 @@ namespace LunarConsolePlugin
         /// <param name="action">Callback delegate</param>
         public static void RegisterAction(string name, Action action)
         {
-            #if LUNAR_CONSOLE_PLATFORM_SUPPORTED
-            #if LUNAR_CONSOLE_FULL
-            #if LUNAR_CONSOLE_ENABLED
+#if LUNAR_CONSOLE_PLATFORM_SUPPORTED
+#if LUNAR_CONSOLE_FULL
+#if LUNAR_CONSOLE_ENABLED
             if (s_instance != null)
             {
                 s_instance.RegisterConsoleAction(name, action);
@@ -1420,13 +1420,13 @@ namespace LunarConsolePlugin
             {
                 Log.w("Can't register action: instance is not initialized. Make sure you've installed it correctly");
             }
-            #else  // LUNAR_CONSOLE_ENABLED
+#else  // LUNAR_CONSOLE_ENABLED
             Log.w("Can't register action: plugin is disabled");
-            #endif // LUNAR_CONSOLE_ENABLED
-            #else  // LUNAR_CONSOLE_FULL
+#endif // LUNAR_CONSOLE_ENABLED
+#else  // LUNAR_CONSOLE_FULL
             Log.w("Can't register action: feature is not available in FREE version. Learn more about PRO version: https://goo.gl/TLInmD");
-            #endif // LUNAR_CONSOLE_FULL
-            #endif // LUNAR_CONSOLE_PLATFORM_SUPPORTED
+#endif // LUNAR_CONSOLE_FULL
+#endif // LUNAR_CONSOLE_PLATFORM_SUPPORTED
         }
 
         /// <summary>
@@ -1435,16 +1435,16 @@ namespace LunarConsolePlugin
         /// </summary>
         public static void UnregisterAction(Action action)
         {
-            #if LUNAR_CONSOLE_PLATFORM_SUPPORTED
-            #if LUNAR_CONSOLE_FULL
-            #if LUNAR_CONSOLE_ENABLED
+#if LUNAR_CONSOLE_PLATFORM_SUPPORTED
+#if LUNAR_CONSOLE_FULL
+#if LUNAR_CONSOLE_ENABLED
             if (s_instance != null)
             {
                 s_instance.UnregisterConsoleAction(action);
             }
-            #endif // LUNAR_CONSOLE_ENABLED
-            #endif // LUNAR_CONSOLE_FULL
-            #endif // LUNAR_CONSOLE_PLATFORM_SUPPORTED
+#endif // LUNAR_CONSOLE_ENABLED
+#endif // LUNAR_CONSOLE_FULL
+#endif // LUNAR_CONSOLE_PLATFORM_SUPPORTED
         }
 
         /// <summary>
@@ -1453,16 +1453,16 @@ namespace LunarConsolePlugin
         /// </summary>
         public static void UnregisterAction(string name)
         {
-            #if LUNAR_CONSOLE_PLATFORM_SUPPORTED
-            #if LUNAR_CONSOLE_FULL
-            #if LUNAR_CONSOLE_ENABLED
+#if LUNAR_CONSOLE_PLATFORM_SUPPORTED
+#if LUNAR_CONSOLE_FULL
+#if LUNAR_CONSOLE_ENABLED
             if (s_instance != null)
             {
                 s_instance.UnregisterConsoleAction(name);
             }
-            #endif // LUNAR_CONSOLE_ENABLED
-            #endif // LUNAR_CONSOLE_FULL
-            #endif // LUNAR_CONSOLE_PLATFORM_SUPPORTED
+#endif // LUNAR_CONSOLE_ENABLED
+#endif // LUNAR_CONSOLE_FULL
+#endif // LUNAR_CONSOLE_PLATFORM_SUPPORTED
         }
 
         /// <summary>
@@ -1472,16 +1472,16 @@ namespace LunarConsolePlugin
         /// </summary>
         public static void UnregisterAllActions(object target)
         {
-            #if LUNAR_CONSOLE_PLATFORM_SUPPORTED
-            #if LUNAR_CONSOLE_FULL
-            #if LUNAR_CONSOLE_ENABLED
+#if LUNAR_CONSOLE_PLATFORM_SUPPORTED
+#if LUNAR_CONSOLE_FULL
+#if LUNAR_CONSOLE_ENABLED
             if (s_instance != null)
             {
                 s_instance.UnregisterAllConsoleActions(target);
             }
-            #endif // LUNAR_CONSOLE_ENABLED
-            #endif // LUNAR_CONSOLE_FULL
-            #endif // LUNAR_CONSOLE_PLATFORM_SUPPORTED
+#endif // LUNAR_CONSOLE_ENABLED
+#endif // LUNAR_CONSOLE_FULL
+#endif // LUNAR_CONSOLE_PLATFORM_SUPPORTED
         }
 
         /// <summary>
@@ -1491,16 +1491,16 @@ namespace LunarConsolePlugin
         /// </summary>
         public static void SetConsoleEnabled(bool enabled)
         {
-            #if LUNAR_CONSOLE_PLATFORM_SUPPORTED
-            #if LUNAR_CONSOLE_FULL
-            #if LUNAR_CONSOLE_ENABLED
+#if LUNAR_CONSOLE_PLATFORM_SUPPORTED
+#if LUNAR_CONSOLE_FULL
+#if LUNAR_CONSOLE_ENABLED
             if (s_instance != null)
             {
                 s_instance.SetConsoleInstanceEnabled(enabled);
             }
-            #endif // LUNAR_CONSOLE_ENABLED
-            #endif // LUNAR_CONSOLE_FULL
-            #endif // LUNAR_CONSOLE_PLATFORM_SUPPORTED
+#endif // LUNAR_CONSOLE_ENABLED
+#endif // LUNAR_CONSOLE_FULL
+#endif // LUNAR_CONSOLE_PLATFORM_SUPPORTED
         }
 
         /// <summary>
@@ -1521,7 +1521,7 @@ namespace LunarConsolePlugin
         /// </summary>
         public static Action onConsoleClosed { get; set; }
 
-        #if LUNAR_CONSOLE_ENABLED
+#if LUNAR_CONSOLE_ENABLED
 
         void ShowConsole()
         {
@@ -1600,15 +1600,17 @@ namespace LunarConsolePlugin
             this.enabled = enabled;
         }
 
-        #endif // LUNAR_CONSOLE_ENABLED
+#endif // LUNAR_CONSOLE_ENABLED
 
-        public static bool isConsoleEnabled {
-            get {
-                #if LUNAR_CONSOLE_ENABLED
+        public static bool isConsoleEnabled
+        {
+            get
+            {
+#if LUNAR_CONSOLE_ENABLED
                 return instance != null;
-                #else
+#else
                 return false;
-                #endif
+#endif
             }
         }
 
@@ -1637,25 +1639,25 @@ namespace LunarConsolePluginInternal
 
         static LunarConsoleConfig()
         {
-            #if LUNAR_CONSOLE_ENABLED
+#if LUNAR_CONSOLE_ENABLED
             consoleEnabled = true;
-            #else
+#else
             consoleEnabled = false;
-            #endif
+#endif
 
-            #if LUNAR_CONSOLE_PLATFORM_SUPPORTED
+#if LUNAR_CONSOLE_PLATFORM_SUPPORTED
             consoleSupported = true;
-            #else
+#else
             consoleSupported = false;
-            #endif
+#endif
 
-            #if LUNAR_CONSOLE_FULL
+#if LUNAR_CONSOLE_FULL
             freeVersion = false;
             fullVersion = true;
-            #else
+#else
             freeVersion = true;
             fullVersion = false;
-            #endif
+#endif
         }
 
         public static bool actionsEnabled
@@ -1664,13 +1666,13 @@ namespace LunarConsolePluginInternal
             {
                 if (consoleSupported && consoleEnabled)
                 {
-                    #if UNITY_EDITOR
+#if UNITY_EDITOR
                     return true;
-                    #elif UNITY_IOS || UNITY_IPHONE
+#elif UNITY_IOS || UNITY_IPHONE
                     return Application.platform == RuntimePlatform.IPhonePlayer;
-                    #elif UNITY_ANDROID
+#elif UNITY_ANDROID
                     return Application.platform == RuntimePlatform.Android;
-                    #endif
+#endif
                 }
 
                 return false;
@@ -1678,17 +1680,17 @@ namespace LunarConsolePluginInternal
         }
     }
 
-    #if UNITY_EDITOR
+#if UNITY_EDITOR
 
     public static class LunarConsolePluginEditorHelper
     {
-        #if LUNAR_CONSOLE_FREE
+#if LUNAR_CONSOLE_FREE
         [UnityEditor.MenuItem("Window/Lunar Mobile Console/Get PRO version...")]
         static void GetProVersion()
         {
             Application.OpenURL("https://goo.gl/aJbTsx");
         }
-        #endif
+#endif
 
         public static string ResolvePluginFile()
         {
@@ -1709,9 +1711,9 @@ namespace LunarConsolePluginInternal
         }
     }
 
-    #endif // UNITY_EDITOR
+#endif // UNITY_EDITOR
 
-    #pragma warning disable 0618
+#pragma warning disable 0618
 
     /// <summary>
     /// Class for collecting anonymous usage statistics
@@ -1722,29 +1724,29 @@ namespace LunarConsolePluginInternal
 
         public const int kUndefinedValue = int.MinValue;
 
-        #if LUNAR_CONSOLE_ANALYTICS_ENABLED
+#if LUNAR_CONSOLE_ANALYTICS_ENABLED
 
         private static readonly string DefaultPayload;
 
         static LunarConsoleAnalytics()
         {
             // tracking id
-            #if LUNAR_CONSOLE_FULL
+#if LUNAR_CONSOLE_FULL
             var trackingId = "UA-91768505-1";
-            #else
+#else
             var trackingId = "UA-91747018-1";
-            #endif
+#endif
 
             StringBuilder payload = new StringBuilder("v=1&t=event");
             payload.AppendFormat("&tid={0}", trackingId);
             payload.AppendFormat("&cid={0}", WWW.EscapeURL(SystemInfo.deviceUniqueIdentifier));
             payload.AppendFormat("&ua={0}", WWW.EscapeURL(SystemInfo.operatingSystem));
             payload.AppendFormat("&av={0}", WWW.EscapeURL(Constants.Version));
-            #if UNITY_EDITOR
+#if UNITY_EDITOR
             payload.AppendFormat("&ds={0}", "editor");
-            #else
+#else
             payload.AppendFormat("&ds={0}", "player");
-            #endif
+#endif
 
             if (!string.IsNullOrEmpty(Application.productName))
             {
@@ -1755,11 +1757,11 @@ namespace LunarConsolePluginInternal
                 }
             }
 
-            #if UNITY_5_6_OR_NEWER
+#if UNITY_5_6_OR_NEWER
             var identifier = Application.identifier;
-            #else
+#else
             var identifier = Application.bundleIdentifier;
-            #endif
+#endif
             if (!string.IsNullOrEmpty(identifier))
             {
                 var bundleIdentifier = WWW.EscapeURL(identifier);
@@ -1787,11 +1789,11 @@ namespace LunarConsolePluginInternal
             yield return www;
         }
 
-        #endif // LUNAR_CONSOLE_ANALYTICS_ENABLED
+#endif // LUNAR_CONSOLE_ANALYTICS_ENABLED
 
         public static string CreatePayload(string category, string action, int value)
         {
-            #if LUNAR_CONSOLE_ANALYTICS_ENABLED
+#if LUNAR_CONSOLE_ANALYTICS_ENABLED
             var payload = new StringBuilder(DefaultPayload);
             payload.AppendFormat("&ec={0}", WWW.EscapeURL(category));
             payload.AppendFormat("&ea={0}", WWW.EscapeURL(action));
@@ -1801,11 +1803,11 @@ namespace LunarConsolePluginInternal
             }
 
             return payload.ToString();
-            #else
+#else
             return null;
-            #endif // LUNAR_CONSOLE_ANALYTICS_ENABLED
+#endif // LUNAR_CONSOLE_ANALYTICS_ENABLED
         }
     }
 
-    #pragma warning restore 0618
+#pragma warning restore 0618
 }

@@ -1,8 +1,10 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
+/// <summary>
+/// Class responsible for showing toast messages.
+/// Must be attached to a <see cref="GameObject"/> with a <see cref="Text"/> component.
+/// </summary>
 public class ToastMessageManager : MonoBehaviour
 {
     private float toastendtime = -1;
@@ -15,9 +17,9 @@ public class ToastMessageManager : MonoBehaviour
 
     private void Update()
     {
-        if(toastendtime != -1)
+        if (toastendtime != -1)
         {
-            if(toastendtime < Time.time)
+            if (toastendtime < Time.time)
             {
                 gameObject.GetComponent<Text>().text = null;
                 toastendtime = -1;

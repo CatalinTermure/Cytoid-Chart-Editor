@@ -20,7 +20,7 @@
 //
 
 
-﻿//
+//
 //  Log.cs
 //
 //  Lunar Unity Mobile Console
@@ -41,7 +41,7 @@
 //  limitations under the License.
 //
 
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using CCE;
+using CCE.Core;
 using UnityEngine;
 using UnityEngine.UI;
 

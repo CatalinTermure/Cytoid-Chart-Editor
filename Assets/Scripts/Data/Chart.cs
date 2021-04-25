@@ -1,31 +1,34 @@
-﻿/// <summary>
-/// Class holding all the necessary information for a chart.
-/// </summary>
-public class Chart : ChartJSON
+﻿namespace CCE.Data
 {
-    [Newtonsoft.Json.JsonIgnore, System.NonSerialized]
-    public LevelData.ChartData Data;
-
     /// <summary>
-    /// Constructs a chart and does a member-wise copy of the parameters of <see cref="ChartJSON"/>.
+    /// Class holding all the necessary information for a chart.
     /// </summary>
-    public Chart(ChartJSON chart, LevelData.ChartData data)
+    public class Chart : ChartData
     {
-        format_version = chart.format_version;
-        time_base = chart.time_base;
-        music_offset = chart.music_offset;
+        [Newtonsoft.Json.JsonIgnore, System.NonSerialized]
+        public LevelData.ChartFileData Data;
 
-        opacity = chart.opacity;
-        size = chart.size;
+        /// <summary>
+        /// Constructs a chart and does a member-wise copy of the parameters of <see cref="ChartData"/>.
+        /// </summary>
+        public Chart(ChartData chart, LevelData.ChartFileData data)
+        {
+            FormatVersion = chart.FormatVersion;
+            TimeBase = chart.TimeBase;
+            MusicOffset = chart.MusicOffset;
 
-        ring_color = chart.ring_color;
-        fill_colors = chart.fill_colors;
+            Opacity = chart.Opacity;
+            Size = chart.Size;
 
-        page_list = chart.page_list;
-        tempo_list = chart.tempo_list;
-        note_list = chart.note_list;
-        event_order_list = chart.event_order_list;
+            RingColor = chart.RingColor;
+            FillColors = chart.FillColors;
 
-        Data = data;
+            PageList = chart.PageList;
+            TempoList = chart.TempoList;
+            NoteList = chart.NoteList;
+            EventOrderList = chart.EventOrderList;
+
+            Data = data;
+        }
     }
 }

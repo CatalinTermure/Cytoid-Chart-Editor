@@ -1,5 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using CCE.Data;
+using CCE.Game;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -29,48 +31,48 @@ public class SideButtonController : MonoBehaviour
         switch (btn.tag)
         {
             case "Click":
-                GameLogic.CurrentTool = GameLogic.CurrentTool == NoteType.CLICK ? NoteType.NONE : NoteType.CLICK;
+                GameLogic.CurrentTool = GameLogic.CurrentTool == NoteType.Click ? NoteType.None : NoteType.Click;
                 break;
             case "Hold":
-                if(GameLogic.CurrentTool == NoteType.HOLD)
+                if (GameLogic.CurrentTool == NoteType.Hold)
                 {
-                    GameLogic.CurrentTool = NoteType.LONG_HOLD;
+                    GameLogic.CurrentTool = NoteType.LongHold;
                 }
-                else if(GameLogic.CurrentTool == NoteType.LONG_HOLD)
+                else if (GameLogic.CurrentTool == NoteType.LongHold)
                 {
-                    GameLogic.CurrentTool = NoteType.NONE;
+                    GameLogic.CurrentTool = NoteType.None;
                 }
                 else
                 {
-                    GameLogic.CurrentTool = NoteType.HOLD;
+                    GameLogic.CurrentTool = NoteType.Hold;
                 }
                 break;
             case "Drag Head":
-                if(GameLogic.CurrentTool == NoteType.DRAG_HEAD)
+                if (GameLogic.CurrentTool == NoteType.DragHead)
                 {
-                    GameLogic.CurrentTool = NoteType.CDRAG_HEAD;
+                    GameLogic.CurrentTool = NoteType.CDragHead;
                 }
-                else if(GameLogic.CurrentTool == NoteType.CDRAG_HEAD)
+                else if (GameLogic.CurrentTool == NoteType.CDragHead)
                 {
-                    GameLogic.CurrentTool = NoteType.NONE;
+                    GameLogic.CurrentTool = NoteType.None;
                 }
                 else
                 {
-                    GameLogic.CurrentTool = NoteType.DRAG_HEAD;
+                    GameLogic.CurrentTool = NoteType.DragHead;
                 }
                 break;
             case "Flick":
-                GameLogic.CurrentTool = GameLogic.CurrentTool == NoteType.FLICK ? NoteType.NONE : NoteType.FLICK;
+                GameLogic.CurrentTool = GameLogic.CurrentTool == NoteType.Flick ? NoteType.None : NoteType.Flick;
                 break;
             case "Move":
-                GameLogic.CurrentTool = GameLogic.CurrentTool == NoteType.MOVE ? NoteType.NONE : NoteType.MOVE;
+                GameLogic.CurrentTool = GameLogic.CurrentTool == NoteType.Move ? NoteType.None : NoteType.Move;
                 break;
             case "Settings":
-                GameLogic.CurrentTool = GameLogic.CurrentTool == NoteType.SCANLINE ? NoteType.NONE : NoteType.SCANLINE;
+                GameLogic.CurrentTool = GameLogic.CurrentTool == NoteType.Scanline ? NoteType.None : NoteType.Scanline;
                 break;
         }
 
-        if(highlightedButton != null)
+        if (highlightedButton != null)
         {
             if (highlightedButton.CompareTag("Hold"))
             {
@@ -84,42 +86,42 @@ public class SideButtonController : MonoBehaviour
             highlightedButton.GetComponent<Image>().color = DefaultColor;
         }
 
-        switch(GameLogic.CurrentTool)
+        switch (GameLogic.CurrentTool)
         {
-            case NoteType.CLICK:
+            case NoteType.Click:
                 highlightedButton = GameObject.Find("AddClickNoteButton");
                 break;
-            case NoteType.HOLD:
+            case NoteType.Hold:
                 highlightedButton = GameObject.Find("AddHoldNoteButton");
                 highlightedButton.GetComponent<Image>().sprite = HoldNoteButtonSprite;
                 break;
-            case NoteType.LONG_HOLD:
+            case NoteType.LongHold:
                 highlightedButton = GameObject.Find("AddHoldNoteButton");
                 highlightedButton.GetComponent<Image>().sprite = LongHoldNoteButtonSprite;
                 break;
-            case NoteType.DRAG_HEAD:
+            case NoteType.DragHead:
                 highlightedButton = GameObject.Find("AddDragNoteButton");
                 highlightedButton.GetComponent<Image>().sprite = DragNoteButtonSprite;
                 break;
-            case NoteType.CDRAG_HEAD:
+            case NoteType.CDragHead:
                 highlightedButton = GameObject.Find("AddDragNoteButton");
                 highlightedButton.GetComponent<Image>().sprite = CDragNoteButtonSprite;
                 break;
-            case NoteType.FLICK:
+            case NoteType.Flick:
                 highlightedButton = GameObject.Find("AddFlickNoteButton");
                 break;
-            case NoteType.MOVE:
+            case NoteType.Move:
                 highlightedButton = GameObject.Find("MoveNoteButton");
                 break;
-            case NoteType.SCANLINE:
+            case NoteType.Scanline:
                 highlightedButton = GameObject.Find("AddScanlineNoteButton");
                 break;
-            case NoteType.NONE:
+            case NoteType.None:
                 highlightedButton = null;
                 break;
         }
 
-        if(highlightedButton != null)
+        if (highlightedButton != null)
         {
             highlightedButton.GetComponent<Image>().color = HighlightedColor;
         }
@@ -142,9 +144,9 @@ public class SideButtonController : MonoBehaviour
             highlightedButton.GetComponent<Image>().color = DefaultColor;
         }
 
-        if(tool == GameLogic.CurrentTool)
+        if (tool == GameLogic.CurrentTool)
         {
-            GameLogic.CurrentTool = NoteType.NONE;
+            GameLogic.CurrentTool = NoteType.None;
             highlightedButton = null;
         }
         else
@@ -153,35 +155,35 @@ public class SideButtonController : MonoBehaviour
 
             switch (GameLogic.CurrentTool)
             {
-                case NoteType.CLICK:
+                case NoteType.Click:
                     highlightedButton = GameObject.Find("AddClickNoteButton");
                     break;
-                case NoteType.HOLD:
+                case NoteType.Hold:
                     highlightedButton = GameObject.Find("AddHoldNoteButton");
                     highlightedButton.GetComponent<Image>().sprite = HoldNoteButtonSprite;
                     break;
-                case NoteType.LONG_HOLD:
+                case NoteType.LongHold:
                     highlightedButton = GameObject.Find("AddHoldNoteButton");
                     highlightedButton.GetComponent<Image>().sprite = LongHoldNoteButtonSprite;
                     break;
-                case NoteType.DRAG_HEAD:
+                case NoteType.DragHead:
                     highlightedButton = GameObject.Find("AddDragNoteButton");
                     highlightedButton.GetComponent<Image>().sprite = DragNoteButtonSprite;
                     break;
-                case NoteType.CDRAG_HEAD:
+                case NoteType.CDragHead:
                     highlightedButton = GameObject.Find("AddDragNoteButton");
                     highlightedButton.GetComponent<Image>().sprite = CDragNoteButtonSprite;
                     break;
-                case NoteType.FLICK:
+                case NoteType.Flick:
                     highlightedButton = GameObject.Find("AddFlickNoteButton");
                     break;
-                case NoteType.MOVE:
+                case NoteType.Move:
                     highlightedButton = GameObject.Find("MoveNoteButton");
                     break;
-                case NoteType.SCANLINE:
+                case NoteType.Scanline:
                     highlightedButton = GameObject.Find("AddScanlineNoteButton");
                     break;
-                case NoteType.NONE:
+                case NoteType.None:
                     highlightedButton = null;
                     break;
             }

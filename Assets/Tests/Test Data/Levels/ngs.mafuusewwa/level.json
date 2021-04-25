@@ -1,0 +1,44 @@
+{
+  
+  "version": 1,
+  "schema_version": 2,
+
+  "id": "ngs.mafuusewwa",
+  
+  "title": "うっせぇわ (まふまふ)",
+  "title_localized": "Usewwa (mafumafu)",
+
+  "artist": "ado",
+  "artist_localized": null,
+  "artist_source": "https://twitter.com/ado1024imokenp",
+
+  "illustrator": "うさぎ",
+  "illustrator_source": "https://twitter.com/Usagi31820156",
+
+  "charter": "NGspeedy",
+  
+  "music": {
+    "path": "uwu.ogg"
+  },
+  "music_preview": {
+    "path": "preview.ogg"
+  },
+  "background": {
+    "path": "bg.jpg"
+  },
+  "charts": [
+{
+      "type": "extreme",
+      "name": "EX",
+      "difficulty": 13,
+      "path": "hard-c2.txt",
+      "music_override": {
+      	"path": null
+      },
+      "storyboard": {
+      	"path": "hard-sb.json"
+      }
+    }
+  ]
+  
+}

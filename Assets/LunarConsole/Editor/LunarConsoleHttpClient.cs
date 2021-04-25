@@ -20,7 +20,7 @@
 //
 
 
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Net;
@@ -42,7 +42,7 @@ namespace LunarConsoleEditorInternal
         private Uri m_uri;
         private WebClient m_client;
 
-        #if UNITY_EDITOR_WIN
+#if UNITY_EDITOR_WIN
 
         static LunarConsoleHttpClient()
         {
@@ -72,7 +72,7 @@ namespace LunarConsoleEditorInternal
             return true;
         }
 
-        #endif // UNITY_EDITOR_WIN
+#endif // UNITY_EDITOR_WIN
 
         public LunarConsoleHttpClient(string uri)
             : this(new Uri(uri))
@@ -102,9 +102,9 @@ namespace LunarConsoleEditorInternal
                 throw new InvalidOperationException("Already downloading something");
             }
 
-            m_client.UploadStringCompleted += delegate(object sender, UploadStringCompletedEventArgs e)
+            m_client.UploadStringCompleted += delegate (object sender, UploadStringCompletedEventArgs e)
             {
-                Utils.DispatchOnMainThread(delegate()
+                Utils.DispatchOnMainThread(delegate ()
                 {
                     if (this.IsShowingProgress)
                     {
@@ -138,9 +138,9 @@ namespace LunarConsoleEditorInternal
                 throw new InvalidOperationException("Already downloading something");
             }
 
-            m_client.DownloadStringCompleted += delegate(object sender, DownloadStringCompletedEventArgs e)
+            m_client.DownloadStringCompleted += delegate (object sender, DownloadStringCompletedEventArgs e)
             {
-                Utils.DispatchOnMainThread(delegate()
+                Utils.DispatchOnMainThread(delegate ()
                 {
                     if (this.IsShowingProgress)
                     {

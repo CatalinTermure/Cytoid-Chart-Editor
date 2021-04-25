@@ -20,7 +20,7 @@
 //
 
 
-﻿using UnityEngine;
+using UnityEngine;
 
 using System;
 using System.Collections.Generic;
@@ -101,16 +101,16 @@ namespace LunarConsolePluginInternal
             get { return m_target.Count; }
         }
 
-        public int Position 
-        { 
+        public int Position
+        {
             get { return m_current; }
-            set 
-            { 
+            set
+            {
                 if (value < -1 || value >= Count)
                 {
                     throw new IndexOutOfRangeException("Invalid position: " + value);
                 }
-                m_current = value; 
+                m_current = value;
             }
         }
     }

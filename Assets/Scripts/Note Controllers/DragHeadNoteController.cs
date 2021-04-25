@@ -3,8 +3,12 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
+using CCE;
+using CCE.Core;
 using Unity.Profiling;
 using UnityEngine;
+using CCE.Data;
+using CCE.Game;
 
 public class DragHeadNoteController : NoteController
 {
@@ -27,16 +31,16 @@ public class DragHeadNoteController : NoteController
     {
         NoteStopwatch = Stopwatch.StartNew();
 
-        gameObject.transform.position = new Vector3((float)(GlobalState.PlayAreaWidth * (note.x - 0.5)), (float)(GlobalState.PlayAreaHeight * (note.y - 0.5)));
-        gameObject.transform.localScale = new Vector3(GlobalState.Config.DefaultNoteSize * (float)note.actual_size, GlobalState.Config.DefaultNoteSize * (float)note.actual_size);
+        gameObject.transform.position = new Vector3((float)(GlobalState.PlayAreaWidth * (note.X - 0.5)), (float)(GlobalState.PlayAreaHeight * (note.Y - 0.5)));
+        gameObject.transform.localScale = new Vector3(GlobalState.Config.DefaultNoteSize * (float)note.ActualSize, GlobalState.Config.DefaultNoteSize * (float)note.ActualSize);
 
-        ApproachTime = (float)note.approach_time;
+        ApproachTime = (float)note.ApproachTime;
 
-        NextID = note.next_id;
-        StartTime = (float)note.time;
+        NextID = note.NextID;
+        StartTime = (float)note.Time;
 
-        Notetype = note.type;
-        NoteID = note.id;
+        Notetype = note.Type;
+        NoteID = note.ID;
 
         Highlighted = true;
         Highlight();
@@ -65,22 +69,22 @@ public class DragHeadNoteController : NoteController
             y = gameObject.transform.position.y,
             time = ApproachTime
         });
-        while(NextID > 0)
+        while (NextID > 0)
         {
             Paths.Add(new PathPoint
             {
-                x = (float)(GlobalState.CurrentChart.note_list[NextID].x - 0.5) * GlobalState.PlayAreaWidth,
-                y = (float)(GlobalState.CurrentChart.note_list[NextID].y - 0.5) * GlobalState.PlayAreaHeight,
-                time = (float)(GlobalState.CurrentChart.note_list[NextID].time - StartTime + ApproachTime),
-                connector_start_time = (float)(GlobalState.CurrentChart.note_list[NextID].time - GlobalState.CurrentChart.note_list[NextID].approach_time - StartTime + ApproachTime),
+                x = (float)(GlobalState.CurrentChart.NoteList[NextID].X - 0.5) * GlobalState.PlayAreaWidth,
+                y = (float)(GlobalState.CurrentChart.NoteList[NextID].Y - 0.5) * GlobalState.PlayAreaHeight,
+                time = (float)(GlobalState.CurrentChart.NoteList[NextID].Time - StartTime + ApproachTime),
+                connector_start_time = (float)(GlobalState.CurrentChart.NoteList[NextID].Time - GlobalState.CurrentChart.NoteList[NextID].ApproachTime - StartTime + ApproachTime),
             });
 
-            NextID = GlobalState.CurrentChart.note_list[NextID].next_id;
+            NextID = GlobalState.CurrentChart.NoteList[NextID].NextID;
         }
-        if(Paths.Count > 1)
+        if (Paths.Count > 1)
         {
             DragConnector.GetComponent<SpriteRenderer>().size = new Vector2(0.175f, GlobalState.GetDistance(Paths[1].x, Paths[1].y, Paths[0].x, Paths[0].y) / gameObject.transform.localScale.x);
-            if(Notetype == (int)NoteType.CDRAG_HEAD)
+            if (Notetype == (int)NoteType.CDragHead)
             {
                 gameObject.transform.rotation = Quaternion.AngleAxis(90 + (float)(Math.Atan2(Paths[0].y - Paths[1].y, Paths[0].x - Paths[1].x) * 180 / Math.PI), Vector3.forward);
             }
@@ -121,11 +125,11 @@ public class DragHeadNoteController : NoteController
             {
                 float pathcompletion = (Delay + NoteStopwatch.ElapsedMilliseconds * PlaybackSpeed / 1000f - (CurrentPath > 0 ? Paths[CurrentPath - 1].time : 0)) /
                     (Paths[CurrentPath].time - (CurrentPath > 0 ? Paths[CurrentPath - 1].time : 0));
-                
-                while(float.IsInfinity(pathcompletion))
+
+                while (float.IsInfinity(pathcompletion))
                 {
                     CurrentPath++;
-                    if(CurrentPath < Paths.Count)
+                    if (CurrentPath < Paths.Count)
                     {
                         pathcompletion = (Delay + NoteStopwatch.ElapsedMilliseconds * PlaybackSpeed / 1000f - (CurrentPath > 0 ? Paths[CurrentPath - 1].time : 0)) /
                         (Paths[CurrentPath].time - (CurrentPath > 0 ? Paths[CurrentPath - 1].time : 0));
@@ -141,14 +145,14 @@ public class DragHeadNoteController : NoteController
 
                 while (pathcompletion > 1)
                 {
-                    if (CurrentPath > 0 && CurrentPath + 1 < Paths.Count && Notetype == (int)NoteType.CDRAG_HEAD)
+                    if (CurrentPath > 0 && CurrentPath + 1 < Paths.Count && Notetype == (int)NoteType.CDragHead)
                     {
                         gameObject.transform.rotation = Quaternion.AngleAxis(90 + (float)(Math.Atan2(Paths[CurrentPath].y - Paths[CurrentPath + 1].y,
                             Paths[CurrentPath].x - Paths[CurrentPath + 1].x) * 180 / Math.PI), Vector3.forward);
                     }
 
                     CurrentPath++;
-                    if(CurrentPath < Paths.Count)
+                    if (CurrentPath < Paths.Count)
                     {
                         pathcompletion = (Delay + NoteStopwatch.ElapsedMilliseconds * PlaybackSpeed / 1000f - (CurrentPath > 0 ? Paths[CurrentPath - 1].time : 0)) /
                                 (Paths[CurrentPath].time - (CurrentPath > 0 ? Paths[CurrentPath - 1].time : 0));
@@ -159,7 +163,7 @@ public class DragHeadNoteController : NoteController
                     }
                 }
 
-                if(CurrentPath < Paths.Count)
+                if (CurrentPath < Paths.Count)
                 {
                     gameObject.transform.position = new Vector3(Paths[CurrentPath - 1].x + pathcompletion * (Paths[CurrentPath].x - Paths[CurrentPath - 1].x),
                         Paths[CurrentPath - 1].y + pathcompletion * (Paths[CurrentPath].y - Paths[CurrentPath - 1].y));
@@ -187,7 +191,7 @@ public class DragHeadNoteController : NoteController
 
     protected override void ChangeToPausedVisuals()
     {
-        if (GlobalState.CurrentChart.note_list[NoteID].page_index != GameObject.Find("UICanvas").GetComponent<GameLogic>().CurrentPageIndex && NextID > 0)
+        if (GlobalState.CurrentChart.NoteList[NoteID].PageIndex != GameObject.Find("UICanvas").GetComponent<GameLogic>().CurrentPageIndex && NextID > 0)
         {
             DragConnector.SetActive(false);
         }

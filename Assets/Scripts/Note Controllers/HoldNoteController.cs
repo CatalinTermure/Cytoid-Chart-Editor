@@ -1,5 +1,8 @@
 ﻿using System.Diagnostics;
+using CCE;
+using CCE.Core;
 using UnityEngine;
+using CCE.Data;
 
 public class HoldNoteController : NoteController
 {
@@ -34,21 +37,21 @@ public class HoldNoteController : NoteController
     {
         NoteStopwatch = Stopwatch.StartNew();
 
-        gameObject.transform.position = new Vector3((float)((note.x - 0.5) * GlobalState.PlayAreaWidth), (float)((note.y - 0.5) * GlobalState.PlayAreaHeight));
+        gameObject.transform.position = new Vector3((float)((note.X - 0.5) * GlobalState.PlayAreaWidth), (float)((note.Y - 0.5) * GlobalState.PlayAreaHeight));
 
-        Size = GlobalState.Config.DefaultNoteSize * (float)note.actual_size;
+        Size = GlobalState.Config.DefaultNoteSize * (float)note.ActualSize;
         NoteHead.transform.localScale = new Vector2(Size, Size);
         NoteHead.transform.localPosition = new Vector3(0, Size);
 
-        ApproachTime = (float)note.approach_time;
+        ApproachTime = (float)note.ApproachTime;
 
-        Height = (float)(GlobalState.PlayAreaHeight * note.hold_tick / GlobalState.CurrentChart.page_list[note.page_index].PageSize);
+        Height = (float)(GlobalState.PlayAreaHeight * note.HoldTick / GlobalState.CurrentChart.PageList[note.PageIndex].PageSize);
         FillNoteBody.GetComponent<SpriteRenderer>().size = new Vector2(Size, Height);
         HollowNoteBody.GetComponent<SpriteRenderer>().size = new Vector2(Size, Height);
 
-        HoldTime = (float)note.hold_time;
+        HoldTime = (float)note.HoldTime;
 
-        if (GlobalState.CurrentChart.page_list[note.page_index].scan_line_direction == -1)
+        if (GlobalState.CurrentChart.PageList[note.PageIndex].ScanLineDirection == -1)
         {
             transform.rotation = new Quaternion(0, 0, 1, 0);
         }
@@ -63,10 +66,10 @@ public class HoldNoteController : NoteController
         Highlighted = true;
         Highlight();
 
-        Notetype = note.type;
-        NoteID = note.id;
+        Notetype = note.Type;
+        NoteID = note.ID;
 
-        if(GlobalState.IsGameRunning)
+        if (GlobalState.IsGameRunning)
         {
             NoteFill.transform.localScale = NoteBorder.transform.localScale = new Vector3(0.6f, 0.6f);
             InnerNoteBorder.transform.localScale = new Vector3(0.4f, 0.4f);

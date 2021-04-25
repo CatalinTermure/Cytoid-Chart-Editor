@@ -20,7 +20,7 @@
 //
 
 
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace LunarConsolePluginInternal
@@ -40,7 +40,7 @@ namespace LunarConsolePluginInternal
 
         protected BaseList(T nullElement, int capacity)
             : this(new List<T>(capacity), nullElement)
-        {   
+        {
             if (nullElement == null)
             {
                 throw new ArgumentNullException("nullElement");
