@@ -50,6 +50,9 @@ public static class HotkeyManager
     public static KeyValuePair<KeyCode, KeyCode> IncreasePlaybackSpeed = new KeyValuePair<KeyCode, KeyCode>(KeyCode.None, KeyCode.Equals);
     public static KeyValuePair<KeyCode, KeyCode> DecreasePlaybackSpeed = new KeyValuePair<KeyCode, KeyCode>(KeyCode.None, KeyCode.Minus);
 
+    public static KeyValuePair<KeyCode, KeyCode> Undo = new KeyValuePair<KeyCode, KeyCode>(KeyCode.LeftControl, KeyCode.Z);
+    public static KeyValuePair<KeyCode, KeyCode> Redo = new KeyValuePair<KeyCode, KeyCode>(KeyCode.LeftControl, KeyCode.Y);
+
     public static void LoadCustomHotkeys()
     {
         if(File.Exists(Path.Combine(Application.persistentDataPath, "Hotkeys.txt")))

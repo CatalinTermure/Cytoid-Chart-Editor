@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -13,6 +13,18 @@ using static GlobalState;
 
 public class GameLogic : MonoBehaviour
 {
+    private static GameLogic instance;
+    public static GameLogic Instance
+    {
+        get
+        {
+            if (instance == null)
+                instance = FindObjectOfType<GameLogic>();
+            return instance;
+        }
+        set => instance = value;
+    }
+
     /// <summary>
     /// The currently selected note adder/tool.
     /// </summary>
@@ -64,12 +76,14 @@ public class GameLogic : MonoBehaviour
 
     [HideInInspector]
     public int CurrentPageIndex = 0;
-    private Page CurrentPage
+    public Page CurrentPage
     {
         get => CurrentChart.page_list[CurrentPageIndex];
     }
 
     private double ScheduledTime { get; set; }
+
+
     private bool IsStartScheduled = false;
 
     private static int PlaybackSpeedIndex = 2;
@@ -275,7 +289,7 @@ public class GameLogic : MonoBehaviour
     /// <summary>
     /// Calculates the start_time and end_time of pages, the time of tempos and the time, y, approach_time and hold_time of notes. 
     /// </summary>
-    private void CalculateTimings()
+    public void CalculateTimings()
     {
         int timebase = CurrentChart.time_base;
         List<Note> notes = CurrentChart.note_list;
@@ -502,12 +516,19 @@ public class GameLogic : MonoBehaviour
         return -1;
     }
 
+    public int AddNote(Note note)
+    {
+        var cmd = new PlaceNotesCommand(new Note[1] { note });
+        CommandSystem.AppendInvoke(cmd);
+        return cmd.affectedNoteIDs[0];
+    }
+
     /// <summary>
     /// Adds the note passed as parameter to the <see cref="CurrentChart"/>'s note_list so that the list remains sorted by tick.
     /// </summary>
     /// <param name="note"> The note to be added, its id will be modified. </param>
     /// <returns> Returns the position it was added to. </returns>
-    private int AddNote(Note note)
+    public int AddNoteInternal(Note note)
     {
         int poz = 0; // Determine the position to be inserted in
         // Currently using sequential search and not binary because we already have necessary O(N) complexity following so it does not make much of a difference, to be changed if performance is hit because of this.
@@ -552,11 +573,17 @@ public class GameLogic : MonoBehaviour
         return poz;
     }
 
+    public void RemoveNote(int noteID)
+    {
+        var cmd = new RemoveNotesCommand(new int[1] { noteID });
+        CommandSystem.AppendInvoke(cmd);
+    }
+
     /// <summary>
     /// Removes the note with the specified id.
     /// </summary>
     /// <param name="noteID"> The id of the note to be removed. </param>
-    private void RemoveNote(int noteID)
+    public void RemoveNoteInternal(int noteID)
     {
         for(int i = 0; i < NoteSpawns.Count; i++)
         {
@@ -890,7 +917,7 @@ public class GameLogic : MonoBehaviour
     /// Updates the current time to the <paramref name="time"/> specified.
     /// </summary>
     /// <param name="time"> The specified time the chart should be at. </param>
-    private void UpdateTime(double time)
+    public void UpdateTime(double time)
     {
         NotePropsManager.Clear();
         MakeButtonsInteractable();
@@ -1011,6 +1038,7 @@ public class GameLogic : MonoBehaviour
         {
             PlayPause();
         }
+
 #endif
         if (SaveOffsetScheduledTime > 0 && Time.time > SaveOffsetScheduledTime)
         {
@@ -1112,6 +1140,7 @@ public class GameLogic : MonoBehaviour
                 GameObject.Find("OtherOptionsScrollView").GetComponent<RectTransform>().anchoredPosition = new Vector2(-Screen.safeArea.x, GameObject.Find("OtherOptionsScrollView").GetComponent<RectTransform>().anchoredPosition.y);
             }
         }
+
     }
 
 #if UNITY_STANDALONE
@@ -1752,6 +1781,11 @@ public class GameLogic : MonoBehaviour
             CalculateTimings();
             UpdateTime(CurrentPage.actual_start_time);
         }
+
+        else if (WasPressed(HotkeyManager.Undo))
+            CommandSystem.Undo();
+        else if (WasPressed(HotkeyManager.Redo))
+            CommandSystem.Redo();
 
         for (int i = 0; i < tohighlight.Count; i++)
         {
@@ -2789,6 +2823,39 @@ public class GameLogic : MonoBehaviour
         }
     }
 
+    public void MoveByBeatSnap(int division, bool forward = true)
+    {
+        double nextPageTime = CurrentChart.page_list[CurrentPageIndex + 1].actual_start_time;
+        double pageStartTime = CurrentPage.actual_start_time;
+        double pageLength =  nextPageTime  - pageStartTime;
+        double timeToMove = pageLength / (float)division;
+        if(forward)
+        {
+            if ((MusicManager.Time + timeToMove) > nextPageTime)
+            {
+                CurrentPageIndex++;
+                UpdateTime(CurrentPage.actual_start_time);
+            }
+            else
+            {
+                UpdateTime(MusicManager.Time + timeToMove);
+            }
+        }
+        else
+        {
+            if ((MusicManager.Time - timeToMove) < pageStartTime)
+            {
+                CurrentPageIndex--;
+                UpdateTime(CurrentPage.end_time);
+            }
+            else
+            {
+                UpdateTime(MusicManager.Time - timeToMove);
+            }
+        }
+        
+    }
+
     public void ChangeTempo(GameObject scanlineNote, bool updateoffset = false)
     {
         string bpminput = scanlineNote.GetComponent<ScanlineNoteController>().BPMInputField.text, timeinput = scanlineNote.GetComponent<ScanlineNoteController>().TimeInputField.text;
@@ -2843,6 +2910,8 @@ public class GameLogic : MonoBehaviour
     }
 
     private double SaveOffsetScheduledTime = -1;
+    private bool enableBeatSnap = true;
+    private int currentBeatSnap = 8;
 
     public void IncreaseOffset()
     {
