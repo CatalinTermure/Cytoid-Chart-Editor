@@ -12,11 +12,14 @@ namespace CCE.Core
         [Range(0f, 1f)]
         public float Brightness;
 
+        public static Sprite BackgroundOverride = null;
+        
         public Sprite DefaultBackground;
 
         private void Start()
         {
-            ChangeBackground(DefaultBackground);
+            gameObject.GetComponent<RectTransform>().sizeDelta = new Vector2(1920, 1920);
+            ChangeBackground(BackgroundOverride == null ? DefaultBackground : BackgroundOverride);
         }
 
         private void ChangeBackground(Sprite sprite)

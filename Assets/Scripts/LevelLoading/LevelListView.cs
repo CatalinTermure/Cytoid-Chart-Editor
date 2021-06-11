@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using CCE.Data;
+using ManagedBass;
 using UnityEngine;
 
 namespace CCE.LevelLoading
@@ -153,6 +154,14 @@ namespace CCE.LevelLoading
             }
 
             return currentLevelCard;
+        }
+
+        public void FreeResources()
+        {
+            foreach (LevelCardInfo levelCardInfo in _levelCardInfos)
+            {
+                Bass.StreamFree(levelCardInfo.PreviewAudioHandle);
+            }
         }
 
         private void MoveBottomCardToTop()

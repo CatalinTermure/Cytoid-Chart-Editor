@@ -5,7 +5,6 @@ using UnityEngine;
 using CCE.Core;
 using CCE.Data;
 using ManagedBass;
-using Newtonsoft.Json;
 using UnityEngine.UI;
 
 namespace CCE.LevelLoading
@@ -136,17 +135,16 @@ namespace CCE.LevelLoading
                 
                 _chartCards[i].GetComponent<Button>().onClick.RemoveAllListeners();
                 _chartCards[i].GetComponent<Button>().onClick
-                    .AddListener(() =>
+                    .AddListener(async () =>
                     {
-                        string chartFilePath = Path.Combine(GlobalState.Config.LevelStoragePath, levelData.ID,
-                            chartData.Path);
                         string audioFilePath = Path.Combine(GlobalState.Config.LevelStoragePath, levelData.ID,
                             chartData.MusicOverride?.Path ?? levelData.Music.Path);
-                        var chart = new Chart(JsonConvert.DeserializeObject<ChartData>(File.ReadAllText(chartFilePath)),
-                            chartData);
-                        
-                        SceneNavigation.NavigateToChartEdit(chart, Bass.CreateStream(audioFilePath));
-                        // TODO: read this fully into memory first to reduce audio delay (?)
+
+                        _levelListView.FreeResources();
+
+                        byte[] data = await LevelAssetsManager.LoadFileAsync(audioFilePath);
+                        SceneNavigation.NavigateToChartEdit(levelData, chartData, 
+                            Bass.CreateStream(data, 0, data.Length, BassFlags.Default));
                     });
                 
                 _chartCardTexts[i].text = $"{chartData.DisplayName} Lvl. {chartData.Difficulty}";

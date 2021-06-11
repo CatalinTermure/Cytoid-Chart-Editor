@@ -116,7 +116,7 @@ namespace CCE.LevelLoading
             return result;
         }
 
-        private static async Task<byte[]> LoadFileAsync(string path)
+        public static async Task<byte[]> LoadFileAsync(string path)
         {
             using FileStream stream = File.Open(path, FileMode.Open);
             byte[] result = new byte[stream.Length];

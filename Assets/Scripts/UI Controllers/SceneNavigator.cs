@@ -7,7 +7,7 @@ public class SceneNavigator : MonoBehaviour
 {
     public void NavigateToFileSelect()
     {
-        SceneManager.LoadScene("FileSelectScene");
+        SceneManager.LoadScene("LevelSelectScene");
     }
 
     public void NavigatoToMainScreen()

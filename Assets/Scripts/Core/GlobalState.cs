@@ -39,11 +39,11 @@ namespace CCE.Core
 
         public static EditorConfig Config;
 
-        public static Sprite BackgroundSprite;
+        private static Sprite _backgroundSprite;
 
         public static string DefaultRingColor = "#FFFFFF";
 
-        public static string[] DefaultFillColors =
+        public static readonly string[] DefaultFillColors =
         {
             "#35A7FF", "#FF5964", "#39E59E", "#39E59E", "#35A7FF", "#FF5964", "#F2C85A", "#F2C85A", "#35A7FF",
             "#FF5964", "#39E59E", "#39E59E"
@@ -193,7 +193,7 @@ namespace CCE.Core
         public static void LoadChart(LevelData.ChartFileData chart)
         {
             CurrentChart =
-                new Chart(JsonUtility.FromJson<ChartData>(File.ReadAllText(Path.Combine(CurrentLevelPath, chart.Path))),
+                new Chart(JsonConvert.DeserializeObject<ChartData>(File.ReadAllText(Path.Combine(CurrentLevelPath, chart.Path))),
                     chart);
         }
 
@@ -221,7 +221,7 @@ namespace CCE.Core
             }
 
             CurrentChart = new Chart(
-                JsonUtility.FromJson<ChartData>(
+                JsonConvert.DeserializeObject<ChartData>(
                     "{\"format_version\":0,\"time_base\":480,\"start_offset_time\":0,\"page_list\":[{\"start_tick\":0,\"end_tick\":480,\"scan_line_direction\":-1}],\"tempo_list\":[{\"tick\":0,\"value\":1000000}],\"event_order_list\":[],\"note_list\":[]}"),
                 chart);
 
@@ -234,11 +234,12 @@ namespace CCE.Core
             {
                 var tex = new Texture2D(1, 1);
                 tex.LoadImage(File.ReadAllBytes(Path.Combine(CurrentLevelPath, CurrentLevel.Background.Path)));
-                BackgroundSprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), Vector2.zero);
+                _backgroundSprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), Vector2.zero);
+                BackgroundManager.BackgroundOverride = _backgroundSprite;
             }
             else
             {
-                BackgroundSprite = null;
+                _backgroundSprite = null;
             }
         }
 
