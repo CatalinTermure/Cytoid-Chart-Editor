@@ -36,7 +36,7 @@ namespace CCE.LevelLoading
             for (int i = 0; i < _cardObjectNames.Length; i++)
             {
                 _chartCards.Add(GameObject.Find(_cardObjectNames[i]));
-                _chartCardTexts.Add(_chartCards[i].GetComponent<Text>());
+                _chartCardTexts.Add(_chartCards[i].GetComponentInChildren<Text>());
             }
         }
 
@@ -111,7 +111,7 @@ namespace CCE.LevelLoading
             yield return new WaitForSeconds(0.25f);
 
             AudioManager.LoadAudio(handle);
-            AudioManager.PlayBass();
+            AudioManager.Play();
         }
 
         private IEnumerator UpdateBackgroundCoroutine(Sprite background)
@@ -141,7 +141,7 @@ namespace CCE.LevelLoading
                         string chartFilePath = Path.Combine(GlobalState.Config.LevelStoragePath, levelData.ID,
                             chartData.Path);
                         string audioFilePath = Path.Combine(GlobalState.Config.LevelStoragePath, levelData.ID,
-                            chartData.MusicOverride.Path ?? levelData.Music.Path);
+                            chartData.MusicOverride?.Path ?? levelData.Music.Path);
                         var chart = new Chart(JsonConvert.DeserializeObject<ChartData>(File.ReadAllText(chartFilePath)),
                             chartData);
                         

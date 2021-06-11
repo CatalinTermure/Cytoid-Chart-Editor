@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using CCE.Data;
+using ManagedBass;
 using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -57,11 +58,6 @@ namespace CCE.Core
 
         public static LevelData CurrentLevel;
         public static Chart CurrentChart;
-
-        /// <summary>
-        ///     The <see cref="AudioManager" /> that is responsible for playing music.
-        /// </summary>
-        public static AudioManager MusicManager;
 
         /// <summary>
         ///     AudioClip holding the currently selected hitsound.
@@ -153,25 +149,6 @@ namespace CCE.Core
             LoadBackground();
 
             Logging.AddToLog(_logPath, "Loaded background...\n");
-        }
-
-        public static void LoadAudio()
-        {
-            Logging.AddToLog(_logPath, "Trying to load music...\n");
-
-            if (File.Exists(Path.Combine(CurrentLevelPath,
-                CurrentChart.Data.MusicOverride?.Path ?? CurrentLevel.Music.Path)))
-            {
-                Logging.AddToLog(_logPath,
-                    $"Loading music at path: {CurrentChart.Data.MusicOverride?.Path ?? CurrentLevel.Music.Path}\n");
-
-                MusicManager?.UnloadAudio();
-
-                MusicManager = new AudioManager(Path.Combine(CurrentLevelPath,
-                    CurrentChart.Data.MusicOverride?.Path ?? CurrentLevel.Music.Path));
-
-                Logging.AddToLog(_logPath, "Loaded music successfully...\n");
-            }
         }
 
         /// <summary>
@@ -397,6 +374,12 @@ namespace CCE.Core
                     Hitsound = DownloadHandlerAudioClip.GetContent(www);
                 }
             }
+        }
+
+        private void OnApplicationQuit()
+        {
+            AudioManager.Stop();
+            Bass.Free();
         }
     }
 }

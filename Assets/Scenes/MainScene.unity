@@ -7924,12 +7924,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9b8c58805537def4c8458aa1062f1739, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ScanlineNotePrefab: {fileID: 0}
+  HalfSpeedMixer: {fileID: 458118914371811128, guid: a0506c9cd236e4843ae4cf39be1f508c,
+    type: 2}
+  ThreeQuarterSpeedMixer: {fileID: -4711021258705650607, guid: a0506c9cd236e4843ae4cf39be1f508c,
+    type: 2}
+  CurrentPageIndex: 0
+  ScanlineNotePrefab: {fileID: 2563619203956517995, guid: 555c60b1559d01a4398dfe640edfe71f,
+    type: 3}
   DivisorLinePrefab: {fileID: 7172673242623947715, guid: 5aa73672144572343b7ba6f472e067d6,
     type: 3}
   NotePropsManager: {fileID: 1737953261}
-  PageText: {fileID: 1742379983}
-  TimeText: {fileID: 1241619391}
   Scanline: {fileID: 1965689430}
   Timeline: {fileID: 735285210}
   MusicSource: {fileID: 21510671}
@@ -7939,11 +7943,6 @@ MonoBehaviour:
   - {fileID: 791499758}
   - {fileID: 172120406}
   BeatDivisorSlider: {fileID: 2136568711}
-  HalfSpeedMixer: {fileID: 458118914371811128, guid: a0506c9cd236e4843ae4cf39be1f508c,
-    type: 2}
-  ThreeQuarterSpeedMixer: {fileID: -4711021258705650607, guid: a0506c9cd236e4843ae4cf39be1f508c,
-    type: 2}
-  CurrentPageIndex: 0
 --- !u!114 &1739609895
 MonoBehaviour:
   m_ObjectHideFlags: 0

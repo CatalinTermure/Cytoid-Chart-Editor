@@ -85,9 +85,9 @@ namespace CCE.Game
         {
             _selectionBox = GameObject.Find("SelectionBox");
             _selectionBox.SetActive(false);
-            _playPauseButton = GameObject.Find("_playPauseButton");
+            _playPauseButton = GameObject.Find("PlayPauseButton");
             _mainCamera = Camera.main;
-            _lockYText = GameObject.Find("_lockYText");
+            _lockYText = GameObject.Find("LockYText");
             _lockYText.SetActive(false);
             if (CurrentChart == null) return;
 
@@ -258,7 +258,7 @@ namespace CCE.Game
 
             if (IsGameRunning)
             {
-                if (!MusicManager.IsPlaying) // If the music ended
+                if (!AudioManager.IsPlaying) // If the music ended
                 {
                     IsGameRunning = false;
                     CurrentPageIndex = 0;
@@ -268,7 +268,7 @@ namespace CCE.Game
 
                 if (Config.UpdateTimelineWhileRunning)
                 {
-                    Timeline.SetValueWithoutNotify((float) (AudioManager.Time / MusicManager.MaxTime) *
+                    Timeline.SetValueWithoutNotify((float) (AudioManager.Time / AudioManager.MaxTime) *
                                                    _playbackSpeeds[_playbackSpeedIndex]);
                 }
 
@@ -317,7 +317,7 @@ namespace CCE.Game
                                                 Math.Floor(time - CurrentChart.MusicOffset) * 1000)).ToString("D3"));
 
                 GameObject.Find("PageText").GetComponent<Text>().text = CurrentPageIndex.ToString();
-                GameObject.Find("_timeText").GetComponent<Text>().text = _timeTextBuilder.ToString();
+                GameObject.Find("TimeText").GetComponent<Text>().text = _timeTextBuilder.ToString();
 
                 if (CurrentPageIndex <
                     CurrentChart.PageList.Count) // in case the pages don't go to the end of the chart
@@ -461,7 +461,7 @@ namespace CCE.Game
                 tempos[ti].Time = tempoSum;
             }
 
-            double realMaxTime = MusicManager.MaxTime / _playbackSpeeds[_playbackSpeedIndex] + CurrentChart.MusicOffset;
+            double realMaxTime = AudioManager.MaxTime / _playbackSpeeds[_playbackSpeedIndex] + CurrentChart.MusicOffset;
             if (pages[p - 1].EndTime < realMaxTime) // Add pages in case the page_list ends before the music
             {
                 double lastTempoTime =
@@ -916,7 +916,7 @@ namespace CCE.Game
 
             if (IsGameRunning)
             {
-                MusicManager.Pause();
+                AudioManager.Pause();
                 IsGameRunning = false;
                 _isStartScheduled = false;
 
@@ -933,7 +933,7 @@ namespace CCE.Game
             else
             {
                 _playPauseButton.SetActive(false);
-                ScheduledTime = MusicManager.Play();
+                ScheduledTime = AudioManager.Play();
                 _isStartScheduled = true;
                 foreach (GameObject obj in GameObject.FindGameObjectsWithTag("ScanlineNote"))
                 {
@@ -1032,7 +1032,7 @@ namespace CCE.Game
 
             if (!IsGameRunning)
             {
-                double time = Timeline.value * MusicManager.MaxTime * 1 / _playbackSpeeds[_playbackSpeedIndex];
+                double time = Timeline.value * AudioManager.MaxTime * 1 / _playbackSpeeds[_playbackSpeedIndex];
 
                 CurrentPageIndex = SnapTimeToPage(time);
 
@@ -1204,7 +1204,7 @@ namespace CCE.Game
 
             AudioManager.Time = time - Offset;
 
-            Timeline.SetValueWithoutNotify((float) (AudioManager.Time / MusicManager.MaxTime) *
+            Timeline.SetValueWithoutNotify((float) (AudioManager.Time / AudioManager.MaxTime) *
                                            _playbackSpeeds[_playbackSpeedIndex]);
         }
 
@@ -2332,7 +2332,7 @@ namespace CCE.Game
                 2 => null,
                 _ => throw new ArgumentOutOfRangeException()
             };
-            MusicManager.PlaybackSpeed = _playbackSpeeds[_playbackSpeedIndex];
+            AudioManager.PlaybackSpeed = _playbackSpeeds[_playbackSpeedIndex];
             UpdateTime(CurrentPage.ActualStartTime);
             GameObject.Find("PlaybackSpeedText").GetComponent<Text>().text =
                 $"{(int) (_playbackSpeeds[_playbackSpeedIndex] * 100)}%";

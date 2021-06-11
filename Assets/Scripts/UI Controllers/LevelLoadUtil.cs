@@ -7,6 +7,6 @@ public class LevelLoadUtil : MonoBehaviour
 {
     public void LoadAudio()
     {
-        GlobalState.LoadAudio();
+        //
     }
 }
