@@ -268,8 +268,7 @@ namespace CCE.Game
 
                 if (Config.UpdateTimelineWhileRunning)
                 {
-                    Timeline.SetValueWithoutNotify((float) (AudioManager.Time / AudioManager.MaxTime) *
-                                                   _playbackSpeeds[_playbackSpeedIndex]);
+                    Timeline.SetValueWithoutNotify((float) (AudioManager.Time / AudioManager.MaxTime));
                 }
 
                 double time = AudioManager.Time + Offset;
@@ -461,7 +460,7 @@ namespace CCE.Game
                 tempos[ti].Time = tempoSum;
             }
 
-            double realMaxTime = AudioManager.MaxTime / _playbackSpeeds[_playbackSpeedIndex] + CurrentChart.MusicOffset;
+            double realMaxTime = AudioManager.MaxTime + CurrentChart.MusicOffset;
             if (pages[p - 1].EndTime < realMaxTime) // Add pages in case the page_list ends before the music
             {
                 double lastTempoTime =
@@ -1032,7 +1031,7 @@ namespace CCE.Game
 
             if (!IsGameRunning)
             {
-                double time = Timeline.value * AudioManager.MaxTime * 1 / _playbackSpeeds[_playbackSpeedIndex];
+                double time = Timeline.value * AudioManager.MaxTime;
 
                 CurrentPageIndex = SnapTimeToPage(time);
 
@@ -1204,8 +1203,7 @@ namespace CCE.Game
 
             AudioManager.Time = time - Offset;
 
-            Timeline.SetValueWithoutNotify((float) (AudioManager.Time / AudioManager.MaxTime) *
-                                           _playbackSpeeds[_playbackSpeedIndex]);
+            Timeline.SetValueWithoutNotify((float) (AudioManager.Time / AudioManager.MaxTime));
         }
 
         public void Dragify()
