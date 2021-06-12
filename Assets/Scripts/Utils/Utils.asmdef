@@ -1,10 +1,7 @@
 {
-    "name": "Core",
+    "name": "Utils",
     "rootNamespace": "CCE",
-    "references": [
-        "GUID:819db1f776cc1504abf6b703a197db89",
-        "GUID:bba6af8ad3c0fc845b2046e1d24da570"
-    ],
+    "references": [],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

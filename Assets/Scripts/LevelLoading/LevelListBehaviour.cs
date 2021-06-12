@@ -144,7 +144,7 @@ namespace CCE.LevelLoading
 
                         byte[] data = await LevelAssetsManager.LoadFileAsync(audioFilePath);
                         SceneNavigation.NavigateToChartEdit(levelData, chartData, 
-                            Bass.CreateStream(data, 0, data.Length, BassFlags.Default));
+                            Bass.CreateStream(data, 0, data.Length, BassFlags.Decode));
                     });
                 
                 _chartCardTexts[i].text = $"{chartData.DisplayName} Lvl. {chartData.Difficulty}";
