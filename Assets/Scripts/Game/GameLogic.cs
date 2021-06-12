@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -66,6 +67,9 @@ namespace CCE.Game
         private double _saveEditorOffsetScheduledTime = -1;
         private Vector2 _startMovePos;
 
+        [SerializeField]
+        private LineRenderer utilityLineRenderer;
+
         public static GameLogic Instance
         {
             get
@@ -89,6 +93,7 @@ namespace CCE.Game
             _mainCamera = Camera.main;
             _lockYText = GameObject.Find("LockYText");
             _lockYText.SetActive(false);
+            utilityLineRenderer = GetComponent<LineRenderer>(); 
             if (CurrentChart == null) return;
 
             if (Config.DebugMode)
@@ -1588,76 +1593,40 @@ namespace CCE.Game
                         {
                             X = noteX,
                             PageIndex = CurrentPageIndex,
-                            Type = (int) NoteType.Click,
+                            Type = (int)NoteType.Click,
                             ID = -1,
                             HoldTick = 0,
                             NextID = 0,
-                            Tick = (int) (CurrentPage.ActualStartTick + CurrentPage.ActualPageSize *
-                                (CurrentPage.ScanLineDirection == 1
-                                    ? Math.Round((touchPos.y + PlayAreaHeight / 2) /
-                                                 (PlayAreaHeight / _beatDivisorValue)) / _beatDivisorValue
-                                    : 1.0f - Math.Round((touchPos.y + PlayAreaHeight / 2) /
-                                                        (PlayAreaHeight / _beatDivisorValue)) / _beatDivisorValue))
+                            Tick = (int)GetTickForTouchPosition(touchPos)
                         });
 
                         CalculateTimings();
                         UpdateTime(CurrentPage.ActualStartTime);
                     }
-                    else if (CurrentTool == NoteType.Hold) // Add hold note
+                    else if (CurrentTool == NoteType.Hold || CurrentTool == NoteType.LongHold) // Add hold notes
                     {
-                        int tick = (int) (CurrentPage.ActualStartTick + CurrentPage.ActualPageSize *
-                            (CurrentPage.ScanLineDirection == 1
-                                ? Math.Round((touchPos.y + PlayAreaHeight / 2) / (PlayAreaHeight / _beatDivisorValue)) /
-                                  _beatDivisorValue
-                                : 1.0f - Math.Round((touchPos.y + PlayAreaHeight / 2) /
-                                                    (PlayAreaHeight / _beatDivisorValue)) / _beatDivisorValue));
+                        int tick = (int)GetTickForTouchPosition(touchPos);
 
                         if (!Config.ShowApproachingNotesWhilePaused && tick == CurrentPage.EndTick)
                         {
                             return;
                         }
-
-                        AddNote(new Note
+                        
+                        Note note = new Note
                         {
                             X = noteX,
                             PageIndex = CurrentPageIndex + (tick == CurrentPage.EndTick ? 1 : 0),
-                            Type = (int) NoteType.Hold,
+                            Type = (int)CurrentTool,
                             ID = -1,
                             HoldTick = CurrentChart.TimeBase / _beatDivisorValue,
                             NextID = 0,
                             Tick = tick
-                        });
+                        };
 
-                        CalculateTimings();
-                        UpdateTime(CurrentPage.ActualStartTime);
-                    }
-                    else if (CurrentTool == NoteType.LongHold) // Add long hold note
-                    {
-                        int tick = (int) (CurrentPage.ActualStartTick + CurrentPage.ActualPageSize *
-                            (CurrentPage.ScanLineDirection == 1
-                                ? Math.Round((touchPos.y + PlayAreaHeight / 2) / (PlayAreaHeight / _beatDivisorValue)) /
-                                  _beatDivisorValue
-                                : 1.0f - Math.Round((touchPos.y + PlayAreaHeight / 2) /
-                                                    (PlayAreaHeight / _beatDivisorValue)) / _beatDivisorValue));
 
-                        if (!Config.ShowApproachingNotesWhilePaused && tick == CurrentPage.EndTick)
-                        {
-                            return;
-                        }
+                        StartCoroutine(HandleHoldNoteDrag(touchPos, note));
 
-                        AddNote(new Note
-                        {
-                            X = noteX,
-                            PageIndex = CurrentPageIndex + (tick == CurrentPage.EndTick ? 1 : 0),
-                            Type = (int) NoteType.LongHold,
-                            ID = -1,
-                            HoldTick = CurrentChart.TimeBase / _beatDivisorValue,
-                            NextID = 0,
-                            Tick = tick
-                        });
-
-                        CalculateTimings();
-                        UpdateTime(CurrentPage.ActualStartTime);
+                        
                     }
                     else if (CurrentTool == NoteType.Flick) // Add flick note
                     {
@@ -1669,12 +1638,7 @@ namespace CCE.Game
                             ID = -1,
                             HoldTick = 0,
                             NextID = 0,
-                            Tick = (int) (CurrentPage.ActualStartTick + CurrentPage.ActualPageSize *
-                                (CurrentPage.ScanLineDirection == 1
-                                    ? Math.Round((touchPos.y + PlayAreaHeight / 2) /
-                                                 (PlayAreaHeight / _beatDivisorValue)) / _beatDivisorValue
-                                    : 1.0f - Math.Round((touchPos.y + PlayAreaHeight / 2) /
-                                                        (PlayAreaHeight / _beatDivisorValue)) / _beatDivisorValue))
+                            Tick = (int) GetTickForTouchPosition(touchPos)
                         });
 
                         CalculateTimings();
@@ -1693,12 +1657,7 @@ namespace CCE.Game
                                                                                noteType == (int) NoteType.DragChild))
                                 // Add drag child
                             {
-                                int tick = (int) (CurrentPage.ActualStartTick + CurrentPage.ActualPageSize *
-                                    (CurrentPage.ScanLineDirection == 1
-                                        ? Math.Round((touchPos.y + PlayAreaHeight / 2) /
-                                                     (PlayAreaHeight / _beatDivisorValue)) / _beatDivisorValue
-                                        : 1.0f - Math.Round((touchPos.y + PlayAreaHeight / 2) /
-                                                            (PlayAreaHeight / _beatDivisorValue)) / _beatDivisorValue));
+                                int tick = (int) GetTickForTouchPosition(touchPos);
 
                                 if (CurrentChart.NoteList[noteID].Tick < tick)
                                 {
@@ -1732,12 +1691,7 @@ namespace CCE.Game
                                 ID = -1,
                                 HoldTick = 0,
                                 NextID = -1,
-                                Tick = (int) (CurrentPage.ActualStartTick + CurrentPage.ActualPageSize *
-                                    (CurrentPage.ScanLineDirection == 1
-                                        ? Math.Round((touchPos.y + PlayAreaHeight / 2) /
-                                                     (PlayAreaHeight / _beatDivisorValue)) / _beatDivisorValue
-                                        : 1.0f - Math.Round((touchPos.y + PlayAreaHeight / 2) /
-                                                            (PlayAreaHeight / _beatDivisorValue)) / _beatDivisorValue)),
+                                Tick = (int) GetTickForTouchPosition(touchPos),
                                 DragID = _currentDragID + 1
                             });
                             _currentDragID++;
@@ -1760,12 +1714,7 @@ namespace CCE.Game
                                                                                noteType == (int) NoteType.CDragChild))
                                 // Add cdrag child
                             {
-                                int tick = (int) (CurrentPage.ActualStartTick + CurrentPage.ActualPageSize *
-                                    (CurrentPage.ScanLineDirection == 1
-                                        ? Math.Round((touchPos.y + PlayAreaHeight / 2) /
-                                                     (PlayAreaHeight / _beatDivisorValue)) / _beatDivisorValue
-                                        : 1.0f - Math.Round((touchPos.y + PlayAreaHeight / 2) /
-                                                            (PlayAreaHeight / _beatDivisorValue)) / _beatDivisorValue));
+                                int tick = (int) GetTickForTouchPosition(touchPos);
 
                                 if (CurrentChart.NoteList[obj.GetComponent<NoteController>().NoteID].Tick < tick)
                                 {
@@ -1799,12 +1748,7 @@ namespace CCE.Game
                                 ID = -1,
                                 HoldTick = 0,
                                 NextID = -1,
-                                Tick = (int) (CurrentPage.ActualStartTick + CurrentPage.ActualPageSize *
-                                    (CurrentPage.ScanLineDirection == 1
-                                        ? Math.Round((touchPos.y + PlayAreaHeight / 2) /
-                                                     (PlayAreaHeight / _beatDivisorValue)) / _beatDivisorValue
-                                        : 1.0f - Math.Round((touchPos.y + PlayAreaHeight / 2) /
-                                                            (PlayAreaHeight / _beatDivisorValue)) / _beatDivisorValue)),
+                                Tick = (int) GetTickForTouchPosition(touchPos),
                                 DragID = _currentDragID + 1
                             });
                             _currentDragID++;
@@ -1818,12 +1762,7 @@ namespace CCE.Game
                     {
                         AddTempo(new Tempo
                         {
-                            Tick = (int) (CurrentPage.ActualStartTick + CurrentPage.ActualPageSize *
-                                (CurrentPage.ScanLineDirection == 1
-                                    ? Math.Round((touchPos.y + PlayAreaHeight / 2) /
-                                                 (PlayAreaHeight / _beatDivisorValue)) / _beatDivisorValue
-                                    : 1.0f - Math.Round((touchPos.y + PlayAreaHeight / 2) /
-                                                        (PlayAreaHeight / _beatDivisorValue)) / _beatDivisorValue)),
+                            Tick = (int) GetTickForTouchPosition(touchPos),
                             Value = CurrentChart.TempoList[_currentTempoIndex].Value
                         });
 
@@ -2222,6 +2161,17 @@ namespace CCE.Game
             }
         }
 
+        private double GetTickForTouchPosition(Vector2 touchPos)
+        {
+            return (CurrentPage.ActualStartTick + CurrentPage.ActualPageSize *
+                   (CurrentPage.ScanLineDirection == 1
+                   ? Math.Round((touchPos.y + PlayAreaHeight / 2) 
+                   / (PlayAreaHeight / _beatDivisorValue)) /
+                   _beatDivisorValue
+                   : 1.0f - Math.Round((touchPos.y + PlayAreaHeight / 2) /
+                   (PlayAreaHeight / _beatDivisorValue)) / _beatDivisorValue));
+        }
+
         private void HighlightNoteWithID(int id)
         {
             foreach (GameObject obj in GameObject.FindGameObjectsWithTag("Note"))
@@ -2251,6 +2201,29 @@ namespace CCE.Game
             }
         }
 
+
+        IEnumerator HandleHoldNoteDrag(Vector2 startPos, Note note)
+        {
+            Vector2 currentPos = startPos;
+            utilityLineRenderer.enabled = true;
+            while (Input.GetMouseButton(0))
+            {
+                currentPos = _mainCamera.ScreenToWorldPoint(Input.mousePosition);
+                utilityLineRenderer.SetPositions(new Vector3[] { startPos, new Vector2(startPos.x, currentPos.y) });
+                yield return null;
+            }
+            int endTick = Mathf.Max(0, (int)GetTickForTouchPosition(currentPos) - note.Tick);
+            utilityLineRenderer.enabled = false;
+            if (endTick > note.HoldTick)
+            {
+                note.HoldTick = endTick;
+            }
+
+            AddNote(note);
+
+            CalculateTimings();
+            UpdateTime(CurrentPage.ActualStartTime);
+        }
         public void ChangeTempo(GameObject scanlineNote, bool updateOffset = false)
         {
             string bpmInput = scanlineNote.GetComponent<ScanlineNoteController>().BPMInputField.text;
