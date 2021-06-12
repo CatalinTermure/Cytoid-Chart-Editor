@@ -9,7 +9,6 @@ namespace CCE.Data
     {
         [JsonProperty("format_version")] public int FormatVersion = 0;
         [JsonProperty("time_base")] public int TimeBase = 480;
-        [JsonProperty("start_offset_time")] private int _startOffsetTime = 0;
         [JsonProperty("music_offset")] public double MusicOffset = 0;
 
         [JsonProperty("size")] public double Size = 1.0;
@@ -18,6 +17,12 @@ namespace CCE.Data
         [JsonProperty("ring_color")] public string RingColor = null;
         [JsonProperty("fill_colors")] public List<string> FillColors =
             new List<string>(12) { null, null, null, null, null, null, null, null, null, null, null, null };
+        
+        [JsonProperty("display_boundaries")] public bool? DisplayBoundaries;
+        [JsonProperty("display_background")] public bool? DisplayBackground;
+        [JsonProperty("horizontal_margin")] public int? HorizontalMargin;
+        [JsonProperty("vertical_margin")] public int? VerticalMargin;
+        [JsonProperty("skip_music_on_completion")] public bool? SkipMusicONCompletion;
 
         public bool ShouldSerializeSize()
         {
