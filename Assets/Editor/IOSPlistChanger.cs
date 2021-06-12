@@ -1,4 +1,5 @@
-﻿using UnityEditor.iOS.Xcode;
+﻿#if !UNITY_EDITOR_WIN
+using UnityEditor.iOS.Xcode;
 using UnityEditor.Callbacks;
 using UnityEditor;
 using System.IO;
@@ -24,3 +25,5 @@ public class IOSPlistChanger
         }
     }
 }
+
+#endif
