@@ -53,6 +53,8 @@ namespace CCE.Core
         public static double MaxTime =>
             Bass.ChannelBytes2Seconds(_channelStream, Bass.ChannelGetLength(_channelStream));
 
+        
+
         /// <summary>
         ///     Plays the <see cref="AudioClip" />
         ///     loaded into the <see cref="AudioManager" />.
@@ -67,6 +69,7 @@ namespace CCE.Core
             IsPlaying = true;
             Bass.ChannelPlay(_channelStream);
             BassUtils.PrintLastError();
+
 
             return AudioSettings.dspTime;
         }
