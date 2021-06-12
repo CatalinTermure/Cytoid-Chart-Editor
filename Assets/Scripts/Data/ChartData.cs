@@ -22,7 +22,7 @@ namespace CCE.Data
         [JsonProperty("display_background")] public bool? DisplayBackground;
         [JsonProperty("horizontal_margin")] public int? HorizontalMargin;
         [JsonProperty("vertical_margin")] public int? VerticalMargin;
-        [JsonProperty("skip_music_on_completion")] public bool? SkipMusicONCompletion;
+        [JsonProperty("skip_music_on_completion")] public bool? SkipMusicOnCompletion;
 
         public bool ShouldSerializeSize()
         {

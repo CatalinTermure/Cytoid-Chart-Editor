@@ -4,7 +4,9 @@ using System.IO;
 using UnityEngine;
 using CCE.Core;
 using CCE.Data;
+using CCE.Utils;
 using ManagedBass;
+using Newtonsoft.Json;
 using UnityEngine.UI;
 
 namespace CCE.LevelLoading
@@ -22,6 +24,7 @@ namespace CCE.LevelLoading
         
         private Text _easyCardText, _hardCardText, _extremeCardText;
         private List<GameObject> _chartCards;
+        private List<Button> _chartCardButtons;
         private List<Text> _chartCardTexts;
         private readonly string[] _cardObjectNames = {"Easy Chart Card", "Hard Chart Card", "Extreme Chart Card"};
         private readonly string[] _chartTypes = {"easy", "hard", "extreme"};
@@ -31,11 +34,13 @@ namespace CCE.LevelLoading
             GameObject.Find("Screen Background").GetComponent<BackgroundManager>();
             _chartCards = new List<GameObject>(3);
             _chartCardTexts = new List<Text>(3);
+            _chartCardButtons = new List<Button>(3);
 
             for (int i = 0; i < _cardObjectNames.Length; i++)
             {
                 _chartCards.Add(GameObject.Find(_cardObjectNames[i]));
                 _chartCardTexts.Add(_chartCards[i].GetComponentInChildren<Text>());
+                _chartCardButtons.Add(_chartCards[i].GetComponent<Button>());
             }
         }
 
@@ -130,25 +135,57 @@ namespace CCE.LevelLoading
                 if (chartData == null)
                 {
                     _chartCardTexts[i].text = $"Add {_chartTypes[i]}";
+                    _chartCardButtons[i].onClick.RemoveAllListeners();
+                    int iCapture = i;
+                    _chartCardButtons[i].onClick.AddListener(() => LoadNewChart(levelData, _chartTypes[iCapture]));
                     continue;
                 }
                 
-                _chartCards[i].GetComponent<Button>().onClick.RemoveAllListeners();
-                _chartCards[i].GetComponent<Button>().onClick
-                    .AddListener(async () =>
-                    {
-                        string audioFilePath = Path.Combine(GlobalState.Config.LevelStoragePath, levelData.ID,
-                            chartData.MusicOverride?.Path ?? levelData.Music.Path);
-
-                        _levelListView.FreeResources();
-
-                        byte[] data = await LevelAssetsManager.LoadFileAsync(audioFilePath);
-                        SceneNavigation.NavigateToChartEdit(levelData, chartData, 
-                            Bass.CreateStream(data, 0, data.Length, BassFlags.Decode));
-                    });
+                _chartCardButtons[i].onClick.RemoveAllListeners();
+                _chartCardButtons[i].onClick.AddListener(() => LoadChart(levelData, chartData));
                 
                 _chartCardTexts[i].text = $"{chartData.DisplayName} Lvl. {chartData.Difficulty}";
             }
+        }
+
+        private async void LoadChart(LevelData levelData, LevelData.ChartFileData chartData)
+        {
+            string audioFilePath = Path.Combine(GlobalState.Config.LevelStoragePath, levelData.ID,
+                chartData.MusicOverride?.Path ?? levelData.Music.Path);
+
+            _levelListView.FreeResources();
+
+            byte[] data = await LevelAssetsManager.LoadFileAsync(audioFilePath);
+            SceneNavigation.NavigateToChartEdit(levelData, chartData, 
+                Bass.CreateStream(data, 0, data.Length, BassFlags.Decode));
+        }
+
+        private async void LoadNewChart(LevelData levelData, string type)
+        {
+            string levelDirPath = Path.Combine(GlobalState.Config.LevelStoragePath, levelData.ID);
+            string audioFilePath = Path.Combine(levelDirPath, levelData.Music.Path);
+            string chartFilePath = FileUtils.GetUniqueFilePath(Path.Combine(levelDirPath, $"chart-{type}.json"));
+            
+            File.WriteAllText(chartFilePath, GlobalState.NewChartString);
+            var chartData = new LevelData.ChartFileData()
+            {
+                Type = type,
+                Path = Path.GetFileName(chartFilePath)
+            };
+            
+            levelData.Charts.Add(chartData);
+            File.WriteAllText(Path.Combine(levelDirPath, "level.json"), 
+                JsonConvert.SerializeObject(levelData, new JsonSerializerSettings()
+                {
+                    NullValueHandling = NullValueHandling.Ignore,
+                    Formatting = Formatting.Indented
+                }));
+
+            _levelListView.FreeResources();
+
+            byte[] data = await LevelAssetsManager.LoadFileAsync(audioFilePath);
+            SceneNavigation.NavigateToChartEdit(levelData, chartData, 
+                Bass.CreateStream(data, 0, data.Length, BassFlags.Decode));
         }
 
         private void OnEnable()
@@ -157,11 +194,6 @@ namespace CCE.LevelLoading
             {
                 AudioManager.Initialize();
             }
-        }
-
-        private void OnApplicationQuit()
-        {
-            Bass.Free();
         }
     }
 }

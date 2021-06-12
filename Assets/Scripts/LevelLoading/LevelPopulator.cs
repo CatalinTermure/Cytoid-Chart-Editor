@@ -82,7 +82,7 @@ namespace CCE.LevelLoading
         /// <param name="levelItemTemplate"> Template level card for initializing the pool. </param>
         public IEnumerator PopulateLevelsCoroutine(GameObject levelItemTemplate)
         {
-            //This folder doesn't get created anywhere, cherk to see if it exists.   
+            //This folder doesn't get created anywhere, check to see if it exists.   
             if (!Directory.Exists(GlobalState.Config.LevelStoragePath))
                 Directory.CreateDirectory(GlobalState.Config.LevelStoragePath);
 
