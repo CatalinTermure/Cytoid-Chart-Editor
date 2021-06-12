@@ -68,6 +68,8 @@ namespace CCE.Core
 
         private static string _logPath;
 
+        public const string NewChartString = "{\"format_version\":0,\"time_base\":480,\"start_offset_time\":0,\"page_list\":[{\"start_tick\":0,\"end_tick\":480,\"scan_line_direction\":-1}],\"tempo_list\":[{\"tick\":0,\"value\":1000000}],\"event_order_list\":[],\"note_list\":[]}";
+
         public static string InAppLogString = "";
 
 #if UNITY_STANDALONE
@@ -195,37 +197,6 @@ namespace CCE.Core
             CurrentChart =
                 new Chart(JsonConvert.DeserializeObject<ChartData>(File.ReadAllText(Path.Combine(CurrentLevelPath, chart.Path))),
                     chart);
-        }
-
-        public static void CreateChart()
-        {
-            Logging.AddToLog(_logPath, "Creating a new chart...\n");
-
-            LevelData.ChartFileData chart;
-            CurrentLevel.Charts.Add(chart = new LevelData.ChartFileData
-            {
-                Type = "easy",
-                Difficulty = 0,
-                Path = "chart.json"
-            });
-            if (File.Exists(Path.Combine(CurrentLevelPath, "chart.json")))
-            {
-                for (int i = 1; i < 10; i++)
-                {
-                    if (!File.Exists(Path.Combine(CurrentLevelPath, $"chart{i}.json")))
-                    {
-                        CurrentLevel.Charts[CurrentLevel.Charts.Count - 1].Path = $"chart{i}.json";
-                        break;
-                    }
-                }
-            }
-
-            CurrentChart = new Chart(
-                JsonConvert.DeserializeObject<ChartData>(
-                    "{\"format_version\":0,\"time_base\":480,\"start_offset_time\":0,\"page_list\":[{\"start_tick\":0,\"end_tick\":480,\"scan_line_direction\":-1}],\"tempo_list\":[{\"tick\":0,\"value\":1000000}],\"event_order_list\":[],\"note_list\":[]}"),
-                chart);
-
-            Logging.AddToLog(_logPath, "New chart created...");
         }
 
         public static void LoadBackground()

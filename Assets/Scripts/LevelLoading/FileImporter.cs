@@ -2,6 +2,7 @@
 using System.IO.Compression;
 using CCE.Core;
 using CCE.Data;
+using CCE.Utils;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 using UnityEngine;
@@ -164,22 +165,8 @@ namespace CCE.LevelLoading
         {
             string finalPath = Path.Combine(resourceFolderPath, Path.GetFileName(FilePath));
 
-            if (File.Exists(finalPath))
-            {
-                int i = 1;
-                string newFileName = 
-                    Path.GetFileNameWithoutExtension(FilePath) + $" ({i})" + Path.GetExtension(FilePath);
+            finalPath = FileUtils.GetUniqueFilePath(finalPath);
 
-                while (File.Exists(Path.Combine(resourceFolderPath, newFileName)))
-                {
-                    i++;
-                    newFileName = 
-                        Path.GetFileNameWithoutExtension(FilePath) + $" ({i})" + Path.GetExtension(FilePath);
-                }
-
-                finalPath = Path.Combine(resourceFolderPath, newFileName);
-            }
-            
             File.Copy(FilePath, finalPath); 
         }
     }

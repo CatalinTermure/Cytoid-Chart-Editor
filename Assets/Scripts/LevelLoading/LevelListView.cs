@@ -172,7 +172,7 @@ namespace CCE.LevelLoading
 
             _levelCardInfos[0].LevelIndex = _levelCardInfos[1].LevelIndex - 1;
 
-            _levelCardInfos[0].RectTransform.SetAsLastSibling();
+            _levelCardInfos[0].RectTransform.SetAsFirstSibling();
 
             FillLevelCard(_levelCardInfos[0], _levels[_levelCardInfos[0].LevelIndex]);
         }
@@ -186,7 +186,7 @@ namespace CCE.LevelLoading
             _levelCardInfos[_levelCardInfos.Count - 1].LevelIndex =
                 _levelCardInfos[_levelCardInfos.Count - 2].LevelIndex + 1;
             
-            _levelCardInfos[_levelCardInfos.Count - 1].RectTransform.SetAsFirstSibling();
+            _levelCardInfos[_levelCardInfos.Count - 1].RectTransform.SetAsLastSibling();
 
             FillLevelCard(_levelCardInfos[_levelCardInfos.Count - 1],
                 _levels[_levelCardInfos[_levelCardInfos.Count - 1].LevelIndex]);
