@@ -12,12 +12,26 @@ namespace CCE.Core
 
         public static bool IsPlaying;
 
-        public static double PlaybackSpeed = 1;
+        private static double playbackSpeed = 1;
+        
+        public static double PlaybackSpeed
+        {
+            get => playbackSpeed; 
+            set
+            {
+                playbackSpeed = value;
+                Bass.ChannelSetAttribute(_audioHandle,
+                    ChannelAttribute.Frequency,
+                    value * (double)baseFrequency);
+            }
+        }
 
         private static int _audioHandle;
 
         private static AudioClip _music;
-        
+
+        private static int baseFrequency;
+
         public static double Time
         {
             get => Bass.ChannelBytes2Seconds(_audioHandle,
@@ -32,6 +46,8 @@ namespace CCE.Core
             Bass.ChannelBytes2Seconds(_audioHandle,
                 Bass.ChannelGetLength(_audioHandle));
 
+        
+
         /// <summary>
         /// Plays the <see cref="AudioClip"/> 
         /// loaded into the <see cref="AudioManager"/>.
@@ -44,7 +60,9 @@ namespace CCE.Core
             }
             
             IsPlaying = true;
+
             Bass.ChannelPlay(_audioHandle);
+
 
             return AudioSettings.dspTime;
         }
@@ -75,6 +93,7 @@ namespace CCE.Core
             Bass.ChannelStop(_audioHandle);
             UnloadAudio();
             _audioHandle = handle;
+            baseFrequency = Bass.ChannelGetInfo(_audioHandle).Frequency;
         }
         public static void Initialize()
         {
