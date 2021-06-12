@@ -140,7 +140,7 @@ MonoBehaviour:
   ThreeQuarterSpeedMixer: {fileID: -4711021258705650607, guid: a0506c9cd236e4843ae4cf39be1f508c,
     type: 2}
   CurrentPageIndex: 0
-  utilityLineRenderer: {fileID: 0}
+  utilityLineRenderer: {fileID: 2387732457704870168}
   ScanlineNotePrefab: {fileID: 2563619203956517995, guid: 555c60b1559d01a4398dfe640edfe71f,
     type: 3}
   DivisorLinePrefab: {fileID: 7172673242623947715, guid: 5aa73672144572343b7ba6f472e067d6,
@@ -209,8 +209,8 @@ LineRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2387732457704870181}
-  m_Enabled: 1
-  m_CastShadows: 1
+  m_Enabled: 0
+  m_CastShadows: 0
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
   m_StaticShadowCaster: 0
@@ -222,7 +222,7 @@ LineRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 0}
+  - {fileID: 10306, guid: 0000000000000000f000000000000000, type: 0}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -245,10 +245,10 @@ LineRenderer:
   m_SortingOrder: 0
   m_Positions:
   - {x: 0, y: 0, z: 0}
-  - {x: 0, y: 0, z: 1}
+  - {x: 5, y: 0, z: 0}
   m_Parameters:
     serializedVersion: 3
-    widthMultiplier: 1
+    widthMultiplier: 0.2
     widthCurve:
       serializedVersion: 2
       m_Curve:
@@ -266,8 +266,8 @@ LineRenderer:
       m_RotationOrder: 4
     colorGradient:
       serializedVersion: 2
-      key0: {r: 1, g: 1, b: 1, a: 1}
-      key1: {r: 1, g: 1, b: 1, a: 1}
+      key0: {r: 1, g: 0.61201584, b: 0, a: 1}
+      key1: {r: 1, g: 0.3534872, b: 0, a: 1}
       key2: {r: 0, g: 0, b: 0, a: 0}
       key3: {r: 0, g: 0, b: 0, a: 0}
       key4: {r: 0, g: 0, b: 0, a: 0}
