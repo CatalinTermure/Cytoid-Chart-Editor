@@ -2212,7 +2212,7 @@ namespace CCE.Game
                 utilityLineRenderer.SetPositions(new Vector3[] { startPos, new Vector2(startPos.x, currentPos.y) });
                 yield return null;
             }
-            int endTick = Mathf.Max(0, (int)GetTickForTouchPosition(currentPos) - note.Tick);
+            int endTick = Mathf.Max(0, Math.Min((int)GetTickForTouchPosition(currentPos), CurrentPage.EndTick) - note.Tick);
             utilityLineRenderer.enabled = false;
             if (endTick > note.HoldTick)
             {

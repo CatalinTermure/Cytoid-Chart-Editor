@@ -1744,7 +1744,7 @@ PrefabInstance:
     - target: {fileID: 2387732457704870181, guid: 79968f6419aadce4faf8e53c8cb0cebe,
         type: 3}
       propertyPath: m_Name
-      value: MainCanvas
+      value: UICanvas
       objectReference: {fileID: 0}
     - target: {fileID: 2387732458221962875, guid: 79968f6419aadce4faf8e53c8cb0cebe,
         type: 3}
