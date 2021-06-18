@@ -1,39 +1,56 @@
 ﻿using System;
 using System.IO;
+using CCE.UI;
 using UnityEngine;
 
 namespace CCE.Core
 {
     public class EditorConfig
     {
-        public string DirPath = Application.persistentDataPath;
-        [DrawEditorSettings(MaxValue = 1f, MinValue = 0f)] public float HitsoundVolume = 0.25f;
-        public float DefaultNoteSize = 2;
-        [DrawEditorSettings] public int VerticalDivisors = 24;
-        [DrawEditorSettings] public bool HorizontalSnap = true;
-        public string LevelStoragePath = Path.Combine(Application.persistentDataPath, "charts");
-        public string MusicStoragePath = Path.Combine(Application.persistentDataPath, "music");
         public string BackgroundStoragePath = Path.Combine(Application.persistentDataPath, "backgrounds");
+        public string MusicStoragePath = Path.Combine(Application.persistentDataPath, "music");
+        public string LevelStoragePath = Path.Combine(Application.persistentDataPath, "charts");
+        public string DirPath = Application.persistentDataPath;
         public string TempStoragePath = Path.Combine(Application.persistentDataPath, "temps");
-        public bool ShowApproachingNotesWhilePaused = false;
         public int UserOffset = 0;
-        public bool PreciseOffsetDelta = false;
+        
+        public bool DebugMode = false; // Considering removing this
+        public float HitsoundPrepTime = 0.05f; // TODO: remove this when integrating hitsounds to BASS
+
+        [Displayable(Section = "Audio", Name = "Hitsound Volume:", MinValue = 0f, MaxValue = 1f)]
+        public float HitsoundVolume = 0.25f;
+        
+        [Displayable(Section = "Audio", Name = "Play hitsounds on end of hold notes:")]
         public bool PlayHitsoundsOnHoldEnd = true;
-        public bool UpdateTimelineWhileRunning = true;
-        public bool DebugMode = false;
+
+        [Displayable(Section = "Audio", Name = "Precise calibration of offset(1ms interval):")]
+        public bool PreciseOffsetDelta = false;
+        
+        [Displayable(Section = "Edit mode", Name = "Snap X position to vertical lines:")]
+        public bool HorizontalSnap = true;
+
+        [Displayable(Section = "Edit mode", Name = "Interact with notes on other pages:")]
         public bool InteractWithNotesOnOtherPages = true;
-        public bool VerticalLineAccent = true;
+
+        [Displayable(Section = "Visual", Name = "Note size:", MinValue = 0.1f, MaxValue = 4f)]
+        public float DefaultNoteSize = 2;
+        
+        [Displayable(Section = "Visual", Name = "Accentuate frequently used horizontal lines:")]
         public bool HorizontalLineAccents = true;
-        public float HitsoundPrepTime = 0.05f;
+
+        [Displayable(Section = "Visual", Name = "Load background previews in level select:")]
         public bool LoadBackgroundsInLevelSelect = true;
-    }
 
-    [System.AttributeUsage(System.AttributeTargets.Field, Inherited = true, AllowMultiple = false)]
-    public class DrawEditorSettingsAttribute : System.Attribute
-    {
-        public string Section;
+        [Displayable(Section = "Visual", Name = "Show approaching notes when paused:")]
+        public bool ShowApproachingNotesWhilePaused = false;
+        
+        [Displayable(Section = "Visual", Name = "Update timeline while chart is playing:")]
+        public bool UpdateTimelineWhileRunning = true;
 
-        public Single MaxValue;
-        public Single MinValue;
+        [Displayable(Section = "Visual", Name = "Number of vertical lines:", MinValue = 0, MaxValue = 64)]
+        public int VerticalDivisors = 24;
+
+        [Displayable(Section = "Visual", Name = "Accentuate vertical lines:")]
+        public bool VerticalLineAccent = true;
     }
 }
