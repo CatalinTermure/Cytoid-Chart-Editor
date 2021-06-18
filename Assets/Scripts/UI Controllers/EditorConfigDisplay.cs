@@ -10,5 +10,10 @@ namespace CCE.UI
         {
             gameObject.GetComponent<ClassInfoDisplay>().DrawGui(GlobalState.Config);
         }
+
+        public void SaveConfig()
+        {
+            GlobalState.SaveConfig();
+        }
     }
 }
