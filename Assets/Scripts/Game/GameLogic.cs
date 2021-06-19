@@ -27,7 +27,7 @@ namespace CCE.Game
 
         private static int _currentPageIndexOverride = -1;
 
-        private static int _playbackSpeedIndex = 2;
+        private static int _playbackSpeedIndex = 3;
 
         private static string _logPath;
 
@@ -40,7 +40,7 @@ namespace CCE.Game
         private readonly int[] _allowedDivisors = {1, 2, 3, 4, 6, 8, 12, 16};
         private readonly Dictionary<int, bool> _isObjectMovingDict = new Dictionary<int, bool>();
         private readonly List<MovingNote> _movingNotes = new List<MovingNote>();
-        private readonly float[] _playbackSpeeds = {0.5f, 0.75f, 1.0f};
+        private readonly float[] _playbackSpeeds = {0.25f, 0.5f, 0.75f, 1.0f};
 
         private readonly StringBuilder _timeTextBuilder = new StringBuilder(32);
 
@@ -2279,7 +2279,9 @@ namespace CCE.Game
 
         public void IncreasePlaybackSpeed()
         {
-            if (CurrentChart == null || _playbackSpeedIndex == 2 || IsGameRunning || _isStartScheduled) return;
+            if (CurrentChart == null || _playbackSpeedIndex == _playbackSpeeds.Length - 1 || IsGameRunning
+                || _isStartScheduled)
+                return;
 
             _playbackSpeedIndex++;
             UpdatePlaybackSpeed();
@@ -2295,14 +2297,6 @@ namespace CCE.Game
 
         private void UpdatePlaybackSpeed()
         {
-            // TODO: move this to BASS
-            MusicSource.outputAudioMixerGroup = _playbackSpeedIndex switch
-            {
-                0 => HalfSpeedMixer,
-                1 => ThreeQuarterSpeedMixer,
-                2 => null,
-                _ => throw new ArgumentOutOfRangeException()
-            };
             AudioManager.PlaybackSpeed = _playbackSpeeds[_playbackSpeedIndex];
             UpdateTime(CurrentPage.ActualStartTime);
             GameObject.Find("PlaybackSpeedText").GetComponent<Text>().text =
