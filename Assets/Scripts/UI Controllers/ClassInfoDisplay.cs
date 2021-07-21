@@ -30,7 +30,7 @@ namespace CCE.UI
         private object _targetObject;
         
         // The class type restriction is so that value types don't accidentally get passed to this.
-        public void DrawGui<TTarget>(TTarget targetObject) where TTarget : class
+        public void DrawGui<TTarget>(TTarget targetObject, string filter = "") where TTarget : class
         {
             foreach (Transform child in FillTarget)
             {
@@ -42,7 +42,14 @@ namespace CCE.UI
             
             IEnumerable<FieldInfo> fieldsToDisplay = typeof(TTarget)
                 .GetFields()
-                .Where(x => Attribute.IsDefined(x, typeof(DisplayableAttribute)));
+                .Where(x =>
+                {
+                    if (!String.IsNullOrEmpty(filter) && GetAttributeInfo(x).Filter != filter)
+                    {
+                        return false;
+                    }
+                    return Attribute.IsDefined(x, typeof(DisplayableAttribute));
+                });
 
             var sections = fieldsToDisplay
                 .GroupBy(fieldInfo => GetAttributeInfo(fieldInfo).Section)
@@ -224,6 +231,7 @@ namespace CCE.UI
     {
         public string Section;
         public string Name;
+        public string Filter;
 
         public float MinValue = 0;
         public float MaxValue = 1;
