@@ -1,34 +1,60 @@
 ﻿using System;
 using System.Collections.Generic;
+using CCE.UI;
 using Newtonsoft.Json;
 
 namespace CCE.Data
 {
     public class LevelData
     {
-        [JsonProperty("artist")] public string Artist;
-        [JsonProperty("artist_localized")] public string ArtistLocalized;
+        [JsonProperty("artist")]
+        [Displayable(Section = "Artist", Name = "Artist", Filter = "New Level")]
+        public string Artist;
+        
+        [JsonProperty("artist_localized")]
+        [Displayable(Section = "Artist", Name = "Localized artist", Filter = "New Level")]
+        public string ArtistLocalized;
 
-        [JsonProperty("artist_source")] public string ArtistSource;
+        [JsonProperty("artist_source")]
+        [Displayable(Section = "Artist", Name = "Artist source", Filter = "New Level")]
+        public string ArtistSource;
 
         [JsonProperty("background")] public BackgroundData Background;
 
-        [JsonProperty("charter")] public string Charter;
+        [JsonProperty("charter")]
+        [Displayable(Section = "Creator", Name = "Charter", Filter = "New Level")]
+        public string Charter;
 
         [JsonProperty("charts")] public List<ChartFileData> Charts = new List<ChartFileData>();
 
-        [JsonProperty("id")] public string ID;
+        [JsonProperty("id")]
+        [Displayable(Name = "Level ID", Filter = "New Level")]
+        public string ID;
 
-        [JsonProperty("illustrator")] public string Illustrator;
-        [JsonProperty("illustrator_source")] public string IllustratorSource;
+        [JsonProperty("illustrator")]
+        [Displayable(Section = "Illustrator", Name = "Illustrator", Filter = "New Level")]
+        public string Illustrator;
+        
+        [JsonProperty("illustrator_source")]
+        [Displayable(Section = "Illustrator", Name = "Illustrator source", Filter = "New Level")]
+        public string IllustratorSource;
 
         [JsonProperty("music")] public MusicData Music;
         [JsonProperty("music_preview")] public MusicData MusicPreview;
         [JsonProperty("schema_version")] public int SchemaVersion = 2;
-        [JsonProperty("storyboarder")] public string Storyboarder;
+        
+        [JsonProperty("storyboarder")]
+        [Displayable(Section = "Creator", Name = "Storyboarder", Filter = "New Level")]
+        public string Storyboarder;
 
-        [JsonProperty("title")] public string Title;
-        [JsonProperty("title_localized")] public string TitleLocalized;
+        [JsonProperty("title")]
+        [Displayable(Name = "Song title", Filter = "New Level")]
+        public string Title;
+        
+        [JsonProperty("title_localized")]
+        [Displayable(Name = "Localized title", Filter = "New Level")]
+        public string TitleLocalized;
+        
         [JsonProperty("version")] public int Version = 1;
 
         [JsonIgnore] public string DisplayTitle => TitleLocalized?.Length > 0 ? TitleLocalized : Title;
