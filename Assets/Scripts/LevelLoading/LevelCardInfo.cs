@@ -10,10 +10,10 @@ namespace CCE.LevelLoading
         public Text ArtistName;
         public Text CharterName;
         public Text Title;
-        public Image BackgroundPreview;
-
+        public RawImage BackgroundPreview;
+        
+        [NonSerialized] public string OriginalBackgroundPath;
         [NonSerialized] public int LevelIndex;
-
         [NonSerialized] public int PreviewAudioHandle;
     }
 }

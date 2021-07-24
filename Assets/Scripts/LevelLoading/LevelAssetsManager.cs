@@ -19,6 +19,8 @@ namespace CCE.LevelLoading
         /// </summary>
         private const int _poolSize = 48;
 
+        private const int _cacheImageSize = 256;
+
         private readonly HashSet<string> _currentlyProcessingLevels =
             new HashSet<string>();
 
@@ -55,13 +57,17 @@ namespace CCE.LevelLoading
             string audioFilePath =
                 Path.Combine(GlobalState.Config.LevelStoragePath, level.ID, level.MusicPreview.Path);
 
-            var assets = new LevelAssets {PreviewStreamHandle = await LoadPreviewStream(audioFilePath)};
+            var assets = new LevelAssets
+            {
+                PreviewStreamHandle = await LoadPreviewStream(audioFilePath),
+                OriginalBackgroundPath = backgroundFilePath
+            };
 
             if (GlobalState.Config.LoadBackgroundsInLevelSelect && File.Exists(backgroundFilePath))
-                assets.BackgroundSprite = await LoadBackground(backgroundFilePath);
+                assets.PreviewTexture = await LoadBackground(backgroundFilePath);
             else
-                assets.BackgroundSprite = GameObject.Find("Screen Background")
-                    .GetComponent<BackgroundManager>().DefaultBackground;
+                assets.PreviewTexture = GameObject.Find("Screen Background")
+                    .GetComponent<BackgroundManager>().DefaultBackground.texture;
 
             AddAssetsToCard(levelCardInfo, assets);
 
@@ -74,16 +80,17 @@ namespace CCE.LevelLoading
         private static void AddAssetsToCard(LevelCardInfo levelCardInfo, LevelAssets levelAssets)
         {
             levelCardInfo.PreviewAudioHandle = levelAssets.PreviewStreamHandle;
+            levelCardInfo.OriginalBackgroundPath = levelAssets.OriginalBackgroundPath;
             
-            if(levelAssets.BackgroundSprite != null)
-                levelCardInfo.BackgroundPreview.sprite = levelAssets.BackgroundSprite;
+            if(levelAssets.PreviewTexture != null)
+                levelCardInfo.BackgroundPreview.texture = levelAssets.PreviewTexture;
         }
         
         private void FreeOldestLevel()
         {
             string id = _levelIdOrderList.Dequeue();
             Bass.StreamFree(_loadedLevels[id].PreviewStreamHandle);
-            Object.Destroy(_loadedLevels[id].BackgroundSprite);
+            Object.Destroy(_loadedLevels[id].PreviewTexture);
             _loadedLevels.Remove(id);
         }
         
@@ -102,20 +109,24 @@ namespace CCE.LevelLoading
             return Bass.CreateStream(data, 0, data.Length, BassFlags.Loop);
         }
         
-        private static async Task<Sprite> LoadBackground(string path)
+        private static async Task<Texture2D> LoadBackground(string path)
         {
-            // TODO: cache backgrounds and load them by raw data to avoid lag spikes
-            var tex = new Texture2D(1, 1);
-            tex.LoadImage(await LoadFileAsync(path));
-            var result = Sprite.Create(tex,
-                new Rect(0, 0, tex.width, tex.height),
-                Vector2.zero, 
-                100, 0,
-                SpriteMeshType.FullRect);
-            
-            return result;
-        }
+            string cachePath = Path.Combine(Path.GetDirectoryName(path)!, ".bg");
 
+            var tex = new Texture2D(_cacheImageSize, _cacheImageSize, TextureFormat.ARGB32, false);
+            try
+            {
+                tex.LoadRawTextureData(await LoadFileAsync(cachePath));
+            }
+            catch (UnityException)
+            {
+                File.Delete(cachePath);
+                throw;
+            }
+            tex.Apply();
+            return tex;
+        }
+        
         public static async Task<byte[]> LoadFileAsync(string path)
         {
             using FileStream stream = File.Open(path, FileMode.Open);
@@ -128,7 +139,8 @@ namespace CCE.LevelLoading
 
         private class LevelAssets
         {
-            public Sprite BackgroundSprite;
+            public Texture2D PreviewTexture;
+            public string OriginalBackgroundPath;
             public int PreviewStreamHandle;
         }
     }

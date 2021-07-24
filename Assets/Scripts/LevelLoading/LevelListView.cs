@@ -82,7 +82,7 @@ namespace CCE.LevelLoading
 
         private void UpdateCurrentLevel(LevelCardInfo levelCardInfo)
         {
-            _levelListBehaviour.UpdateBackground(levelCardInfo.BackgroundPreview.sprite);
+            _levelListBehaviour.UpdateBackground(levelCardInfo.OriginalBackgroundPath);
             _levelListBehaviour.UpdateMusic(levelCardInfo.PreviewAudioHandle);
             _levelListBehaviour.UpdateDifficultyCards(_levels[levelCardInfo.LevelIndex]);
         }

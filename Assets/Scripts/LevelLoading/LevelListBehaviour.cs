@@ -83,10 +83,10 @@ namespace CCE.LevelLoading
             }
         }
 
-        public void UpdateBackground(Sprite background)
+        public void UpdateBackground(string path)
         {
             if(_updateBackgroundCoroutine != null) StopCoroutine(_updateBackgroundCoroutine);
-            _updateBackgroundCoroutine = UpdateBackgroundCoroutine(background);
+            _updateBackgroundCoroutine = UpdateBackgroundCoroutine(path);
             StartCoroutine(_updateBackgroundCoroutine);
         }
 
@@ -115,16 +115,19 @@ namespace CCE.LevelLoading
             yield return new WaitForSeconds(0.25f);
 
             AudioManager.LoadAudio(handle);
+            AudioManager.Time = 0;
             AudioManager.Play();
         }
 
-        private IEnumerator UpdateBackgroundCoroutine(Sprite background)
+        private IEnumerator UpdateBackgroundCoroutine(string path)
         {
             yield return new WaitForSeconds(0.25f);
-            ScreenBackground.sprite = background;
+            var tex = new Texture2D(1, 1);
+            tex.LoadImage(File.ReadAllBytes(path));
+            ScreenBackground.sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), Vector2.zero);
         }
 
-        private IEnumerator UpdateDifficultyCardsCoroutine(LevelData levelData)
+        private IEnumerator UpdateDifficultyCardsCoroutine(LevelData levelData) 
         {
             yield return new WaitForSeconds(0.25f);
             
