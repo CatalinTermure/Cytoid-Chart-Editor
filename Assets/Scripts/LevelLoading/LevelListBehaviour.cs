@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
@@ -13,8 +14,8 @@ namespace CCE.LevelLoading
 {
     public class LevelListBehaviour : MonoBehaviour
     {
-        [SerializeField]
-        private GameObject LevelCardTemplate;
+        [SerializeField] private GameObject LevelCardTemplate;
+        [SerializeField] private GameObject LevelMetadataPopup;
 
         public Image ScreenBackground;
         
@@ -28,6 +29,8 @@ namespace CCE.LevelLoading
         private List<Text> _chartCardTexts;
         private readonly string[] _cardObjectNames = {"Easy Chart Card", "Hard Chart Card", "Extreme Chart Card"};
         private readonly string[] _chartTypes = {"easy", "hard", "extreme"};
+
+        private bool _isPopupActive;
 
         private void Awake()
         {
@@ -63,6 +66,8 @@ namespace CCE.LevelLoading
 
         private void Update()
         {
+            if (_isPopupActive) return;
+            
             if (Input.GetMouseButtonDown(0) && Input.mousePosition.x > Screen.width / 2)
             {
                 _isDragging = true;
@@ -81,6 +86,13 @@ namespace CCE.LevelLoading
 
                 _levelListView.Render();
             }
+        }
+
+        public void ShowLevelMetadataPopup(string audioPath)
+        {
+            _isPopupActive = true;
+            Instantiate(LevelMetadataPopup, Vector3.zero, Quaternion.identity, transform)
+                .GetComponent<LevelMetadataPopupController>().SetAudioFile(audioPath);
         }
 
         public void UpdateBackground(string path)
@@ -163,7 +175,7 @@ namespace CCE.LevelLoading
                 Bass.CreateStream(data, 0, data.Length, BassFlags.Decode));
         }
 
-        private async void LoadNewChart(LevelData levelData, string type)
+        public static async void LoadNewChart(LevelData levelData, string type)
         {
             string levelDirPath = Path.Combine(GlobalState.Config.LevelStoragePath, levelData.ID);
             string audioFilePath = Path.Combine(levelDirPath, levelData.Music.Path);
@@ -184,19 +196,14 @@ namespace CCE.LevelLoading
                     Formatting = Formatting.Indented
                 }));
 
-            _levelListView.FreeResources();
-
             byte[] data = await LevelAssetsManager.LoadFileAsync(audioFilePath);
             SceneNavigation.NavigateToChartEdit(levelData, chartData, 
                 Bass.CreateStream(data, 0, data.Length, BassFlags.Decode));
         }
 
-        private void OnEnable()
+        private void OnDisable()
         {
-            if (!AudioManager.IsInitialized)
-            {
-                AudioManager.Initialize();
-            }
+            _levelListView.FreeResources();
         }
     }
 }

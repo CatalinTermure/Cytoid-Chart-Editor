@@ -8,35 +8,35 @@ namespace CCE.Data
     public class LevelData
     {
         [JsonProperty("artist")]
-        [Displayable(Section = "Artist", Name = "Artist", Filter = "New Level")]
+        [Displayable(Section = "Artist", Name = "Artist:", Filter = "New Level")]
         public string Artist;
         
         [JsonProperty("artist_localized")]
-        [Displayable(Section = "Artist", Name = "Localized artist", Filter = "New Level")]
+        [Displayable(Section = "Artist", Name = "Localized artist:", Filter = "New Level")]
         public string ArtistLocalized;
 
         [JsonProperty("artist_source")]
-        [Displayable(Section = "Artist", Name = "Artist source", Filter = "New Level")]
+        [Displayable(Section = "Artist", Name = "Artist source:", Filter = "New Level")]
         public string ArtistSource;
 
         [JsonProperty("background")] public BackgroundData Background;
 
         [JsonProperty("charter")]
-        [Displayable(Section = "Creator", Name = "Charter", Filter = "New Level")]
+        [Displayable(Section = "Creator", Name = "Charter:", Filter = "New Level")]
         public string Charter;
 
         [JsonProperty("charts")] public List<ChartFileData> Charts = new List<ChartFileData>();
 
         [JsonProperty("id")]
-        [Displayable(Name = "Level ID", Filter = "New Level")]
+        [Displayable(Name = "Level ID:", Filter = "New Level")]
         public string ID;
 
         [JsonProperty("illustrator")]
-        [Displayable(Section = "Illustrator", Name = "Illustrator", Filter = "New Level")]
+        [Displayable(Section = "Illustrator", Name = "Illustrator:", Filter = "New Level")]
         public string Illustrator;
         
         [JsonProperty("illustrator_source")]
-        [Displayable(Section = "Illustrator", Name = "Illustrator source", Filter = "New Level")]
+        [Displayable(Section = "Illustrator", Name = "Illustrator source:", Filter = "New Level")]
         public string IllustratorSource;
 
         [JsonProperty("music")] public MusicData Music;
@@ -44,15 +44,15 @@ namespace CCE.Data
         [JsonProperty("schema_version")] public int SchemaVersion = 2;
         
         [JsonProperty("storyboarder")]
-        [Displayable(Section = "Creator", Name = "Storyboarder", Filter = "New Level")]
+        [Displayable(Section = "Creator", Name = "Storyboarder:", Filter = "New Level")]
         public string Storyboarder;
 
         [JsonProperty("title")]
-        [Displayable(Name = "Song title", Filter = "New Level")]
+        [Displayable(Name = "Song title:", Filter = "New Level")]
         public string Title;
         
         [JsonProperty("title_localized")]
-        [Displayable(Name = "Localized title", Filter = "New Level")]
+        [Displayable(Name = "Localized title:", Filter = "New Level")]
         public string TitleLocalized;
         
         [JsonProperty("version")] public int Version = 1;

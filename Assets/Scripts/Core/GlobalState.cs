@@ -347,6 +347,14 @@ namespace CCE.Core
                 }
             }
         }
+        
+        private void OnEnable()
+        {
+            if (!AudioManager.IsInitialized)
+            {
+                AudioManager.Initialize();
+            }
+        }
 
         private void OnApplicationQuit()
         {

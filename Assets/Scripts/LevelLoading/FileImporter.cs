@@ -28,12 +28,10 @@ namespace CCE.LevelLoading
             switch (Path.GetExtension(FilePath))
             {
                 case ".cytoidlevel":
-                case ".cytoidlevel.zip":
                     ImportCytoidLevel();
                     break;
                 
                 case ".cytoidpack":
-                case ".cytoidpack.zip":
                     ImportCytoidPack();
                     break;
                 
@@ -41,12 +39,6 @@ namespace CCE.LevelLoading
                 case ".jpg":
                 case ".jpeg":
                     ImportResource(GlobalState.Config.BackgroundStoragePath);
-                    break;
-                
-                case ".wav":
-                case ".ogg":
-                case ".mp3":
-                    ImportResource(GlobalState.Config.MusicStoragePath);
                     break;
                 
                 default:

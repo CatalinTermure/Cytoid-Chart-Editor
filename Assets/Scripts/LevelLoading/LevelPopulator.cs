@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -26,10 +25,6 @@ namespace CCE.LevelLoading
         public LevelPopulator(LevelListView levelListView)
         {
             _levelListView = levelListView;
-#if UNITY_ANDROID
-            if(Application.platform == RuntimePlatform.Android)
-                AndroidHandleImportIntent();
-#endif
         }
 
         private void ImportLevel(string levelFilePath)
@@ -47,34 +42,7 @@ namespace CCE.LevelLoading
 
             _levelListView.AddLevel(level);
         }
-
-#if UNITY_ANDROID
-        private static void AndroidHandleImportIntent()
-        {
-            var unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
-
-            var currentActivity =
-                unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
-
-            var intent = currentActivity.Call<AndroidJavaObject>("getIntent");
-
-            string filePath = intent.Call<string>("getDataString");
-
-            if (String.IsNullOrEmpty(filePath)) return;
-            filePath = new Uri(filePath).LocalPath;
-            
-            if (File.Exists(filePath))
-            {
-                File.Copy(filePath,
-                    Path.Combine(
-                        GlobalState.Config.LevelStoragePath,
-                        Path.GetFileName(filePath)
-                    )
-                );
-            }
-        }
-#endif
-
+        
         /// <summary>
         ///     Coroutine that adds and initializes the levels from the
         ///     file system into the list level pool, while displaying a loading message.
