@@ -39,14 +39,14 @@ namespace CCE.LevelLoading
             if (Directory.Exists(Path.Combine(GlobalState.Config.LevelStoragePath, _levelData.ID)))
             {
                 ErrorToaster.CreateToast("A level with this ID has already been loaded.\n" +
-                                         "Choose a new, unique ID or delete the existing level.");
+                                         "Choose a new, unique ID or delete the existing level.", 5);
                 return false;
             }
             
             if (!Regex.IsMatch(_levelData.ID, _levelIdRegex))
             {
                 ErrorToaster.CreateToast("Level ID must contain only lowercase letters, numbers and separators(_, -, or .).\n" +
-                                         "It also must contain at least one separator(_, - or .).");
+                                         "It also must contain at least one separator(_, - or .).", 8);
                 return false;
             }
 

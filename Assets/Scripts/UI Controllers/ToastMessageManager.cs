@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
@@ -7,27 +8,27 @@ using UnityEngine.UI;
 /// </summary>
 public class ToastMessageManager : MonoBehaviour
 {
-    private float toastendtime = -1;
+    private float _toastEndTime = -1;
 
-    public void CreateToast(string toast)
+    public void CreateToast(string toast, int toastDuration = 3)
     {
         gameObject.GetComponent<Text>().text = toast;
-        toastendtime = Time.time + 3;
+        _toastEndTime = Time.time + toastDuration;
     }
 
     private void Update()
     {
-        if (toastendtime != -1)
+        if (_toastEndTime > 0)
         {
-            if (toastendtime < Time.time)
+            if (_toastEndTime < Time.time)
             {
                 gameObject.GetComponent<Text>().text = null;
-                toastendtime = -1;
+                _toastEndTime = -1;
             }
             else
             {
                 Color c = gameObject.GetComponent<Text>().color;
-                gameObject.GetComponent<Text>().color = new Color(c.r, c.g, c.b, toastendtime - Time.time);
+                gameObject.GetComponent<Text>().color = new Color(c.r, c.g, c.b, _toastEndTime - Time.time);
             }
         }
     }
