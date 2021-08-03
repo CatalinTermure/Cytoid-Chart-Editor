@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using CCE.Core;
+using CCE.Data;
+using CCE.LevelLoading;
 using UnityEngine;
 
 namespace CCE.UI
@@ -13,6 +15,7 @@ namespace CCE.UI
         [SerializeField] private GameObject StringDisplayTemplate;
         [SerializeField] private GameObject FloatDisplayTemplate;
         [SerializeField] private GameObject BooleanDisplayTemplate;
+        [SerializeField] private GameObject BackgroundDisplayTemplate;
         [SerializeField] private GameObject SectionHeaderDisplayTemplate;
 
         [SerializeField] private RectTransform FillTarget;
@@ -24,7 +27,7 @@ namespace CCE.UI
 
         private readonly Type[] _possibleTypes =
         {
-            typeof(int), typeof(float), typeof(bool), typeof(string)
+            typeof(int), typeof(float), typeof(bool), typeof(string), typeof(LevelData.BackgroundData)
         };
 
         private object _targetObject;
@@ -117,6 +120,10 @@ namespace CCE.UI
             {
                 DrawStringField(fieldInfo);
             }
+            else if (fieldInfo.FieldType == typeof(LevelData.BackgroundData))
+            {
+                DrawBackgroundField(fieldInfo);
+            }
         }
 
         private static DisplayableAttribute GetAttributeInfo(FieldInfo fieldInfo)
@@ -124,6 +131,32 @@ namespace CCE.UI
             return (DisplayableAttribute)fieldInfo.GetCustomAttribute(typeof(DisplayableAttribute));
         }
 
+        private void DrawBackgroundField(FieldInfo fieldInfo)
+        {
+            GameObject obj = Instantiate(BackgroundDisplayTemplate, FillTarget);
+            obj.GetComponent<RectTransform>().anchoredPosition =
+                new Vector2(ElementLeftMargin, _currentElementTopMargin);
+            
+            obj.GetComponent<ClassFieldDisplay>().FieldName.text = GetAttributeInfo(fieldInfo).Name ?? fieldInfo.Name;
+
+            obj.GetComponent<ImagePicker>().OnImagePicked += (path) =>
+            {
+                if ((LevelData.BackgroundData)fieldInfo.GetValue(_targetObject) == null)
+                {
+                    fieldInfo.SetValue(_targetObject, new LevelData.BackgroundData()
+                    {
+                        Path = path
+                    });
+                }
+                else
+                {
+                    ((LevelData.BackgroundData)fieldInfo.GetValue(_targetObject)).Path = path;
+                }
+            };
+
+            _currentElementTopMargin -= ElementSpacing * 1.5f;
+        }
+        
         private void DrawIntegerField(FieldInfo fieldInfo)
         {
             GameObject obj = Instantiate(IntegerDisplayTemplate, FillTarget);

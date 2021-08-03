@@ -1,9 +1,11 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using CCE.Core;
 using CCE.Data;
+using CCE.Utils;
 using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.UI;
@@ -21,6 +23,8 @@ namespace CCE.LevelLoading
         private readonly List<FileImporter> _fileImporters = new List<FileImporter>();
 
         private readonly LevelListView _levelListView;
+        
+        private const int _cacheImageSize = 256;
 
         public LevelPopulator(LevelListView levelListView)
         {
@@ -90,6 +94,14 @@ namespace CCE.LevelLoading
             foreach (string levelDir in
                 Directory.EnumerateDirectories(GlobalState.Config.LevelStoragePath))
             {
+                if (!File.Exists(Path.Combine(levelDir, ".bg")))
+                {
+                    var levelData = 
+                        JsonConvert.DeserializeObject<LevelData>(File.ReadAllText(Path.Combine(levelDir, "level.json")));
+                    
+                    CacheBackground(Path.Combine(levelDir, levelData.Background.Path), Path.Combine(levelDir, ".bg"));
+                }
+                
                 foreach (string file in Directory.EnumerateFiles(levelDir))
                 {
                     if (Path.GetFileName(file) == "level.json")
@@ -100,6 +112,33 @@ namespace CCE.LevelLoading
             }
 
             _levelListView.Initialize(levelItemTemplate, GameObject.Find("Level List"));
+        }
+        
+        private static void CacheBackground(string originalBackgroundPath, string cacheFilePath)
+        {
+            if (!SystemInfo.SupportsTextureFormat(TextureFormat.ARGB32))
+            {
+                Debug.LogError("Texture format not supported");
+                return;
+            }
+            
+            var tex = new Texture2D(1, 1);
+            tex.LoadImage(File.ReadAllBytes(originalBackgroundPath));
+            
+            int finalSize = Math.Min(tex.width, tex.height);
+
+            var finalTex = new Texture2D(finalSize, finalSize, TextureFormat.ARGB32, false);
+            finalTex.SetPixels(0, 0,
+                finalSize, finalSize,
+                tex.GetPixels(
+                    (tex.width - finalSize) / 2,
+                    (tex.height - finalSize) / 2,
+                    finalSize,
+                    finalSize));
+
+            TextureScale.Bilinear(finalTex, _cacheImageSize, _cacheImageSize);
+            
+            File.WriteAllBytes(cacheFilePath, finalTex.GetRawTextureData());
         }
     }
 }

@@ -114,15 +114,7 @@ namespace CCE.LevelLoading
             string cachePath = Path.Combine(Path.GetDirectoryName(path)!, ".bg");
 
             var tex = new Texture2D(_cacheImageSize, _cacheImageSize, TextureFormat.ARGB32, false);
-            try
-            {
-                tex.LoadRawTextureData(await LoadFileAsync(cachePath));
-            }
-            catch (UnityException)
-            {
-                File.Delete(cachePath);
-                throw;
-            }
+            tex.LoadRawTextureData(await LoadFileAsync(cachePath));
             tex.Apply();
             return tex;
         }

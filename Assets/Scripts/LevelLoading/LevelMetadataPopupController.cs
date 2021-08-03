@@ -50,6 +50,12 @@ namespace CCE.LevelLoading
                 return false;
             }
 
+            if (_levelData.Background?.Path == null)
+            {
+                ErrorToaster.CreateToast("You must choose a background picture.");
+                return false;
+            }
+
             return true;
         }
         
@@ -59,11 +65,16 @@ namespace CCE.LevelLoading
             if (!IsLevelDataValid()) return;
 
             _levelData.Music = new LevelData.MusicData() { Path = Path.GetFileName(_audioAbsolutePath) };
+            _levelData.MusicPreview = new LevelData.MusicData() { Path = Path.GetFileName(_audioAbsolutePath) };
 
             string levelFolderPath = Path.Combine(GlobalState.Config.LevelStoragePath, _levelData.ID);
+            string finalBackgroundPath = Path.Combine(levelFolderPath,
+                "background" + Path.GetExtension(_levelData.Background.Path));
 
             Directory.CreateDirectory(levelFolderPath);
             File.Copy(_audioAbsolutePath!, Path.Combine(levelFolderPath, Path.GetFileName(_audioAbsolutePath)));
+            File.Copy(_levelData.Background.Path!, finalBackgroundPath);
+            _levelData.Background.Path = Path.GetFileName(finalBackgroundPath);
 
             LevelListBehaviour.LoadNewChart(_levelData, "easy");
         }

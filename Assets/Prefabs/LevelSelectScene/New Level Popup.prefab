@@ -894,6 +894,8 @@ MonoBehaviour:
     type: 3}
   FloatDisplayTemplate: {fileID: 0}
   BooleanDisplayTemplate: {fileID: 0}
+  BackgroundDisplayTemplate: {fileID: 7196057335672629354, guid: 863a3c68ec06f474b96d3a4983acf4bc,
+    type: 3}
   SectionHeaderDisplayTemplate: {fileID: 1945066290246333798, guid: 3cb2b35a70dba944daf6de543d8f9453,
     type: 3}
   FillTarget: {fileID: 6826702450621711791}

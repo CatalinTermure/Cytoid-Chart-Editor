@@ -19,7 +19,9 @@ namespace CCE.Data
         [Displayable(Section = "Artist", Name = "Artist source:", Filter = "New Level")]
         public string ArtistSource;
 
-        [JsonProperty("background")] public BackgroundData Background;
+        [JsonProperty("background")]
+        [Displayable(Section = "Illustrator", Name = "Background:", Filter = "New Level")]
+        public BackgroundData Background;
 
         [JsonProperty("charter")]
         [Displayable(Section = "Creator", Name = "Charter:", Filter = "New Level")]

@@ -16,16 +16,6 @@
                 <category android:name="android.intent.category.DEFAULT"/>
                 <category android:name="android.intent.category.BROWSABLE"/>
                 <data android:scheme="file" />
-                <data android:mimeType="image/*" />
-                <data android:pathPattern=".*\\.jpg" />
-                <data android:pathPattern=".*\\.jpeg" />
-                <data android:pathPattern=".*\\.png" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-                <category android:name="android.intent.category.BROWSABLE"/>
-                <data android:scheme="file" />
                 <data android:mimeType="audio/*" />
                 <data android:pathPattern=".*\\.mp3" />
                 <data android:pathPattern=".*\\.ogg" />

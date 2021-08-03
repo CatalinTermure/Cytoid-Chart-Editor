@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.IO.Compression;
 using CCE.Core;
 using CCE.Data;
@@ -69,9 +68,6 @@ namespace CCE.LevelLoading
                 else
                 {
                     Directory.Move(FilePath, finalFolderPath);
-                    
-                    CacheBackground(Path.Combine(finalFolderPath, levelData.Background.Path), 
-                        Path.Combine(finalFolderPath, ".bg"));
                 }
             }
             finally
@@ -106,9 +102,6 @@ namespace CCE.LevelLoading
                 else
                 {
                     Directory.Move(tempFolderPath, finalFolderPath);
-                    
-                    CacheBackground(Path.Combine(finalFolderPath, levelData.Background.Path), 
-                        Path.Combine(finalFolderPath, ".bg"));
                 }
                 
                 if (FilePath.Contains(GlobalState.Config.LevelStoragePath))
@@ -170,35 +163,6 @@ namespace CCE.LevelLoading
             finalPath = FileUtils.GetUniqueFilePath(finalPath);
 
             File.Copy(FilePath, finalPath); 
-        }
-        
-        private const int _cacheImageSize = 256;
-        
-        private static void CacheBackground(string originalBackgroundPath, string cacheFilePath)
-        {
-            if (!SystemInfo.SupportsTextureFormat(TextureFormat.ARGB32))
-            {
-                Debug.LogError("Texture format not supported");
-                return;
-            }
-            
-            var tex = new Texture2D(1, 1);
-            tex.LoadImage(File.ReadAllBytes(originalBackgroundPath));
-            
-            int finalSize = Math.Min(tex.width, tex.height);
-
-            var finalTex = new Texture2D(finalSize, finalSize, TextureFormat.ARGB32, false);
-            finalTex.SetPixels(0, 0,
-                finalSize, finalSize,
-                tex.GetPixels(
-                    (tex.width - finalSize) / 2,
-                    (tex.height - finalSize) / 2,
-                    finalSize,
-                    finalSize));
-
-            TextureScale.Bilinear(finalTex, _cacheImageSize, _cacheImageSize);
-            
-            File.WriteAllBytes(cacheFilePath, finalTex.GetRawTextureData());
         }
     }
 }
