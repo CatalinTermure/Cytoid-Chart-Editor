@@ -2,7 +2,6 @@
 using System.IO.Compression;
 using CCE.Core;
 using CCE.Data;
-using CCE.Utils;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 using UnityEngine;
@@ -32,12 +31,6 @@ namespace CCE.LevelLoading
                 
                 case ".cytoidpack":
                     ImportCytoidPack();
-                    break;
-                
-                case ".png":
-                case ".jpg":
-                case ".jpeg":
-                    ImportResource(GlobalState.Config.BackgroundStoragePath);
                     break;
                 
                 default:
@@ -154,15 +147,6 @@ namespace CCE.LevelLoading
                     File.Delete(filePath);
                 }
             }
-        }
-
-        private void ImportResource(string resourceFolderPath)
-        {
-            string finalPath = Path.Combine(resourceFolderPath, Path.GetFileName(FilePath));
-
-            finalPath = FileUtils.GetUniqueFilePath(finalPath);
-
-            File.Copy(FilePath, finalPath); 
         }
     }
 }

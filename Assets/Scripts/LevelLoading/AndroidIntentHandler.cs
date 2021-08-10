@@ -2,6 +2,7 @@
 using System.IO;
 using CCE.Core;
 using UnityEngine;
+using CCE.Utils;
 
 namespace CCE.LevelLoading
 {
@@ -30,40 +31,15 @@ namespace CCE.LevelLoading
             
             if (!File.Exists(filePath)) return;
 
-            if (IsAudioFile(filePath))
+            if (FileUtils.IsAudioFile(filePath))
             {
                 LevelListBehaviour.ShowLevelMetadataPopup(filePath);
             }
-            else if (IsLevelFile(filePath))
+            else if (FileUtils.IsLevelFile(filePath))
             {
-                File.Copy(filePath,
-                    Path.Combine(
-                        GlobalState.Config.LevelStoragePath,
-                        Path.GetFileName(filePath)
-                    )
-                );
+                File.Copy(filePath, 
+                    Path.Combine(GlobalState.Config.LevelStoragePath, Path.GetFileName(filePath)));
             }
-        }
-
-        private static bool IsAudioFile(string file)
-        {
-            return Path.GetExtension(file) switch
-            {
-                ".wav" => true,
-                ".ogg" => true,
-                ".mp3" => true,
-                _ => false
-            };
-        }
-
-        private static bool IsLevelFile(string file)
-        {
-            return Path.GetExtension(file) switch
-            {
-                ".cytoidlevel" => true,
-                ".cytoidpack" => true,
-                _ => false
-            };
         }
     }
 }

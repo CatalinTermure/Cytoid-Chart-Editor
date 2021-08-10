@@ -31,5 +31,37 @@ namespace CCE.Utils
 
             return uniquePath;
         }
+        
+        public static bool IsAudioFile(string file)
+        {
+            return Path.GetExtension(file) switch
+            {
+                ".wav" => true,
+                ".ogg" => true,
+                ".mp3" => true,
+                _ => false
+            };
+        }
+
+        public static bool IsLevelFile(string file)
+        {
+            return Path.GetExtension(file) switch
+            {
+                ".cytoidlevel" => true,
+                ".cytoidpack" => true,
+                _ => false
+            };
+        }
+
+        public static bool IsImageFile(string file)
+        {
+            return Path.GetExtension(file) switch
+            {
+                ".jpeg" => true,
+                ".jpg" => true,
+                ".png" => true,
+                _ => false
+            };
+        }
     }
 }

@@ -1414,6 +1414,8 @@ GameObject:
   - component: {fileID: 1510299672}
   - component: {fileID: 1510299670}
   - component: {fileID: 1510299671}
+  - component: {fileID: 1510299673}
+  - component: {fileID: 1510299674}
   m_Layer: 5
   m_Name: UICanvas
   m_TagString: Untagged
@@ -1559,6 +1561,32 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1510299664}
   m_CullTransparentMesh: 0
+--- !u!114 &1510299673
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1510299664}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2e144db530a04abf81303dd82ec1f0da, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  LevelListBehaviour: {fileID: 1510299670}
+--- !u!114 &1510299674
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1510299664}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e75c8ec3ae87420ea48ecfb01ad3aa34, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  LevelListBehaviour: {fileID: 1510299670}
 --- !u!1 &1534890995
 GameObject:
   m_ObjectHideFlags: 0
