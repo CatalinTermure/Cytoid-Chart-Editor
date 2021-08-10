@@ -119,12 +119,14 @@ namespace CCE.LevelLoading
         private IEnumerator _updateMusicCoroutine;
         private IEnumerator _updateBackgroundCoroutine;
         private IEnumerator _updateDifficultyCardsCoroutine;
-
+        
+        private const float _updateBackgroundDelay = 0.6f;
+        
         private static IEnumerator UpdateMusicCoroutine(int handle)
         {
             AudioManager.Stop();
 
-            yield return new WaitForSeconds(0.25f);
+            yield return new WaitForSeconds(_updateBackgroundDelay);
 
             AudioManager.LoadAudio(handle);
             AudioManager.Time = 0;
@@ -133,7 +135,7 @@ namespace CCE.LevelLoading
 
         private IEnumerator UpdateBackgroundCoroutine(string path)
         {
-            yield return new WaitForSeconds(0.25f);
+            yield return new WaitForSeconds(_updateBackgroundDelay);
             var tex = new Texture2D(1, 1);
             tex.LoadImage(File.ReadAllBytes(path));
             ScreenBackground.sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), Vector2.zero);
@@ -141,7 +143,7 @@ namespace CCE.LevelLoading
 
         private IEnumerator UpdateDifficultyCardsCoroutine(LevelData levelData) 
         {
-            yield return new WaitForSeconds(0.25f);
+            yield return new WaitForSeconds(_updateBackgroundDelay);
             
             for (int i = 0; i < _chartTypes.Length; i++)
             {

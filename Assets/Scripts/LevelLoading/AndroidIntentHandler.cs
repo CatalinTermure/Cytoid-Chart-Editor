@@ -9,10 +9,11 @@ namespace CCE.LevelLoading
     public class AndroidIntentHandler : MonoBehaviour
     {
         [SerializeField] private LevelListBehaviour LevelListBehaviour;
-        private bool _isIntentHandled;
+        private static bool _isIntentHandled;
 
         private void Awake()
         {
+            if (Application.platform != RuntimePlatform.Android) return;
             if (_isIntentHandled) return;
 
             HandleImportIntent();

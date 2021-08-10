@@ -7,8 +7,6 @@ namespace CCE.Core
 {
     public class EditorConfig
     {
-        public string BackgroundStoragePath = Path.Combine(Application.persistentDataPath, "backgrounds");
-        public string MusicStoragePath = Path.Combine(Application.persistentDataPath, "music");
         public string LevelStoragePath = Path.Combine(Application.persistentDataPath, "charts");
         public string DirPath = Application.persistentDataPath;
         public string TempStoragePath = Path.Combine(Application.persistentDataPath, "temps");
