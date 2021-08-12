@@ -1541,6 +1541,7 @@ MonoBehaviour:
   LevelMetadataPopup: {fileID: 6826702451330809110, guid: 64abb7ce55fd2824796727f2d38a95be,
     type: 3}
   ScreenBackground: {fileID: 1594755344}
+  DefaultBackground: {fileID: 21300000, guid: 7c900223b49f61449bcfc8b0242ecf95, type: 3}
 --- !u!114 &1510299671
 MonoBehaviour:
   m_ObjectHideFlags: 0

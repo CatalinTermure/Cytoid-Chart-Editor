@@ -14,11 +14,10 @@ namespace CCE.LevelLoading
     /// </summary>
     public class LevelAssetsManager
     {
-        /// <summary>
-        ///     Number of levels of which to keep assets in memory at once.
-        /// </summary>
+        /// Number of levels of which to keep assets in memory at once.
         private const int _poolSize = 48;
 
+        /// Width and height in pixels of the cached preview image for each level.
         private const int _cacheImageSize = 256;
 
         private readonly HashSet<string> _currentlyProcessingLevels =
@@ -29,7 +28,13 @@ namespace CCE.LevelLoading
         private readonly Dictionary<string, LevelAssets> _loadedLevels =
             new Dictionary<string, LevelAssets>(_poolSize);
 
-        public readonly Queue<string> ProcessedLevels = new Queue<string>();
+        private Sprite _defaultBackground;
+        
+        public LevelAssetsManager()
+        {
+            _defaultBackground =
+                GameObject.Find("Screen Background").GetComponent<BackgroundManager>().DefaultBackground;
+        }
 
         public async void ScheduleLevelLoad(LevelCardInfo levelCardInfo, LevelData level)
         {
@@ -66,8 +71,7 @@ namespace CCE.LevelLoading
             if (GlobalState.Config.LoadBackgroundsInLevelSelect && File.Exists(backgroundFilePath))
                 assets.PreviewTexture = await LoadBackground(backgroundFilePath);
             else
-                assets.PreviewTexture = GameObject.Find("Screen Background")
-                    .GetComponent<BackgroundManager>().DefaultBackground.texture;
+                assets.PreviewTexture = null;
 
             AddAssetsToCard(levelCardInfo, assets);
 
@@ -77,13 +81,13 @@ namespace CCE.LevelLoading
             _currentlyProcessingLevels.Remove(level.ID);
         }
 
-        private static void AddAssetsToCard(LevelCardInfo levelCardInfo, LevelAssets levelAssets)
+        private void AddAssetsToCard(LevelCardInfo levelCardInfo, LevelAssets levelAssets)
         {
             levelCardInfo.PreviewAudioHandle = levelAssets.PreviewStreamHandle;
             levelCardInfo.OriginalBackgroundPath = levelAssets.OriginalBackgroundPath;
             
-            if(levelAssets.PreviewTexture != null)
-                levelCardInfo.BackgroundPreview.texture = levelAssets.PreviewTexture;
+            levelCardInfo.BackgroundPreview.texture = 
+                levelAssets.PreviewTexture ? levelAssets.PreviewTexture : _defaultBackground.texture;
         }
         
         private void FreeOldestLevel()

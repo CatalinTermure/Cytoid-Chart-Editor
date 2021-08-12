@@ -9,6 +9,9 @@ using CCE.Utils;
 using ManagedBass;
 using Newtonsoft.Json;
 using UnityEngine.UI;
+using UnityEngine.UIElements;
+using Button = UnityEngine.UI.Button;
+using Image = UnityEngine.UI.Image;
 
 namespace CCE.LevelLoading
 {
@@ -17,8 +20,9 @@ namespace CCE.LevelLoading
         [SerializeField] private GameObject LevelCardTemplate;
         [SerializeField] private GameObject LevelMetadataPopup;
 
-        public Image ScreenBackground;
-        
+        [SerializeField] private Image ScreenBackground;
+        [SerializeField] private Sprite DefaultBackground;
+
         private LevelListView _levelListView;
 
         private LevelPopulator _levelPopulator;
@@ -97,8 +101,10 @@ namespace CCE.LevelLoading
 
         public void UpdateBackground(string path)
         {
-            if(_updateBackgroundCoroutine != null) StopCoroutine(_updateBackgroundCoroutine);
-            _updateBackgroundCoroutine = UpdateBackgroundCoroutine(path);
+            if (_updateBackgroundCoroutine != null) StopCoroutine(_updateBackgroundCoroutine);
+            _updateBackgroundCoroutine =
+                File.Exists(path) ? UpdateBackgroundCoroutine(path) : SetToDefaultBackgroundCoroutine();
+            
             StartCoroutine(_updateBackgroundCoroutine);
         }
 
@@ -138,7 +144,18 @@ namespace CCE.LevelLoading
             yield return new WaitForSeconds(_updateBackgroundDelay);
             var tex = new Texture2D(1, 1);
             tex.LoadImage(File.ReadAllBytes(path));
-            ScreenBackground.sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), Vector2.zero);
+            SetBackground(Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), Vector2.zero));
+        }
+
+        private IEnumerator SetToDefaultBackgroundCoroutine()
+        {
+            yield return new WaitForSeconds(_updateBackgroundDelay);
+            SetBackground(DefaultBackground);
+        }
+
+        private void SetBackground(Sprite sprite)
+        {
+            ScreenBackground.sprite = sprite;
         }
 
         private IEnumerator UpdateDifficultyCardsCoroutine(LevelData levelData) 
