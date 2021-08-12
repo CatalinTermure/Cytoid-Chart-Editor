@@ -59,15 +59,18 @@ namespace CCE.LevelLoading
             string backgroundFilePath =
                 Path.Combine(GlobalState.Config.LevelStoragePath, level.ID, level.Background.Path);
 
-            string audioFilePath =
+            string audioPreviewFilePath =
                 Path.Combine(GlobalState.Config.LevelStoragePath, level.ID, level.MusicPreview.Path);
 
+            string audioFilePath = Path.Combine(GlobalState.Config.LevelStoragePath, level.ID, level.Music.Path);
+            
             var assets = new LevelAssets
             {
-                PreviewStreamHandle = await LoadPreviewStream(audioFilePath),
+                PreviewStreamHandle =
+                    await LoadPreviewStream(File.Exists(audioPreviewFilePath) ? audioPreviewFilePath : audioFilePath),
                 OriginalBackgroundPath = backgroundFilePath
             };
-
+            
             if (GlobalState.Config.LoadBackgroundsInLevelSelect && File.Exists(backgroundFilePath))
                 assets.PreviewTexture = await LoadBackground(backgroundFilePath);
             else
