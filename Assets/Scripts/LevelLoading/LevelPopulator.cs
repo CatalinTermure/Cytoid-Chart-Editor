@@ -18,9 +18,9 @@ namespace CCE.LevelLoading
     public class LevelPopulator
     {
         /// <summary>
-        ///     List of currently active <see cref="FileImporter" /> tasks.
+        ///     List of currently active <see cref="LevelImporter" /> tasks.
         /// </summary>
-        private readonly List<FileImporter> _fileImporters = new List<FileImporter>();
+        private readonly List<LevelImporter> _fileImporters = new List<LevelImporter>();
 
         private readonly LevelListView _levelListView;
         
@@ -33,7 +33,7 @@ namespace CCE.LevelLoading
 
         private void ImportLevel(string levelFilePath)
         {
-            _fileImporters.Add(new FileImporter(levelFilePath));
+            _fileImporters.Add(new LevelImporter(levelFilePath));
 
             var t = new Thread(_fileImporters[_fileImporters.Count - 1].ImportFile);
 

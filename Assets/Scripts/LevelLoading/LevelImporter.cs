@@ -8,12 +8,12 @@ using UnityEngine;
 
 namespace CCE.LevelLoading
 {
-    public class FileImporter
+    public class LevelImporter
     {
         public bool IsRunning;
         [NotNull] public string FilePath;
 
-        public FileImporter(string path)
+        public LevelImporter(string path)
         {
             FilePath = path;
             IsRunning = true;
