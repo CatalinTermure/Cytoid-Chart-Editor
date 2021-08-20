@@ -28,7 +28,7 @@ namespace CCE.LevelLoading
         private readonly Dictionary<string, LevelAssets> _loadedLevels =
             new Dictionary<string, LevelAssets>(_poolSize);
 
-        private Sprite _defaultBackground;
+        private readonly Sprite _defaultBackground;
         
         public LevelAssetsManager()
         {

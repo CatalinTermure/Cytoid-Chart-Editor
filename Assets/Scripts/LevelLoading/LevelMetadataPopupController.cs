@@ -76,7 +76,7 @@ namespace CCE.LevelLoading
             File.Copy(_levelData.Background.Path!, finalBackgroundPath);
             _levelData.Background.Path = Path.GetFileName(finalBackgroundPath);
 
-            LevelListBehaviour.LoadNewChart(_levelData, "easy");
+            ChartCardController.LoadNewChart(_levelData, "easy");
         }
     }
 }

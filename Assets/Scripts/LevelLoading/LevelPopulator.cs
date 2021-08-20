@@ -107,7 +107,7 @@ namespace CCE.LevelLoading
                 }
             }
 
-            _levelListView.Initialize(levelItemTemplate, GameObject.Find("Level List"));
+            _levelListView.Initialize();
         }
         
         private static void CacheBackground(string originalBackgroundPath, string cacheFilePath)
