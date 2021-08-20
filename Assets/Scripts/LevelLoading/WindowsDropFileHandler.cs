@@ -12,12 +12,14 @@ namespace CCE.LevelLoading
         
         private void OnEnable()
         {
+            if (Application.platform != RuntimePlatform.WindowsPlayer) return; 
             UnityDragAndDropHook.InstallHook();
             UnityDragAndDropHook.OnDroppedFiles += OnFiles;
         }
 
         private void OnDisable()
         {
+            if (Application.platform != RuntimePlatform.WindowsPlayer) return;
             UnityDragAndDropHook.UninstallHook();
         }
 
