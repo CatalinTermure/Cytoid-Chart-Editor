@@ -112,6 +112,9 @@ namespace CCE.Core
                 Config.DirPath = Application.persistentDataPath;
             }
 
+            if (!Directory.Exists(Config.LevelStoragePath)) Directory.CreateDirectory(Config.LevelStoragePath);
+            if (!Directory.Exists(Config.TempStoragePath)) Directory.CreateDirectory(Config.TempStoragePath);
+
 #if UNITY_STANDALONE
             if (!_loadedHotkeys)
             {
