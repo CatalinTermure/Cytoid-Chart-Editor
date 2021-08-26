@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using CCE.Data;
 using ManagedBass;
 using UnityEngine;
@@ -23,6 +25,7 @@ namespace CCE.LevelLoading
         private GameObject _helpText;
         private int _lastRenderedOffset = _poolSize / 2;
         private List<LevelCardInfo> _levelCardInfos;
+        private List<GameObject> _levelCards;
         private LevelList _levelList;
 
         private float _offset;
@@ -55,6 +58,7 @@ namespace CCE.LevelLoading
         public void Initialize()
         {
             _levelCardInfos = new List<LevelCardInfo>();
+            _levelCards = new List<GameObject>();
 
             _helpText = GameObject.Find("Help Text");
             _helpText.SetActive(false);
@@ -64,6 +68,7 @@ namespace CCE.LevelLoading
             for (int i = 0; i < _poolSize && i < _levels.Count; i++)
             {
                 GameObject levelItem = Instantiate(LevelItemPrefab, listCenterTransform);
+                _levelCards.Add(levelItem);
                 var levelCardInfo = levelItem.GetComponent<LevelCardInfo>();
 
                 _levelCardInfos.Add(levelCardInfo);
@@ -77,6 +82,7 @@ namespace CCE.LevelLoading
                 FillLevelCard(_levelCardInfos[i], _levels[i]);
             }
 
+            _currentLevelIndex = -1;
             Render();
         }
 
@@ -84,6 +90,38 @@ namespace CCE.LevelLoading
         {
             _levels.Add(level);
         }
+
+        public void RemoveLevel(LevelData level)
+        {
+            int index = _levels.IndexOf(level);
+            _levels.RemoveAt(index);
+            
+            if (index == _levels.Count) _offset--;
+
+            int cardIndex = index - _levelCardInfos[0].LevelIndex;
+            FreeLevelCardResources(_levelCardInfos[cardIndex]);
+
+            if (_levelCardInfos[_levelCardInfos.Count - 1].LevelIndex >= _levels.Count)
+            {
+                if (_levels.Count >= _poolSize)
+                {
+                    MoveBottomCardToTop();    
+                }
+                else
+                {
+                    Destroy(_levelCards[_levelCards.Count - 1]);
+                    _levelCardInfos.RemoveAt(_levelCardInfos.Count - 1);
+                    _levelCards.RemoveAt(_levelCards.Count - 1);
+                }
+            }
+
+            foreach(var levelCardInfo in _levelCardInfos)
+                FillLevelCard(levelCardInfo, _levels[levelCardInfo.LevelIndex]);
+
+            _currentLevelIndex = -1;
+            Render();
+        }
+            
 
         private void FillLevelCard(LevelCardInfo levelCardInfo, LevelData levelData)
         {
@@ -98,7 +136,7 @@ namespace CCE.LevelLoading
         {
             _levelList.Behaviour.UpdateBackground(levelCardInfo.OriginalBackgroundPath);
             _levelList.Behaviour.UpdateMusic(levelCardInfo.PreviewAudioHandle);
-            _levelList.ChartCardController.UpdateDifficultyCards(_levels[levelCardInfo.LevelIndex]);
+            _levelList.ChartCardController.UpdateChartCards(_levels[levelCardInfo.LevelIndex]);
         }
 
         public void Render()
@@ -130,7 +168,7 @@ namespace CCE.LevelLoading
                 MoveBottomCardToTop();
             }
 
-            for (int i = 0; i < _poolSize && i < _levels.Count; i++)
+            for (int i = 0; i < _poolSize && i < _levelCardInfos.Count; i++)
             {
                 _levelCardInfos[i].RectTransform.anchoredPosition =
                     new Vector2(
@@ -174,8 +212,13 @@ namespace CCE.LevelLoading
         {
             foreach (LevelCardInfo levelCardInfo in _levelCardInfos)
             {
-                Bass.StreamFree(levelCardInfo.PreviewAudioHandle);
+                FreeLevelCardResources(levelCardInfo);
             }
+        }
+
+        private static void FreeLevelCardResources(LevelCardInfo levelCardInfo)
+        {
+            Bass.StreamFree(levelCardInfo.PreviewAudioHandle);
         }
 
         private void MoveBottomCardToTop()
