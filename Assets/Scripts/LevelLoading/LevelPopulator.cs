@@ -110,7 +110,7 @@ namespace CCE.LevelLoading
             _levelListView.Initialize();
         }
         
-        private static void CacheBackground(string originalBackgroundPath, string cacheFilePath)
+        public static void CacheBackground(string originalBackgroundPath, string cacheFilePath)
         {
             if (!SystemInfo.SupportsTextureFormat(TextureFormat.ARGB32))
             {

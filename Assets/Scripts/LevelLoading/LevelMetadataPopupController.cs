@@ -20,7 +20,7 @@ namespace CCE.LevelLoading
         private void Awake()
         {
             _levelData = new LevelData();
-            gameObject.GetComponent<ClassInfoDisplay>().DrawGui(_levelData);
+            gameObject.GetComponent<ClassInfoDisplay>().DrawGui(_levelData, 0);
         }
 
         public void SetAudioFile(string filePath)
@@ -28,27 +28,34 @@ namespace CCE.LevelLoading
             _audioAbsolutePath = filePath;
         }
 
-        private bool IsLevelDataValid()
+        public static bool IsLevelIDValid(string id, ToastMessageManager errorToaster)
         {
-            if (String.IsNullOrEmpty(_levelData.ID))
+            if (String.IsNullOrEmpty(id))
             {
-                ErrorToaster.CreateToast("Having a level ID is required.");
+                errorToaster.CreateToast("Having a level ID is required.");
                 return false;
             }
 
-            if (Directory.Exists(Path.Combine(GlobalState.Config.LevelStoragePath, _levelData.ID)))
+            if (Directory.Exists(Path.Combine(GlobalState.Config.LevelStoragePath, id)))
             {
-                ErrorToaster.CreateToast("A level with this ID has already been loaded.\n" +
+                errorToaster.CreateToast("A level with this ID has already been loaded.\n" +
                                          "Choose a new, unique ID or delete the existing level.", 5);
                 return false;
             }
             
-            if (!Regex.IsMatch(_levelData.ID, _levelIdRegex))
+            if (!Regex.IsMatch(id, _levelIdRegex))
             {
-                ErrorToaster.CreateToast("Level ID must contain only lowercase letters, numbers and separators(_, -, or .).\n" +
+                errorToaster.CreateToast("Level ID must contain only lowercase letters, numbers and separators(_, -, or .).\n" +
                                          "It also must contain at least one separator(_, - or .).", 8);
                 return false;
             }
+
+            return true;
+        }
+
+        private bool IsLevelDataValid()
+        {
+            if (!IsLevelIDValid(_levelData.ID, ErrorToaster)) return false;
 
             if (_levelData.Background?.Path == null)
             {

@@ -23,41 +23,42 @@ namespace CCE.UI
         [SerializeField] private float ElementSpacing;
         [SerializeField] private float ElementLeftMargin;
 
-        private float _currentElementTopMargin;
-
         private readonly Type[] _possibleTypes =
         {
             typeof(int), typeof(float), typeof(bool), typeof(string), typeof(LevelData.BackgroundData)
         };
 
+        private float _currentElementTopMargin;
+
         private object _targetObject;
-        
+
         // The class type restriction is so that value types don't accidentally get passed to this.
-        public void DrawGui<TTarget>(TTarget targetObject, string filter = "") where TTarget : class
+        public void DrawGui<TTarget>(TTarget targetObject, int offset, string filter = "") where TTarget : class
         {
-            foreach (Transform child in FillTarget)
+            if(offset == 0)
             {
-                Destroy(child.gameObject);
+                foreach (Transform child in FillTarget)
+                {
+                    Destroy(child.gameObject);
+                }
             }
 
             _targetObject = targetObject;
-            _currentElementTopMargin = ElementSpacing; // to compensate for the first section header
-            
+            _currentElementTopMargin = -offset + ElementSpacing; // to compensate for the first section header
+
             IEnumerable<FieldInfo> fieldsToDisplay = typeof(TTarget)
                 .GetFields()
                 .Where(x =>
                 {
-                    if (!String.IsNullOrEmpty(filter) && GetAttributeInfo(x).Filter != filter)
-                    {
-                        return false;
-                    }
-                    return Attribute.IsDefined(x, typeof(DisplayableAttribute));
+                    if (!Attribute.IsDefined(x, typeof(DisplayableAttribute))) return false;
+                    
+                    return String.IsNullOrEmpty(filter) || GetAttributeInfo(x).Filter == filter;
                 });
 
-            var sections = fieldsToDisplay
+            IOrderedEnumerable<IGrouping<string, FieldInfo>> sections = fieldsToDisplay
                 .GroupBy(fieldInfo => GetAttributeInfo(fieldInfo).Section)
                 .OrderBy(grouping => grouping.Key);
-            
+
             foreach (IGrouping<string, FieldInfo> section in sections)
             {
                 DrawSection(section.Key, section);
@@ -65,7 +66,8 @@ namespace CCE.UI
 
             if (ShouldStretchFillTarget)
             {
-                FillTarget.sizeDelta = new Vector2(FillTarget.sizeDelta.x, -_currentElementTopMargin + ElementSpacing * 2);
+                FillTarget.sizeDelta =
+                    new Vector2(FillTarget.sizeDelta.x, -_currentElementTopMargin + ElementSpacing * 2);
             }
         }
 
@@ -86,20 +88,20 @@ namespace CCE.UI
         {
             _currentElementTopMargin -= ElementSpacing * 1.5f;
             GameObject obj = Instantiate(SectionHeaderDisplayTemplate, FillTarget);
-            obj.GetComponent<RectTransform>().anchoredPosition = 
+            obj.GetComponent<RectTransform>().anchoredPosition =
                 new Vector2(ElementLeftMargin * 0.5f, _currentElementTopMargin);
             obj.GetComponent<ClassFieldDisplay>().FieldName.text = title;
         }
-        
+
         private void DrawField(FieldInfo fieldInfo)
         {
             if (!_possibleTypes.Contains(fieldInfo.FieldType))
             {
-                Logging.LogError($"{nameof(ClassInfoDisplay)}.{nameof(DrawField)}", 
+                Logging.LogError($"{nameof(ClassInfoDisplay)}.{nameof(DrawField)}",
                     $"Field {fieldInfo.Name} is of a type that is " +
                     $"not supported by the {nameof(DisplayableAttribute)} attribute. " +
                     "Add support for it or remove the attribute.");
-                
+
                 return;
             }
 
@@ -108,15 +110,15 @@ namespace CCE.UI
             {
                 DrawIntegerField(fieldInfo);
             }
-            else if(fieldInfo.FieldType == typeof(float))
+            else if (fieldInfo.FieldType == typeof(float))
             {
                 DrawFloatField(fieldInfo);
             }
-            else if(fieldInfo.FieldType == typeof(bool))
+            else if (fieldInfo.FieldType == typeof(bool))
             {
                 DrawBooleanField(fieldInfo);
             }
-            else if(fieldInfo.FieldType == typeof(string))
+            else if (fieldInfo.FieldType == typeof(string))
             {
                 DrawStringField(fieldInfo);
             }
@@ -136,14 +138,14 @@ namespace CCE.UI
             GameObject obj = Instantiate(BackgroundDisplayTemplate, FillTarget);
             obj.GetComponent<RectTransform>().anchoredPosition =
                 new Vector2(ElementLeftMargin, _currentElementTopMargin);
-            
+
             obj.GetComponent<ClassFieldDisplay>().FieldName.text = GetAttributeInfo(fieldInfo).Name ?? fieldInfo.Name;
 
-            obj.GetComponent<ImagePicker>().OnImagePicked += (path) =>
+            obj.GetComponent<ImagePicker>().OnImagePicked += path =>
             {
                 if ((LevelData.BackgroundData)fieldInfo.GetValue(_targetObject) == null)
                 {
-                    fieldInfo.SetValue(_targetObject, new LevelData.BackgroundData()
+                    fieldInfo.SetValue(_targetObject, new LevelData.BackgroundData
                     {
                         Path = path
                     });
@@ -156,16 +158,16 @@ namespace CCE.UI
 
             _currentElementTopMargin -= ElementSpacing * 1.5f;
         }
-        
+
         private void DrawIntegerField(FieldInfo fieldInfo)
         {
             GameObject obj = Instantiate(IntegerDisplayTemplate, FillTarget);
             obj.GetComponent<RectTransform>().anchoredPosition =
                 new Vector2(ElementLeftMargin, _currentElementTopMargin);
-            
+
             var classFieldDisplay = obj.GetComponent<ClassFieldDisplay>();
             DisplayableAttribute attributeInfo = GetAttributeInfo(fieldInfo);
-            
+
             classFieldDisplay.FieldName.text = attributeInfo.Name ?? fieldInfo.Name;
 
             classFieldDisplay.ValueSlider.minValue = attributeInfo.MinValue;
@@ -179,7 +181,7 @@ namespace CCE.UI
                 });
 
             classFieldDisplay.ValueInputField.text = ((int)fieldInfo.GetValue(_targetObject)).ToString();
-            
+
             classFieldDisplay.ValueInputField.onEndEdit
                 .AddListener(stringValue =>
                 {
@@ -191,7 +193,7 @@ namespace CCE.UI
                     classFieldDisplay.ValueSlider.SetValueWithoutNotify(value);
                 });
         }
-        
+
         private void DrawBooleanField(FieldInfo fieldInfo)
         {
             GameObject obj = Instantiate(BooleanDisplayTemplate, FillTarget);
@@ -213,10 +215,10 @@ namespace CCE.UI
             GameObject obj = Instantiate(FloatDisplayTemplate, FillTarget);
             obj.GetComponent<RectTransform>().anchoredPosition =
                 new Vector2(ElementLeftMargin, _currentElementTopMargin);
-            
+
             var classFieldDisplay = obj.GetComponent<ClassFieldDisplay>();
             DisplayableAttribute attributeInfo = GetAttributeInfo(fieldInfo);
-            
+
             classFieldDisplay.FieldName.text = attributeInfo.Name ?? fieldInfo.Name;
 
             classFieldDisplay.ValueSlider.minValue = attributeInfo.MinValue;
@@ -230,7 +232,7 @@ namespace CCE.UI
                 });
 
             classFieldDisplay.ValueInputField.text = ((float)fieldInfo.GetValue(_targetObject)).ToString("F2");
-            
+
             classFieldDisplay.ValueInputField.onEndEdit
                 .AddListener(stringValue =>
                 {
@@ -242,15 +244,15 @@ namespace CCE.UI
                     classFieldDisplay.ValueSlider.SetValueWithoutNotify(value);
                 });
         }
-        
+
         private void DrawStringField(FieldInfo fieldInfo)
         {
             GameObject obj = Instantiate(StringDisplayTemplate, FillTarget);
             obj.GetComponent<RectTransform>().anchoredPosition =
                 new Vector2(ElementLeftMargin, _currentElementTopMargin);
-            
+
             var classFieldDisplay = obj.GetComponent<ClassFieldDisplay>();
-            
+
             classFieldDisplay.FieldName.text = GetAttributeInfo(fieldInfo).Name ?? fieldInfo.Name;
 
             classFieldDisplay.ValueInputField.text = (string)fieldInfo.GetValue(_targetObject);
@@ -262,11 +264,11 @@ namespace CCE.UI
     [AttributeUsage(AttributeTargets.Field)]
     public class DisplayableAttribute : Attribute
     {
-        public string Section;
-        public string Name;
         public string Filter;
+        public float MaxValue = 1;
 
         public float MinValue = 0;
-        public float MaxValue = 1;
+        public string Name;
+        public string Section;
     }
 }

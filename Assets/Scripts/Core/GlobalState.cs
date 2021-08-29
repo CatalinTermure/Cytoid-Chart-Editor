@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using CCE.Data;
+using CCE.Utils;
 using ManagedBass;
 using Newtonsoft.Json;
 using UnityEngine;
@@ -138,12 +139,7 @@ namespace CCE.Core
             File.WriteAllText(Path.Combine(Application.persistentDataPath, "data.txt"),
                 JsonConvert.SerializeObject(Config));
         }
-
-        /// <summary>
-        ///     Loads a level file and sets the current path to search for files related to the level.
-        /// </summary>
-        /// <param name="level"> The <see cref="LevelData" /> to load the level from. </param>
-        /// <param name="path"> The path of the level file. </param>
+        
         public static void LoadLevel(LevelData level, string path)
         {
             Logging.AddToLog(_logPath, $"Starting the load of level at path: {path}\n");
@@ -155,46 +151,7 @@ namespace CCE.Core
 
             Logging.AddToLog(_logPath, "Loaded background...\n");
         }
-
-        /// <summary>
-        ///     Creates level file and loads it from a music file.
-        /// </summary>
-        /// <param name="musicPath"> Path to the music file. </param>
-        /// <returns> Whether the level can be successfully saved in the path of the music file. </returns>
-        public static bool CreateLevel(string musicPath)
-        {
-            Logging.AddToLog(_logPath, $"Starting creation of a level from the music file at {musicPath}\n");
-
-            CurrentLevelPath = Path.GetDirectoryName(musicPath);
-
-            if (File.Exists(Path.Combine(CurrentLevelPath, "level.json")))
-            {
-                return false;
-            }
-
-            CurrentLevel = new LevelData
-            {
-                Title = "PLACEHOLDER",
-                ID = "PLACEHOLDER",
-                Artist = "PLACEHOLDER",
-                Illustrator = "PLACEHOLDER",
-                Background = new LevelData.BackgroundData {Path = "background.jpg"},
-                MusicPreview = new LevelData.MusicData {Path = "preview.ogg"},
-                Charter = "PLACEHOLDER",
-                Storyboarder = "PLACEHOLDER",
-                Music = new LevelData.MusicData {Path = Path.GetFileName(musicPath)}
-            };
-
-
-            Logging.AddToLog(_logPath, "Finished creating the level\n");
-
-            LoadBackground();
-
-            Logging.AddToLog(_logPath, "Loaded Background...\n");
-
-            return true;
-        }
-
+        
         public static void LoadChart(LevelData.ChartFileData chart)
         {
             CurrentChart =
@@ -362,7 +319,10 @@ namespace CCE.Core
         private void OnApplicationQuit()
         {
             AudioManager.Stop();
+#if !UNITY_EDITOR // See: EditorBASSFreer.cs
             Bass.Free();
+            BassUtils.PrintLastError();
+#endif
         }
     }
 }

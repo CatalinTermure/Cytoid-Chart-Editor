@@ -2464,7 +2464,13 @@ namespace CCE.Game
                         NullValueHandling = NullValueHandling.Ignore
                     }));
 
-                LevelDataChanger.SaveLevel();
+                string levelDirPath = Path.Combine(Config.LevelStoragePath, CurrentLevel.ID);
+                File.WriteAllText(Path.Combine(levelDirPath, "level.json"),
+                    JsonConvert.SerializeObject(CurrentLevel, new JsonSerializerSettings
+                    {
+                        NullValueHandling = NullValueHandling.Ignore,
+                        Formatting = Formatting.Indented
+                    }));
 
                 GameObject.Find("ToastText").GetComponent<ToastMessageManager>().CreateToast("Saved chart!");
             }

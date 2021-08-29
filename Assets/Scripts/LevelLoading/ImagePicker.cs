@@ -1,6 +1,5 @@
 ﻿using System.Collections;
 using System.IO;
-using CCE.Data;
 using SFB;
 using UnityEngine;
 using UnityEngine.UI;
@@ -17,6 +16,12 @@ namespace CCE.LevelLoading
         public delegate void OnImagePickedEvent(string path);
         public OnImagePickedEvent OnImagePicked;
 
+        public void LoadImage(string path)
+        {
+            if (path == null) return;
+            ImagePreview.sprite = LoadSpriteFromPath(path);
+        }
+        
         private void PickImageMobile()
         {
             NativeGallery.GetImageFromGallery(path =>
@@ -32,6 +37,7 @@ namespace CCE.LevelLoading
             
             StandaloneFileBrowser.OpenFilePanelAsync("Choose a background", "", extensions, false, paths =>
             {
+                if (paths.Length == 0) return;
                 _isRunning = false;
                 _finalPath = paths[0];
             });
@@ -58,6 +64,8 @@ namespace CCE.LevelLoading
                 yield return null;
             }
 
+            if (_finalPath == null) yield break;
+            
             ImagePreview.sprite = LoadSpriteFromPath(_finalPath);
             OnImagePicked(_finalPath);
         }

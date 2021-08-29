@@ -8,7 +8,7 @@ namespace CCE.UI
     {
         private void Awake()
         {
-            gameObject.GetComponent<ClassInfoDisplay>().DrawGui(GlobalState.Config);
+            gameObject.GetComponent<ClassInfoDisplay>().DrawGui(GlobalState.Config, 0);
         }
 
         public void SaveConfig()

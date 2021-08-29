@@ -115,7 +115,8 @@ namespace CCE.Core
             Bass.Configure(Configuration.DevNonStop, true);
 
             Bass.Init();
-
+            BassUtils.PrintLastError();
+            
             IsInitialized = true;
         }
     }

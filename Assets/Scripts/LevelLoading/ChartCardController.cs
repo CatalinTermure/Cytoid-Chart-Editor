@@ -165,7 +165,7 @@ namespace CCE.LevelLoading
                     "Deleting the only chart of a level will also delete the level. Are you sure you want to delete the level?",
                     () =>
                     {
-                        // Directory.Delete(Path.Combine(GlobalState.Config.LevelStoragePath, _levelData.ID), true);
+                        Directory.Delete(Path.Combine(GlobalState.Config.LevelStoragePath, _levelData.ID), true);
                         _levelList.View.RemoveLevel(_levelData);
                         _isDeletingChart = false;
                     }, 
@@ -178,11 +178,23 @@ namespace CCE.LevelLoading
                     {
                         _levelData.Charts.RemoveAll(chartData => chartData.Type == type);
                         DeleteDeadAssets(_levelData);
+                        SaveLevel();
                         UpdateChartCards(_levelData);
                         _isDeletingChart = false;
                     },
                     () => _isDeletingChart = false);
             }
+        }
+
+        private void SaveLevel()
+        {
+            string levelDirPath = Path.Combine(GlobalState.Config.LevelStoragePath, _levelData.ID);
+            File.WriteAllText(Path.Combine(levelDirPath, "level.json"),
+                JsonConvert.SerializeObject(_levelData, new JsonSerializerSettings
+                {
+                    NullValueHandling = NullValueHandling.Ignore,
+                    Formatting = Formatting.Indented
+                }));
         }
 
         private void DeleteDeadAssets(LevelData levelData)
