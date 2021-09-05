@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.IO;
 using CCE.Core;
 using UnityEngine;
@@ -79,7 +80,7 @@ namespace CCE.LevelLoading
         public void ShowLevelMetadataPopup(string audioPath)
         {
             _isPopupActive = true;
-            Instantiate(LevelMetadataPopup, Vector3.zero, Quaternion.identity, transform)
+            Instantiate(LevelMetadataPopup, Vector3.zero, Quaternion.identity, transform.parent)
                 .GetComponent<LevelMetadataPopupController>().SetAudioFile(audioPath);
         }
 

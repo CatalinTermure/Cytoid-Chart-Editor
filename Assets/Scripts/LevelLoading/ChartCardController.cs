@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net;
 using CCE.Core;
 using CCE.Data;
 using CCE.UI;
@@ -53,8 +52,7 @@ namespace CCE.LevelLoading
 
                 if (ChartDeleteButtonColliders[i].OverlapPoint(Camera.main!.ScreenToWorldPoint(Input.mousePosition)))
                 {
-                    StartCoroutine(DeleteChartCoroutine(ChartDeleteButtonColliders[i], ChartDeleteProgressCircles[i],
-                        _chartTypes[i]));
+                    StartCoroutine(DeleteChartCoroutine(ChartDeleteProgressCircles[i], _chartTypes[i]));
                 }
             }
         }
@@ -130,11 +128,10 @@ namespace CCE.LevelLoading
                 Bass.CreateStream(data, 0, data.Length, BassFlags.Decode));
         }
 
-        private IEnumerator DeleteChartCoroutine(Collider2D targetCollider, Image progressGraphic, string type)
+        private IEnumerator DeleteChartCoroutine(Image progressGraphic, string type)
         {
             _isDeletingChart = true;
 
-            Camera mainCamera = Camera.main;
             float startTime = Time.time;
             float currentTime = Time.time;
             progressGraphic.fillAmount = 0.0f;
@@ -168,7 +165,7 @@ namespace CCE.LevelLoading
                         Directory.Delete(Path.Combine(GlobalState.Config.LevelStoragePath, _levelData.ID), true);
                         _levelList.View.RemoveLevel(_levelData);
                         _isDeletingChart = false;
-                    }, 
+                    },
                     () => _isDeletingChart = false);
             }
             else
@@ -197,9 +194,9 @@ namespace CCE.LevelLoading
                 }));
         }
 
-        private void DeleteDeadAssets(LevelData levelData)
+        public static void DeleteDeadAssets(LevelData levelData)
         {
-            foreach (var chart in _levelData.Charts)
+            foreach (LevelData.ChartFileData chart in levelData.Charts)
             {
                 if (!String.IsNullOrEmpty(chart.Storyboard?.Path))
                 {
@@ -208,23 +205,23 @@ namespace CCE.LevelLoading
                     return;
                 }
             }
-            
-            string levelDir = Path.Combine(GlobalState.Config.LevelStoragePath, _levelData.ID);
-            
+
+            string levelDir = Path.Combine(GlobalState.Config.LevelStoragePath, levelData.ID);
+
             // The huge amount of Path.GetFullPath() comes from the need to use a consistent path scheme
             // so that the string comparisons don't return false negatives
-            
+
             var validFiles = new List<string>();
             validFiles.Add(Path.GetFullPath(Path.Combine(levelDir, "level.json")));
             validFiles.Add(Path.GetFullPath(Path.Combine(levelDir, ".bg")));
-            if (_levelData.Background?.Path != null)
-                validFiles.Add(Path.GetFullPath(Path.Combine(levelDir, _levelData.Background?.Path)));
-            if (_levelData.Music?.Path != null)
-                validFiles.Add(Path.GetFullPath(Path.Combine(levelDir, _levelData.Music?.Path)));
-            if (_levelData.MusicPreview?.Path != null)
-                validFiles.Add(Path.GetFullPath(Path.Combine(levelDir, _levelData.MusicPreview?.Path)));
+            if (levelData.Background?.Path != null)
+                validFiles.Add(Path.GetFullPath(Path.Combine(levelDir, levelData.Background?.Path)));
+            if (levelData.Music?.Path != null)
+                validFiles.Add(Path.GetFullPath(Path.Combine(levelDir, levelData.Music?.Path)));
+            if (levelData.MusicPreview?.Path != null)
+                validFiles.Add(Path.GetFullPath(Path.Combine(levelDir, levelData.MusicPreview?.Path)));
 
-            foreach (var chart in _levelData.Charts)
+            foreach (LevelData.ChartFileData chart in levelData.Charts)
             {
                 validFiles.Add(Path.GetFullPath(Path.Combine(levelDir, chart.Path)));
                 if (chart.MusicOverride?.Path != null)
@@ -239,7 +236,7 @@ namespace CCE.LevelLoading
             }
         }
 
-        private List<string> GetFilesInDirectory(string dirPath)
+        private static IEnumerable<string> GetFilesInDirectory(string dirPath)
         {
             List<string> result = Directory.EnumerateFiles(Path.GetFullPath(dirPath)).ToList();
 

@@ -13,6 +13,7 @@ namespace CCE.UI
     {
         [SerializeField] private ToastMessageManager ErrorToaster;
         [SerializeField] private TMP_InputField LevelIDInputField;
+        [SerializeField] private GameObject PreviewSelectorTemplate;
 
         private string _oldId;
         private string _oldBackgroundPath;
@@ -28,6 +29,13 @@ namespace CCE.UI
             
             LevelIDInputField.SetTextWithoutNotify(GlobalState.CurrentLevel.ID);
             LevelIDInputField.onEndEdit.AddListener(ChangeID);
+
+            var rectTransform = gameObject.GetComponent<RectTransform>();
+            Vector2 sizeDelta = rectTransform.sizeDelta;
+            sizeDelta = new Vector2(sizeDelta.x, sizeDelta.y + 525);
+            rectTransform.sizeDelta = sizeDelta;
+            Instantiate(PreviewSelectorTemplate, Vector3.zero, Quaternion.identity, rectTransform)
+                .GetComponent<RectTransform>().anchoredPosition3D = new Vector3(35, -sizeDelta.y + 525, 0);
         }
 
         private void ChangeID(string newId)
@@ -57,6 +65,18 @@ namespace CCE.UI
             
             string levelDirPath = Path.Combine(GlobalState.Config.LevelStoragePath, GlobalState.CurrentLevel.ID);
 
+            SaveBackground(levelDirPath);
+
+            File.WriteAllText(Path.Combine(levelDirPath, "level.json"),
+                JsonConvert.SerializeObject(GlobalState.CurrentLevel, new JsonSerializerSettings
+                {
+                    NullValueHandling = NullValueHandling.Ignore,
+                    Formatting = Formatting.Indented
+                }));
+        }
+
+        private void SaveBackground(string levelDirPath)
+        {
             string backgroundPath = Path.GetFullPath(Path.Combine(levelDirPath, GlobalState.CurrentLevel.Background.Path));
             string oldBackgroundFullPath = Path.GetFullPath(Path.Combine(levelDirPath, _oldBackgroundPath));
 
@@ -71,18 +91,11 @@ namespace CCE.UI
                 backgroundPath = FileUtils.GetUniqueFilePath(Path.Combine(levelDirPath, "background" + extension));
                 File.Copy(GlobalState.CurrentLevel.Background.Path!, backgroundPath);
                 GlobalState.CurrentLevel.Background.Path = Path.GetFileName(backgroundPath);
-                
+
                 GlobalState.LoadBackground();
-                LevelPopulator.CacheBackground(Path.Combine(levelDirPath, GlobalState.CurrentLevel.Background.Path), 
+                LevelPopulator.CacheBackground(Path.Combine(levelDirPath, GlobalState.CurrentLevel.Background.Path),
                     Path.Combine(levelDirPath, ".bg"));
             }
-
-            File.WriteAllText(Path.Combine(levelDirPath, "level.json"),
-                JsonConvert.SerializeObject(GlobalState.CurrentLevel, new JsonSerializerSettings
-                {
-                    NullValueHandling = NullValueHandling.Ignore,
-                    Formatting = Formatting.Indented
-                }));
         }
     }
 }
