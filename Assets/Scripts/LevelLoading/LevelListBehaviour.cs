@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.IO;
 using CCE.Core;
 using UnityEngine;
@@ -10,6 +9,9 @@ namespace CCE.LevelLoading
     public class LevelListBehaviour : MonoBehaviour
     {
         private const float _scrollSpeed = 0.01f;
+
+        private const float _searchUpdateDelay = 3.0f;
+        [SerializeField] private InputField SearchInputField;
 
         public const float UpdateBackgroundDelay = 0.6f;
         [SerializeField] private GameObject LevelCardTemplate;
@@ -24,11 +26,11 @@ namespace CCE.LevelLoading
         private bool _isPopupActive;
 
         private LevelList _levelList;
-        private LevelPopulator _levelPopulator;
         
         private Vector3 _startDragPosition;
         private IEnumerator _updateBackgroundCoroutine;
         private IEnumerator _updateMusicCoroutine;
+        private IEnumerator _triggerSearchCoroutine;
 
         private void Awake()
         {
@@ -42,9 +44,25 @@ namespace CCE.LevelLoading
 
         private void Start()
         {
-            _levelPopulator = new LevelPopulator(_levelList.View);
+            SearchInputField.onValueChanged
+                .AddListener(query => TriggerSearch(query, _searchUpdateDelay));
 
-            StartCoroutine(_levelPopulator.PopulateLevelsCoroutine(LevelCardTemplate));
+            SearchInputField.onEndEdit
+                .AddListener(query => TriggerSearch(query, UpdateBackgroundDelay));
+        }
+
+        private void TriggerSearch(string query, float delay)
+        {
+            if (_triggerSearchCoroutine != null) StopCoroutine(_triggerSearchCoroutine);
+            _triggerSearchCoroutine = SearchCoroutine(query, delay);
+            StartCoroutine(_triggerSearchCoroutine);
+        }
+
+        private IEnumerator SearchCoroutine(string query, float delay)
+        {
+            yield return new WaitForSeconds(delay);
+
+            _levelList.Query(query);
         }
 
         private void Update()

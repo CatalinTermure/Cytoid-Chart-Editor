@@ -163,7 +163,7 @@ namespace CCE.LevelLoading
                     () =>
                     {
                         Directory.Delete(Path.Combine(GlobalState.Config.LevelStoragePath, _levelData.ID), true);
-                        _levelList.View.RemoveLevel(_levelData);
+                        _levelList.RemoveLevel(_levelData);
                         _isDeletingChart = false;
                     },
                     () => _isDeletingChart = false);

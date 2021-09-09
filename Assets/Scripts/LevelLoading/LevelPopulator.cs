@@ -12,23 +12,17 @@ using UnityEngine.UI;
 
 namespace CCE.LevelLoading
 {
-    /// <summary>
-    ///     Class for populating a <see cref="LevelListView" />.
-    /// </summary>
     public class LevelPopulator
     {
-        /// <summary>
-        ///     List of currently active <see cref="LevelImporter" /> tasks.
-        /// </summary>
         private readonly List<LevelImporter> _fileImporters = new List<LevelImporter>();
 
-        private readonly LevelListView _levelListView;
+        private readonly LevelList _levelList;
         
         private const int _cacheImageSize = 256;
 
-        public LevelPopulator(LevelListView levelListView)
+        public LevelPopulator(LevelList levelList)
         {
-            _levelListView = levelListView;
+            _levelList = levelList;
         }
 
         private void ImportLevel(string levelFilePath)
@@ -44,15 +38,10 @@ namespace CCE.LevelLoading
         {
             var level = JsonConvert.DeserializeObject<LevelData>(File.ReadAllText(path));
 
-            _levelListView.AddLevel(level);
+            _levelList.AddLevel(level);
         }
         
-        /// <summary>
-        ///     Coroutine that adds and initializes the levels from the
-        ///     file system into the list level pool, while displaying a loading message.
-        /// </summary>
-        /// <param name="levelItemTemplate"> Template level card for initializing the pool. </param>
-        public IEnumerator PopulateLevelsCoroutine(GameObject levelItemTemplate)
+        public IEnumerator PopulateLevelsCoroutine()
         {
             foreach (string filePath in
                 Directory.EnumerateFiles(GlobalState.Config.LevelStoragePath))
@@ -107,7 +96,7 @@ namespace CCE.LevelLoading
                 }
             }
 
-            _levelListView.Initialize();
+            _levelList.Query("");
         }
         
         public static void CacheBackground(string originalBackgroundPath, string cacheFilePath)

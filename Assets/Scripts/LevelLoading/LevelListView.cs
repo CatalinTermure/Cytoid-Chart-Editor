@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using CCE.Data;
 using ManagedBass;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace CCE.LevelLoading
 {
@@ -11,6 +10,7 @@ namespace CCE.LevelLoading
     {
         [SerializeField] private GameObject LevelListCenter;
         [SerializeField] private GameObject LevelItemPrefab;
+        [SerializeField] private Text CurrentIDText;
         
         private const int _poolSize = 24;
         private const float _arcStep = Mathf.PI / 80;
@@ -18,14 +18,14 @@ namespace CCE.LevelLoading
 
         private LevelAssetsManager _levelAssetsManager;
 
-        private readonly List<LevelData> _levels = new List<LevelData>();
+        private List<LevelData> _filteredLevels = new List<LevelData>();
 
         private int _currentLevelIndex = -1;
 
         private GameObject _helpText;
         private int _lastRenderedOffset = _poolSize / 2;
-        private List<LevelCardInfo> _levelCardInfos;
-        private List<GameObject> _levelCards;
+        private List<LevelCardInfo> _levelCardInfos = new List<LevelCardInfo>();
+        private List<GameObject> _levelCards = new List<GameObject>();
         private LevelList _levelList;
 
         private float _offset;
@@ -41,7 +41,7 @@ namespace CCE.LevelLoading
         public float Offset
         {
             get => _offset;
-            set => _offset = Mathf.Clamp(value, 0, _levels.Count - 0.5f);
+            set => _offset = Mathf.Clamp(value, 0, _filteredLevels.Count - 0.5f);
         }
 
         private void Awake()
@@ -52,20 +52,27 @@ namespace CCE.LevelLoading
                 Debug.LogError("You must have a LevelList component attached to an object that has a LevelListView");
             }
 
+            _helpText = GameObject.Find("Help Text");
+
             _levelAssetsManager = new LevelAssetsManager();
         }
 
-        public void Initialize()
+        public void Initialize(List<LevelData> levels)
         {
-            _levelCardInfos = new List<LevelCardInfo>();
-            _levelCards = new List<GameObject>();
+            _lastRenderedOffset = 0;
+            _offset = 0;
 
-            _helpText = GameObject.Find("Help Text");
+            _filteredLevels = levels;
+
+            _levelCards.ForEach(obj => Destroy(obj));
+            _levelCards.Clear();
+            _levelCardInfos.Clear();
+
             _helpText.SetActive(false);
 
             var listCenterTransform = LevelListCenter.GetComponent<RectTransform>();
 
-            for (int i = 0; i < _poolSize && i < _levels.Count; i++)
+            for (int i = 0; i < _poolSize && i < _filteredLevels.Count; i++)
             {
                 GameObject levelItem = Instantiate(LevelItemPrefab, listCenterTransform);
                 _levelCards.Add(levelItem);
@@ -79,31 +86,28 @@ namespace CCE.LevelLoading
 
                 levelCardInfo.LevelIndex = i;
 
-                FillLevelCard(_levelCardInfos[i], _levels[i]);
+                FillLevelCard(_levelCardInfos[i], _filteredLevels[i]);
             }
 
             _currentLevelIndex = -1;
             Render();
         }
 
-        public void AddLevel(LevelData level)
-        {
-            _levels.Add(level);
-        }
-
         public void RemoveLevel(LevelData level)
         {
-            int index = _levels.IndexOf(level);
-            _levels.RemoveAt(index);
+            int index = _filteredLevels.IndexOf(level);
+            if (index == -1) return;
+
+            _filteredLevels.RemoveAt(index);
             
-            if (index == _levels.Count) _offset--;
+            if (index == _filteredLevels.Count) _offset--;
 
             int cardIndex = index - _levelCardInfos[0].LevelIndex;
             FreeLevelCardResources(_levelCardInfos[cardIndex]);
 
-            if (_levelCardInfos[_levelCardInfos.Count - 1].LevelIndex >= _levels.Count)
+            if (_levelCardInfos[_levelCardInfos.Count - 1].LevelIndex >= _filteredLevels.Count)
             {
-                if (_levels.Count >= _poolSize)
+                if (_filteredLevels.Count >= _poolSize)
                 {
                     MoveBottomCardToTop();    
                 }
@@ -116,7 +120,7 @@ namespace CCE.LevelLoading
             }
 
             foreach(var levelCardInfo in _levelCardInfos)
-                FillLevelCard(levelCardInfo, _levels[levelCardInfo.LevelIndex]);
+                FillLevelCard(levelCardInfo, _filteredLevels[levelCardInfo.LevelIndex]);
 
             _currentLevelIndex = -1;
             Render();
@@ -134,14 +138,15 @@ namespace CCE.LevelLoading
 
         private void UpdateCurrentLevel(LevelCardInfo levelCardInfo)
         {
+            CurrentIDText.text = _filteredLevels[levelCardInfo.LevelIndex].ID;
             _levelList.Behaviour.UpdateBackground(levelCardInfo.OriginalBackgroundPath);
             _levelList.Behaviour.UpdateMusic(levelCardInfo.PreviewAudioHandle);
-            _levelList.ChartCardController.UpdateChartCards(_levels[levelCardInfo.LevelIndex]);
+            _levelList.ChartCardController.UpdateChartCards(_filteredLevels[levelCardInfo.LevelIndex]);
         }
 
         public void Render()
         {
-            if (_levels.Count == 0)
+            if (_filteredLevels.Count == 0)
             {
                 RenderEmptyList();
                 return;
@@ -154,7 +159,7 @@ namespace CCE.LevelLoading
 
             int currentLevelCard = GetCurrentLevelCard();
 
-            while (_levelCardInfos[_levelCardInfos.Count - 1].LevelIndex + 1 < _levels.Count
+            while (_levelCardInfos[_levelCardInfos.Count - 1].LevelIndex + 1 < _filteredLevels.Count
                    && wholeOffset > _poolSize / 2
                    && _lastRenderedOffset < wholeOffset)
             {
@@ -162,7 +167,7 @@ namespace CCE.LevelLoading
             }
 
             while (_levelCardInfos[0].LevelIndex > 0
-                   && wholeOffset + _poolSize / 2 < _levels.Count
+                   && wholeOffset + _poolSize / 2 < _filteredLevels.Count
                    && _lastRenderedOffset > wholeOffset)
             {
                 MoveBottomCardToTop();
@@ -196,13 +201,13 @@ namespace CCE.LevelLoading
             {
                 currentLevelCard = (int)_offset;
             }
-            else if (_offset < _levels.Count - _poolSize / 2)
+            else if (_offset < _filteredLevels.Count - _poolSize / 2)
             {
                 currentLevelCard = _poolSize / 2;
             }
             else
             {
-                currentLevelCard = (int)_offset - _levels.Count + Mathf.Min(_poolSize, _levels.Count);
+                currentLevelCard = (int)_offset - _filteredLevels.Count + Mathf.Min(_poolSize, _filteredLevels.Count);
             }
 
             return currentLevelCard;
@@ -231,7 +236,7 @@ namespace CCE.LevelLoading
 
             _levelCardInfos[0].RectTransform.SetAsFirstSibling();
 
-            FillLevelCard(_levelCardInfos[0], _levels[_levelCardInfos[0].LevelIndex]);
+            FillLevelCard(_levelCardInfos[0], _filteredLevels[_levelCardInfos[0].LevelIndex]);
         }
 
         private void MoveTopCardToBottom()
@@ -246,7 +251,7 @@ namespace CCE.LevelLoading
             _levelCardInfos[_levelCardInfos.Count - 1].RectTransform.SetAsLastSibling();
 
             FillLevelCard(_levelCardInfos[_levelCardInfos.Count - 1],
-                _levels[_levelCardInfos[_levelCardInfos.Count - 1].LevelIndex]);
+                _filteredLevels[_levelCardInfos[_levelCardInfos.Count - 1].LevelIndex]);
         }
 
         private void RenderEmptyList()
