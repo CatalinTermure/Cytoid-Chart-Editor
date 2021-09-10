@@ -24,8 +24,8 @@ namespace CCE.LevelLoading
 
         private GameObject _helpText;
         private int _lastRenderedOffset = _poolSize / 2;
-        private List<LevelCardInfo> _levelCardInfos = new List<LevelCardInfo>();
-        private List<GameObject> _levelCards = new List<GameObject>();
+        private readonly List<LevelCardInfo> _levelCardInfos = new List<LevelCardInfo>();
+        private readonly List<GameObject> _levelCards = new List<GameObject>();
         private LevelList _levelList;
 
         private float _offset;

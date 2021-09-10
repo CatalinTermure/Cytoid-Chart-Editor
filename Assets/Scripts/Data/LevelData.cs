@@ -59,9 +59,11 @@ namespace CCE.Data
         
         [JsonProperty("version")] public int Version = 1;
 
-        [JsonIgnore] public string DisplayTitle => TitleLocalized?.Length > 0 ? TitleLocalized : Title;
+        [JsonIgnore]
+        public string DisplayTitle => !String.IsNullOrWhiteSpace(TitleLocalized) ? TitleLocalized : Title;
 
-        [JsonIgnore] public string DisplayArtist => ArtistLocalized?.Length > 0 ? ArtistLocalized : Artist;
+        [JsonIgnore]
+        public string DisplayArtist =>!String.IsNullOrWhiteSpace(ArtistLocalized) ? ArtistLocalized : Artist;
 
         public bool ShouldSerializeTitleLocalized()
         {

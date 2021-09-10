@@ -23,7 +23,7 @@ namespace CCE.LevelLoading
         private readonly HashSet<string> _currentlyProcessingLevels =
             new HashSet<string>();
 
-        private readonly Queue<string> _levelIdOrderList = new Queue<string>();
+        private readonly List<string> _levelIdOrderList = new List<string>();
 
         private readonly Dictionary<string, LevelAssets> _loadedLevels =
             new Dictionary<string, LevelAssets>(_poolSize);
@@ -40,6 +40,8 @@ namespace CCE.LevelLoading
         {
             if (_loadedLevels.ContainsKey(level.ID))
             {
+                _levelIdOrderList.Remove(level.ID);
+                _levelIdOrderList.Add(level.ID);
                 AddAssetsToCard(levelCardInfo, _loadedLevels[level.ID]);
                 return;
             }
@@ -79,7 +81,7 @@ namespace CCE.LevelLoading
             AddAssetsToCard(levelCardInfo, assets);
 
             _loadedLevels[level.ID] = assets;
-            _levelIdOrderList.Enqueue(level.ID);
+            _levelIdOrderList.Add(level.ID);
 
             _currentlyProcessingLevels.Remove(level.ID);
         }
@@ -95,7 +97,8 @@ namespace CCE.LevelLoading
         
         private void FreeOldestLevel()
         {
-            string id = _levelIdOrderList.Dequeue();
+            string id = _levelIdOrderList[0];
+            _levelIdOrderList.RemoveAt(0);
             Bass.StreamFree(_loadedLevels[id].PreviewStreamHandle);
             Object.Destroy(_loadedLevels[id].PreviewTexture);
             _loadedLevels.Remove(id);
