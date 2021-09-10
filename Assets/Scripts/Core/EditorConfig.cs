@@ -12,12 +12,12 @@ namespace CCE.Core
         public string TempStoragePath = Path.Combine(Application.persistentDataPath, "temps");
         public int UserOffset = 0;
         
-        public bool DebugMode = false; // Considering removing this
-        public float HitsoundPrepTime = 0.05f; // TODO: remove this when integrating hitsounds to BASS
-
         [Displayable(Section = "Audio", Name = "Hitsound Volume:", MinValue = 0f, MaxValue = 1f)]
-        public float HitsoundVolume = 0.25f;
-        
+        public float HitsoundVolume = 1.0f;
+
+        [Displayable(Section = "Audio", Name = "Music Volume:", MinValue = 0f, MaxValue = 1f)]
+        public float MusicVolume = 1.0f;
+
         [Displayable(Section = "Audio", Name = "Play hitsounds on end of hold notes:")]
         public bool PlayHitsoundsOnHoldEnd = true;
 

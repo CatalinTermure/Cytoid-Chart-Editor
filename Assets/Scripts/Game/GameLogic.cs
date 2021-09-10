@@ -8,6 +8,7 @@ using System.Text;
 using CCE.Commands;
 using CCE.Core;
 using CCE.Data;
+using CCE.Utils;
 using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.Audio;
@@ -51,7 +52,6 @@ namespace CCE.Game
         private int _currentNoteIndex;
         private int _currentTempoIndex;
 
-        private int _hitsoundSourceIndex;
         private bool _isStartScheduled;
 
         private bool _isTouchHeld;
@@ -93,43 +93,18 @@ namespace CCE.Game
             _mainCamera = Camera.main;
             _lockYText = GameObject.Find("LockYText");
             _lockYText.SetActive(false);
-            utilityLineRenderer = GetComponent<LineRenderer>(); 
-            if (CurrentChart == null) return;
+            utilityLineRenderer = GetComponent<LineRenderer>();
 
-            if (Config.DebugMode)
-            {
-                _logPath = Path.Combine(Application.persistentDataPath, "GameLogicLog.txt");
-                Logging.CreateLog(_logPath, "Starting loading the chart...\n");
-            }
+            AudioManager.SetHitsoundVolume(Config.HitsoundVolume);
+            AudioManager.SetMusicVolume(Config.MusicVolume);
+
+            if (CurrentChart == null) return;
 
             CalculateTimings();
 
             CalculateDragIDs();
 
-            Logging.AddToLog(_logPath, "Calculated timings...\n");
-
-            foreach (AudioSource source in HitsoundSources)
-            {
-                source.volume = Config.HitsoundVolume;
-            }
-
-            if (File.Exists(Path.Combine(Application.persistentDataPath, "Hitsound.wav")))
-            {
-                Logging.AddToLog(_logPath, "Trying to load custom hitsound\n");
-                LoadCustomHitsounds(Path.Combine(Application.persistentDataPath, "Hitsound.wav"));
-                foreach (AudioSource source in HitsoundSources)
-                {
-                    source.clip = Hitsound;
-                }
-
-                Logging.AddToLog(_logPath, "Custom hitsound loaded\n");
-            }
-
-            Logging.AddToLog(_logPath, "Audio sources loaded\n");
-
             _objectPool = new ChartObjectPool();
-
-            Logging.AddToLog(_logPath, "Pool created\n");
 
             if (_currentPageIndexOverride != -1)
             {
@@ -143,11 +118,7 @@ namespace CCE.Game
 
             UpdateTime(CurrentPage.ActualStartTime);
 
-            Logging.AddToLog(_logPath, $"Moved to page {CurrentPageIndex}\n");
-
             UpdatePlaybackSpeed();
-
-            GameObject.Find("NoteCountText").GetComponent<Text>().text = $"Note count: {CurrentChart.NoteList.Count}";
         }
 
         private void Start()
@@ -230,11 +201,6 @@ namespace CCE.Game
 
             GameObject.Find("BeatDivisorInputField").GetComponent<InputField>()
                 .onEndEdit.AddListener(s => SetBeatDivisorValueUnsafe(Int32.Parse(s)));
-
-            if (CurrentChart != null)
-            {
-                Logging.AddToLog(_logPath, "PlayArea loaded...\n");
-            }
         }
 
         private void Update()
@@ -279,16 +245,9 @@ namespace CCE.Game
                 double time = AudioManager.Time + Offset;
 
                 while (_currentHitsoundIndex < _hitsoundTimings.Count &&
-                       _hitsoundTimings[_currentHitsoundIndex] - Config.HitsoundPrepTime <= time)
+                       _hitsoundTimings[_currentHitsoundIndex] <= time)
                 {
-                    HitsoundSources[_hitsoundSourceIndex]
-                        .PlayScheduled(_hitsoundTimings[_currentHitsoundIndex] - time + AudioSettings.dspTime);
-                    _hitsoundSourceIndex++;
-                    if (_hitsoundSourceIndex > 3)
-                    {
-                        _hitsoundSourceIndex = 0;
-                    }
-
+                    AudioManager.PlayHitsound();
                     _currentHitsoundIndex++;
                 }
 
@@ -312,16 +271,8 @@ namespace CCE.Game
                         $"BPM: {Math.Round(120000000.0 / CurrentChart.TempoList[_currentTempoIndex].Value, 2)}";
                 }
 
-                _timeTextBuilder.Clear();
-                _timeTextBuilder.Append((int) ((time - CurrentChart.MusicOffset) / 60));
-                _timeTextBuilder.Append(':');
-                _timeTextBuilder.Append(((int) (time - CurrentChart.MusicOffset) % 60).ToString("D2"));
-                _timeTextBuilder.Append('.');
-                _timeTextBuilder.Append(((int) ((time - CurrentChart.MusicOffset) * 1000 -
-                                                Math.Floor(time - CurrentChart.MusicOffset) * 1000)).ToString("D3"));
-
-                GameObject.Find("PageText").GetComponent<Text>().text = CurrentPageIndex.ToString();
-                GameObject.Find("TimeText").GetComponent<Text>().text = _timeTextBuilder.ToString();
+                PageText.text = CurrentPageIndex.ToString();
+                TimeText.text = TimestampParser.Serialize(time);
 
                 if (CurrentPageIndex <
                     CurrentChart.PageList.Count) // in case the pages don't go to the end of the chart
@@ -1194,9 +1145,7 @@ namespace CCE.Game
                 milliseconds = 1000 - milliseconds;
             }
 
-            GameObject.Find("TimeText").GetComponent<Text>().text = (int) ((time - CurrentChart.MusicOffset) / 60) +
-                                                                    ":" + ((int) (time - CurrentChart.MusicOffset) % 60)
-                                                                    .ToString("D2") + "." + milliseconds.ToString("D3");
+            TimeText.text = TimestampParser.Serialize(time - CurrentChart.MusicOffset);
 
             GameObject.Find("NoteCountText").GetComponent<Text>().text = $"Note count: {CurrentChart.NoteList.Count}";
 
@@ -2613,17 +2562,14 @@ namespace CCE.Game
 
         public NotePropertiesManager NotePropsManager;
 
-        private Text _pageText, _timeText;
+        [SerializeField] private Text PageText;
+        [SerializeField] private Text TimeText;
 
         public GameObject Scanline;
 
         public Slider Timeline;
 
-        public AudioSource MusicSource;
-
         private GameObject _selectionBox;
-
-        public AudioSource[] HitsoundSources;
 
         private readonly List<double> _hitsoundTimings = new List<double>();
 

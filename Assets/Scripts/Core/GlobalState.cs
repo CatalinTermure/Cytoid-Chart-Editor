@@ -123,15 +123,6 @@ namespace CCE.Core
                 _loadedHotkeys = true;
             }
 #endif
-
-            if (Config.DebugMode)
-            {
-                _logPath = Path.Combine(Application.persistentDataPath, "LoadChartLog.txt");
-                if (CurrentChart == null)
-                {
-                    Logging.CreateLog(_logPath, "Starting level loading log...\n");
-                }
-            }
         }
 
         public static void SaveConfig()
@@ -142,14 +133,10 @@ namespace CCE.Core
         
         public static void LoadLevel(LevelData level, string path)
         {
-            Logging.AddToLog(_logPath, $"Starting the load of level at path: {path}\n");
-
             CurrentLevel = level;
             CurrentLevelPath = Path.GetDirectoryName(path);
 
             LoadBackground();
-
-            Logging.AddToLog(_logPath, "Loaded background...\n");
         }
         
         public static void LoadChart(LevelData.ChartFileData chart)
@@ -284,9 +271,6 @@ namespace CCE.Core
                     Debug.LogError("CCELog: Audio file type is unsupported.");
                     break;
             }
-
-            Logging.AddToLog(Path.Combine(Application.persistentDataPath, "LoadChartLog.txt"),
-                $"Loading music file from path: file://{path}\n");
 
             using (UnityWebRequest www = UnityWebRequestMultimedia.GetAudioClip("file://" + path, type))
             {

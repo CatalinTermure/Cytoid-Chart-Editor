@@ -1,6 +1,8 @@
 ﻿using CCE.Utils;
 using ManagedBass;
 using ManagedBass.Fx;
+using System.Linq;
+using System.IO;
 using UnityEngine;
 
 namespace CCE.Core
@@ -13,17 +15,20 @@ namespace CCE.Core
         public static bool IsInitialized;
 
         public static bool IsPlaying;
-        
-        private static int _audioHandle; // Handle to the original audio stream
-        
-        /// <summary>
-        /// Handle to the audio stream used for playback.
-        /// </summary>
-        private static int _channelStream;
+
+        // Handle to the original audio stream to apply effects on.
+        private static int _audioHandle;
+
+        // Handle to the audio stream used for playback.
+        private static int _audioChannel;
+
+        private const int _concurrentHitsoundCount = 4;
+        private static int _hitsoundHandle;
+        private static int[] _hitsoundChannels = new int[_concurrentHitsoundCount];
+        private static int _hitsoundChannelIndex;
 
         private static bool _isPlaybackSpeedEditable;
 
-        private static AudioClip _music;
         private static double _playbackSpeed;
 
         public static double PlaybackSpeed
@@ -38,22 +43,20 @@ namespace CCE.Core
                                    " audio for playback speed editing. See: LoadAudio.");
                     return;
                 }
-                
-                Bass.ChannelSetAttribute(_channelStream, ChannelAttribute.Tempo, (value - 1) * 100);
+
+                Bass.ChannelSetAttribute(_audioChannel, ChannelAttribute.Tempo, (value - 1) * 100);
                 BassUtils.PrintLastError();
             }
         }
 
         public static double Time
         {
-            get => Bass.ChannelBytes2Seconds(_channelStream, Bass.ChannelGetPosition(_channelStream));
-            set => Bass.ChannelSetPosition(_channelStream, Bass.ChannelSeconds2Bytes(_channelStream, value));
+            get => Bass.ChannelBytes2Seconds(_audioChannel, Bass.ChannelGetPosition(_audioChannel));
+            set => Bass.ChannelSetPosition(_audioChannel, Bass.ChannelSeconds2Bytes(_audioChannel, value));
         }
 
         public static double MaxTime =>
-            Bass.ChannelBytes2Seconds(_channelStream, Bass.ChannelGetLength(_channelStream));
-
-        
+            Bass.ChannelBytes2Seconds(_audioChannel, Bass.ChannelGetLength(_audioChannel));
 
         /// <summary>
         ///     Plays the <see cref="AudioClip" />
@@ -67,7 +70,7 @@ namespace CCE.Core
             }
 
             IsPlaying = true;
-            Bass.ChannelPlay(_channelStream);
+            Bass.ChannelPlay(_audioChannel);
             BassUtils.PrintLastError();
 
 
@@ -77,13 +80,13 @@ namespace CCE.Core
         public static void Pause()
         {
             IsPlaying = false;
-            Bass.ChannelPause(_channelStream);
+            Bass.ChannelPause(_audioChannel);
         }
 
         public static void Stop()
         {
             IsPlaying = false;
-            Bass.ChannelStop(_channelStream);
+            Bass.ChannelStop(_audioChannel);
         }
 
         /// <summary>
@@ -96,17 +99,72 @@ namespace CCE.Core
             Stop();
             _audioHandle = handle;
             _isPlaybackSpeedEditable = loadForPlaybackSpeed;
-            
+
             if (loadForPlaybackSpeed)
             {
-                Bass.StreamFree(_channelStream);
-                _channelStream = BassFx.TempoCreate(_audioHandle, BassFlags.Default | BassFlags.FxFreeSource);
+                Bass.StreamFree(_audioChannel);
+                _audioChannel = BassFx.TempoCreate(_audioHandle, BassFlags.Default | BassFlags.FxFreeSource);
                 BassUtils.PrintLastError();
             }
             else
             {
-                _channelStream = _audioHandle;
+                _audioChannel = _audioHandle;
             }
+        }
+
+        private static void LoadDefaultHitsounds()
+        {
+            AudioClip hitsoundClip = Resources.Load<AudioClip>("hitsound");
+            hitsoundClip.LoadAudioData();
+
+            int sampleCount = hitsoundClip.samples * hitsoundClip.channels;
+            float[] samples = new float[sampleCount];
+
+            hitsoundClip.GetData(samples, 0);
+
+            _hitsoundHandle =
+                Bass.CreateSample(sampleCount * 4, hitsoundClip.frequency, hitsoundClip.channels,
+                    _concurrentHitsoundCount, BassFlags.Float | BassFlags.SampleOverrideLongestPlaying);
+
+            Bass.SampleSetData(_hitsoundHandle, samples);
+        }
+
+        private static void LoadHitsounds()
+        {
+            string customHitsoundPath = Path.Combine(Application.persistentDataPath, "Hitsound.wav");
+            if (File.Exists(customHitsoundPath))
+            {
+                _hitsoundHandle = Bass.SampleLoad(customHitsoundPath, 0, 0,
+                    _concurrentHitsoundCount, BassFlags.Default);
+            }
+            else
+            {
+                LoadDefaultHitsounds();
+            }
+
+            for (int i = 0; i < _concurrentHitsoundCount; i++)
+            {
+                _hitsoundChannels[i] = Bass.SampleGetChannel(_hitsoundHandle, true);
+            }
+        }
+
+        public static void PlayHitsound()
+        {
+            Bass.ChannelPlay(_hitsoundChannels[_hitsoundChannelIndex++], true);
+            if (_hitsoundChannelIndex == _concurrentHitsoundCount) _hitsoundChannelIndex = 0;
+        }
+
+        public static void SetHitsoundVolume(double volume)
+        {
+            for (int i = 0; i < _concurrentHitsoundCount; i++)
+            {
+                Bass.ChannelSetAttribute(_hitsoundChannels[i], ChannelAttribute.Volume, volume);
+            }
+        }
+
+        public static void SetMusicVolume(double volume)
+        {
+            Bass.ChannelSetAttribute(_audioChannel, ChannelAttribute.Volume, volume);
         }
 
         public static void Initialize()
@@ -115,8 +173,16 @@ namespace CCE.Core
             Bass.Configure(Configuration.DevNonStop, true);
 
             Bass.Init();
-            BassUtils.PrintLastError();
-            
+#if UNITY_EDITOR
+            if(Bass.LastError == Errors.Already)
+            {
+                Debug.Log("Could not start BASS, please restart the player");
+                return;
+            }
+#endif
+
+            LoadHitsounds();
+
             IsInitialized = true;
         }
     }
