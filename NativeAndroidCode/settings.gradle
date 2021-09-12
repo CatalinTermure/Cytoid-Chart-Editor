@@ -1,0 +1,2 @@
+rootProject.name = "Unity File Utils"
+include ':libraries:unityfileutils'
