@@ -32,6 +32,20 @@ namespace CCE.Utils
             return uniquePath;
         }
         
+        public static void CopyDirectory(string srcDirPath, string destDirPath)
+        {
+            Directory.CreateDirectory(destDirPath);
+            foreach (string file in Directory.EnumerateFiles(srcDirPath))
+            {
+                File.Copy(file, Path.Combine(destDirPath, Path.GetFileName(file)));
+            }
+
+            foreach (string directory in Directory.EnumerateDirectories(srcDirPath))
+            {
+                CopyDirectory(directory, Path.Combine(destDirPath, Path.GetFileName(directory)));
+            }
+        }
+
         public static bool IsAudioFile(string file)
         {
             return Path.GetExtension(file) switch

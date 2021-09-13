@@ -1,4 +1,5 @@
 using CCE.Core;
+using CCE.Utils;
 using System.IO;
 using System.IO.Compression;
 using UnityEngine;
@@ -11,13 +12,18 @@ namespace CCE.LevelLoading
         {
             ChartCardController.DeleteDeadAssets(GlobalState.CurrentLevel);
             string srcDirPath = GlobalState.CurrentLevelPath;
+            string tempDirPath = Path.Combine(GlobalState.Config.TempStoragePath,
+                GlobalState.CurrentLevel.ID);
             string tempArchivePath = Path.Combine(
                 GlobalState.Config.TempStoragePath,
                 GlobalState.CurrentLevel.ID + ".cytoidlevel");
 
             try
             {
-                ZipFile.CreateFromDirectory(srcDirPath, tempArchivePath);
+                FileUtils.CopyDirectory(srcDirPath, tempDirPath);
+                File.Delete(Path.Combine(tempDirPath, ".bg"));
+
+                ZipFile.CreateFromDirectory(tempDirPath, tempArchivePath);
 
                 if (Application.platform == RuntimePlatform.Android)
                 {
@@ -29,6 +35,7 @@ namespace CCE.LevelLoading
                 }
             } finally
             {
+                Directory.Delete(tempDirPath);
                 File.Delete(tempArchivePath);
             }
         }
