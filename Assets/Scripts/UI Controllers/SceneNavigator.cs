@@ -1,5 +1,6 @@
-﻿using CCE;
-using CCE.Core;
+﻿using CCE.Core;
+using CCE.Data;
+using System.IO;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -7,37 +8,51 @@ public class SceneNavigator : MonoBehaviour
 {
     public void NavigateToFileSelect()
     {
-        SceneManager.LoadScene("LevelSelectScene");
+        NavigateToScene("LevelSelectScene");
     }
 
     public void NavigatoToMainScreen()
     {
         if (GlobalState.CurrentChart != null)
         {
-            SceneManager.LoadScene("MainScene");
+            NavigateToScene("MainScene");
         }
     }
 
     public void NavigateToMainScreenUnsafe()
     {
-        SceneManager.LoadScene("MainScene");
+        NavigateToScene("MainScene");
     }
 
     public void NavigateToLevelOptions()
     {
         if (GlobalState.CurrentChart != null)
         {
-            SceneManager.LoadScene("LevelOptionsScene");
+            NavigateToScene("LevelOptionsScene");
         }
     }
 
     public void NavigateToChartOptions()
     {
-        SceneManager.LoadScene("ChartOptionsScene");
+        NavigateToScene("ChartOptionsScene");
     }
 
     public void NavigateToEditorOptions()
     {
-        SceneManager.LoadScene("EditorOptionsScene");
+        NavigateToScene("EditorOptionsScene");
+    }
+
+    public static void NavigateToChartEdit(LevelData levelData, LevelData.ChartFileData chartFileData, int audioHandle)
+    {
+        AudioManager.LoadAudio(audioHandle, true);
+        GlobalState.LoadLevel(levelData, Path.Combine(GlobalState.Config.LevelStoragePath, levelData.ID, "level.json"));
+        GlobalState.LoadChart(chartFileData);
+        NavigateToScene("MainScene");
+    }
+
+    private static void NavigateToScene(string sceneName)
+    {
+        SceneManager.LoadScene(sceneName);
+        AudioManager.Pause();
     }
 }

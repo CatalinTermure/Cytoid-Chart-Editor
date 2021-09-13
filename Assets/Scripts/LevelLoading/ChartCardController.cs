@@ -91,7 +91,7 @@ namespace CCE.LevelLoading
             _levelList.View.FreeResources();
 
             byte[] data = await LevelAssetsManager.LoadFileAsync(audioFilePath);
-            SceneNavigation.NavigateToChartEdit(levelData, chartData,
+            SceneNavigator.NavigateToChartEdit(levelData, chartData,
                 Bass.CreateStream(data, 0, data.Length, BassFlags.Decode));
         }
 
@@ -124,7 +124,7 @@ namespace CCE.LevelLoading
                 }));
 
             byte[] data = await LevelAssetsManager.LoadFileAsync(audioFilePath);
-            SceneNavigation.NavigateToChartEdit(levelData, chartData,
+            SceneNavigator.NavigateToChartEdit(levelData, chartData,
                 Bass.CreateStream(data, 0, data.Length, BassFlags.Decode));
         }
 
