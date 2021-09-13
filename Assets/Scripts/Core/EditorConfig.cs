@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using CCE.UI;
 using UnityEngine;
 
@@ -8,7 +7,7 @@ namespace CCE.Core
     public class EditorConfig
     {
         public string LevelStoragePath = Path.Combine(Application.persistentDataPath, "charts");
-        public string DirPath = Application.persistentDataPath;
+        public string DirPath = "DEPRECATED";
         public string TempStoragePath = Path.Combine(Application.persistentDataPath, "temps");
         public int UserOffset = 0;
         

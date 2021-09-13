@@ -53,6 +53,12 @@ namespace CCE.LevelLoading
                 }
             }
 
+            // Importing levels from old directory
+            foreach(string dirPath in Directory.EnumerateDirectories(GlobalState.Config.DirPath))
+            {
+                ImportLevel(dirPath);
+            }
+
             string dots = ".";
 
             while (_fileImporters.Count > 0)
@@ -83,7 +89,8 @@ namespace CCE.LevelLoading
                 {
                     var levelData = 
                         JsonConvert.DeserializeObject<LevelData>(File.ReadAllText(Path.Combine(levelDir, "level.json")));
-                    
+
+                    if (!File.Exists(Path.Combine(levelDir, levelData.Background.Path))) continue;
                     CacheBackground(Path.Combine(levelDir, levelData.Background.Path), Path.Combine(levelDir, ".bg"));
                 }
                 

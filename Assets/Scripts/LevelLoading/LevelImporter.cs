@@ -21,6 +21,13 @@ namespace CCE.LevelLoading
 
         public void ImportFile()
         {
+            if (Directory.Exists(FilePath))
+            {
+                ImportUnpackedCytoidLevel();
+                IsRunning = false;
+                return;
+            }
+
             if (!File.Exists(FilePath)) return;
             
             switch (Path.GetExtension(FilePath))
@@ -44,28 +51,23 @@ namespace CCE.LevelLoading
 
         private void ImportUnpackedCytoidLevel()
         {
-            try
-            {
-                var levelData =
-                    JsonConvert.DeserializeObject<LevelData>(File.ReadAllText(Path.Combine(FilePath, "level.json")));
-                
-                string finalFolderPath = Path.Combine(GlobalState.Config.LevelStoragePath, levelData.ID);
+            if (!File.Exists(Path.Combine(FilePath, "level.json"))) return;
 
-                if (Directory.Exists(finalFolderPath))
-                {
-                    Debug.LogError(
-                        $"CCELog: Level {Path.GetDirectoryName(FilePath)} " +
-                        "has not been loaded.\nA level with the same ID has already been " +
-                        "loaded, please delete it first before trying again.");
-                }
-                else
-                {
-                    Directory.Move(FilePath, finalFolderPath);
-                }
-            }
-            finally
+            var levelData =
+                JsonConvert.DeserializeObject<LevelData>(File.ReadAllText(Path.Combine(FilePath, "level.json")));
+                
+            string finalFolderPath = Path.Combine(GlobalState.Config.LevelStoragePath, levelData.ID);
+
+            if (Directory.Exists(finalFolderPath))
             {
-                if(Directory.Exists(FilePath)) Directory.Delete(FilePath, true);
+                Debug.LogError(
+                    $"CCELog: Level {Path.GetDirectoryName(FilePath)} " +
+                    "has not been loaded.\nA level with the same ID has already been " +
+                    "loaded, please delete it first before trying again.");
+            }
+            else
+            {
+                Directory.Move(FilePath, finalFolderPath);
             }
         }
 
