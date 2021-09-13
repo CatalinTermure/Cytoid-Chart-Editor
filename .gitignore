@@ -62,3 +62,19 @@ crashlytics-build.properties
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
 /.idea/.idea.Cytoid Chart Editor/.idea
+
+
+*.iml
+/NativeAndroidCode/local.properties
+/NativeAndroidCode/.idea/caches
+/NativeAndroidCode/.idea/libraries
+/NativeAndroidCode/.idea/modules.xml
+/NativeAndroidCode/.idea/workspace.xml
+/NativeAndroidCode/.idea/navEditor.xml
+/NativeAndroidCode/.idea/assetWizardSettings.xml
+.DS_Store
+/NativeAndroidCode/build
+/NativeAndroidCode/captures
+.externalNativeBuild
+.cxx
+local.properties

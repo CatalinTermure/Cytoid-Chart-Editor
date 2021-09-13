@@ -29,7 +29,9 @@ namespace CCE.LevelLoading
             if (String.IsNullOrEmpty(filePath)) return;
             
             filePath = new Uri(filePath).LocalPath;
-            
+
+            _isIntentHandled = true;
+
             if (!File.Exists(filePath)) return;
 
             if (FileUtils.IsAudioFile(filePath))
