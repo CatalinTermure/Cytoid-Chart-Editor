@@ -85,5 +85,10 @@ namespace CCE.LevelLoading
 
             ChartCardController.LoadNewChart(_levelData, "easy");
         }
+
+        public void Cancel()
+        {
+            Destroy(gameObject);
+        }
     }
 }

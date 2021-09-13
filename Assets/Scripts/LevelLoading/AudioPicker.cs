@@ -35,6 +35,7 @@ namespace CCE.LevelLoading
         
         public void PickAudio()
         {
+            _isRunning = true;
             if (Application.isMobilePlatform)
             {
                 PickAudioMobile();
