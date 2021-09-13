@@ -176,7 +176,7 @@ namespace CCE.Core
 #if UNITY_EDITOR
             if(Bass.LastError == Errors.Already)
             {
-                Debug.Log("Could not start BASS, please restart the player");
+                Debug.Log("Could not start BASS, please restart unity.");
                 return;
             }
 #endif

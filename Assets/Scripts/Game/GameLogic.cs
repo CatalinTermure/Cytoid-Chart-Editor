@@ -260,6 +260,11 @@ namespace CCE.Game
 
                 while (CurrentPageIndex < CurrentChart.PageList.Count && CurrentPage.EndTime < time)
                 {
+                    if(CurrentChart.PageList[CurrentPageIndex + 1].ActualPageSize != CurrentPage.ActualPageSize)
+                    {
+                        UpdateBpmText();
+                    }
+
                     CurrentPageIndex++;
                 }
 
@@ -267,8 +272,7 @@ namespace CCE.Game
                        CurrentChart.TempoList[_currentTempoIndex + 1].Time < time)
                 {
                     _currentTempoIndex++;
-                    GameObject.Find("CurrentBPMText").GetComponentInChildren<Text>().text =
-                        $"BPM: {Math.Round(120000000.0 / CurrentChart.TempoList[_currentTempoIndex].Value, 2)}";
+                    UpdateBpmText();
                 }
 
                 PageText.text = CurrentPageIndex.ToString();
@@ -1047,6 +1051,14 @@ namespace CCE.Game
             obj.CalculateTimings();
             obj.UpdateTime(obj.CurrentPage.StartTime);
         }
+        
+        private void UpdateBpmText()
+        {
+            double scanlineBpm = 120000000.0 / CurrentChart.TempoList[_currentTempoIndex].Value
+                * 480.0 / CurrentPage.ActualPageSize;
+            GameObject.Find("CurrentBPMText").GetComponentInChildren<Text>().text =
+                $"BPM: {Math.Round(scanlineBpm, 2)}";
+        }
 
         /// <summary>
         ///     Updates the current Time to the <paramref name="time" /> specified.
@@ -1131,8 +1143,7 @@ namespace CCE.Game
                 }
             }
 
-            GameObject.Find("CurrentBPMText").GetComponentInChildren<Text>().text =
-                $"BPM: {Math.Round(120000000.0 / CurrentChart.TempoList[_currentTempoIndex].Value, 2)}";
+            UpdateBpmText();
 
             GameObject.Find("SweepChangeButton").GetComponentInChildren<Text>().text =
                 CurrentPage.ScanLineDirection == 1 ? "Up" : "Down";
@@ -2564,6 +2575,7 @@ namespace CCE.Game
 
         [SerializeField] private Text PageText;
         [SerializeField] private Text TimeText;
+        [SerializeField] private Text BpmText; 
 
         public GameObject Scanline;
 

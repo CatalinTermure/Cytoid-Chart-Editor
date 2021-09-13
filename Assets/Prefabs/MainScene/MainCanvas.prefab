@@ -148,6 +148,7 @@ MonoBehaviour:
   NotePropsManager: {fileID: 2387732457702820310}
   PageText: {fileID: 2387732457706331636}
   TimeText: {fileID: 2387732458467138948}
+  BpmText: {fileID: 2387732458431647692}
   Scanline: {fileID: 0}
   Timeline: {fileID: 2387732458981853665}
   BeatDivisorSlider: {fileID: 2387732458117428668}
@@ -1548,6 +1549,18 @@ MonoBehaviour:
 --- !u!114 &2387732458467138948 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 4554602071873228546, guid: ab5a16a6074a6b34abd96f55a3e73749,
+    type: 3}
+  m_PrefabInstance: {fileID: 2168444148571017862}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f7201a12d95ffc409449d95f23cf332, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &2387732458431647692 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4554602071913176394, guid: ab5a16a6074a6b34abd96f55a3e73749,
     type: 3}
   m_PrefabInstance: {fileID: 2168444148571017862}
   m_PrefabAsset: {fileID: 0}
