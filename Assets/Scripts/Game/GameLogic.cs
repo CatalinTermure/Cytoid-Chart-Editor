@@ -814,8 +814,10 @@ namespace CCE.Game
             obj.GetComponent<ScanlineNoteController>().TimeInputField.text =
                 (CurrentChart.TempoList[id].Time - CurrentChart.MusicOffset).ToString(CultureInfo.InvariantCulture);
 
+            double bpm = 120000000.0 / CurrentChart.TempoList[id].Value * 480 / CurrentChart.TimeBase;
+
             obj.GetComponent<ScanlineNoteController>().BPMInputField.text =
-                Math.Round(120000000.0 / CurrentChart.TempoList[id].Value, 2).ToString(CultureInfo.InvariantCulture);
+                Math.Round(bpm, 2).ToString(CultureInfo.InvariantCulture);
         }
 
 
@@ -1042,7 +1044,7 @@ namespace CCE.Game
         private void UpdateBpmText()
         {
             double scanlineBpm = 120000000.0 / CurrentChart.TempoList[_currentTempoIndex].Value
-                * 480.0 / CurrentPage.ActualPageSize;
+                * 480.0 / CurrentPage.ActualPageSize * 480.0 / CurrentChart.TimeBase;
             GameObject.Find("CurrentBPMText").GetComponentInChildren<Text>().text =
                 $"BPM: {Math.Round(scanlineBpm, 2)}";
         }
