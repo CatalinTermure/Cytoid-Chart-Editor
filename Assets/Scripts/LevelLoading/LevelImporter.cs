@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.IO.Compression;
 using CCE.Core;
 using CCE.Data;
@@ -29,17 +30,17 @@ namespace CCE.LevelLoading
             }
 
             if (!File.Exists(FilePath)) return;
-            
+
             switch (Path.GetExtension(FilePath))
             {
                 case ".cytoidlevel":
                     ImportCytoidLevel();
                     break;
-                
+
                 case ".cytoidpack":
                     ImportCytoidPack();
                     break;
-                
+
                 default:
                     Debug.LogError($"CCELog: File extension of {FilePath} " +
                                    "does not correspond to any known file extension.");
@@ -55,7 +56,7 @@ namespace CCE.LevelLoading
 
             var levelData =
                 JsonConvert.DeserializeObject<LevelData>(File.ReadAllText(Path.Combine(FilePath, "level.json")));
-                
+
             string finalFolderPath = Path.Combine(GlobalState.Config.LevelStoragePath, levelData.ID);
 
             if (Directory.Exists(finalFolderPath))
@@ -75,12 +76,20 @@ namespace CCE.LevelLoading
         {
             string tempFolderPath = Path.Combine(GlobalState.Config.TempStoragePath,
                 Path.GetFileNameWithoutExtension(FilePath));
-            
+
             try
             {
                 Directory.CreateDirectory(tempFolderPath);
-                
-                ZipFile.ExtractToDirectory(FilePath, tempFolderPath);
+
+                try
+                {
+                    ZipFile.ExtractToDirectory(FilePath, tempFolderPath);
+                }
+                catch (Exception)
+                {
+                    File.Delete(FilePath);
+                    return;
+                }
 
                 var levelData = JsonConvert.DeserializeObject<LevelData>(
                     File.ReadAllText(Path.Combine(tempFolderPath, "level.json")));
@@ -98,15 +107,19 @@ namespace CCE.LevelLoading
                 {
                     Directory.Move(tempFolderPath, finalFolderPath);
                 }
-                
+
                 if (FilePath.Contains(GlobalState.Config.LevelStoragePath))
                 {
                     File.Delete(FilePath);
                 }
             }
+            catch (Exception)
+            {
+                File.Delete(FilePath);
+            }
             finally
             {
-                if(Directory.Exists(tempFolderPath)) Directory.Delete(tempFolderPath, true);
+                if (Directory.Exists(tempFolderPath)) Directory.Delete(tempFolderPath, true);
             }
         }
 
@@ -114,8 +127,17 @@ namespace CCE.LevelLoading
         {
             try
             {
-                ZipFile.ExtractToDirectory(FilePath, GlobalState.Config.TempStoragePath);
-                
+                try
+                {
+                    ZipFile.ExtractToDirectory(FilePath, GlobalState.Config.TempStoragePath);
+                }
+                catch (Exception)
+                {
+                    File.Delete(FilePath);
+                    return;
+                }
+
+
                 if (FilePath.Contains(GlobalState.Config.LevelStoragePath))
                 {
                     File.Delete(FilePath);
@@ -127,7 +149,7 @@ namespace CCE.LevelLoading
                     FilePath = levelPath;
                     ImportCytoidLevel();
                 }
-                
+
                 foreach (string unpackedLevelPath in
                     Directory.EnumerateDirectories(GlobalState.Config.TempStoragePath))
                 {

@@ -2797,7 +2797,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Import audio or .cytoidlevel
+  m_Text: Import audio
 --- !u!222 &2145428987
 CanvasRenderer:
   m_ObjectHideFlags: 0
