@@ -260,12 +260,12 @@ namespace CCE.Game
 
                 while (CurrentPageIndex < CurrentChart.PageList.Count && CurrentPage.EndTime < time)
                 {
-                    if(CurrentChart.PageList[CurrentPageIndex + 1].ActualPageSize != CurrentPage.ActualPageSize)
+                    CurrentPageIndex++;
+
+                    if (CurrentChart.PageList[CurrentPageIndex - 1].ActualPageSize != CurrentPage.ActualPageSize)
                     {
                         UpdateBpmText();
                     }
-
-                    CurrentPageIndex++;
                 }
 
                 while (_currentTempoIndex + 1 < CurrentChart.TempoList.Count &&
