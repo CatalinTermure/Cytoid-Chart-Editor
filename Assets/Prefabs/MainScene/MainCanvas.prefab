@@ -149,6 +149,15 @@ MonoBehaviour:
   PageText: {fileID: 2387732457706331636}
   TimeText: {fileID: 2387732458467138948}
   BpmText: {fileID: 2387732458431647692}
+  LeftNotchObstructedObjects:
+  - {fileID: 2387732458360271392}
+  - {fileID: 2387732459484474948}
+  - {fileID: 2387732458362376698}
+  - {fileID: 2387732458464447556}
+  - {fileID: 2387732458904076768}
+  RightNotchObstructedObjects:
+  - {fileID: 2387732458372906031}
+  - {fileID: 2387732457948745013}
   Scanline: {fileID: 0}
   Timeline: {fileID: 2387732458981853665}
   BeatDivisorSlider: {fileID: 2387732458117428668}

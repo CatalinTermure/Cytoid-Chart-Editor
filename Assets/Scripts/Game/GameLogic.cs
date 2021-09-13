@@ -304,30 +304,17 @@ namespace CCE.Game
                 _lastSafeArea = Screen.safeArea;
                 if (Screen.orientation == ScreenOrientation.LandscapeLeft)
                 {
-                    GameObject.Find("AddClickNoteButton").GetComponent<RectTransform>().anchoredPosition =
-                        new Vector2(Screen.safeArea.x,
-                            GameObject.Find("AddClickNoteButton").GetComponent<RectTransform>().anchoredPosition.y);
-                    GameObject.Find("AddHoldNoteButton").GetComponent<RectTransform>().anchoredPosition =
-                        new Vector2(Screen.safeArea.x,
-                            GameObject.Find("AddHoldNoteButton").GetComponent<RectTransform>().anchoredPosition.y);
-                    GameObject.Find("AddLongHoldNoteButton").GetComponent<RectTransform>().anchoredPosition =
-                        new Vector2(Screen.safeArea.x,
-                            GameObject.Find("AddLongHoldNoteButton").GetComponent<RectTransform>().anchoredPosition.y);
-                    GameObject.Find("AddDragNoteButton").GetComponent<RectTransform>().anchoredPosition =
-                        new Vector2(Screen.safeArea.x,
-                            GameObject.Find("AddDragNoteButton").GetComponent<RectTransform>().anchoredPosition.y);
-                    GameObject.Find("AddCDragNoteButton").GetComponent<RectTransform>().anchoredPosition =
-                        new Vector2(Screen.safeArea.x,
-                            GameObject.Find("AddCDragNoteButton").GetComponent<RectTransform>().anchoredPosition.y);
+                    foreach (RectTransform transform in LeftNotchObstructedObjects)
+                    {
+                        transform.anchoredPosition = new Vector2(Screen.safeArea.x, transform.anchoredPosition.y);
+                    }
                 }
                 else if (Screen.orientation == ScreenOrientation.LandscapeRight)
                 {
-                    GameObject.Find("MoveNoteButton").GetComponent<RectTransform>().anchoredPosition = new Vector2(
-                        -Screen.safeArea.x,
-                        GameObject.Find("MoveNoteButton").GetComponent<RectTransform>().anchoredPosition.y);
-                    GameObject.Find("OtherOptionsScrollView").GetComponent<RectTransform>().anchoredPosition =
-                        new Vector2(-Screen.safeArea.x,
-                            GameObject.Find("OtherOptionsScrollView").GetComponent<RectTransform>().anchoredPosition.y);
+                    foreach (RectTransform transform in RightNotchObstructedObjects)
+                    {
+                        transform.anchoredPosition = new Vector2(-Screen.safeArea.x, transform.anchoredPosition.y);
+                    }
                 }
             }
         }
@@ -2575,7 +2562,9 @@ namespace CCE.Game
 
         [SerializeField] private Text PageText;
         [SerializeField] private Text TimeText;
-        [SerializeField] private Text BpmText; 
+        [SerializeField] private Text BpmText;
+        [SerializeField] private List<RectTransform> LeftNotchObstructedObjects;
+        [SerializeField] private List<RectTransform> RightNotchObstructedObjects;
 
         public GameObject Scanline;
 
