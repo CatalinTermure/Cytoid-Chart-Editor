@@ -54,9 +54,22 @@ namespace CCE.LevelLoading
             }
 
             // Importing levels from old directory
-            foreach(string dirPath in Directory.EnumerateDirectories(GlobalState.Config.DirPath))
+            if (Directory.Exists(GlobalState.Config.DirPath))
             {
-                ImportLevel(dirPath);
+                int count = 0;
+                foreach (string dirPath in Directory.EnumerateDirectories(GlobalState.Config.DirPath))
+                {
+                    count++;
+                    ImportLevel(dirPath);
+                }
+                if(count == 0)
+                {
+                    GlobalState.Config.DirPath = "DEPRECATED";
+                }
+            }
+            else
+            {
+                GlobalState.Config.DirPath = "DEPRECATED";
             }
 
             string dots = ".";
