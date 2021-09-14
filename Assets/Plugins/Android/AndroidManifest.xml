@@ -63,6 +63,56 @@
                 <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\..*\\.cytoidpack.zip" />
                 <data android:host="*"/>
             </intent-filter>
+            <intent-filter>
+              <action android:name="android.intent.action.VIEW"/>
+              <category android:name="android.intent.category.DEFAULT"/>
+              <category android:name="android.intent.category.BROWSABLE"/>
+              <data android:scheme="file"/>
+              <data android:pathPattern=".*\\.cytoidlevel" />
+              <data android:pathPattern=".*\\.cytoidpack" />
+
+              <data android:pathPattern=".*\\..*\\.cytoidlevel" />
+              <data android:pathPattern=".*\\..*\\.cytoidpack" />
+
+              <data android:pathPattern=".*\\..*\\..*\\.cytoidlevel" />
+              <data android:pathPattern=".*\\..*\\..*\\.cytoidpack" />
+
+              <data android:pathPattern=".*\\..*\\..*\\..*\\.cytoidlevel" />
+              <data android:pathPattern=".*\\..*\\..*\\..*\\.cytoidpack" />
+
+              <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\.cytoidlevel" />
+              <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\.cytoidpack" />
+
+              <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\..*\\.cytoidlevel" />
+              <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\..*\\.cytoidpack" />
+
+              <data android:pathPattern=".*\\.cytoidlevel.zip" />
+              <data android:pathPattern=".*\\.cytoidpack.zip" />
+
+              <data android:pathPattern=".*\\..*\\.cytoidlevel.zip" />
+              <data android:pathPattern=".*\\..*\\.cytoidpack.zip" />
+
+              <data android:pathPattern=".*\\..*\\..*\\.cytoidlevel.zip" />
+              <data android:pathPattern=".*\\..*\\..*\\.cytoidpack.zip" />
+
+              <data android:pathPattern=".*\\..*\\..*\\..*\\.cytoidlevel.zip" />
+              <data android:pathPattern=".*\\..*\\..*\\..*\\.cytoidpack.zip" />
+
+              <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\.cytoidlevel.zip" />
+              <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\.cytoidpack.zip" />
+
+              <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\..*\\.cytoidlevel.zip" />
+              <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\..*\\.cytoidpack.zip" />
+              <data android:host="*"/>
+            </intent-filter>
+            <intent-filter>
+              <action android:name="android.intent.action.VIEW" />
+              <category android:name="android.intent.category.DEFAULT" />
+              <category android:name="android.intent.category.BROWSABLE" />
+              <data android:mimeType="application/zip" android:scheme="file" />
+              <data android:mimeType="application/x-zip-compressed" android:scheme="file" />
+              <data android:mimeType="application/octet-stream" android:scheme="file" />
+            </intent-filter>
             <meta-data android:name="unityplayer.UnityActivity" android:value="true" />
         </activity>
     </application>

@@ -17,7 +17,7 @@ namespace CCE.LevelLoading
         [SerializeField] private GameObject LevelCardTemplate;
         [SerializeField] private GameObject LevelMetadataPopup;
 
-        [SerializeField] private Image ScreenBackground;
+        [SerializeField] private BackgroundManager ScreenBackground;
         [SerializeField] private Sprite DefaultBackground;
 
         private bool _isDragging;
@@ -145,7 +145,7 @@ namespace CCE.LevelLoading
 
         private void SetBackground(Sprite sprite)
         {
-            ScreenBackground.sprite = sprite;
+            ScreenBackground.ChangeBackground(sprite);
         }
     }
 }

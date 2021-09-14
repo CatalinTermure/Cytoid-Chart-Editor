@@ -2254,14 +2254,14 @@ namespace CCE.Game
 
         public void IncreaseOffset()
         {
-            _saveEditorOffsetScheduledTime = Time.time + 5;
+            _saveEditorOffsetScheduledTime = Time.time + 0.75f;
             Config.UserOffset += Config.PreciseOffsetDelta ? 1 : 5;
             UpdateOffsetText();
         }
 
         public void DecreaseOffset()
         {
-            _saveEditorOffsetScheduledTime = Time.time + 5;
+            _saveEditorOffsetScheduledTime = Time.time + 0.75f;
             Config.UserOffset -= Config.PreciseOffsetDelta ? 1 : 5;
             UpdateOffsetText();
         }

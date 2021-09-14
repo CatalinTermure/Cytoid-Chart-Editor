@@ -1972,7 +1972,7 @@ MonoBehaviour:
     type: 3}
   LevelMetadataPopup: {fileID: 6826702451330809110, guid: 64abb7ce55fd2824796727f2d38a95be,
     type: 3}
-  ScreenBackground: {fileID: 1594755344}
+  ScreenBackground: {fileID: 1594755343}
   DefaultBackground: {fileID: 21300000, guid: 7c900223b49f61449bcfc8b0242ecf95, type: 3}
 --- !u!1 &1510299664
 GameObject:

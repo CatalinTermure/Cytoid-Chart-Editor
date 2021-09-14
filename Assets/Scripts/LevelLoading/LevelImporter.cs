@@ -91,6 +91,12 @@ namespace CCE.LevelLoading
                     return;
                 }
 
+                if (!File.Exists(Path.Combine(tempFolderPath, "level.json")))
+                {
+                    Debug.LogError("Could not find level.json file in the .cytoidlevel. " +
+                        "Did you zip the folder rather than the files?");
+                }
+
                 var levelData = JsonConvert.DeserializeObject<LevelData>(
                     File.ReadAllText(Path.Combine(tempFolderPath, "level.json")));
 
@@ -107,18 +113,14 @@ namespace CCE.LevelLoading
                 {
                     Directory.Move(tempFolderPath, finalFolderPath);
                 }
-
+            }
+            finally
+            {
                 if (FilePath.Contains(GlobalState.Config.LevelStoragePath))
                 {
                     File.Delete(FilePath);
                 }
-            }
-            catch (Exception)
-            {
-                File.Delete(FilePath);
-            }
-            finally
-            {
+
                 if (Directory.Exists(tempFolderPath)) Directory.Delete(tempFolderPath, true);
             }
         }

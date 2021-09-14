@@ -1711,6 +1711,16 @@ PrefabInstance:
       propertyPath: m_Camera
       value: 
       objectReference: {fileID: 519420031}
+    - target: {fileID: 2387732457704870171, guid: 79968f6419aadce4faf8e53c8cb0cebe,
+        type: 3}
+      propertyPath: m_ScreenMatchMode
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2387732457704870171, guid: 79968f6419aadce4faf8e53c8cb0cebe,
+        type: 3}
+      propertyPath: m_MatchWidthOrHeight
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 2387732457704870174, guid: 79968f6419aadce4faf8e53c8cb0cebe,
         type: 3}
       propertyPath: Scanline
