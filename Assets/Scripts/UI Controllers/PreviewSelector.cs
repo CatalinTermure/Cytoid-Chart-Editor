@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Threading;
 using CCE.Core;
 using CCE.Data;
@@ -20,10 +21,11 @@ namespace CCE.UI
 
         [SerializeField] private GameObject StartBar;
         [SerializeField] private GameObject EndBar;
-        
+
         [SerializeField] private RawImage WaveformCanvas;
 
         [SerializeField] private ToastMessageManager MessageToaster;
+        [NonSerialized] public LevelDataDisplay LevelDataDisplay;
 
         private const int _minimumPreviewDuration = 5;
         private const int _maximumPreviewDuration = 30;
@@ -48,14 +50,14 @@ namespace CCE.UI
 
             _startBarDragController.OnDragged.AddListener(OnStartBarDragged);
             _endBarDragController.OnDragged.AddListener(OnEndBarDragged);
-            
+
             StartTimeInputField.onEndEdit.AddListener(StartTimeTextChanged);
             EndTimeInputField.onEndEdit.AddListener(EndTimeTextChanged);
 
             Rect canvasRect = WaveformCanvas.rectTransform.rect;
             _canvasWidth = (int)canvasRect.width;
             _canvasHeight = (int)canvasRect.height;
-            
+
             _audioLength = AudioManager.MaxTime;
         }
 
@@ -63,7 +65,7 @@ namespace CCE.UI
         {
             MessageToaster.CreateToast("Loading audio file info...", 10000);
             new Thread(GetAudioData).Start();
-            
+
             SetStartTime(0.0);
             SetEndTime(GlobalState.Clamp(5.0, 0, _audioLength));
         }
@@ -74,7 +76,7 @@ namespace CCE.UI
             {
                 AudioManager.Stop();
             }
-            
+
             if (_isSampleDataValid)
             {
                 StartCoroutine(GenerateWaveformCoroutine());
@@ -95,7 +97,7 @@ namespace CCE.UI
             _endBarDragController.SetPositionWithoutNotify((float)(_endTime / _audioLength));
             EndTimeInputField.SetTextWithoutNotify(TimestampParser.Serialize(_endTime));
         }
-        
+
         private void OnStartBarDragged(float position)
         {
             _startTime = _audioLength * position;
@@ -161,12 +163,12 @@ namespace CCE.UI
             SetEndTime(time);
             CheckEndTime();
         }
-        
+
         private void GetAudioData()
         {
             string audioPath = Path.Combine(GlobalState.Config.LevelStoragePath, GlobalState.CurrentLevel.ID,
                 GlobalState.CurrentLevel.Music.Path);
-            
+
             _decodeStream =
                 Bass.CreateStream(audioPath, 0, 0, BassFlags.Decode | BassFlags.Mono | BassFlags.Float);
 
@@ -187,7 +189,7 @@ namespace CCE.UI
         {
             const int computationsPerFrame = 10000;
             int waveformPortionsPerFrame = _canvasWidth / 120;
-            
+
             var waveform = new Texture2D(_canvasWidth, _canvasHeight);
 
             int chunkSize = _sampleData.Length / _canvasWidth + 1;
@@ -202,13 +204,13 @@ namespace CCE.UI
                 if (waveformData[index] > maximumValue) maximumValue = waveformData[index];
                 index++;
             }
-            
+
             float scalingFactor = 1.0f / maximumValue; // scales the waveform data
-                                                       // so it fits more nicely in the [0, 1] interval
+            // so it fits more nicely in the [-1, 1] interval
             for (int i = 0; i < index; i++)
             {
                 if (i % waveformPortionsPerFrame == 0) yield return null;
-                
+
                 int midPoint = _canvasHeight / 2;
                 int barSize = (int)(midPoint * waveformData[i] * scalingFactor);
                 for (int j = 0; j <= barSize; j++)
@@ -217,11 +219,11 @@ namespace CCE.UI
                     waveform.SetPixel(i, midPoint - j, Color.black);
                 }
             }
-            
+
             waveform.Apply();
 
             WaveformCanvas.texture = waveform;
-            
+
             MessageToaster.CreateToast("Audio file info loaded!");
         }
 
@@ -232,31 +234,41 @@ namespace CCE.UI
                 AudioManager.Stop();
                 return;
             }
-            
+
             AudioManager.Time = _startTime;
             AudioManager.Play();
         }
 
         public void SavePreview()
         {
-            string previewFilePath = Path.Combine(GlobalState.CurrentLevelPath, "preview.ogg");
-            GlobalState.CurrentLevel.MusicPreview = new LevelData.MusicData { Path = "preview.ogg" };
-            ChartCardController.DeleteDeadAssets(GlobalState.CurrentLevel);
-            
+            LevelDataDisplay.DidPreviewChange = true;
+            string previewFilePath = Path.Combine(GlobalState.CurrentLevelPath, "tmp-preview.ogg");
+
             int startSample = (int)Bass.ChannelSeconds2Bytes(_decodeStream, _startTime);
             int endSample = (int)Bass.ChannelSeconds2Bytes(_decodeStream, _endTime);
-            int sampleCount = endSample - startSample;
-   
-            float[] previewData = new float[sampleCount / 4];
-            Buffer.BlockCopy(_sampleData, startSample, previewData, 0, sampleCount - sampleCount % 4);
-            
-            int encoderHandle = BassEnc_Ogg.Start(_decodeStream, null, EncodeFlags.ConvertFloatTo16BitInt, previewFilePath);
-            BassUtils.PrintLastError();
+            int sampleCount = (endSample - startSample) / 4;
 
-            BassEnc.EncodeWrite(encoderHandle, previewData, sampleCount);
-            BassUtils.PrintLastError();
+            float[] previewData = new float[sampleCount];
+            GCHandle previewDataHandle = GCHandle.Alloc(previewData, GCHandleType.Pinned);
+            IntPtr previewDataPtr = previewDataHandle.AddrOfPinnedObject();
             
-            BassEnc.EncodeStop(encoderHandle, true);
+            Buffer.BlockCopy(_sampleData, startSample, previewData, 0, sampleCount * 4);
+
+            int encoderHandle = BassEnc_Ogg.Start(_decodeStream, null, EncodeFlags.ConvertFloatTo16BitInt, previewFilePath);
+
+            int windowSize = (int)Bass.ChannelSeconds2Bytes(_decodeStream, BassEnc.Queue / 1000.0) / 8;
+            int dataLength = sampleCount * 4;
+            for (int index = 0; index + windowSize < dataLength; index += windowSize)
+            {
+                BassEnc.EncodeWrite(encoderHandle, previewDataPtr, windowSize);
+                previewDataPtr = IntPtr.Add(previewDataPtr, windowSize);
+            }
+            
+            BassEnc.EncodeWrite(encoderHandle, previewDataPtr, dataLength % windowSize);
+            BassEnc.EncodeStop(encoderHandle);
+
+            previewDataHandle.Free();
+            
             MessageToaster.CreateToast("Preview audio saved!");
         }
 

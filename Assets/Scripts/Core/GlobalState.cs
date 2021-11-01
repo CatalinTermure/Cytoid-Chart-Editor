@@ -55,7 +55,7 @@ namespace CCE.Core
         /// <summary>
         ///     The current path to use for relative paths referenced in the level.json
         /// </summary>
-        public static string CurrentLevelPath;
+        public static string CurrentLevelPath => Path.Combine(Config.LevelStoragePath, CurrentLevel.ID);
 
         public static LevelData CurrentLevel;
         public static Chart CurrentChart;
@@ -134,7 +134,6 @@ namespace CCE.Core
         public static void LoadLevel(LevelData level, string path)
         {
             CurrentLevel = level;
-            CurrentLevelPath = Path.GetDirectoryName(path);
 
             LoadBackground();
         }
@@ -235,7 +234,6 @@ namespace CCE.Core
                 l++;
             }
 
-            // TODO: fix this undershooting the page
             return l;
         }
 

@@ -35,7 +35,7 @@ namespace CCE.Utils
 
         private static readonly char[] _idSeparators = { '(', ')' };
 
-        public static int ParesNoteTimestamp(string timestamp)
+        public static int ParseNoteTimestamp(string timestamp)
         {
             if (!Int32.TryParse(timestamp.Split(_idSeparators)[1], out int noteId))
             {

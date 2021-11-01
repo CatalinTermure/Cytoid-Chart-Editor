@@ -50,7 +50,7 @@ public class ChartDataChanger : MonoBehaviour
             {
                 MessageToaster.CreateToast("Selected file is not a valid chart file");
             }
-        }, new[] { "application/json", "abc" });
+        }, new[] { "*/*" });
     }
 
     private void ImportChartDesktop()
