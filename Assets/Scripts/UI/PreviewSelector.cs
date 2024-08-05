@@ -27,8 +27,8 @@ namespace CCE.UI
         [SerializeField] private ToastMessageManager MessageToaster;
         [NonSerialized] public LevelDataDisplay LevelDataDisplay;
 
-        private const int _minimumPreviewDuration = 5;
-        private const int _maximumPreviewDuration = 30;
+        private const int MinimumPreviewDuration = 5;
+        private const int MaximumPreviewDuration = 30;
 
         private bool _isSampleDataValid;
         private float[] _sampleData;
@@ -108,19 +108,19 @@ namespace CCE.UI
 
         private void CheckStartTime()
         {
-            if (_startTime + _minimumPreviewDuration > _audioLength)
+            if (_startTime + MinimumPreviewDuration > _audioLength)
             {
-                SetStartTime(_audioLength - _minimumPreviewDuration);
+                SetStartTime(_audioLength - MinimumPreviewDuration);
             }
 
-            if (_endTime - _startTime > _maximumPreviewDuration)
+            if (_endTime - _startTime > MaximumPreviewDuration)
             {
-                SetEndTime(_startTime + _maximumPreviewDuration);
+                SetEndTime(_startTime + MaximumPreviewDuration);
             }
 
-            if (_endTime - _startTime < _minimumPreviewDuration)
+            if (_endTime - _startTime < MinimumPreviewDuration)
             {
-                SetEndTime(_startTime + _minimumPreviewDuration);
+                SetEndTime(_startTime + MinimumPreviewDuration);
             }
         }
 
@@ -134,19 +134,19 @@ namespace CCE.UI
 
         private void CheckEndTime()
         {
-            if (_endTime - _minimumPreviewDuration < 0)
+            if (_endTime - MinimumPreviewDuration < 0)
             {
-                SetEndTime(_minimumPreviewDuration);
+                SetEndTime(MinimumPreviewDuration);
             }
 
-            if (_endTime - _startTime > _maximumPreviewDuration)
+            if (_endTime - _startTime > MaximumPreviewDuration)
             {
-                SetStartTime(_endTime - _maximumPreviewDuration);
+                SetStartTime(_endTime - MaximumPreviewDuration);
             }
 
-            if (_endTime - _startTime < _minimumPreviewDuration)
+            if (_endTime - _startTime < MinimumPreviewDuration)
             {
-                SetStartTime(_endTime - _minimumPreviewDuration);
+                SetStartTime(_endTime - MinimumPreviewDuration);
             }
         }
 

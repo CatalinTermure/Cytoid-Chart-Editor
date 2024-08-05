@@ -17,7 +17,7 @@ namespace CCE.LevelLoading
 {
     public class ChartCardController : MonoBehaviour
     {
-        private const float _holdDeleteTimeThreshold = 1.0f;
+        private const float HoldDeleteTimeThreshold = 1.0f;
 
         // References to the chart cards
         [SerializeField] private List<GameObject> ChartCards;
@@ -86,14 +86,14 @@ namespace CCE.LevelLoading
             float startTime = Time.time;
             float currentTime = Time.time;
             progressGraphic.fillAmount = 0.0f;
-            while (Input.GetMouseButton(0) && startTime + _holdDeleteTimeThreshold > currentTime)
+            while (Input.GetMouseButton(0) && startTime + HoldDeleteTimeThreshold > currentTime)
             {
                 currentTime = Time.time;
-                progressGraphic.fillAmount = (currentTime - startTime) / _holdDeleteTimeThreshold;
+                progressGraphic.fillAmount = (currentTime - startTime) / HoldDeleteTimeThreshold;
                 yield return null;
             }
 
-            if (startTime + _holdDeleteTimeThreshold <= currentTime)
+            if (startTime + HoldDeleteTimeThreshold <= currentTime)
             {
                 ShowDeleteMessagePopup(type);
             }

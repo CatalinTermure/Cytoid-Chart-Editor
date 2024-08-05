@@ -20,10 +20,10 @@ namespace CCE.Notes
 
         struct PathPoint
         {
-            public float x, y, time, connector_start_time;
+            public float X, Y, Time, ConnectorStartTime;
         }
-        private readonly List<PathPoint> Paths = new List<PathPoint>();
-        private int CurrentPath = 0;
+        private readonly List<PathPoint> _paths = new List<PathPoint>();
+        private int _currentPath = 0;
 
         public override void Initialize(Note note)
         {
@@ -43,9 +43,9 @@ namespace CCE.Notes
             Highlighted = true;
             Highlight();
 
-            Paths.Clear();
+            _paths.Clear();
 
-            CurrentPath = 0;
+            _currentPath = 0;
 
             GeneratePath();
 
@@ -61,34 +61,34 @@ namespace CCE.Notes
 
         public void GeneratePath()
         {
-            Paths.Add(new PathPoint
+            _paths.Add(new PathPoint
             {
-                x = gameObject.transform.position.x,
-                y = gameObject.transform.position.y,
-                time = ApproachTime
+                X = gameObject.transform.position.x,
+                Y = gameObject.transform.position.y,
+                Time = ApproachTime
             });
             while (NextID > 0)
             {
-                Paths.Add(new PathPoint
+                _paths.Add(new PathPoint
                 {
-                    x = (float)(GlobalState.CurrentChart.NoteList[NextID].X - 0.5) * GlobalState.PlayAreaWidth,
-                    y = (float)(GlobalState.CurrentChart.NoteList[NextID].Y - 0.5) * GlobalState.PlayAreaHeight,
-                    time = (float)(GlobalState.CurrentChart.NoteList[NextID].Time - StartTime + ApproachTime),
-                    connector_start_time = (float)(GlobalState.CurrentChart.NoteList[NextID].Time - GlobalState.CurrentChart.NoteList[NextID].ApproachTime - StartTime + ApproachTime),
+                    X = (float)(GlobalState.CurrentChart.NoteList[NextID].X - 0.5) * GlobalState.PlayAreaWidth,
+                    Y = (float)(GlobalState.CurrentChart.NoteList[NextID].Y - 0.5) * GlobalState.PlayAreaHeight,
+                    Time = (float)(GlobalState.CurrentChart.NoteList[NextID].Time - StartTime + ApproachTime),
+                    ConnectorStartTime = (float)(GlobalState.CurrentChart.NoteList[NextID].Time - GlobalState.CurrentChart.NoteList[NextID].ApproachTime - StartTime + ApproachTime),
                 });
 
                 NextID = GlobalState.CurrentChart.NoteList[NextID].NextID;
             }
-            if (Paths.Count > 1)
+            if (_paths.Count > 1)
             {
-                DragConnector.GetComponent<SpriteRenderer>().size = new Vector2(0.175f, GlobalState.GetDistance(Paths[1].x, Paths[1].y, Paths[0].x, Paths[0].y) / gameObject.transform.localScale.x);
+                DragConnector.GetComponent<SpriteRenderer>().size = new Vector2(0.175f, GlobalState.GetDistance(_paths[1].X, _paths[1].Y, _paths[0].X, _paths[0].Y) / gameObject.transform.localScale.x);
                 if (Notetype == (int)NoteType.CDragHead)
                 {
-                    gameObject.transform.rotation = Quaternion.AngleAxis(90 + (float)(Math.Atan2(Paths[0].y - Paths[1].y, Paths[0].x - Paths[1].x) * 180 / Math.PI), Vector3.forward);
+                    gameObject.transform.rotation = Quaternion.AngleAxis(90 + (float)(Math.Atan2(_paths[0].Y - _paths[1].Y, _paths[0].X - _paths[1].X) * 180 / Math.PI), Vector3.forward);
                 }
                 else
                 {
-                    DragConnector.transform.rotation = Quaternion.AngleAxis(90 + (float)(Math.Atan2(Paths[0].y - Paths[1].y, Paths[0].x - Paths[1].x) * 180 / Math.PI), Vector3.forward);
+                    DragConnector.transform.rotation = Quaternion.AngleAxis(90 + (float)(Math.Atan2(_paths[0].Y - _paths[1].Y, _paths[0].X - _paths[1].X) * 180 / Math.PI), Vector3.forward);
                 }
                 DragConnector.SetActive(true);
             }
@@ -119,21 +119,21 @@ namespace CCE.Notes
             {
                 NoteFill.transform.localScale = NoteBorder.transform.localScale = new Vector3(0.8f, 0.8f);
 
-                if (CurrentPath < Paths.Count)
+                if (_currentPath < _paths.Count)
                 {
-                    float pathcompletion = (Delay + NoteStopwatch.ElapsedMilliseconds * PlaybackSpeed / 1000f - (CurrentPath > 0 ? Paths[CurrentPath - 1].time : 0)) /
-                                           (Paths[CurrentPath].time - (CurrentPath > 0 ? Paths[CurrentPath - 1].time : 0));
+                    float pathcompletion = (Delay + NoteStopwatch.ElapsedMilliseconds * PlaybackSpeed / 1000f - (_currentPath > 0 ? _paths[_currentPath - 1].Time : 0)) /
+                                           (_paths[_currentPath].Time - (_currentPath > 0 ? _paths[_currentPath - 1].Time : 0));
 
                     while (float.IsInfinity(pathcompletion))
                     {
-                        CurrentPath++;
-                        if (CurrentPath < Paths.Count)
+                        _currentPath++;
+                        if (_currentPath < _paths.Count)
                         {
-                            pathcompletion = (Delay + NoteStopwatch.ElapsedMilliseconds * PlaybackSpeed / 1000f - (CurrentPath > 0 ? Paths[CurrentPath - 1].time : 0)) /
-                                             (Paths[CurrentPath].time - (CurrentPath > 0 ? Paths[CurrentPath - 1].time : 0));
+                            pathcompletion = (Delay + NoteStopwatch.ElapsedMilliseconds * PlaybackSpeed / 1000f - (_currentPath > 0 ? _paths[_currentPath - 1].Time : 0)) /
+                                             (_paths[_currentPath].Time - (_currentPath > 0 ? _paths[_currentPath - 1].Time : 0));
 
-                            gameObject.transform.rotation = Quaternion.AngleAxis(90 + (float)(Math.Atan2(Paths[CurrentPath - 1].y - Paths[CurrentPath].y,
-                                Paths[CurrentPath - 1].x - Paths[CurrentPath].x) * 180 / Math.PI), Vector3.forward);
+                            gameObject.transform.rotation = Quaternion.AngleAxis(90 + (float)(Math.Atan2(_paths[_currentPath - 1].Y - _paths[_currentPath].Y,
+                                _paths[_currentPath - 1].X - _paths[_currentPath].X) * 180 / Math.PI), Vector3.forward);
                         }
                         else
                         {
@@ -143,17 +143,17 @@ namespace CCE.Notes
 
                     while (pathcompletion > 1)
                     {
-                        if (CurrentPath > 0 && CurrentPath + 1 < Paths.Count && Notetype == (int)NoteType.CDragHead)
+                        if (_currentPath > 0 && _currentPath + 1 < _paths.Count && Notetype == (int)NoteType.CDragHead)
                         {
-                            gameObject.transform.rotation = Quaternion.AngleAxis(90 + (float)(Math.Atan2(Paths[CurrentPath].y - Paths[CurrentPath + 1].y,
-                                Paths[CurrentPath].x - Paths[CurrentPath + 1].x) * 180 / Math.PI), Vector3.forward);
+                            gameObject.transform.rotation = Quaternion.AngleAxis(90 + (float)(Math.Atan2(_paths[_currentPath].Y - _paths[_currentPath + 1].Y,
+                                _paths[_currentPath].X - _paths[_currentPath + 1].X) * 180 / Math.PI), Vector3.forward);
                         }
 
-                        CurrentPath++;
-                        if (CurrentPath < Paths.Count)
+                        _currentPath++;
+                        if (_currentPath < _paths.Count)
                         {
-                            pathcompletion = (Delay + NoteStopwatch.ElapsedMilliseconds * PlaybackSpeed / 1000f - (CurrentPath > 0 ? Paths[CurrentPath - 1].time : 0)) /
-                                             (Paths[CurrentPath].time - (CurrentPath > 0 ? Paths[CurrentPath - 1].time : 0));
+                            pathcompletion = (Delay + NoteStopwatch.ElapsedMilliseconds * PlaybackSpeed / 1000f - (_currentPath > 0 ? _paths[_currentPath - 1].Time : 0)) /
+                                             (_paths[_currentPath].Time - (_currentPath > 0 ? _paths[_currentPath - 1].Time : 0));
                         }
                         else
                         {
@@ -161,22 +161,22 @@ namespace CCE.Notes
                         }
                     }
 
-                    if (CurrentPath < Paths.Count)
+                    if (_currentPath < _paths.Count)
                     {
-                        gameObject.transform.position = new Vector3(Paths[CurrentPath - 1].x + pathcompletion * (Paths[CurrentPath].x - Paths[CurrentPath - 1].x),
-                            Paths[CurrentPath - 1].y + pathcompletion * (Paths[CurrentPath].y - Paths[CurrentPath - 1].y));
+                        gameObject.transform.position = new Vector3(_paths[_currentPath - 1].X + pathcompletion * (_paths[_currentPath].X - _paths[_currentPath - 1].X),
+                            _paths[_currentPath - 1].Y + pathcompletion * (_paths[_currentPath].Y - _paths[_currentPath - 1].Y));
 
-                        if (CurrentPath > 0)
+                        if (_currentPath > 0)
                         {
                             DragConnector.GetComponent<SpriteRenderer>().size = new Vector2(0.175f, (1.0f - pathcompletion) *
-                                GlobalState.GetDistance(Paths[CurrentPath - 1].x, Paths[CurrentPath - 1].y, Paths[CurrentPath].x, Paths[CurrentPath].y) / gameObject.transform.localScale.x);
+                                GlobalState.GetDistance(_paths[_currentPath - 1].X, _paths[_currentPath - 1].Y, _paths[_currentPath].X, _paths[_currentPath].Y) / gameObject.transform.localScale.x);
 
-                            DragConnector.transform.rotation = Quaternion.AngleAxis(90 + (float)(Math.Atan2(Paths[CurrentPath - 1].y - Paths[CurrentPath].y, Paths[CurrentPath - 1].x - Paths[CurrentPath].x) * 180 / Math.PI), Vector3.forward);
+                            DragConnector.transform.rotation = Quaternion.AngleAxis(90 + (float)(Math.Atan2(_paths[_currentPath - 1].Y - _paths[_currentPath].Y, _paths[_currentPath - 1].X - _paths[_currentPath].X) * 180 / Math.PI), Vector3.forward);
                         }
                     }
                 }
 
-                if (CurrentPath >= Paths.Count)
+                if (_currentPath >= _paths.Count)
                 {
                     ParentPool.ReturnToPool(gameObject, Notetype);
                 }

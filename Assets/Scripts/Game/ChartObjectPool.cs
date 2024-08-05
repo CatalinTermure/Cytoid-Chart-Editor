@@ -9,25 +9,25 @@ namespace CCE.Game
     {
         #region Constants
 
-        private const int _clickNotePoolSize = 24;
-        private const int _holdNotePoolSize = 12;
-        private const int _longHoldNotePoolSize = 8;
-        private const int _flickNotePoolSize = 24;
-        private const int _dragHeadPoolSize = 4;
-        private const int _dragChildPoolSize = 48;
-        private const int _cdragHeadPoolSize = 4;
-        private const int _cdragChildPoolSize = 48;
+        private const int ClickNotePoolSize = 24;
+        private const int HoldNotePoolSize = 12;
+        private const int LongHoldNotePoolSize = 8;
+        private const int FlickNotePoolSize = 24;
+        private const int DragHeadPoolSize = 4;
+        private const int DragChildPoolSize = 48;
+        private const int CdragHeadPoolSize = 4;
+        private const int CdragChildPoolSize = 48;
 
         private static readonly int[] _poolSizes = new int[8]
         {
-            _clickNotePoolSize,
-            _holdNotePoolSize,
-            _longHoldNotePoolSize,
-            _dragHeadPoolSize,
-            _dragChildPoolSize,
-            _flickNotePoolSize,
-            _cdragHeadPoolSize,
-            _cdragChildPoolSize
+            ClickNotePoolSize,
+            HoldNotePoolSize,
+            LongHoldNotePoolSize,
+            DragHeadPoolSize,
+            DragChildPoolSize,
+            FlickNotePoolSize,
+            CdragHeadPoolSize,
+            CdragChildPoolSize
         };
 
         #endregion
@@ -45,14 +45,14 @@ namespace CCE.Game
         };
 
         private readonly Queue<GameObject>[] _notePools = new Queue<GameObject>[8] {
-            new Queue<GameObject>(_clickNotePoolSize),
-            new Queue<GameObject>(_holdNotePoolSize),
-            new Queue<GameObject>(_longHoldNotePoolSize),
-            new Queue<GameObject>(_dragHeadPoolSize),
-            new Queue<GameObject>(_dragChildPoolSize),
-            new Queue<GameObject>(_flickNotePoolSize),
-            new Queue<GameObject>(_cdragHeadPoolSize),
-            new Queue<GameObject>(_cdragChildPoolSize)
+            new Queue<GameObject>(ClickNotePoolSize),
+            new Queue<GameObject>(HoldNotePoolSize),
+            new Queue<GameObject>(LongHoldNotePoolSize),
+            new Queue<GameObject>(DragHeadPoolSize),
+            new Queue<GameObject>(DragChildPoolSize),
+            new Queue<GameObject>(FlickNotePoolSize),
+            new Queue<GameObject>(CdragHeadPoolSize),
+            new Queue<GameObject>(CdragChildPoolSize)
         };
 
         public ChartObjectPool()

@@ -14,6 +14,7 @@ using CCE.Utils;
 using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.Audio;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 using static CCE.Core.GlobalState;
 
@@ -69,7 +70,7 @@ namespace CCE.Game
         private double _saveEditorOffsetScheduledTime = -1;
         private Vector2 _startMovePos;
 
-        [SerializeField] private LineRenderer utilityLineRenderer;
+        [FormerlySerializedAs("utilityLineRenderer")] [SerializeField] private LineRenderer UtilityLineRenderer;
 
         public static GameLogic Instance
         {
@@ -94,7 +95,7 @@ namespace CCE.Game
             _mainCamera = Camera.main;
             _lockYText = GameObject.Find("LockYText");
             _lockYText.SetActive(false);
-            utilityLineRenderer = GetComponent<LineRenderer>();
+            UtilityLineRenderer = GetComponent<LineRenderer>();
 
             AudioManager.SetHitsoundVolume(Config.HitsoundVolume);
             AudioManager.SetMusicVolume(Config.MusicVolume);
@@ -769,7 +770,7 @@ namespace CCE.Game
 
             var bpm = 120000000.0 / CurrentChart.TempoList[id].Value * 480 / CurrentChart.TimeBase;
 
-            obj.GetComponent<ScanlineNoteController>().BPMInputField.text =
+            obj.GetComponent<ScanlineNoteController>().BpmInputField.text =
                 Math.Round(bpm, 2).ToString(CultureInfo.InvariantCulture);
         }
 
@@ -1936,17 +1937,17 @@ namespace CCE.Game
         private IEnumerator HandleHoldNoteDrag(Vector2 startPos, Note note)
         {
             var currentPos = startPos;
-            utilityLineRenderer.enabled = true;
+            UtilityLineRenderer.enabled = true;
             while (Input.GetMouseButton(0))
             {
                 currentPos = _mainCamera.ScreenToWorldPoint(Input.mousePosition);
-                utilityLineRenderer.SetPositions(new Vector3[] { startPos, new Vector2(startPos.x, currentPos.y) });
+                UtilityLineRenderer.SetPositions(new Vector3[] { startPos, new Vector2(startPos.x, currentPos.y) });
                 yield return null;
             }
 
             var endTick = Mathf.Max(0,
                 Math.Min((int)GetTickForTouchPosition(currentPos), CurrentPage.EndTick) - note.Tick);
-            utilityLineRenderer.enabled = false;
+            UtilityLineRenderer.enabled = false;
             if (endTick > note.HoldTick) note.HoldTick = endTick;
 
             AddNote(note);
@@ -1957,7 +1958,7 @@ namespace CCE.Game
 
         public void ChangeTempo(GameObject scanlineNote, bool updateOffset = false)
         {
-            var bpmInput = scanlineNote.GetComponent<ScanlineNoteController>().BPMInputField.text;
+            var bpmInput = scanlineNote.GetComponent<ScanlineNoteController>().BpmInputField.text;
             var timeInput = scanlineNote.GetComponent<ScanlineNoteController>().TimeInputField.text;
             var id = scanlineNote.GetComponent<ITempo>().TempoID;
 

@@ -8,9 +8,9 @@ namespace CCE.LevelLoading
 {
     public class LevelListBehaviour : MonoBehaviour
     {
-        private const float _scrollSpeed = 0.01f;
+        private const float ScrollSpeed = 0.01f;
 
-        private const float _searchUpdateDelay = 3.0f;
+        private const float SearchUpdateDelay = 3.0f;
         [SerializeField] public InputField SearchInputField;
 
         public const float UpdateBackgroundDelay = 0.6f;
@@ -45,7 +45,7 @@ namespace CCE.LevelLoading
         private void Start()
         {
             SearchInputField.onValueChanged
-                .AddListener(query => TriggerSearch(query, _searchUpdateDelay));
+                .AddListener(query => TriggerSearch(query, SearchUpdateDelay));
 
             SearchInputField.onEndEdit
                 .AddListener(query => TriggerSearch(query, UpdateBackgroundDelay));
@@ -84,7 +84,7 @@ namespace CCE.LevelLoading
             if (_isDragging)
             {
                 _levelList.View.Offset = _startDragOffset +
-                                         (Input.mousePosition.y - _startDragPosition.y) * _scrollSpeed;
+                                         (Input.mousePosition.y - _startDragPosition.y) * ScrollSpeed;
 
                 _levelList.View.Render();
             }

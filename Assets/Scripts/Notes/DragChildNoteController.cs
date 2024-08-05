@@ -11,7 +11,7 @@ namespace CCE.Notes
     {
         public GameObject NoteFill, DragConnector;
 
-        private int NextID;
+        private int _nextID;
 
         public override void ChangeNoteColor(Color color)
         {
@@ -35,13 +35,13 @@ namespace CCE.Notes
             Notetype = note.Type;
             NoteID = note.ID;
 
-            NextID = GlobalState.CurrentChart.NoteList[NoteID].NextID;
-            if (NextID > 0)
+            _nextID = GlobalState.CurrentChart.NoteList[NoteID].NextID;
+            if (_nextID > 0)
             {
                 float x1 = (float)(GlobalState.CurrentChart.NoteList[NoteID].X - 0.5) * GlobalState.PlayAreaWidth,
                     y1 = (float)(GlobalState.CurrentChart.NoteList[NoteID].Y - 0.5) * GlobalState.PlayAreaHeight;
-                float x2 = (float)(GlobalState.CurrentChart.NoteList[NextID].X - 0.5) * GlobalState.PlayAreaWidth,
-                    y2 = (float)(GlobalState.CurrentChart.NoteList[NextID].Y - 0.5) * GlobalState.PlayAreaHeight;
+                float x2 = (float)(GlobalState.CurrentChart.NoteList[_nextID].X - 0.5) * GlobalState.PlayAreaWidth,
+                    y2 = (float)(GlobalState.CurrentChart.NoteList[_nextID].Y - 0.5) * GlobalState.PlayAreaHeight;
                 DragConnector.transform.rotation =
                     Quaternion.AngleAxis(90 + (float)(Math.Atan2(y1 - y2, x1 - x2) * 180 / Math.PI), Vector3.forward);
                 DragConnector.GetComponent<SpriteRenderer>().size = new Vector2(0.175f,
@@ -61,7 +61,7 @@ namespace CCE.Notes
 
         protected override void UpdateVisuals()
         {
-            if (!DragConnector.activeSelf && NextID > 0) DragConnector.SetActive(true);
+            if (!DragConnector.activeSelf && _nextID > 0) DragConnector.SetActive(true);
             ApproachPercentage = (Delay + NoteStopwatch.ElapsedMilliseconds * PlaybackSpeed / 1000f) / ApproachTime;
 
             NoteFill.transform.localScale =
@@ -78,7 +78,7 @@ namespace CCE.Notes
         {
             if (GlobalState.CurrentChart.NoteList[NoteID].PageIndex !=
                 GameObject.Find("UICanvas").GetComponent<GameLogic>().CurrentPageIndex &&
-                NextID > 0) DragConnector.SetActive(false);
+                _nextID > 0) DragConnector.SetActive(false);
 
             NoteFill.transform.localScale = new Vector3(0.4f, 0.4f);
         }

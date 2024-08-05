@@ -32,10 +32,10 @@ namespace CCE.Notes
         /// </summary>
         public float HoldTime;
 
-        private float CompletionPercentage;
+        private float _completionPercentage;
 
-        private float Size = 1;
-        private float TopHeight, BottomHeight;
+        private float _size = 1;
+        private float _topHeight, _bottomHeight;
 
         public override void ChangeNoteColor(Color color)
         {
@@ -53,22 +53,22 @@ namespace CCE.Notes
             gameObject.transform.position = new Vector3((float)((note.X - 0.5) * GlobalState.PlayAreaWidth),
                 (float)((note.Y - 0.5) * GlobalState.PlayAreaHeight));
 
-            Size = GlobalState.Config.DefaultNoteSize * (float)note.ActualSize;
-            NoteHead.transform.localScale = new Vector2(Size, Size);
+            _size = GlobalState.Config.DefaultNoteSize * (float)note.ActualSize;
+            NoteHead.transform.localScale = new Vector2(_size, _size);
 
             ApproachTime = (float)note.ApproachTime;
 
-            TopHeight = (float)(1.0 - note.Y) * GlobalState.PlayAreaHeight;
-            TopFillNoteBody.GetComponent<SpriteRenderer>().size = new Vector2(Size, TopHeight);
-            TopHollowNoteBody.GetComponent<SpriteRenderer>().size = new Vector2(Size, TopHeight);
+            _topHeight = (float)(1.0 - note.Y) * GlobalState.PlayAreaHeight;
+            TopFillNoteBody.GetComponent<SpriteRenderer>().size = new Vector2(_size, _topHeight);
+            TopHollowNoteBody.GetComponent<SpriteRenderer>().size = new Vector2(_size, _topHeight);
 
-            BottomHeight = (float)note.Y * GlobalState.PlayAreaHeight;
-            BottomFillNoteBody.GetComponent<SpriteRenderer>().size = new Vector2(Size, BottomHeight);
-            BottomHollowNoteBody.GetComponent<SpriteRenderer>().size = new Vector2(Size, BottomHeight);
+            _bottomHeight = (float)note.Y * GlobalState.PlayAreaHeight;
+            BottomFillNoteBody.GetComponent<SpriteRenderer>().size = new Vector2(_size, _bottomHeight);
+            BottomHollowNoteBody.GetComponent<SpriteRenderer>().size = new Vector2(_size, _bottomHeight);
 
-            CompletionPercentage = 0;
+            _completionPercentage = 0;
             TopFillNoteBodyMask.transform.localScale =
-                BottomFillNoteBodyMask.transform.localScale = new Vector3(Size * 50, 0);
+                BottomFillNoteBodyMask.transform.localScale = new Vector3(_size * 50, 0);
 
             HoldTime = (float)note.HoldTime;
 
@@ -108,15 +108,15 @@ namespace CCE.Notes
             }
             else
             {
-                CompletionPercentage =
+                _completionPercentage =
                     (Delay + NoteStopwatch.ElapsedMilliseconds * PlaybackSpeed / 1000f - ApproachTime) / HoldTime;
 
                 TopFillNoteBodyMask.transform.localScale =
-                    new Vector3(Size * 50, TopHeight * CompletionPercentage * 100);
+                    new Vector3(_size * 50, _topHeight * _completionPercentage * 100);
                 BottomFillNoteBodyMask.transform.localScale =
-                    new Vector3(Size * 50, BottomHeight * CompletionPercentage * 100);
+                    new Vector3(_size * 50, _bottomHeight * _completionPercentage * 100);
 
-                if (CompletionPercentage > 1)
+                if (_completionPercentage > 1)
                 {
                     NoteStopwatch.Stop();
                     ParentPool.ReturnToPool(gameObject, Notetype);
@@ -131,9 +131,9 @@ namespace CCE.Notes
             NoteFill.transform.localScale = NoteBorder.transform.localScale = new Vector3(1, 1);
             InnerNoteBorder.transform.localScale = new Vector3(0.75f, 0.75f);
             TopFillNoteBodyMask.transform.localScale =
-                BottomFillNoteBodyMask.transform.localScale = new Vector3(Size * 50, 0);
+                BottomFillNoteBodyMask.transform.localScale = new Vector3(_size * 50, 0);
             BottomFillNoteBodyMask.transform.localScale =
-                BottomFillNoteBodyMask.transform.localScale = new Vector3(Size * 50, 0);
+                BottomFillNoteBodyMask.transform.localScale = new Vector3(_size * 50, 0);
             FinishIndicator.SetActive(true);
         }
 

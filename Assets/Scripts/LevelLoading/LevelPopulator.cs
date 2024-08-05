@@ -14,7 +14,7 @@ namespace CCE.LevelLoading
 {
     public class LevelPopulator
     {
-        private const int _cacheImageSize = 256;
+        private const int CacheImageSize = 256;
         private readonly List<LevelImporter> _fileImporters = new();
 
         private readonly LevelList _levelList;
@@ -126,7 +126,7 @@ namespace CCE.LevelLoading
                     finalSize,
                     finalSize));
 
-            TextureScale.Bilinear(finalTex, _cacheImageSize, _cacheImageSize);
+            TextureScale.Bilinear(finalTex, CacheImageSize, CacheImageSize);
 
             File.WriteAllBytes(cacheFilePath, finalTex.GetRawTextureData());
         }

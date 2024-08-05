@@ -27,10 +27,10 @@ namespace CCE.Notes
         /// </summary>
         [HideInInspector] public float HoldTime;
 
-        private float CompletionPercentage;
+        private float _completionPercentage;
 
-        private float Height = 3;
-        private float Size = 1;
+        private float _height = 3;
+        private float _size = 1;
 
         public override void ChangeNoteColor(Color color)
         {
@@ -48,16 +48,16 @@ namespace CCE.Notes
             gameObject.transform.position = new Vector3((float)((note.X - 0.5) * GlobalState.PlayAreaWidth),
                 (float)((note.Y - 0.5) * GlobalState.PlayAreaHeight));
 
-            Size = GlobalState.Config.DefaultNoteSize * (float)note.ActualSize;
-            NoteHead.transform.localScale = new Vector2(Size, Size);
-            NoteHead.transform.localPosition = new Vector3(0, Size);
+            _size = GlobalState.Config.DefaultNoteSize * (float)note.ActualSize;
+            NoteHead.transform.localScale = new Vector2(_size, _size);
+            NoteHead.transform.localPosition = new Vector3(0, _size);
 
             ApproachTime = (float)note.ApproachTime;
 
-            Height = (float)(GlobalState.PlayAreaHeight * note.HoldTick /
+            _height = (float)(GlobalState.PlayAreaHeight * note.HoldTick /
                              GlobalState.CurrentChart.PageList[note.PageIndex].PageSize);
-            FillNoteBody.GetComponent<SpriteRenderer>().size = new Vector2(Size, Height);
-            HollowNoteBody.GetComponent<SpriteRenderer>().size = new Vector2(Size, Height);
+            FillNoteBody.GetComponent<SpriteRenderer>().size = new Vector2(_size, _height);
+            HollowNoteBody.GetComponent<SpriteRenderer>().size = new Vector2(_size, _height);
 
             HoldTime = (float)note.HoldTime;
 
@@ -66,8 +66,8 @@ namespace CCE.Notes
             else
                 transform.rotation = new Quaternion(0, 0, 0, 0);
 
-            CompletionPercentage = 0;
-            FillNoteBodyMask.transform.localScale = new Vector3(Size * 50, 0);
+            _completionPercentage = 0;
+            FillNoteBodyMask.transform.localScale = new Vector3(_size * 50, 0);
 
             Highlighted = true;
             Highlight();
@@ -100,12 +100,12 @@ namespace CCE.Notes
             }
             else
             {
-                CompletionPercentage =
+                _completionPercentage =
                     (Delay + NoteStopwatch.ElapsedMilliseconds * PlaybackSpeed / 1000f - ApproachTime) / HoldTime;
 
-                FillNoteBodyMask.transform.localScale = new Vector3(Size * 50, Height * CompletionPercentage * 100);
+                FillNoteBodyMask.transform.localScale = new Vector3(_size * 50, _height * _completionPercentage * 100);
 
-                if (CompletionPercentage > 1)
+                if (_completionPercentage > 1)
                 {
                     NoteStopwatch.Stop();
                     ParentPool.ReturnToPool(gameObject, Notetype);
@@ -119,7 +119,7 @@ namespace CCE.Notes
             NoteFill.transform.localScale = NoteBorder.transform.localScale = new Vector3(1, 1);
             InnerNoteBorder.transform.localScale = new Vector3(0.75f, 0.75f);
 
-            FillNoteBodyMask.transform.localScale = new Vector3(Size * 50, 0);
+            FillNoteBodyMask.transform.localScale = new Vector3(_size * 50, 0);
         }
 
         public override void Highlight()

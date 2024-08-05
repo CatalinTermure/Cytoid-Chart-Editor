@@ -22,9 +22,9 @@ namespace CCE.Core
         // Handle to the audio stream used for playback.
         private static int _audioChannel;
 
-        private const int _concurrentHitsoundCount = 4;
+        private const int ConcurrentHitsoundCount = 4;
         private static int _hitsoundHandle;
-        private static int[] _hitsoundChannels = new int[_concurrentHitsoundCount];
+        private static int[] _hitsoundChannels = new int[ConcurrentHitsoundCount];
         private static int _hitsoundChannelIndex;
 
         private static bool _isPlaybackSpeedEditable;
@@ -124,7 +124,7 @@ namespace CCE.Core
 
             _hitsoundHandle =
                 Bass.CreateSample(sampleCount * 4, hitsoundClip.frequency, hitsoundClip.channels,
-                    _concurrentHitsoundCount, BassFlags.Float | BassFlags.SampleOverrideLongestPlaying);
+                    ConcurrentHitsoundCount, BassFlags.Float | BassFlags.SampleOverrideLongestPlaying);
 
             Bass.SampleSetData(_hitsoundHandle, samples);
         }
@@ -135,14 +135,14 @@ namespace CCE.Core
             if (File.Exists(customHitsoundPath))
             {
                 _hitsoundHandle = Bass.SampleLoad(customHitsoundPath, 0, 0,
-                    _concurrentHitsoundCount, BassFlags.Default);
+                    ConcurrentHitsoundCount, BassFlags.Default);
             }
             else
             {
                 LoadDefaultHitsounds();
             }
 
-            for (int i = 0; i < _concurrentHitsoundCount; i++)
+            for (int i = 0; i < ConcurrentHitsoundCount; i++)
             {
                 _hitsoundChannels[i] = Bass.SampleGetChannel(_hitsoundHandle, true);
             }
@@ -151,12 +151,12 @@ namespace CCE.Core
         public static void PlayHitsound()
         {
             Bass.ChannelPlay(_hitsoundChannels[_hitsoundChannelIndex++], true);
-            if (_hitsoundChannelIndex == _concurrentHitsoundCount) _hitsoundChannelIndex = 0;
+            if (_hitsoundChannelIndex == ConcurrentHitsoundCount) _hitsoundChannelIndex = 0;
         }
 
         public static void SetHitsoundVolume(double volume)
         {
-            for (int i = 0; i < _concurrentHitsoundCount; i++)
+            for (int i = 0; i < ConcurrentHitsoundCount; i++)
             {
                 Bass.ChannelSetAttribute(_hitsoundChannels[i], ChannelAttribute.Volume, volume);
             }

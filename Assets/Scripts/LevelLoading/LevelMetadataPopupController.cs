@@ -15,7 +15,7 @@ namespace CCE.LevelLoading
         private LevelData _levelData;
         private string _audioAbsolutePath;
 
-        private const string _levelIdRegex = "^[a-z0-9_]+([-_.][a-z0-9_]+)+$";
+        private const string LevelIdRegex = "^[a-z0-9_]+([-_.][a-z0-9_]+)+$";
         
         private void Awake()
         {
@@ -43,7 +43,7 @@ namespace CCE.LevelLoading
                 return false;
             }
             
-            if (!Regex.IsMatch(id, _levelIdRegex))
+            if (!Regex.IsMatch(id, LevelIdRegex))
             {
                 errorToaster.CreateToast("Level ID must contain only lowercase letters, numbers and separators(_, -, or .).\n" +
                                          "It also must contain at least one separator(_, - or .).", 8);

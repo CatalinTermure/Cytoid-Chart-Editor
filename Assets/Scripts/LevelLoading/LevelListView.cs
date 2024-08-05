@@ -12,9 +12,9 @@ namespace CCE.LevelLoading
         [SerializeField] private GameObject LevelItemPrefab;
         [SerializeField] private Text CurrentIDText;
         
-        private const int _poolSize = 24;
-        private const float _arcStep = Mathf.PI / 80;
-        private const float _circleRadius = 3000;
+        private const int PoolSize = 24;
+        private const float ArcStep = Mathf.PI / 80;
+        private const float CircleRadius = 3000;
 
         private LevelAssetsManager _levelAssetsManager;
 
@@ -23,7 +23,7 @@ namespace CCE.LevelLoading
         private int _currentLevelIndex = -1;
 
         private GameObject _helpText;
-        private int _lastRenderedOffset = _poolSize / 2;
+        private int _lastRenderedOffset = PoolSize / 2;
         private readonly List<LevelCardInfo> _levelCardInfos = new List<LevelCardInfo>();
         private readonly List<GameObject> _levelCards = new List<GameObject>();
         private LevelList _levelList;
@@ -35,7 +35,7 @@ namespace CCE.LevelLoading
         ///     <para>Integer part of the float represents the index of the level.</para>
         ///     <para>
         ///         Fractional part represents how much the middle level card is displaced
-        ///         upwards from the middle of the screen, in respect to one <see cref="_arcStep" />.
+        ///         upwards from the middle of the screen, in respect to one <see cref="ArcStep" />.
         ///     </para>
         /// </summary>
         public float Offset
@@ -72,7 +72,7 @@ namespace CCE.LevelLoading
 
             var listCenterTransform = LevelListCenter.GetComponent<RectTransform>();
 
-            for (int i = 0; i < _poolSize && i < _filteredLevels.Count; i++)
+            for (int i = 0; i < PoolSize && i < _filteredLevels.Count; i++)
             {
                 GameObject levelItem = Instantiate(LevelItemPrefab, listCenterTransform);
                 _levelCards.Add(levelItem);
@@ -81,8 +81,8 @@ namespace CCE.LevelLoading
                 _levelCardInfos.Add(levelCardInfo);
 
                 levelCardInfo.RectTransform.anchoredPosition =
-                    new Vector2(-Mathf.Cos(_arcStep * i) * _circleRadius,
-                        -Mathf.Sin(_arcStep * i) * _circleRadius);
+                    new Vector2(-Mathf.Cos(ArcStep * i) * CircleRadius,
+                        -Mathf.Sin(ArcStep * i) * CircleRadius);
 
                 levelCardInfo.LevelIndex = i;
 
@@ -107,7 +107,7 @@ namespace CCE.LevelLoading
 
             if (_levelCardInfos[_levelCardInfos.Count - 1].LevelIndex >= _filteredLevels.Count)
             {
-                if (_filteredLevels.Count >= _poolSize)
+                if (_filteredLevels.Count >= PoolSize)
                 {
                     MoveBottomCardToTop();    
                 }
@@ -160,25 +160,25 @@ namespace CCE.LevelLoading
             int currentLevelCard = GetCurrentLevelCard();
 
             while (_levelCardInfos[_levelCardInfos.Count - 1].LevelIndex + 1 < _filteredLevels.Count
-                   && wholeOffset > _poolSize / 2
+                   && wholeOffset > PoolSize / 2
                    && _lastRenderedOffset < wholeOffset)
             {
                 MoveTopCardToBottom();
             }
 
             while (_levelCardInfos[0].LevelIndex > 0
-                   && wholeOffset + _poolSize / 2 < _filteredLevels.Count
+                   && wholeOffset + PoolSize / 2 < _filteredLevels.Count
                    && _lastRenderedOffset > wholeOffset)
             {
                 MoveBottomCardToTop();
             }
 
-            for (int i = 0; i < _poolSize && i < _levelCardInfos.Count; i++)
+            for (int i = 0; i < PoolSize && i < _levelCardInfos.Count; i++)
             {
                 _levelCardInfos[i].RectTransform.anchoredPosition =
                     new Vector2(
-                        -Mathf.Cos(_arcStep * (i - currentLevelCard + fractionalOffset)) * _circleRadius,
-                        -Mathf.Sin(_arcStep * (i - currentLevelCard + fractionalOffset)) * _circleRadius
+                        -Mathf.Cos(ArcStep * (i - currentLevelCard + fractionalOffset)) * CircleRadius,
+                        -Mathf.Sin(ArcStep * (i - currentLevelCard + fractionalOffset)) * CircleRadius
                     );
             }
 
@@ -197,17 +197,17 @@ namespace CCE.LevelLoading
         private int GetCurrentLevelCard()
         {
             int currentLevelCard;
-            if (_offset < _poolSize / 2)
+            if (_offset < PoolSize / 2)
             {
                 currentLevelCard = (int)_offset;
             }
-            else if (_offset < _filteredLevels.Count - _poolSize / 2)
+            else if (_offset < _filteredLevels.Count - PoolSize / 2)
             {
-                currentLevelCard = _poolSize / 2;
+                currentLevelCard = PoolSize / 2;
             }
             else
             {
-                currentLevelCard = (int)_offset - _filteredLevels.Count + Mathf.Min(_poolSize, _filteredLevels.Count);
+                currentLevelCard = (int)_offset - _filteredLevels.Count + Mathf.Min(PoolSize, _filteredLevels.Count);
             }
 
             return currentLevelCard;

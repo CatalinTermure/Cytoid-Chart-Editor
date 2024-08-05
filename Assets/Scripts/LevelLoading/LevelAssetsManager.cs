@@ -15,10 +15,10 @@ namespace CCE.LevelLoading
     public class LevelAssetsManager
     {
         /// Number of levels of which to keep assets in memory at once.
-        private const int _poolSize = 48;
+        private const int PoolSize = 48;
 
         /// Width and height in pixels of the cached preview image for each level.
-        private const int _cacheImageSize = 256;
+        private const int CacheImageSize = 256;
 
         private readonly HashSet<string> _currentlyProcessingLevels =
             new HashSet<string>();
@@ -26,7 +26,7 @@ namespace CCE.LevelLoading
         private readonly List<string> _levelIdOrderList = new List<string>();
 
         private readonly Dictionary<string, LevelAssets> _loadedLevels =
-            new Dictionary<string, LevelAssets>(_poolSize);
+            new Dictionary<string, LevelAssets>(PoolSize);
 
         private readonly Sprite _defaultBackground;
         
@@ -53,7 +53,7 @@ namespace CCE.LevelLoading
 
             _currentlyProcessingLevels.Add(level.ID);
             
-            if (_currentlyProcessingLevels.Count + _loadedLevels.Count >= _poolSize)
+            if (_currentlyProcessingLevels.Count + _loadedLevels.Count >= PoolSize)
             {
                 FreeOldestLevel();
             }
@@ -123,7 +123,7 @@ namespace CCE.LevelLoading
         {
             string cachePath = Path.Combine(Path.GetDirectoryName(path)!, ".bg");
 
-            var tex = new Texture2D(_cacheImageSize, _cacheImageSize, TextureFormat.ARGB32, false);
+            var tex = new Texture2D(CacheImageSize, CacheImageSize, TextureFormat.ARGB32, false);
             tex.LoadRawTextureData(await LoadFileAsync(cachePath));
             tex.Apply();
             return tex;

@@ -28,9 +28,9 @@ namespace CCE.Notes
         /// </summary>
         protected float Delay;
 
-        private GameObject InfoText;
+        private GameObject _infoText;
 
-        private Text infotxt;
+        private Text _infotxt;
 
         /// <summary>
         ///     Stopwatch for keeping track of the animation time.
@@ -60,7 +60,7 @@ namespace CCE.Notes
                 if (!NoteStopwatch.IsRunning)
                 {
                     NoteStopwatch.Start();
-                    Destroy(InfoText);
+                    Destroy(_infoText);
                 }
 
                 UpdateVisuals();
@@ -73,21 +73,21 @@ namespace CCE.Notes
                     ChangeToPausedVisuals();
                 }
 
-                InfoText.transform.position = gameObject.transform.position;
+                _infoText.transform.position = gameObject.transform.position;
                 UpdateInfoText();
             }
         }
 
         private void OnEnable()
         {
-            InfoText = Instantiate(GameObject.Find("IDText"), GameObject.Find("OverlayCanvas").transform);
-            InfoText.transform.position = gameObject.transform.position;
-            infotxt = InfoText.GetComponent<Text>();
+            _infoText = Instantiate(GameObject.Find("IDText"), GameObject.Find("OverlayCanvas").transform);
+            _infoText.transform.position = gameObject.transform.position;
+            _infotxt = _infoText.GetComponent<Text>();
         }
 
         private void OnDisable()
         {
-            Destroy(InfoText);
+            Destroy(_infoText);
         }
 
         public bool Highlighted { get; set; }
@@ -102,19 +102,19 @@ namespace CCE.Notes
         public void UpdateInfoText()
         {
             if (GameLogic.CurrentTool != NoteType.Move)
-                infotxt.text = "";
+                _infotxt.text = "";
             else
                 switch (GlobalState.ShownNoteInfo)
                 {
                     case GlobalState.NoteInfo.NoteID:
-                        infotxt.text = NoteID.ToString();
+                        _infotxt.text = NoteID.ToString();
                         break;
                     case GlobalState.NoteInfo.NoteX:
-                        infotxt.text =
+                        _infotxt.text =
                             (Math.Floor(GlobalState.CurrentChart.NoteList[NoteID].X * 100) / 100).ToString("F2");
                         break;
                     case GlobalState.NoteInfo.NoteY:
-                        infotxt.text = GlobalState.CurrentChart.NoteList[NoteID].Y.ToString("F2");
+                        _infotxt.text = GlobalState.CurrentChart.NoteList[NoteID].Y.ToString("F2");
                         break;
                 }
         }
