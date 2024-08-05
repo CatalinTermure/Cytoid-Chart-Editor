@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 
-namespace CCE.UI
+namespace CCE.Popups
 {
     public class MessagePopupInfo : MonoBehaviour
     {

@@ -14,11 +14,10 @@ namespace CCE.LevelLoading
 {
     public class LevelPopulator
     {
-        private readonly List<LevelImporter> _fileImporters = new List<LevelImporter>();
+        private const int _cacheImageSize = 256;
+        private readonly List<LevelImporter> _fileImporters = new();
 
         private readonly LevelList _levelList;
-        
-        private const int _cacheImageSize = 256;
 
         public LevelPopulator(LevelList levelList)
         {
@@ -40,39 +39,31 @@ namespace CCE.LevelLoading
 
             _levelList.AddLevel(level);
         }
-        
+
         public IEnumerator PopulateLevelsCoroutine()
         {
-            foreach (string filePath in
-                Directory.EnumerateFiles(GlobalState.Config.LevelStoragePath))
+            foreach (var filePath in
+                     Directory.EnumerateFiles(GlobalState.Config.LevelStoragePath))
             {
-                string extension = Path.GetExtension(filePath);
-                if (extension == ".cytoidpack" || extension == ".cytoidlevel")
-                {
-                    ImportLevel(filePath);
-                }
+                var extension = Path.GetExtension(filePath);
+                if (extension == ".cytoidpack" || extension == ".cytoidlevel") ImportLevel(filePath);
             }
 
             // Importing levels from old directory
-            if (Directory.Exists(GlobalState.Config.DirPath))
+            if (Directory.Exists(GlobalState.Config.DirPath) &&
+                !Directory.Exists(Path.Combine(GlobalState.Config.DirPath, "charts")))
             {
-                int count = 0;
-                foreach (string dirPath in Directory.EnumerateDirectories(GlobalState.Config.DirPath))
-                {
-                    count++;
+                foreach (var dirPath in Directory.EnumerateDirectories(GlobalState.Config.DirPath))
                     ImportLevel(dirPath);
-                }
-                if(count == 0)
-                {
-                    GlobalState.Config.DirPath = "DEPRECATED";
-                }
+
+                GlobalState.Config.DirPath = "DEPRECATED";
             }
             else
             {
                 GlobalState.Config.DirPath = "DEPRECATED";
             }
 
-            string dots = ".";
+            var dots = ".";
 
             while (_fileImporters.Count > 0)
             {
@@ -82,10 +73,7 @@ namespace CCE.LevelLoading
                         $"Unpacking {Path.GetFileName(_fileImporters[0].FilePath)}{dots}";
 
                     dots += ".";
-                    if (dots == "....")
-                    {
-                        dots = ".";
-                    }
+                    if (dots == "....") dots = ".";
 
                     yield return new WaitForSeconds(0.5f);
                 }
@@ -95,30 +83,27 @@ namespace CCE.LevelLoading
 
             GameObject.Find("ToastText").GetComponent<Text>().text = "";
 
-            foreach (string levelDir in
-                Directory.EnumerateDirectories(GlobalState.Config.LevelStoragePath))
+            foreach (var levelDir in
+                     Directory.EnumerateDirectories(GlobalState.Config.LevelStoragePath))
             {
                 if (!File.Exists(Path.Combine(levelDir, ".bg")))
                 {
-                    var levelData = 
-                        JsonConvert.DeserializeObject<LevelData>(File.ReadAllText(Path.Combine(levelDir, "level.json")));
+                    var levelData =
+                        JsonConvert.DeserializeObject<LevelData>(
+                            File.ReadAllText(Path.Combine(levelDir, "level.json")));
 
                     if (!File.Exists(Path.Combine(levelDir, levelData.Background.Path))) continue;
                     CacheBackground(Path.Combine(levelDir, levelData.Background.Path), Path.Combine(levelDir, ".bg"));
                 }
-                
-                foreach (string file in Directory.EnumerateFiles(levelDir))
-                {
+
+                foreach (var file in Directory.EnumerateFiles(levelDir))
                     if (Path.GetFileName(file) == "level.json")
-                    {
                         AddLevelToPool(file);
-                    }
-                }
             }
 
             _levelList.Query("");
         }
-        
+
         public static void CacheBackground(string originalBackgroundPath, string cacheFilePath)
         {
             if (!SystemInfo.SupportsTextureFormat(TextureFormat.ARGB32))
@@ -126,11 +111,11 @@ namespace CCE.LevelLoading
                 Debug.LogError("Texture format not supported");
                 return;
             }
-            
+
             var tex = new Texture2D(1, 1);
             tex.LoadImage(File.ReadAllBytes(originalBackgroundPath));
-            
-            int finalSize = Math.Min(tex.width, tex.height);
+
+            var finalSize = Math.Min(tex.width, tex.height);
 
             var finalTex = new Texture2D(finalSize, finalSize, TextureFormat.ARGB32, false);
             finalTex.SetPixels(0, 0,
@@ -142,7 +127,7 @@ namespace CCE.LevelLoading
                     finalSize));
 
             TextureScale.Bilinear(finalTex, _cacheImageSize, _cacheImageSize);
-            
+
             File.WriteAllBytes(cacheFilePath, finalTex.GetRawTextureData());
         }
     }

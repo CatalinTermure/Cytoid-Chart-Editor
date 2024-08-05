@@ -54,7 +54,7 @@ namespace CCE.LevelLoading
 
         public void Query(string query)
         {
-            if (_lastQuery == query) return;
+            if (_lastQuery == query && _lastQuery != "") return;
             _lastQuery = query;
 
             string[] queryParts = query.Split(' ');

@@ -84,7 +84,7 @@ namespace CCE.UI
                     Formatting = Formatting.Indented
                 }));
 
-            ChartCardController.DeleteDeadAssets(GlobalState.CurrentLevel);
+            LevelUtils.DeleteDeadAssets(GlobalState.Config.LevelStoragePath, GlobalState.CurrentLevel);
 
             ErrorToaster.CreateToast("Level metadata saved!");
         }

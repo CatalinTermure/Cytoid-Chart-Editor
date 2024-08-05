@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.Events;
 
-namespace CCE.UI
+namespace CCE.Popups
 {
     public class MessagePopupController : MonoBehaviour
     {

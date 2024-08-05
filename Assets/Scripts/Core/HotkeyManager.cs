@@ -19,6 +19,7 @@ namespace CCE
 
         public static KeyValuePair<KeyCode, KeyCode> MoveTool = new KeyValuePair<KeyCode, KeyCode>(KeyCode.None, KeyCode.Z);
         public static KeyValuePair<KeyCode, KeyCode> LockY = new KeyValuePair<KeyCode, KeyCode>(KeyCode.None, KeyCode.X);
+        public static KeyValuePair<KeyCode, KeyCode> ToggleSnapX = new KeyValuePair<KeyCode, KeyCode>(KeyCode.None, KeyCode.Y);
 
         public static KeyValuePair<KeyCode, KeyCode> ClickNote = new KeyValuePair<KeyCode, KeyCode>(KeyCode.None, KeyCode.Alpha1);
         public static KeyValuePair<KeyCode, KeyCode> HoldNote = new KeyValuePair<KeyCode, KeyCode>(KeyCode.None, KeyCode.Alpha2);

@@ -3,6 +3,7 @@ using System.IO;
 using System.IO.Compression;
 using CCE.Core;
 using CCE.Data;
+using CCE.Utils;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 using UnityEngine;
@@ -24,7 +25,7 @@ namespace CCE.LevelLoading
         {
             if (Directory.Exists(FilePath))
             {
-                ImportUnpackedCytoidLevel();
+                ImportUnpackedCytoidLevel(FilePath);
                 IsRunning = false;
                 return;
             }
@@ -34,11 +35,11 @@ namespace CCE.LevelLoading
             switch (Path.GetExtension(FilePath))
             {
                 case ".cytoidlevel":
-                    ImportCytoidLevel();
+                    ImportCytoidLevel(FilePath);
                     break;
 
                 case ".cytoidpack":
-                    ImportCytoidPack();
+                    ImportCytoidPack(FilePath);
                     break;
 
                 default:
@@ -50,32 +51,43 @@ namespace CCE.LevelLoading
             IsRunning = false;
         }
 
-        private void ImportUnpackedCytoidLevel()
+        private void ImportUnpackedCytoidLevel(string folderPath)
         {
-            if (!File.Exists(Path.Combine(FilePath, "level.json"))) return;
+            if (!File.Exists(Path.Combine(folderPath, "level.json")))
+            {
+                return;
+            }
 
             var levelData =
-                JsonConvert.DeserializeObject<LevelData>(File.ReadAllText(Path.Combine(FilePath, "level.json")));
+                JsonConvert.DeserializeObject<LevelData>(File.ReadAllText(Path.Combine(folderPath, "level.json")));
 
             string finalFolderPath = Path.Combine(GlobalState.Config.LevelStoragePath, levelData.ID);
 
             if (Directory.Exists(finalFolderPath))
             {
                 Debug.LogError(
-                    $"CCELog: Level {Path.GetDirectoryName(FilePath)} " +
+                    $"CCELog: Level {folderPath} " +
                     "has not been loaded.\nA level with the same ID has already been " +
                     "loaded, please delete it first before trying again.");
             }
             else
             {
-                Directory.Move(FilePath, finalFolderPath);
+                FileUtils.CopyDirectory(folderPath, finalFolderPath);
+                if (folderPath.Contains(GlobalState.Config.TempStoragePath))
+                {
+                    Directory.Delete(folderPath, true);
+                }
             }
+
+            FilePath = finalFolderPath;
         }
 
-        private void ImportCytoidLevel()
+        private void ImportCytoidLevel(string filePath)
         {
             string tempFolderPath = Path.Combine(GlobalState.Config.TempStoragePath,
-                Path.GetFileNameWithoutExtension(FilePath));
+                Path.GetFileNameWithoutExtension(filePath));
+
+            string finalFolderPath = "";
 
             try
             {
@@ -83,29 +95,29 @@ namespace CCE.LevelLoading
 
                 try
                 {
-                    ZipFile.ExtractToDirectory(FilePath, tempFolderPath);
+                    ZipFile.ExtractToDirectory(filePath, tempFolderPath);
                 }
                 catch (Exception)
                 {
-                    File.Delete(FilePath);
+                    File.Delete(filePath);
                     return;
                 }
 
                 if (!File.Exists(Path.Combine(tempFolderPath, "level.json")))
                 {
                     Debug.LogError("Could not find level.json file in the .cytoidlevel. " +
-                        "Did you zip the folder rather than the files?");
+                                   "Did you zip the folder rather than the files?");
                 }
 
                 var levelData = JsonConvert.DeserializeObject<LevelData>(
                     File.ReadAllText(Path.Combine(tempFolderPath, "level.json")));
 
-                string finalFolderPath = Path.Combine(GlobalState.Config.LevelStoragePath, levelData.ID);
+                finalFolderPath = Path.Combine(GlobalState.Config.LevelStoragePath, levelData.ID);
 
                 if (Directory.Exists(finalFolderPath))
                 {
                     Debug.LogError(
-                        $"CCELog: Level {levelData.ID} from {Path.GetFileName(FilePath)} " +
+                        $"CCELog: Level {levelData.ID} from {Path.GetFileName(filePath)} " +
                         "has not been loaded.\nA level with the same ID has already been " +
                         "loaded, please delete it first before trying again.");
                 }
@@ -116,61 +128,63 @@ namespace CCE.LevelLoading
             }
             finally
             {
-                if (FilePath.Contains(GlobalState.Config.LevelStoragePath))
+                if (filePath.Contains(GlobalState.Config.LevelStoragePath))
                 {
-                    File.Delete(FilePath);
+                    File.Delete(filePath);
                 }
+
+                FilePath = finalFolderPath;
 
                 if (Directory.Exists(tempFolderPath)) Directory.Delete(tempFolderPath, true);
             }
         }
 
-        private void ImportCytoidPack()
+        private void ImportCytoidPack(string filePath)
         {
             try
             {
                 try
                 {
-                    ZipFile.ExtractToDirectory(FilePath, GlobalState.Config.TempStoragePath);
+                    ZipFile.ExtractToDirectory(filePath, GlobalState.Config.TempStoragePath);
                 }
                 catch (Exception)
                 {
-                    File.Delete(FilePath);
+                    File.Delete(filePath);
                     return;
                 }
 
 
                 if (FilePath.Contains(GlobalState.Config.LevelStoragePath))
                 {
-                    File.Delete(FilePath);
+                    File.Delete(filePath);
                 }
 
                 foreach (string levelPath in
-                    Directory.EnumerateFiles(GlobalState.Config.TempStoragePath, "*.cytoidlevel"))
+                         Directory.EnumerateFiles(GlobalState.Config.TempStoragePath, "*.cytoidlevel"))
                 {
                     FilePath = levelPath;
-                    ImportCytoidLevel();
+                    ImportCytoidLevel(levelPath);
                 }
 
                 foreach (string unpackedLevelPath in
-                    Directory.EnumerateDirectories(GlobalState.Config.TempStoragePath))
+                         Directory.EnumerateDirectories(GlobalState.Config.TempStoragePath))
                 {
                     FilePath = unpackedLevelPath;
-                    ImportUnpackedCytoidLevel();
+                    ImportUnpackedCytoidLevel(unpackedLevelPath);
                 }
             }
             finally
             {
-                foreach (string dirPath in
-                    Directory.EnumerateDirectories(GlobalState.Config.TempStoragePath))
+                foreach (string dir in
+                         Directory.EnumerateDirectories(GlobalState.Config.TempStoragePath))
                 {
-                    Directory.Delete(dirPath, true);
+                    Directory.Delete(dir, true);
                 }
 
-                foreach (string filePath in
-                    Directory.EnumerateFiles(GlobalState.Config.TempStoragePath))
+                foreach (string file in
+                         Directory.EnumerateFiles(GlobalState.Config.TempStoragePath))
                 {
-                    File.Delete(filePath);
+                    File.Delete(file);
                 }
             }
         }

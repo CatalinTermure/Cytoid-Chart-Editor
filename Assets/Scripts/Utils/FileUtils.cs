@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
 namespace CCE.Utils
 {
@@ -34,6 +36,10 @@ namespace CCE.Utils
         
         public static void CopyDirectory(string srcDirPath, string destDirPath)
         {
+            if (Directory.Exists(destDirPath))
+            {
+                Directory.Delete(destDirPath, true);
+            }
             Directory.CreateDirectory(destDirPath);
             foreach (string file in Directory.EnumerateFiles(srcDirPath))
             {
@@ -44,6 +50,18 @@ namespace CCE.Utils
             {
                 CopyDirectory(directory, Path.Combine(destDirPath, Path.GetFileName(directory)));
             }
+        }
+        
+        public static IEnumerable<string> GetFilesInDirectory(string dirPath)
+        {
+            List<string> result = Directory.EnumerateFiles(Path.GetFullPath(dirPath)).ToList();
+
+            foreach (string folder in Directory.EnumerateDirectories(Path.GetFullPath(dirPath)))
+            {
+                result.AddRange(GetFilesInDirectory(folder));
+            }
+
+            return result;
         }
 
         public static bool IsAudioFile(string file)

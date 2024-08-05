@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace CCE.Utils
 {
-    public class TextureScale
+    public static class TextureScale
     {
         private static Color[] _texColors;
         private static Color[] _newColors;
@@ -92,7 +92,7 @@ namespace CCE.Utils
                 }
             }
 
-            tex.Resize(newWidth, newHeight);
+            tex.Reinitialize(newWidth, newHeight);
             tex.SetPixels(_newColors);
             tex.Apply();
 
@@ -100,10 +100,10 @@ namespace CCE.Utils
             _newColors = null;
         }
 
-        public static void BilinearScale(object obj)
+        private static void BilinearScale(object obj)
         {
             var threadData = (ThreadData)obj;
-            for (int y = threadData.start; y < threadData.end; y++)
+            for (int y = threadData.Start; y < threadData.End; y++)
             {
                 int yFloor = (int)Mathf.Floor(y * _ratioY);
                 int y1 = yFloor * _w;
@@ -126,10 +126,10 @@ namespace CCE.Utils
             _mutex.ReleaseMutex();
         }
 
-        public static void PointScale(object obj)
+        private static void PointScale(object obj)
         {
             var threadData = (ThreadData)obj;
-            for (int y = threadData.start; y < threadData.end; y++)
+            for (int y = threadData.Start; y < threadData.End; y++)
             {
                 int thisY = (int)(_ratioY * y) * _w;
                 int yw = y * _w2;
@@ -154,13 +154,13 @@ namespace CCE.Utils
 
         private class ThreadData
         {
-            public int end;
-            public int start;
+            public readonly int End;
+            public readonly int Start;
 
             public ThreadData(int s, int e)
             {
-                start = s;
-                end = e;
+                Start = s;
+                End = e;
             }
         }
     }

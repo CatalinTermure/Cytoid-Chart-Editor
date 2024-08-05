@@ -11,7 +11,7 @@ namespace CCE.LevelLoading
         private const float _scrollSpeed = 0.01f;
 
         private const float _searchUpdateDelay = 3.0f;
-        [SerializeField] private InputField SearchInputField;
+        [SerializeField] public InputField SearchInputField;
 
         public const float UpdateBackgroundDelay = 0.6f;
         [SerializeField] private GameObject LevelCardTemplate;
