@@ -1,7 +1,7 @@
-﻿using CCE.Utils;
+﻿using System.IO;
+using CCE.Utils;
 using ManagedBass;
 using ManagedBass.Fx;
-using System.IO;
 using UnityEngine;
 
 namespace CCE.Core
@@ -11,8 +11,9 @@ namespace CCE.Core
     /// </summary>
     public static class AudioManager
     {
-        public static bool IsInitialized;
+        private const int ConcurrentHitsoundCount = 4;
 
+        public static bool IsInitialized;
         public static bool IsPlaying;
 
         // Handle to the original audio stream to apply effects on.
@@ -20,33 +21,13 @@ namespace CCE.Core
 
         // Handle to the audio stream used for playback.
         private static int _audioChannel;
-
-        private const int ConcurrentHitsoundCount = 4;
         private static int _hitsoundHandle;
-        private static int[] _hitsoundChannels = new int[ConcurrentHitsoundCount];
+        private static readonly int[] _hitsoundChannels = new int[ConcurrentHitsoundCount];
         private static int _hitsoundChannelIndex;
-
         private static bool _isPlaybackSpeedEditable;
 
-        private static double _playbackSpeed;
-
-        public static double PlaybackSpeed
-        {
-            get => _playbackSpeed;
-            set
-            {
-                _playbackSpeed = value;
-                if (!_isPlaybackSpeedEditable)
-                {
-                    Debug.LogError("CCELog: Tried to change playback speed without loading the" +
-                                   " audio for playback speed editing. See: LoadAudio.");
-                    return;
-                }
-
-                Bass.ChannelSetAttribute(_audioChannel, ChannelAttribute.Tempo, (value - 1) * 100);
-                BassUtils.PrintLastError();
-            }
-        }
+        private static float _musicVolume = 1;
+        private static float _hitsoundVolume = 1;
 
         public static double Time
         {
@@ -56,6 +37,19 @@ namespace CCE.Core
 
         public static double MaxTime =>
             Bass.ChannelBytes2Seconds(_audioChannel, Bass.ChannelGetLength(_audioChannel));
+
+        public static void SetPlaybackSpeed(double value)
+        {
+            if (!_isPlaybackSpeedEditable)
+            {
+                Debug.LogError("CCELog: Tried to change playback speed without loading the" +
+                               " audio for playback speed editing. See: LoadAudio.");
+                return;
+            }
+
+            Bass.ChannelSetAttribute(_audioChannel, ChannelAttribute.Tempo, (value - 1) * 100);
+            BassUtils.PrintLastError();
+        }
 
         /// <summary>
         ///     Plays the <see cref="AudioClip" />
@@ -92,7 +86,7 @@ namespace CCE.Core
         ///     Loads audio from the specified handle.
         /// </summary>
         /// <param name="handle"> Handle to a BASS stream. </param>
-        /// <param name="loadForPlaybackSpeed"> Indicates if the audio should be loaded for playback speed functionality </param>
+        /// <param name="loadForPlaybackSpeed"> Indicates if the playback speed may be changed eventually for this audio handle </param>
         public static void LoadAudio(int handle, bool loadForPlaybackSpeed = false)
         {
             Stop();
@@ -109,15 +103,17 @@ namespace CCE.Core
             {
                 _audioChannel = _audioHandle;
             }
+
+            Bass.ChannelSetAttribute(_audioChannel, ChannelAttribute.Volume, _musicVolume);
         }
 
         private static void LoadDefaultHitsounds()
         {
-            AudioClip hitsoundClip = Resources.Load<AudioClip>("hitsound");
+            var hitsoundClip = Resources.Load<AudioClip>("hitsound");
             hitsoundClip.LoadAudioData();
 
-            int sampleCount = hitsoundClip.samples * hitsoundClip.channels;
-            float[] samples = new float[sampleCount];
+            var sampleCount = hitsoundClip.samples * hitsoundClip.channels;
+            var samples = new float[sampleCount];
 
             hitsoundClip.GetData(samples, 0);
 
@@ -130,7 +126,7 @@ namespace CCE.Core
 
         private static void LoadHitsounds()
         {
-            string customHitsoundPath = Path.Combine(Application.persistentDataPath, "Hitsound.wav");
+            var customHitsoundPath = Path.Combine(Application.persistentDataPath, "Hitsound.wav");
             if (File.Exists(customHitsoundPath))
             {
                 _hitsoundHandle = Bass.SampleLoad(customHitsoundPath, 0, 0,
@@ -141,9 +137,10 @@ namespace CCE.Core
                 LoadDefaultHitsounds();
             }
 
-            for (int i = 0; i < ConcurrentHitsoundCount; i++)
+            for (var i = 0; i < ConcurrentHitsoundCount; i++)
             {
                 _hitsoundChannels[i] = Bass.SampleGetChannel(_hitsoundHandle, true);
+                Bass.ChannelSetAttribute(_hitsoundChannels[i], ChannelAttribute.Volume, _hitsoundVolume);
             }
         }
 
@@ -153,17 +150,20 @@ namespace CCE.Core
             if (_hitsoundChannelIndex == ConcurrentHitsoundCount) _hitsoundChannelIndex = 0;
         }
 
-        public static void SetHitsoundVolume(double volume)
+        public static void SetHitsoundVolume(float volume)
         {
-            for (int i = 0; i < ConcurrentHitsoundCount; i++)
+            for (var i = 0; i < ConcurrentHitsoundCount; i++)
             {
                 Bass.ChannelSetAttribute(_hitsoundChannels[i], ChannelAttribute.Volume, volume);
             }
+
+            _hitsoundVolume = volume;
         }
 
-        public static void SetMusicVolume(double volume)
+        public static void SetMusicVolume(float volume)
         {
             Bass.ChannelSetAttribute(_audioChannel, ChannelAttribute.Volume, volume);
+            _musicVolume = volume;
         }
 
         public static void Initialize()
@@ -173,7 +173,7 @@ namespace CCE.Core
 
             Bass.Init();
 #if UNITY_EDITOR
-            if(Bass.LastError == Errors.Already)
+            if (Bass.LastError == Errors.Already)
             {
                 Debug.Log("Could not start BASS, please restart unity.");
                 return;

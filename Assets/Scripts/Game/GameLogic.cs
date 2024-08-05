@@ -70,14 +70,18 @@ namespace CCE.Game
         private double _saveEditorOffsetScheduledTime = -1;
         private Vector2 _startMovePos;
 
-        [FormerlySerializedAs("utilityLineRenderer")] [SerializeField] private LineRenderer UtilityLineRenderer;
+        [FormerlySerializedAs("utilityLineRenderer")] [SerializeField]
+        private LineRenderer UtilityLineRenderer;
 
         public static GameLogic Instance
         {
             get
             {
                 if (_instance == null)
+                {
                     _instance = FindObjectOfType<GameLogic>();
+                }
+
                 return _instance;
             }
             set => _instance = value;
@@ -96,9 +100,6 @@ namespace CCE.Game
             _lockYText = GameObject.Find("LockYText");
             _lockYText.SetActive(false);
             UtilityLineRenderer = GetComponent<LineRenderer>();
-
-            AudioManager.SetHitsoundVolume(Config.HitsoundVolume);
-            AudioManager.SetMusicVolume(Config.MusicVolume);
 
             if (CurrentChart == null) return;
 
@@ -220,12 +221,14 @@ namespace CCE.Game
             }
 
             if (_isStartScheduled)
+            {
                 if (AudioSettings.dspTime > ScheduledTime)
                 {
                     IsGameRunning = true;
                     _playPauseButton.SetActive(true);
                     _isStartScheduled = false;
                 }
+            }
 
             if (IsGameRunning)
             {
@@ -238,7 +241,9 @@ namespace CCE.Game
                 }
 
                 if (Config.UpdateTimelineWhileRunning)
+                {
                     Timeline.SetValueWithoutNotify((float)(AudioManager.Time / AudioManager.MaxTime));
+                }
 
                 var time = AudioManager.Time + Offset;
 
@@ -261,7 +266,9 @@ namespace CCE.Game
                     CurrentPageIndex++;
 
                     if (CurrentChart.PageList[CurrentPageIndex - 1].ActualPageSize != CurrentPage.ActualPageSize)
+                    {
                         UpdateBpmText();
+                    }
                 }
 
                 while (_currentTempoIndex + 1 < CurrentChart.TempoList.Count &&
@@ -299,11 +306,19 @@ namespace CCE.Game
             {
                 _lastSafeArea = Screen.safeArea;
                 if (Screen.orientation == ScreenOrientation.LandscapeLeft)
+                {
                     foreach (var transform in LeftNotchObstructedObjects)
+                    {
                         transform.anchoredPosition = new Vector2(Screen.safeArea.x, transform.anchoredPosition.y);
+                    }
+                }
                 else if (Screen.orientation == ScreenOrientation.LandscapeRight)
+                {
                     foreach (var transform in RightNotchObstructedObjects)
+                    {
                         transform.anchoredPosition = new Vector2(-Screen.safeArea.x, transform.anchoredPosition.y);
+                    }
+                }
             }
         }
 
@@ -326,6 +341,7 @@ namespace CCE.Game
 
             // Calculate page times and tempo times
             while (ti < t && pi < p)
+            {
                 if (ti + 1 < t &&
                     pages[pi].StartTick >= tempos[ti + 1].Tick) // If page is not on this tempo, go to next tempo
                 {
@@ -380,6 +396,7 @@ namespace CCE.Game
 
                     pi++;
                 }
+            }
 
             while (ti + 1 < t)
             {
@@ -443,6 +460,7 @@ namespace CCE.Game
 
             // Calculate note Time, hold Time, AR and others
             while (ti < t && ni < n)
+            {
                 if (ti + 1 < t && notes[ni].Tick >= tempos[ti + 1].Tick)
                 {
                     tempoSum += (double)tempos[ti].Value * (tempos[ti + 1].Tick - tempos[ti].Tick) / timebase /
@@ -518,6 +536,7 @@ namespace CCE.Game
 
                     ni++;
                 }
+            }
 
             _noteSpawns.Sort(
                 (a, b) =>
@@ -580,6 +599,7 @@ namespace CCE.Game
 
             noteToAdd.ID = pos;
             foreach (var note in CurrentChart.NoteList)
+            {
                 if (note.Type == (int)NoteType.DragHead ||
                     note.Type == (int)NoteType.DragChild ||
                     note.Type == (int)NoteType.CDragChild ||
@@ -593,6 +613,7 @@ namespace CCE.Game
                 {
                     note.NextID = 0;
                 }
+            }
 
             if (CurrentChart.NoteList.Count == 0)
             {
@@ -631,11 +652,13 @@ namespace CCE.Game
                 if (_noteSpawns[i].ID != noteID) continue;
                 _noteSpawns.RemoveAt(i);
                 for (var j = 0; j < _noteSpawns.Count; j++)
+                {
                     _noteSpawns[j] = new NoteSpawnTime
                     {
                         ID = _noteSpawns[j].ID - (_noteSpawns[j].ID > noteID ? 1 : 0),
                         Time = _noteSpawns[j].Time
                     };
+                }
 
                 break;
             }
@@ -649,30 +672,42 @@ namespace CCE.Game
             }
 
             foreach (var note in CurrentChart.NoteList)
+            {
                 if (note.NextID > noteID)
+                {
                     note.NextID--;
+                }
                 else if (note.NextID == noteID)
                     // If the deleted note is part of a (c)drag chain,
                     // then remove it from the chain while keeping the chain valid
+                {
                     note.NextID = CurrentChart.NoteList[noteID].NextID -
                                   (CurrentChart.NoteList[noteID].NextID > noteID ? 1 : 0);
+                }
+            }
 
             for (var i = 0; i < _hitsoundTimings.Count; i++)
+            {
                 if (Math.Abs(CurrentChart.NoteList[noteID].Time - _hitsoundTimings[i]) < 0.001)
                 {
                     _hitsoundTimings.RemoveAt(i);
                     break;
                 }
+            }
 
             if (Config.PlayHitsoundsOnHoldEnd && (CurrentChart.NoteList[noteID].Type == (int)NoteType.Hold ||
                                                   CurrentChart.NoteList[noteID].Type == (int)NoteType.LongHold))
+            {
                 for (var i = 0; i < _hitsoundTimings.Count; i++)
+                {
                     if (Math.Abs(CurrentChart.NoteList[noteID].Time + CurrentChart.NoteList[noteID].HoldTime -
                                  _hitsoundTimings[i]) < 0.001)
                     {
                         _hitsoundTimings.RemoveAt(i);
                         break;
                     }
+                }
+            }
 
             // Use a classic deletion algorithm while modifying ids accordingly
             for (var i = noteID; i + 1 < CurrentChart.NoteList.Count; i++)
@@ -733,6 +768,7 @@ namespace CCE.Game
 
             if (noteController.Notetype != (int)NoteType.LongHold) return;
             if (note.Tick + note.HoldTick >= CurrentPage.StartTick)
+            {
                 obj.GetComponent<LongHoldNoteController>().FinishIndicator.transform.position =
                     new Vector3(
                         obj.transform.position.x,
@@ -740,9 +776,12 @@ namespace CCE.Game
                         (PlayAreaHeight * (note.Tick + note.HoldTick - CurrentPage.ActualStartTick) /
                             (int)CurrentPage.ActualPageSize - PlayAreaHeight / 2)
                     );
+            }
             else
+            {
                 obj.GetComponent<LongHoldNoteController>().FinishIndicator.transform.position =
                     new Vector3(obj.transform.position.x, 10000);
+            }
         }
 
         /// <summary>
@@ -836,8 +875,12 @@ namespace CCE.Game
                 foreach (var obj in GameObject.FindGameObjectsWithTag("ScanlineNote")) Destroy(obj);
 
                 foreach (var obj in GameObject.FindGameObjectsWithTag("Note"))
+                {
                     if (obj.GetComponent<IHighlightable>().Highlighted)
+                    {
                         HighlightObject(obj);
+                    }
+                }
 
                 AddMissingDrags();
             }
@@ -848,7 +891,11 @@ namespace CCE.Game
             foreach (var note in CurrentChart.NoteList)
             {
                 if ((note.Type != (int)NoteType.CDragHead && note.Type != (int)NoteType.DragHead) ||
-                    note.PageIndex >= CurrentPageIndex) continue;
+                    note.PageIndex >= CurrentPageIndex)
+                {
+                    continue;
+                }
+
                 var id = note.ID;
                 while (CurrentChart.NoteList[id].NextID > 0)
                 {
@@ -866,8 +913,12 @@ namespace CCE.Game
         public void BeatDivisorValueChanged()
         {
             for (var i = 0; i < 8; i++)
+            {
                 if (_allowedDivisors[i] <= (int)BeatDivisorSlider.value)
+                {
                     _beatDivisorValue = _allowedDivisors[i];
+                }
+            }
 
             BeatDivisorSlider.SetValueWithoutNotify(_beatDivisorValue);
             RenderDivisorLines();
@@ -887,7 +938,9 @@ namespace CCE.Game
 
             var interval = 1000;
             if (_beatDivisorValue % 3 == 0)
+            {
                 interval = 3;
+            }
             else if (_beatDivisorValue % 4 == 0) interval = 4;
 
             for (var i = 1; i < _beatDivisorValue; i++)
@@ -925,12 +978,15 @@ namespace CCE.Game
         {
             var needUpdate = false;
             foreach (var obj in GameObject.FindGameObjectsWithTag("Note"))
+            {
                 if (obj.GetComponent<NoteController>().NoteID == noteID)
                 {
                     var type = obj.GetComponent<NoteController>().Notetype;
                     if (type == (int)NoteType.DragHead || type == (int)NoteType.DragChild ||
                         type == (int)NoteType.CDragHead || type == (int)NoteType.CDragChild)
+                    {
                         needUpdate = true;
+                    }
 
                     obj.GetComponent<NoteController>().Initialize(CurrentChart.NoteList[noteID]);
                     if (type == (int)NoteType.LongHold)
@@ -938,17 +994,22 @@ namespace CCE.Game
                         var note = CurrentChart.NoteList[obj.GetComponent<NoteController>().NoteID];
                         var currentPage = GameObject.Find("UICanvas").GetComponent<GameLogic>().CurrentPage;
                         if (note.Tick + note.HoldTick >= currentPage.StartTick)
+                        {
                             obj.GetComponent<LongHoldNoteController>().FinishIndicator.transform.position = new Vector3(
                                 obj.transform.position.x, currentPage.ScanLineDirection *
                                                           (PlayAreaHeight *
                                                               (note.Tick + note.HoldTick -
                                                                currentPage.ActualStartTick) /
                                                               (int)currentPage.ActualPageSize - PlayAreaHeight / 2));
+                        }
                         else
+                        {
                             obj.GetComponent<LongHoldNoteController>().FinishIndicator.transform.position =
                                 new Vector3(obj.transform.position.x, 10000);
+                        }
                     }
                 }
+            }
 
             if (needUpdate)
             {
@@ -982,7 +1043,9 @@ namespace CCE.Game
             MakeButtonsInteractable();
 
             foreach (var obj in GameObject.FindGameObjectsWithTag("Note"))
+            {
                 _objectPool.ReturnToPool(obj, obj.GetComponent<NoteController>().Notetype);
+            }
 
             foreach (var obj in GameObject.FindGameObjectsWithTag("ScanlineNote")) Destroy(obj);
 
@@ -991,6 +1054,7 @@ namespace CCE.Game
             _currentNoteIndex = 0;
 
             for (var i = 0; i < _noteSpawns.Count; i++)
+            {
                 if (_noteSpawns[i].Time <= time)
                 {
                     if (CurrentChart.NoteList[_noteSpawns[i].ID].PageIndex == CurrentPageIndex ||
@@ -1024,17 +1088,24 @@ namespace CCE.Game
                 {
                     SpawnNote(CurrentChart.NoteList[_noteSpawns[i].ID], 10000);
                 }
+            }
 
             // Optimize if necessary
             for (var i = 0; i < _hitsoundTimings.Count; i++)
+            {
                 if (_hitsoundTimings[i] < time)
+                {
                     _currentHitsoundIndex = i + 1;
+                }
+            }
 
             for (var i = 0; i < CurrentChart.TempoList.Count; i++)
             {
                 if (CurrentChart.TempoList[i].Tick <= CurrentPage.EndTick &&
                     CurrentChart.TempoList[i].Tick >= CurrentPage.ActualStartTick)
+                {
                     SpawnScanlineNote(i);
+                }
 
                 if (CurrentChart.TempoList[i].Time <= time) _currentTempoIndex = i;
             }
@@ -1071,6 +1142,7 @@ namespace CCE.Game
             bool isFullDrag = true, isFullCDrag = true;
 
             foreach (var obj in GameObject.FindGameObjectsWithTag("Note"))
+            {
                 if (obj.GetComponent<IHighlightable>().Highlighted)
                 {
                     highlighted.Add(obj.GetComponent<NoteController>().NoteID);
@@ -1078,8 +1150,11 @@ namespace CCE.Game
                     if (noteType != (int)NoteType.DragHead && noteType != (int)NoteType.DragChild) isFullDrag = false;
 
                     if (noteType != (int)NoteType.CDragHead && noteType != (int)NoteType.CDragChild)
+                    {
                         isFullCDrag = false;
+                    }
                 }
+            }
 
             highlighted.Sort();
 
@@ -1094,9 +1169,13 @@ namespace CCE.Game
                     {
                         var note = CurrentChart.NoteList[CurrentChart.NoteList[highlighted[0]].NextID];
                         if (note.Type == (int)NoteType.CDragChild)
+                        {
                             note.Type = (int)NoteType.CDragHead;
+                        }
                         else
+                        {
                             note.Type = (int)NoteType.DragHead;
+                        }
                     }
 
                     CurrentChart.NoteList[highlighted[0]].NextID = highlighted[1];
@@ -1129,7 +1208,9 @@ namespace CCE.Game
                         {
                             var note = CurrentChart.NoteList[CurrentChart.NoteList[highlightedID].NextID];
                             if (note.Type == (int)NoteType.CDragChild)
+                            {
                                 note.Type = (int)NoteType.CDragHead;
+                            }
                             else if (note.Type == (int)NoteType.DragChild) note.Type = (int)NoteType.DragHead;
                         }
 
@@ -1144,7 +1225,9 @@ namespace CCE.Game
                     {
                         var dragParent = GetDragParent(highlightedID);
                         if (dragParent > -1 && dragParent != highlighted[0])
+                        {
                             CurrentChart.NoteList[dragParent].NextID = -1;
+                        }
                     }
 
                     for (var i = 1; i + 1 < highlighted.Count; i++)
@@ -1155,9 +1238,13 @@ namespace CCE.Game
                         {
                             var note = CurrentChart.NoteList[CurrentChart.NoteList[highlighted[i]].NextID];
                             if (note.Type == (int)NoteType.CDragChild)
+                            {
                                 note.Type = (int)NoteType.CDragHead;
+                            }
                             else
+                            {
                                 note.Type = (int)NoteType.DragHead;
+                            }
                         }
 
                         CurrentChart.NoteList[highlighted[i]].NextID = highlighted[i + 1];
@@ -1225,9 +1312,11 @@ namespace CCE.Game
                                 CurrentChart.NoteList[id].HoldTick += CurrentChart.TimeBase / _beatDivisorValue;
                                 if (CurrentChart.NoteList[id].HoldTick + CurrentChart.NoteList[id].Tick >
                                     CurrentChart.PageList[CurrentChart.NoteList[id].PageIndex].EndTick)
+                                {
                                     CurrentChart.NoteList[id].HoldTick =
                                         CurrentChart.PageList[CurrentChart.NoteList[id].PageIndex].EndTick -
                                         CurrentChart.NoteList[id].Tick;
+                                }
 
                                 CalculateTimings();
                                 UpdateTime(CurrentPage.ActualStartTime);
@@ -1300,6 +1389,7 @@ namespace CCE.Game
                     var onlyCurrentPage = false;
                     foreach (var id in objectsToHighlight.Select(toHighlight =>
                                  toHighlight.GetComponent<NoteController>().NoteID))
+                    {
                         if (CurrentChart.NoteList[id].PageIndex == CurrentPageIndex)
                         {
                             if (!onlyCurrentPage) idToHighlight = id;
@@ -1311,6 +1401,7 @@ namespace CCE.Game
                         {
                             idToHighlight = Math.Max(idToHighlight, id);
                         }
+                    }
 
                     if (idToHighlight >= 0) HighlightNoteWithID(idToHighlight);
                 }
@@ -1324,7 +1415,9 @@ namespace CCE.Game
                             !obj.GetComponentInChildren<Collider2D>().OverlapPoint(touchPos) ||
                             _currentlyMovingObject == obj ||
                             _isObjectMovingDict.ContainsKey(noteID))
+                        {
                             continue;
+                        }
 
                         if (obj.GetComponent<IHighlightable>().Highlighted)
                         {
@@ -1334,7 +1427,9 @@ namespace CCE.Game
                                 if ((!Config.InteractWithNotesOnOtherPages &&
                                      CurrentChart.NoteList[obj2.GetComponent<NoteController>().NoteID].PageIndex !=
                                      CurrentPageIndex) || !obj2.GetComponent<IHighlightable>().Highlighted)
+                                {
                                     continue;
+                                }
 
                                 _movingNotes.Add(new MovingNote
                                 {
@@ -1357,30 +1452,40 @@ namespace CCE.Game
                     }
 
                     foreach (var obj in GameObject.FindGameObjectsWithTag("ScanlineNote"))
+                    {
                         if (obj.GetComponent<ITempo>().TempoID != 0 &&
                             obj.GetComponentInChildren<Collider2D>().OverlapPoint(touchPos))
                         {
                             _currentlyMovingObject = obj;
                             break;
                         }
+                    }
                 }
                 else if (CurrentChart != null && touchPos.x < PlayAreaWidth / 2 && touchPos.x > -PlayAreaWidth / 2 &&
                          touchPos.y < PlayAreaHeight / 2 && touchPos.y > -PlayAreaHeight / 2)
                     // Adding notes
                 {
                     foreach (var obj in GameObject.FindGameObjectsWithTag("Note"))
+                    {
                         if (obj.GetComponent<NoteController>().Notetype == (int)CurrentTool &&
                             Math.Abs(touchPos.y - obj.transform.position.y) < PlayAreaHeight / _beatDivisorValue / 2
                             && Math.Abs(touchPos.x - obj.transform.position.x) < PlayAreaHeight / _beatDivisorValue / 2)
+                        {
                             return;
+                        }
+                    }
 
                     double noteX = (touchPos.x + PlayAreaWidth / 2) / PlayAreaWidth;
                     if (Config.HorizontalSnap)
+                    {
                         noteX =
                             Math.Round((touchPos.x + PlayAreaWidth / 2) / (PlayAreaWidth / Config.VerticalDivisors)) /
                             Config.VerticalDivisors;
+                    }
                     else
+                    {
                         noteX = Math.Round(noteX, 2);
+                    }
 
                     if (CurrentTool == NoteType.Click) // Add click note
                     {
@@ -1652,10 +1757,12 @@ namespace CCE.Game
 
                             var newX = _currentlyMovingObject.transform.position.x;
                             if (Config.HorizontalSnap)
+                            {
                                 newX = (float)Math.Round(
                                         (_currentlyMovingObject.transform.position.x + PlayAreaWidth / 2) /
                                         (PlayAreaWidth / Config.VerticalDivisors)) *
                                     (PlayAreaWidth / Config.VerticalDivisors) - PlayAreaWidth / 2;
+                            }
 
                             var newPosition = new Vector3(newX,
                                 (float)Math.Round((_currentlyMovingObject.transform.position.y + PlayAreaHeight / 2) /
@@ -1683,14 +1790,18 @@ namespace CCE.Game
                             if (dragParent > 0) tick = Math.Max(tick, CurrentChart.NoteList[dragParent].Tick);
 
                             if (CurrentChart.NoteList[note.ID].NextID > 0)
+                            {
                                 tick = Math.Min(tick,
                                     CurrentChart.NoteList[CurrentChart.NoteList[note.ID].NextID].Tick);
+                            }
 
                             note.Tick = tick;
 
                             if (note.Type == (int)NoteType.Hold &&
                                 tick + note.HoldTick > CurrentChart.PageList[note.PageIndex].EndTick)
+                            {
                                 note.HoldTick = CurrentChart.PageList[note.PageIndex].EndTick - tick;
+                            }
 
                             // Fixing ID
                             while (id < CurrentChart.NoteList.Count - 1 &&
@@ -1758,7 +1869,10 @@ namespace CCE.Game
                     for (var i = 0; i < _movingNotes.Count; i++)
                     {
                         if (_movingNotes[i].Object.transform.position.x >= PlayAreaWidth / 2 + 2 ||
-                            _movingNotes[i].Object.transform.position.x <= -PlayAreaWidth / 2 - 2) continue;
+                            _movingNotes[i].Object.transform.position.x <= -PlayAreaWidth / 2 - 2)
+                        {
+                            continue;
+                        }
 
                         _movingNotes[i].Object.transform.position = new Vector3(
                             Clamp(_movingNotes[i].Object.transform.position.x, -PlayAreaWidth / 2, PlayAreaWidth / 2),
@@ -1769,11 +1883,15 @@ namespace CCE.Game
 
                         var noteX = _movingNotes[i].Object.transform.position.x;
                         if (Config.HorizontalSnap)
+                        {
                             noteX = (float)Math.Round((noteX + PlayAreaWidth / 2) /
                                                       (PlayAreaWidth / Config.VerticalDivisors)) *
                                 (PlayAreaWidth / Config.VerticalDivisors) - PlayAreaWidth / 2;
+                        }
                         else
+                        {
                             noteX = (float)Math.Round(noteX, 2);
+                        }
 
                         CurrentChart.NoteList[_movingNotes[i].NoteID].X = (noteX + PlayAreaWidth / 2) / PlayAreaWidth;
 
@@ -1799,21 +1917,26 @@ namespace CCE.Game
                         if (dragParent > 0) tick = Math.Max(tick, CurrentChart.NoteList[dragParent].Tick);
 
                         if (CurrentChart.NoteList[_movingNotes[i].NoteID].NextID > 0)
+                        {
                             tick = Math.Min(tick,
                                 CurrentChart.NoteList[CurrentChart.NoteList[_movingNotes[i].NoteID].NextID].Tick);
+                        }
 
                         CurrentChart.NoteList[_movingNotes[i].NoteID].Tick = tick;
 
                         var note = CurrentChart.NoteList[_movingNotes[i].NoteID];
                         if (note.Type == (int)NoteType.Hold &&
                             tick + note.HoldTick > CurrentChart.PageList[note.PageIndex].EndTick)
+                        {
                             note.HoldTick = CurrentChart.PageList[note.PageIndex].EndTick - tick;
+                        }
                     }
 
                     var ids = new List<int>();
 
                     var deletedCount = 0;
                     for (var i = 0; i < _movingNotes.Count; i++)
+                    {
                         if (_movingNotes[i].Object.transform.position.x > PlayAreaWidth / 2 + 2 ||
                             _movingNotes[i].Object.transform.position.x < -PlayAreaWidth / 2 - 2)
                         {
@@ -1824,6 +1947,7 @@ namespace CCE.Game
                         {
                             ids.Add(_movingNotes[i].NoteID - deletedCount);
                         }
+                    }
 
                     // fixing IDs
                     for (var i = 0; i < ids.Count; i++)
@@ -1888,11 +2012,13 @@ namespace CCE.Game
                     Vector2 touchPos = _mainCamera.ScreenToWorldPoint(Input.mousePosition);
 
                     for (var i = 0; i < _movingNotes.Count; i++)
+                    {
                         _movingNotes[i].Object.transform.position = new Vector3(
                             _movingNotes[i].ReferencePosition.x + (touchPos.x - _startMovePos.x),
                             _lockY
                                 ? _movingNotes[i].ReferencePosition.y
                                 : _movingNotes[i].ReferencePosition.y + (touchPos.y - _startMovePos.y));
+                    }
                 }
             }
         }
@@ -1911,8 +2037,12 @@ namespace CCE.Game
         private void HighlightNoteWithID(int id)
         {
             foreach (var obj in GameObject.FindGameObjectsWithTag("Note"))
+            {
                 if (obj.GetComponent<NoteController>().NoteID == id)
+                {
                     HighlightObject(obj);
+                }
+            }
         }
 
         public void GoToPreviousPage()
@@ -1963,7 +2093,9 @@ namespace CCE.Game
             var id = scanlineNote.GetComponent<ITempo>().TempoID;
 
             if (double.TryParse(bpmInput, out var bpm))
+            {
                 CurrentChart.TempoList[id].Value = (long)Math.Round(120000000 / bpm);
+            }
 
             if (updateOffset && double.TryParse(timeInput, out var time) && id == 0) CurrentChart.MusicOffset = -time;
 
@@ -2008,7 +2140,9 @@ namespace CCE.Game
         {
             if (CurrentChart == null || _playbackSpeedIndex == _playbackSpeeds.Length - 1 || IsGameRunning
                 || _isStartScheduled)
+            {
                 return;
+            }
 
             _playbackSpeedIndex++;
             UpdatePlaybackSpeed();
@@ -2024,7 +2158,7 @@ namespace CCE.Game
 
         private void UpdatePlaybackSpeed()
         {
-            AudioManager.PlaybackSpeed = _playbackSpeeds[_playbackSpeedIndex];
+            AudioManager.SetPlaybackSpeed(_playbackSpeeds[_playbackSpeedIndex]);
             UpdateTime(CurrentPage.ActualStartTime);
             GameObject.Find("PlaybackSpeedText").GetComponent<Text>().text =
                 $"{(int)(_playbackSpeeds[_playbackSpeedIndex] * 100)}%";
@@ -2054,7 +2188,9 @@ namespace CCE.Game
             if (CurrentChart != null)
             {
                 for (var i = CurrentPageIndex; i < CurrentChart.PageList.Count; i++)
+                {
                     CurrentChart.PageList[i].ScanLineDirection = -CurrentChart.PageList[i].ScanLineDirection;
+                }
 
                 GameObject.Find("SweepChangeButton").GetComponentInChildren<Text>().text =
                     CurrentPage.ScanLineDirection == 1 ? "Up" : "Down";
@@ -2098,7 +2234,9 @@ namespace CCE.Game
                                 (bounds[0].y + bounds[1].y + bounds[2].y + bounds[3].y) / 4, upBounds.center.z),
                             new Vector3((bounds[3].x - bounds[0].x) / 2, (bounds[1].y - bounds[0].y) / 2, 3));
                         if (bound.Intersects(upBounds) || bound.Intersects(downBounds))
+                        {
                             GameObject.Find("LevelOptionsButton").GetComponent<Button>().interactable = false;
+                        }
 
                         GameObject.Find("EditorSettingsButton").GetComponent<RectTransform>().GetWorldCorners(bounds);
                         bound = new Bounds(
@@ -2106,7 +2244,9 @@ namespace CCE.Game
                                 (bounds[0].y + bounds[1].y + bounds[2].y + bounds[3].y) / 4, upBounds.center.z),
                             new Vector3((bounds[3].x - bounds[0].x) / 2, (bounds[1].y - bounds[0].y) / 2, 3));
                         if (bound.Intersects(upBounds) || bound.Intersects(downBounds))
+                        {
                             GameObject.Find("EditorSettingsButton").GetComponent<Button>().interactable = false;
+                        }
 
                         GameObject.Find("SaveButton").GetComponent<RectTransform>().GetWorldCorners(bounds);
                         bound = new Bounds(
@@ -2114,7 +2254,9 @@ namespace CCE.Game
                                 (bounds[0].y + bounds[1].y + bounds[2].y + bounds[3].y) / 4, upBounds.center.z),
                             new Vector3((bounds[3].x - bounds[0].x) / 2, (bounds[1].y - bounds[0].y) / 2, 3));
                         if (bound.Intersects(upBounds) || bound.Intersects(downBounds))
+                        {
                             GameObject.Find("SaveButton").GetComponent<Button>().interactable = false;
+                        }
 
                         GameObject.Find("Timeline").GetComponent<RectTransform>().GetWorldCorners(bounds);
                         bound = new Bounds(
@@ -2122,7 +2264,9 @@ namespace CCE.Game
                                 (bounds[0].y + bounds[1].y + bounds[2].y + bounds[3].y) / 4, upBounds.center.z),
                             new Vector3((bounds[3].x - bounds[0].x) / 2, (bounds[1].y - bounds[0].y) / 2, 3));
                         if (bound.Intersects(upBounds) || bound.Intersects(downBounds))
+                        {
                             GameObject.Find("Timeline").GetComponent<Slider>().interactable = false;
+                        }
                     }
                 }
             }
@@ -2168,7 +2312,9 @@ namespace CCE.Game
 
                 while (CurrentChart.NoteList.Count > 0 &&
                        CurrentChart.NoteList[CurrentChart.NoteList.Count - 1].PageIndex >= CurrentChart.PageList.Count)
+                {
                     CurrentChart.NoteList.RemoveAt(CurrentChart.NoteList.Count - 1);
+                }
 
                 File.WriteAllText(Path.Combine(CurrentLevelPath, CurrentChart.Data.Path), JsonConvert.SerializeObject(
                     CurrentChart, new JsonSerializerSettings
@@ -2194,11 +2340,13 @@ namespace CCE.Game
             Clipboard.ReferencePageIndex = CurrentPageIndex;
             Clipboard.ReferenceTick = CurrentPage.ActualStartTick;
             foreach (var obj in GameObject.FindGameObjectsWithTag("Note"))
+            {
                 if (obj.GetComponent<IHighlightable>().Highlighted)
                 {
                     var id = obj.GetComponent<NoteController>().NoteID;
                     Clipboard.Add(CurrentChart.NoteList[id]);
                 }
+            }
 
             GameObject.Find("ToastText").GetComponent<ToastMessageManager>().CreateToast("Copied to clipboard!");
         }
@@ -2209,6 +2357,7 @@ namespace CCE.Game
 
             var notes = Clipboard.GetNotes();
             if (notes.Count > 0)
+            {
                 foreach (var note in notes)
                 {
                     note.Tick += CurrentPage.StartTick - Clipboard.ReferenceTick;
@@ -2235,6 +2384,7 @@ namespace CCE.Game
                         j++;
                     }
                 }
+            }
 
             FixDrags();
             CalculateTimings();
@@ -2247,13 +2397,17 @@ namespace CCE.Game
             // TODO: get rid of this in favor of proper drag ID management
             var dragChains = new Dictionary<int, List<int>>();
             for (var i = 0; i < CurrentChart.NoteList.Count; i++)
+            {
                 if (CurrentChart.NoteList[i].DragID > 1000000)
                 {
                     if (!dragChains.ContainsKey(CurrentChart.NoteList[i].DragID))
+                    {
                         dragChains.Add(CurrentChart.NoteList[i].DragID, new List<int>());
+                    }
 
                     dragChains[CurrentChart.NoteList[i].DragID].Add(i);
                 }
+            }
 
             foreach (var chain in dragChains.Values)
             {

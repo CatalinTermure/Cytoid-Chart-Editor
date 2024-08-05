@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using CCE.Data;
 using Newtonsoft.Json;
 using UnityEngine;
-using UnityEngine.Networking;
 
 namespace CCE.Core
 {
@@ -34,7 +32,7 @@ namespace CCE.Core
         /// </summary>
         public static float PlayAreaWidth, PlayAreaHeight;
 
-        public static readonly float AspectRatio = (float) Screen.width / Screen.height;
+        public static readonly float AspectRatio = (float)Screen.width / Screen.height;
 
         public static EditorConfig Config;
 
@@ -48,7 +46,7 @@ namespace CCE.Core
             "#FF5964", "#39E59E", "#39E59E"
         };
 
-        public static readonly int[] ColorIndexes = {0, 4, 6, 2, 2, 8, 10, 10};
+        public static readonly int[] ColorIndexes = { 0, 4, 6, 2, 2, 8, 10, 10 };
 
         /// <summary>
         ///     The current path to use for relative paths referenced in the level.json
@@ -58,16 +56,12 @@ namespace CCE.Core
         public static LevelData CurrentLevel;
         public static Chart CurrentChart;
 
-        /// <summary>
-        ///     AudioClip holding the currently selected hitsound.
-        /// </summary>
-        public static AudioClip Hitsound;
-
         public static bool IsGameRunning = false;
 
         public const string AndroidPluginPackageName = "com.chovvy.unityfileutils.FileUtils";
 
-        public const string NewChartString = "{\"format_version\":0,\"time_base\":480,\"start_offset_time\":0,\"page_list\":[{\"start_tick\":0,\"end_tick\":480,\"scan_line_direction\":-1}],\"tempo_list\":[{\"tick\":0,\"value\":1000000}],\"event_order_list\":[],\"note_list\":[]}";
+        public const string NewChartString =
+            "{\"format_version\":0,\"time_base\":480,\"start_offset_time\":0,\"page_list\":[{\"start_tick\":0,\"end_tick\":480,\"scan_line_direction\":-1}],\"tempo_list\":[{\"tick\":0,\"value\":1000000}],\"event_order_list\":[],\"note_list\":[]}";
 
         public static string InAppLogString = "";
 
@@ -82,7 +76,7 @@ namespace CCE.Core
         {
             Application.targetFrameRate = 60;
 
-            Height = Camera.main.orthographicSize;
+            Height = Camera.main!.orthographicSize;
             Width = AspectRatio * Height;
             PlayAreaWidth = 24 * AspectRatio / NormalAspectRatio;
             PlayAreaHeight = 12;
@@ -98,18 +92,13 @@ namespace CCE.Core
                 {
                     Config = new EditorConfig();
                 }
-
-                Config ??= new EditorConfig();
             }
             else
             {
                 Config = new EditorConfig();
             }
 
-            if (!Directory.Exists(Config.DirPath))
-            {
-                Config.DirPath = Application.persistentDataPath;
-            }
+            if (!Directory.Exists(Config.DirPath)) Config.DirPath = Application.persistentDataPath;
 
             if (!Directory.Exists(Config.LevelStoragePath)) Directory.CreateDirectory(Config.LevelStoragePath);
             if (!Directory.Exists(Config.TempStoragePath)) Directory.CreateDirectory(Config.TempStoragePath);
@@ -128,18 +117,20 @@ namespace CCE.Core
             File.WriteAllText(Path.Combine(Application.persistentDataPath, "data.txt"),
                 JsonConvert.SerializeObject(Config));
         }
-        
+
         public static void LoadLevel(LevelData level, string path)
         {
             CurrentLevel = level;
 
             LoadBackground();
         }
-        
+
         public static void LoadChart(LevelData.ChartFileData chart)
         {
             CurrentChart =
-                new Chart(JsonConvert.DeserializeObject<ChartData>(File.ReadAllText(Path.Combine(CurrentLevelPath, chart.Path))),
+                new Chart(
+                    JsonConvert.DeserializeObject<ChartData>(
+                        File.ReadAllText(Path.Combine(CurrentLevelPath, chart.Path))),
                     chart);
         }
 
@@ -158,48 +149,9 @@ namespace CCE.Core
             }
         }
 
-        public static bool ApproximatelyEqual(double a, double b)
-        {
-            return a - b < 1e-5;
-        }
-
         public static float GetDistance(float x1, float y1, float x2, float y2)
         {
-            return (float) Math.Sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
-        }
-
-        public static int GetLastDragChainLink(int index)
-        {
-            while (CurrentChart.NoteList[index].NextID > 0)
-            {
-                index = CurrentChart.NoteList[index].NextID;
-            }
-
-            return index;
-        }
-
-        public static bool WasPressed(KeyValuePair<KeyCode, KeyCode> key)
-        {
-            if (key.Key == KeyCode.None && (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.LeftShift) ||
-                                            Input.GetKey(KeyCode.LeftAlt)))
-            {
-                return false;
-            }
-
-            return (key.Key == KeyCode.None || Input.GetKey(key.Key)) &&
-                   (key.Value == KeyCode.None || Input.GetKeyDown(key.Value));
-        }
-
-        public static bool IsKeyHeld(KeyValuePair<KeyCode, KeyCode> key)
-        {
-            if (key.Key == KeyCode.None && (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.LeftShift) ||
-                                            Input.GetKey(KeyCode.LeftAlt)))
-            {
-                return false;
-            }
-
-            return (key.Key == KeyCode.None || Input.GetKeyDown(key.Key)) &&
-                   (key.Value == KeyCode.None || Input.GetKeyDown(key.Value));
+            return (float)Math.Sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
         }
 
         /// <summary>
@@ -209,13 +161,13 @@ namespace CCE.Core
         /// <returns> Index of the page containing <paramref name="time" /> </returns>
         public static int SnapTimeToPage(double time)
         {
-            List<Page> p = CurrentChart.PageList;
+            var p = CurrentChart.PageList;
             int l = 0, cnt = p.Count;
 
             while (cnt > 0)
             {
-                int step = cnt / 2;
-                int i = l + step;
+                var step = cnt / 2;
+                var i = l + step;
                 if (p[i].ActualStartTime < time)
                 {
                     l = i;
@@ -227,10 +179,7 @@ namespace CCE.Core
                 }
             }
 
-            while (l + 1 < p.Count && p[l + 1].ActualStartTime < time)
-            {
-                l++;
-            }
+            while (l + 1 < p.Count && p[l + 1].ActualStartTime < time) l++;
 
             return l;
         }
@@ -241,59 +190,17 @@ namespace CCE.Core
             {
                 val = l;
             }
-            else if (val.CompareTo(r) == 1)
-            {
-                val = r;
-            }
+            else if (val.CompareTo(r) == 1) val = r;
 
             return val;
         }
 
-        public static void LoadCustomHitsounds(string path)
-        {
-            var type = AudioType.UNKNOWN;
-            switch (Path.GetExtension(path))
-            {
-                case ".ogg":
-                    type = AudioType.OGGVORBIS;
-                    break;
-                case ".mp3":
-                    type = AudioType.MPEG;
-                    break;
-                case ".wav":
-                    type = AudioType.WAV;
-                    break;
-                default:
-                    Debug.LogError("CCELog: Audio file type is unsupported.");
-                    break;
-            }
-
-            using (UnityWebRequest www = UnityWebRequestMultimedia.GetAudioClip("file://" + path, type))
-            {
-                UnityWebRequestAsyncOperation req = www.SendWebRequest();
-
-                while (!req.isDone)
-                {
-                }
-
-                if (www.result == UnityWebRequest.Result.ConnectionError ||
-                    www.result == UnityWebRequest.Result.ProtocolError)
-                {
-                    Debug.LogError("CCELog: " + www.error);
-                }
-                else
-                {
-                    Hitsound = DownloadHandlerAudioClip.GetContent(www);
-                }
-            }
-        }
-        
         private void OnEnable()
         {
-            if (!AudioManager.IsInitialized)
-            {
-                AudioManager.Initialize();
-            }
+            if (AudioManager.IsInitialized) return;
+            AudioManager.Initialize();
+            AudioManager.SetMusicVolume(Config.MusicVolume);
+            AudioManager.SetHitsoundVolume(Config.HitsoundVolume);
         }
 
         private void OnApplicationQuit()

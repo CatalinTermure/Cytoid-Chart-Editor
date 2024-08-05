@@ -1,6 +1,6 @@
-﻿using ManagedBass;
+﻿using CCE.Utils;
+using ManagedBass;
 using UnityEditor;
-using UnityEngine;
 
 namespace CCE.Editor
 {
@@ -21,7 +21,7 @@ namespace CCE.Editor
             if (state == PlayModeStateChange.ExitingPlayMode)
             {
                 Bass.Free();
-                Debug.Log($"BASS error: {Bass.LastError}");
+                BassUtils.PrintLastError();
             }
         }
     }
