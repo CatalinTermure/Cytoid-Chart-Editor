@@ -1,42 +1,45 @@
 ﻿using System.Collections.Generic;
 using CCE.Data;
 
-public static class Clipboard
+namespace CCE.Game
 {
-    private static readonly List<Note> _notes = new List<Note>();
-    private static readonly List<Tempo> _tempos = new List<Tempo>();
-
-    public static int ReferenceTick;
-    public static int ReferencePageIndex;
-
-    public static void Add(Note note)
+    public static class Clipboard
     {
-        _notes.Add(new Note(note));
-    }
+        private static readonly List<Note> _notes = new List<Note>();
+        private static readonly List<Tempo> _tempos = new List<Tempo>();
 
-    public static void Add(Tempo tempo)
-    {
-        _tempos.Add(tempo);
-    }
+        public static int ReferenceTick;
+        public static int ReferencePageIndex;
 
-    public static List<Note> GetNotes()
-    {
-        List<Note> aux = new List<Note>(_notes.Count);
-        for (int i = 0; i < _notes.Count; i++)
+        public static void Add(Note note)
         {
-            aux.Add(new Note(_notes[i]));
+            _notes.Add(new Note(note));
         }
-        return aux;
-    }
 
-    public static List<Tempo> GetTempos()
-    {
-        return new List<Tempo>(_tempos);
-    }
+        public static void Add(Tempo tempo)
+        {
+            _tempos.Add(tempo);
+        }
 
-    public static void Clear()
-    {
-        _notes.Clear();
-        _tempos.Clear();
+        public static List<Note> GetNotes()
+        {
+            List<Note> aux = new List<Note>(_notes.Count);
+            for (int i = 0; i < _notes.Count; i++)
+            {
+                aux.Add(new Note(_notes[i]));
+            }
+            return aux;
+        }
+
+        public static List<Tempo> GetTempos()
+        {
+            return new List<Tempo>(_tempos);
+        }
+
+        public static void Clear()
+        {
+            _notes.Clear();
+            _tempos.Clear();
+        }
     }
 }

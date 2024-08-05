@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using CCE.Core;
 using CCE.Data;
 using CCE.Popups;
+using CCE.UI;
 using CCE.Utils;
 using ManagedBass;
 using Newtonsoft.Json;
