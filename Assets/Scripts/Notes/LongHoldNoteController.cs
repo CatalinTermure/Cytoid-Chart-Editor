@@ -75,7 +75,7 @@ namespace CCE.Notes
             Highlighted = true;
             Highlight();
 
-            Notetype = note.Type;
+            NoteType = note.Type;
             NoteID = note.ID;
 
             FinishIndicator.SetActive(!GlobalState.IsGameRunning);
@@ -119,7 +119,7 @@ namespace CCE.Notes
                 if (_completionPercentage > 1)
                 {
                     NoteStopwatch.Stop();
-                    ParentPool.ReturnToPool(gameObject, Notetype);
+                    ParentPool.ReturnToPool(gameObject, NoteType);
                 }
             }
         }

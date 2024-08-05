@@ -34,7 +34,7 @@ namespace CCE.Notes
             Highlighted = true;
             Highlight();
 
-            Notetype = note.Type;
+            NoteType = note.Type;
             NoteID = note.ID;
 
             if (GlobalState.IsGameRunning)
@@ -59,7 +59,7 @@ namespace CCE.Notes
             if (ApproachPercentage > 1)
             {
                 NoteStopwatch.Stop();
-                ParentPool.ReturnToPool(gameObject, Notetype);
+                ParentPool.ReturnToPool(gameObject, NoteType);
             }
         }
 

@@ -8,13 +8,6 @@ namespace CCE.Core
 {
     public class GlobalState : MonoBehaviour
     {
-        public enum NoteInfo
-        {
-            NoteX,
-            NoteY,
-            NoteID
-        }
-
         public const float NormalAspectRatio = 16f / 9f;
 
         /// <summary>
@@ -68,8 +61,6 @@ namespace CCE.Core
 #if UNITY_STANDALONE
         private static bool _loadedHotkeys;
 #endif
-        public static NoteInfo ShownNoteInfo = NoteInfo.NoteX;
-
         public static double Offset => CurrentChart.MusicOffset - Config.UserOffset / 1000.0;
 
         private void Awake()

@@ -7,19 +7,15 @@ namespace CCE.Notes
 {
     public class HoldNoteController : NoteController
     {
-        /// <summary>
-        ///     The parts of the hold note object.
-        /// </summary>
-        public GameObject NoteFill,
-            NoteBorder,
-            InnerNoteBorder,
-            HollowNoteBody,
-            FillNoteBodyMask,
-            FillNoteBody,
-            NoteHead,
-            UpArrow,
-            DownArrow;
-
+        public GameObject NoteFill;
+        public GameObject NoteBorder;
+        public GameObject InnerNoteBorder;
+        public GameObject HollowNoteBody;
+        public GameObject FillNoteBodyMask;
+        public GameObject FillNoteBody;
+        public GameObject NoteHead;
+        public GameObject UpArrow;
+        public GameObject DownArrow;
         public BoxCollider2D UpArrowCollider, DownArrowCollider;
 
         /// <summary>
@@ -55,16 +51,15 @@ namespace CCE.Notes
             ApproachTime = (float)note.ApproachTime;
 
             _height = (float)(GlobalState.PlayAreaHeight * note.HoldTick /
-                             GlobalState.CurrentChart.PageList[note.PageIndex].PageSize);
+                              GlobalState.CurrentChart.PageList[note.PageIndex].PageSize);
             FillNoteBody.GetComponent<SpriteRenderer>().size = new Vector2(_size, _height);
             HollowNoteBody.GetComponent<SpriteRenderer>().size = new Vector2(_size, _height);
 
             HoldTime = (float)note.HoldTime;
 
-            if (GlobalState.CurrentChart.PageList[note.PageIndex].ScanLineDirection == -1)
-                transform.rotation = new Quaternion(0, 0, 1, 0);
-            else
-                transform.rotation = new Quaternion(0, 0, 0, 0);
+            transform.rotation = GlobalState.CurrentChart.PageList[note.PageIndex].ScanLineDirection == -1
+                ? new Quaternion(0, 0, 1, 0)
+                : new Quaternion(0, 0, 0, 0);
 
             _completionPercentage = 0;
             FillNoteBodyMask.transform.localScale = new Vector3(_size * 50, 0);
@@ -72,7 +67,7 @@ namespace CCE.Notes
             Highlighted = true;
             Highlight();
 
-            Notetype = note.Type;
+            NoteType = note.Type;
             NoteID = note.ID;
 
             if (GlobalState.IsGameRunning)
@@ -108,7 +103,7 @@ namespace CCE.Notes
                 if (_completionPercentage > 1)
                 {
                     NoteStopwatch.Stop();
-                    ParentPool.ReturnToPool(gameObject, Notetype);
+                    ParentPool.ReturnToPool(gameObject, NoteType);
                 }
             }
         }

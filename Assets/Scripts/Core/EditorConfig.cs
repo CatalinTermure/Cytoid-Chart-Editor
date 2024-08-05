@@ -20,6 +20,9 @@ namespace CCE.Core
         [Displayable(Section = "Visual", Name = "Note size:", MinValue = 0.1f, MaxValue = 4f)]
         public float DefaultNoteSize = 2;
 
+        [Displayable(Section = "Visual", Name = "Show note ID:")]
+        public bool ShowNoteID = false;
+
         [Displayable(Section = "Visual", Name = "Accentuate frequently used horizontal lines:")]
         public bool HorizontalLineAccents = true;
 

@@ -32,7 +32,7 @@ namespace CCE.Notes
             Highlighted = true;
             Highlight();
 
-            Notetype = note.Type;
+            NoteType = note.Type;
             NoteID = note.ID;
 
             _nextID = GlobalState.CurrentChart.NoteList[NoteID].NextID;
@@ -54,9 +54,13 @@ namespace CCE.Notes
             }
 
             if (GlobalState.IsGameRunning)
+            {
                 NoteFill.transform.localScale = new Vector3(0.2f, 0.2f);
+            }
             else
+            {
                 ChangeToPausedVisuals();
+            }
         }
 
         protected override void UpdateVisuals()
@@ -70,7 +74,7 @@ namespace CCE.Notes
             if (ApproachPercentage > 1)
             {
                 NoteStopwatch.Stop();
-                ParentPool.ReturnToPool(gameObject, Notetype);
+                ParentPool.ReturnToPool(gameObject, NoteType);
             }
         }
 
@@ -78,7 +82,10 @@ namespace CCE.Notes
         {
             if (GlobalState.CurrentChart.NoteList[NoteID].PageIndex !=
                 GameObject.Find("UICanvas").GetComponent<GameLogic>().CurrentPageIndex &&
-                _nextID > 0) DragConnector.SetActive(false);
+                _nextID > 0)
+            {
+                DragConnector.SetActive(false);
+            }
 
             NoteFill.transform.localScale = new Vector3(0.4f, 0.4f);
         }

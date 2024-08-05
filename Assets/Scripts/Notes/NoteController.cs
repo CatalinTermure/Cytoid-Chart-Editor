@@ -19,7 +19,13 @@ namespace CCE.Notes
 
         public GameObject HighlightBorder;
 
-        [HideInInspector] public int Notetype, NoteID;
+        [HideInInspector] public int NoteType;
+
+        [HideInInspector] public int NoteID;
+
+        private GameObject _infoText;
+
+        private Text _infotxt;
 
         protected float ApproachPercentage;
 
@@ -27,10 +33,6 @@ namespace CCE.Notes
         ///     Time delay from the time the note should first appear to when the stopwatch starts.
         /// </summary>
         protected float Delay;
-
-        private GameObject _infoText;
-
-        private Text _infotxt;
 
         /// <summary>
         ///     Stopwatch for keeping track of the animation time.
@@ -48,9 +50,13 @@ namespace CCE.Notes
         private void Start()
         {
             if (GlobalState.IsGameRunning)
+            {
                 UpdateVisuals();
+            }
             else
+            {
                 ChangeToPausedVisuals();
+            }
         }
 
         private void Update()
@@ -99,24 +105,16 @@ namespace CCE.Notes
             Delay = delay;
         }
 
-        public void UpdateInfoText()
+        private void UpdateInfoText()
         {
-            if (GameLogic.CurrentTool != NoteType.Move)
-                _infotxt.text = "";
+            if (GameLogic.CurrentTool == Data.NoteType.Move)
+            {
+                _infotxt.text = (Math.Floor(GlobalState.CurrentChart.NoteList[NoteID].X * 100) / 100).ToString("F2");
+            }
             else
-                switch (GlobalState.ShownNoteInfo)
-                {
-                    case GlobalState.NoteInfo.NoteID:
-                        _infotxt.text = NoteID.ToString();
-                        break;
-                    case GlobalState.NoteInfo.NoteX:
-                        _infotxt.text =
-                            (Math.Floor(GlobalState.CurrentChart.NoteList[NoteID].X * 100) / 100).ToString("F2");
-                        break;
-                    case GlobalState.NoteInfo.NoteY:
-                        _infotxt.text = GlobalState.CurrentChart.NoteList[NoteID].Y.ToString("F2");
-                        break;
-                }
+            {
+                _infotxt.text = GlobalState.Config.ShowNoteID ? NoteID.ToString() : "";
+            }
         }
 
         protected abstract void UpdateVisuals();
