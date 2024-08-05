@@ -13,7 +13,7 @@ namespace CCE.UI
             NavigateToScene("LevelSelectScene");
         }
 
-        public void NavigatoToMainScreen()
+        public void NavigateToMainScreen()
         {
             if (GlobalState.CurrentChart != null)
             {
