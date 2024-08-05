@@ -205,7 +205,20 @@ namespace CCE.Game
             GameObject.Find("BeatDivisorInputField").GetComponent<InputField>()
                 .onEndEdit.AddListener(s => SetBeatDivisorValueUnsafe(int.Parse(s)));
         }
+#if UNITY_STANDALONE
+        private static bool WasPressed(KeyValuePair<KeyCode, KeyCode> key)
+        {
+            if (key.Key == KeyCode.None && (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.LeftShift) ||
+                                            Input.GetKey(KeyCode.LeftAlt)))
+            {
+                return false;
+            }
 
+            return (key.Key == KeyCode.None || Input.GetKey(key.Key)) &&
+                   (key.Value == KeyCode.None || Input.GetKeyDown(key.Value));
+        }
+        #endif
+        
         private void Update()
         {
 #if UNITY_STANDALONE
@@ -1379,9 +1392,9 @@ namespace CCE.Game
                                 objectsToHighlight.Add(obj);
                             }
 
-                            continue;
-#endif
+#else
                             objectsToHighlight.Add(obj);
+#endif
                         }
                     }
 
