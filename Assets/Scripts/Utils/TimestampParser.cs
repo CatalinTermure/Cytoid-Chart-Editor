@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Text;
 using CCE.Data;
-using Unity.Mathematics;
 
 namespace CCE.Utils
 {

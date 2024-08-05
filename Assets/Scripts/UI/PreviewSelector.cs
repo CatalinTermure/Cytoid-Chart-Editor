@@ -4,8 +4,6 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
 using CCE.Core;
-using CCE.Data;
-using CCE.LevelLoading;
 using CCE.Utils;
 using ManagedBass;
 using ManagedBass.Enc;

@@ -1,7 +1,6 @@
 ﻿using CCE.Data;
 using CCE.Game;
 using UnityEngine;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace CCE.UI
