@@ -1,15 +1,15 @@
 ﻿using System;
 using System.IO;
 using CCE.Core;
-using UnityEngine;
 using CCE.Utils;
+using UnityEngine;
 
 namespace CCE.LevelLoading
 {
     public class AndroidIntentHandler : MonoBehaviour
     {
-        [SerializeField] private LevelListBehaviour LevelListBehaviour;
         private static bool _isIntentHandled;
+        [SerializeField] private LevelListBehaviour LevelListBehaviour;
 
         private void Awake()
         {
@@ -18,16 +18,16 @@ namespace CCE.LevelLoading
 
             HandleImportIntent();
         }
-        
+
         private void HandleImportIntent()
         {
             var unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
             var currentActivity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
             var intent = currentActivity.Call<AndroidJavaObject>("getIntent");
-            string filePath = intent.Call<string>("getDataString");
+            var filePath = intent.Call<string>("getDataString");
 
             if (String.IsNullOrEmpty(filePath)) return;
-            
+
             filePath = new Uri(filePath).LocalPath;
 
             _isIntentHandled = true;
@@ -40,7 +40,7 @@ namespace CCE.LevelLoading
             }
             else if (FileUtils.IsLevelFile(filePath))
             {
-                File.Copy(filePath, 
+                File.Copy(filePath,
                     Path.Combine(GlobalState.Config.LevelStoragePath, Path.GetFileName(filePath)));
             }
         }
