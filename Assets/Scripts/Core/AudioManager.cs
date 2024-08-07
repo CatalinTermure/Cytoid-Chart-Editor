@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using CCE.Data;
 using CCE.Utils;
 using ManagedBass;
@@ -29,6 +31,16 @@ namespace CCE.Core
 
         private static float _musicVolume = 1;
         private static float _hitsoundVolume = 1;
+
+        public static AudioStream CurrentAudioStream => new() { Handle = _audioHandle };
+
+        private struct AudioBuffer
+        {
+            public byte[] Data;
+            public IntPtr Pointer;
+        }
+
+        private static readonly Dictionary<AudioStream, AudioBuffer> _streamBuffers = new();
 
         public static double Time
         {
@@ -198,13 +210,40 @@ namespace CCE.Core
 
         public static void Free(AudioStream stream)
         {
+            if (!_streamBuffers.ContainsKey(stream))
+            {
+                throw new ArgumentException($"Trying to free stream that was not loaded. Handle: {stream.Handle}");
+            }
+
             Bass.StreamFree(stream.Handle);
+
+            _streamBuffers.Remove(stream);
+        }
+
+        private static AudioBuffer CreateBuffer(string path)
+        {
+            var buffer = new AudioBuffer
+            {
+                Data = File.ReadAllBytes(path),
+                Pointer = IntPtr.Zero
+            };
+            unsafe
+            {
+                fixed (byte* ptr = buffer.Data)
+                {
+                    buffer.Pointer = (IntPtr)ptr;
+                }
+            }
+
+            return buffer;
         }
 
         public static AudioStream CreateStream(string path, bool looping = false)
         {
+            var buffer = CreateBuffer(path);
             var flags = looping ? BassFlags.Loop : BassFlags.Decode;
-            var handle = Bass.CreateStream(path, 0, 0, flags);
+            var handle = Bass.CreateStream(buffer.Pointer, 0, buffer.Data.Length, flags);
+            _streamBuffers.Add(new AudioStream { Handle = handle }, buffer);
             BassUtils.PrintLastError();
             return new AudioStream { Handle = handle };
         }

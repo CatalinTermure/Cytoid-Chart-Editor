@@ -127,6 +127,9 @@ namespace CCE.Game
 
             UIAdjuster.AdjustToResolution();
 
+            GameObject.Find("ChartSelectButton").GetComponent<Button>().onClick
+                .AddListener(() => AudioManager.Free(AudioManager.CurrentAudioStream));
+
             // Keep current page index after navigating to editor/level/chart options
             GameObject.Find("LevelOptionsButton").GetComponent<Button>().onClick
                 .AddListener(() => _currentPageIndexOverride = CurrentPageIndex);

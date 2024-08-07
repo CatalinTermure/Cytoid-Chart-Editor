@@ -220,6 +220,8 @@ namespace CCE.LevelLoading
             {
                 FreeLevelCardResources(levelCardInfo);
             }
+
+            _levelCardInfos.Clear();
         }
 
         private static void FreeLevelCardResources(LevelCardInfo levelCardInfo)
