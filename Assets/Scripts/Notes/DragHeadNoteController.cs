@@ -56,7 +56,7 @@ namespace CCE.Notes
             }
         }
 
-        public void GeneratePath()
+        private void GeneratePath()
         {
             _paths.Add(new PathPoint
             {
@@ -70,9 +70,7 @@ namespace CCE.Notes
                 {
                     X = (float)(GlobalState.CurrentChart.NoteList[NextID].X - 0.5) * GlobalState.PlayAreaWidth,
                     Y = (float)(GlobalState.CurrentChart.NoteList[NextID].Y - 0.5) * GlobalState.PlayAreaHeight,
-                    Time = (float)(GlobalState.CurrentChart.NoteList[NextID].Time - StartTime + ApproachTime),
-                    ConnectorStartTime = (float)(GlobalState.CurrentChart.NoteList[NextID].Time -
-                        GlobalState.CurrentChart.NoteList[NextID].ApproachTime - StartTime + ApproachTime)
+                    Time = (float)(GlobalState.CurrentChart.NoteList[NextID].Time - StartTime + ApproachTime)
                 });
 
                 NextID = GlobalState.CurrentChart.NoteList[NextID].NextID;
@@ -127,17 +125,17 @@ namespace CCE.Notes
 
                 if (_currentPath < _paths.Count)
                 {
-                    var pathcompletion = (Delay + NoteStopwatch.ElapsedMilliseconds * PlaybackSpeed / 1000f -
+                    var pathCompletion = (Delay + NoteStopwatch.ElapsedMilliseconds * PlaybackSpeed / 1000f -
                                           (_currentPath > 0 ? _paths[_currentPath - 1].Time : 0)) /
                                          (_paths[_currentPath].Time -
                                           (_currentPath > 0 ? _paths[_currentPath - 1].Time : 0));
 
-                    while (float.IsInfinity(pathcompletion))
+                    while (float.IsInfinity(pathCompletion))
                     {
                         _currentPath++;
                         if (_currentPath < _paths.Count)
                         {
-                            pathcompletion = (Delay + NoteStopwatch.ElapsedMilliseconds * PlaybackSpeed / 1000f -
+                            pathCompletion = (Delay + NoteStopwatch.ElapsedMilliseconds * PlaybackSpeed / 1000f -
                                               (_currentPath > 0 ? _paths[_currentPath - 1].Time : 0)) /
                                              (_paths[_currentPath].Time -
                                               (_currentPath > 0 ? _paths[_currentPath - 1].Time : 0));
@@ -148,11 +146,11 @@ namespace CCE.Notes
                         }
                         else
                         {
-                            pathcompletion = 0;
+                            pathCompletion = 0;
                         }
                     }
 
-                    while (pathcompletion > 1)
+                    while (pathCompletion > 1)
                     {
                         if (_currentPath > 0 && _currentPath + 1 < _paths.Count &&
                             NoteType == (int)Data.NoteType.CDragHead)
@@ -165,14 +163,14 @@ namespace CCE.Notes
                         _currentPath++;
                         if (_currentPath < _paths.Count)
                         {
-                            pathcompletion = (Delay + NoteStopwatch.ElapsedMilliseconds * PlaybackSpeed / 1000f -
+                            pathCompletion = (Delay + NoteStopwatch.ElapsedMilliseconds * PlaybackSpeed / 1000f -
                                               (_currentPath > 0 ? _paths[_currentPath - 1].Time : 0)) /
                                              (_paths[_currentPath].Time -
                                               (_currentPath > 0 ? _paths[_currentPath - 1].Time : 0));
                         }
                         else
                         {
-                            pathcompletion = 0;
+                            pathCompletion = 0;
                         }
                     }
 
@@ -180,14 +178,14 @@ namespace CCE.Notes
                     {
                         gameObject.transform.position = new Vector3(
                             _paths[_currentPath - 1].X +
-                            pathcompletion * (_paths[_currentPath].X - _paths[_currentPath - 1].X),
+                            pathCompletion * (_paths[_currentPath].X - _paths[_currentPath - 1].X),
                             _paths[_currentPath - 1].Y +
-                            pathcompletion * (_paths[_currentPath].Y - _paths[_currentPath - 1].Y));
+                            pathCompletion * (_paths[_currentPath].Y - _paths[_currentPath - 1].Y));
 
                         if (_currentPath > 0)
                         {
                             DragConnector.GetComponent<SpriteRenderer>().size = new Vector2(0.175f,
-                                (1.0f - pathcompletion) *
+                                (1.0f - pathCompletion) *
                                 GlobalState.GetDistance(_paths[_currentPath - 1].X, _paths[_currentPath - 1].Y,
                                     _paths[_currentPath].X,
                                     _paths[_currentPath].Y) / gameObject.transform.localScale.x);
@@ -231,7 +229,7 @@ namespace CCE.Notes
 
         private struct PathPoint
         {
-            public float X, Y, Time, ConnectorStartTime;
+            public float X, Y, Time;
         }
     }
 }

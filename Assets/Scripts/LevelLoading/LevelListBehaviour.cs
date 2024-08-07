@@ -11,9 +11,9 @@ namespace CCE.LevelLoading
         private const float ScrollSpeed = 0.01f;
 
         private const float SearchUpdateDelay = 3.0f;
-        [SerializeField] public InputField SearchInputField;
 
         public const float UpdateBackgroundDelay = 0.6f;
+        [SerializeField] public InputField SearchInputField;
         [SerializeField] private GameObject LevelCardTemplate;
         [SerializeField] private GameObject LevelMetadataPopup;
 
@@ -21,16 +21,16 @@ namespace CCE.LevelLoading
         [SerializeField] private Sprite DefaultBackground;
 
         private bool _isDragging;
-        private float _startDragOffset;
-        
+
         private bool _isPopupActive;
 
         private LevelList _levelList;
-        
+        private float _startDragOffset;
+
         private Vector3 _startDragPosition;
+        private IEnumerator _triggerSearchCoroutine;
         private IEnumerator _updateBackgroundCoroutine;
         private IEnumerator _updateMusicCoroutine;
-        private IEnumerator _triggerSearchCoroutine;
 
         private void Awake()
         {
@@ -51,25 +51,11 @@ namespace CCE.LevelLoading
                 .AddListener(query => TriggerSearch(query, UpdateBackgroundDelay));
         }
 
-        private void TriggerSearch(string query, float delay)
-        {
-            if (_triggerSearchCoroutine != null) StopCoroutine(_triggerSearchCoroutine);
-            _triggerSearchCoroutine = SearchCoroutine(query, delay);
-            StartCoroutine(_triggerSearchCoroutine);
-        }
-
-        private IEnumerator SearchCoroutine(string query, float delay)
-        {
-            yield return new WaitForSeconds(delay);
-
-            _levelList.Query(query);
-        }
-
         private void Update()
         {
             if (_isPopupActive) return;
 
-            if (Input.GetMouseButtonDown(0) && Input.mousePosition.x > Screen.width / 2)
+            if (Input.GetMouseButtonDown(0) && Input.mousePosition.x > Screen.width / 2.0f)
             {
                 _isDragging = true;
                 _startDragOffset = _levelList.View.Offset;
@@ -93,6 +79,20 @@ namespace CCE.LevelLoading
         private void OnDisable()
         {
             _levelList.View.FreeResources();
+        }
+
+        private void TriggerSearch(string query, float delay)
+        {
+            if (_triggerSearchCoroutine != null) StopCoroutine(_triggerSearchCoroutine);
+            _triggerSearchCoroutine = SearchCoroutine(query, delay);
+            StartCoroutine(_triggerSearchCoroutine);
+        }
+
+        private IEnumerator SearchCoroutine(string query, float delay)
+        {
+            yield return new WaitForSeconds(delay);
+
+            _levelList.Query(query);
         }
 
         public void ShowLevelMetadataPopup(string audioPath)

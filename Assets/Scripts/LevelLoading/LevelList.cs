@@ -1,6 +1,6 @@
-﻿using CCE.Data;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using CCE.Data;
 using UnityEngine;
 
 namespace CCE.LevelLoading
@@ -10,14 +10,14 @@ namespace CCE.LevelLoading
     [RequireComponent(typeof(ChartCardController))]
     public class LevelList : MonoBehaviour
     {
+        private readonly List<string> _levelDescriptions = new();
+
+        private readonly List<LevelData> _levels = new();
+        private string _lastQuery;
         [NonSerialized] public LevelListBehaviour Behaviour;
-        [NonSerialized] public LevelListView View;
         [NonSerialized] public ChartCardController ChartCardController;
         [NonSerialized] public LevelPopulator Populator;
-
-        private readonly List<LevelData> _levels = new List<LevelData>();
-        private readonly List<string> _levelDescriptions = new List<string>();
-        private string _lastQuery;
+        [NonSerialized] public LevelListView View;
 
         private void Awake()
         {
@@ -37,18 +37,18 @@ namespace CCE.LevelLoading
             _levels.Add(level);
 
             _levelDescriptions.Add($"{level.ID} " +
-                $"{level.Title} {level.TitleLocalized} " +
-                $"{level.Artist} {level.ArtistLocalized} " +
-                $"{level.Illustrator} " +
-                $"{level.Charter} {level.Storyboarder}");
+                                   $"{level.Title} {level.TitleLocalized} " +
+                                   $"{level.Artist} {level.ArtistLocalized} " +
+                                   $"{level.Illustrator} " +
+                                   $"{level.Charter} {level.Storyboarder}");
         }
 
         public void RemoveLevel(LevelData level)
         {
-            int index = _levels.IndexOf(level);
+            var index = _levels.IndexOf(level);
             _levels.RemoveAt(index);
             _levelDescriptions.RemoveAt(index);
-            
+
             View.RemoveLevel(level);
         }
 
@@ -57,14 +57,14 @@ namespace CCE.LevelLoading
             if (_lastQuery == query && _lastQuery != "") return;
             _lastQuery = query;
 
-            string[] queryParts = query.Split(' ');
-            List<LevelData> results = new List<LevelData>();
-            
-            for (int i = 0; i < _levelDescriptions.Count; i++)
-            {
-                bool containsAllQueryParts = true;
+            var queryParts = query.Split(' ');
+            var results = new List<LevelData>();
 
-                foreach (string queryPart in queryParts)
+            for (var i = 0; i < _levelDescriptions.Count; i++)
+            {
+                var containsAllQueryParts = true;
+
+                foreach (var queryPart in queryParts)
                 {
                     if (_levelDescriptions[i].IndexOf(queryPart,
                             StringComparison.InvariantCultureIgnoreCase) == -1)

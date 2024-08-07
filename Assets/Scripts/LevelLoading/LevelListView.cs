@@ -8,24 +8,23 @@ namespace CCE.LevelLoading
 {
     public class LevelListView : MonoBehaviour
     {
-        [SerializeField] private GameObject LevelListCenter;
-        [SerializeField] private GameObject LevelItemPrefab;
-        [SerializeField] private Text CurrentIDText;
-        
         private const int PoolSize = 24;
         private const float ArcStep = Mathf.PI / 80;
         private const float CircleRadius = 3000;
-
-        private LevelAssetsManager _levelAssetsManager;
-
-        private List<LevelData> _filteredLevels = new List<LevelData>();
+        [SerializeField] private GameObject LevelListCenter;
+        [SerializeField] private GameObject LevelItemPrefab;
+        [SerializeField] private Text CurrentIDText;
+        private readonly List<LevelCardInfo> _levelCardInfos = new();
+        private readonly List<GameObject> _levelCards = new();
 
         private int _currentLevelIndex = -1;
 
+        private List<LevelData> _filteredLevels = new();
+
         private GameObject _helpText;
         private int _lastRenderedOffset = PoolSize / 2;
-        private readonly List<LevelCardInfo> _levelCardInfos = new List<LevelCardInfo>();
-        private readonly List<GameObject> _levelCards = new List<GameObject>();
+
+        private LevelAssetsManager _levelAssetsManager;
         private LevelList _levelList;
 
         private float _offset;
@@ -72,9 +71,9 @@ namespace CCE.LevelLoading
 
             var listCenterTransform = LevelListCenter.GetComponent<RectTransform>();
 
-            for (int i = 0; i < PoolSize && i < _filteredLevels.Count; i++)
+            for (var i = 0; i < PoolSize && i < _filteredLevels.Count; i++)
             {
-                GameObject levelItem = Instantiate(LevelItemPrefab, listCenterTransform);
+                var levelItem = Instantiate(LevelItemPrefab, listCenterTransform);
                 _levelCards.Add(levelItem);
                 var levelCardInfo = levelItem.GetComponent<LevelCardInfo>();
 
@@ -95,21 +94,21 @@ namespace CCE.LevelLoading
 
         public void RemoveLevel(LevelData level)
         {
-            int index = _filteredLevels.IndexOf(level);
+            var index = _filteredLevels.IndexOf(level);
             if (index == -1) return;
 
             _filteredLevels.RemoveAt(index);
-            
+
             if (index == _filteredLevels.Count) _offset--;
 
-            int cardIndex = index - _levelCardInfos[0].LevelIndex;
+            var cardIndex = index - _levelCardInfos[0].LevelIndex;
             FreeLevelCardResources(_levelCardInfos[cardIndex]);
 
             if (_levelCardInfos[_levelCardInfos.Count - 1].LevelIndex >= _filteredLevels.Count)
             {
                 if (_filteredLevels.Count >= PoolSize)
                 {
-                    MoveBottomCardToTop();    
+                    MoveBottomCardToTop();
                 }
                 else
                 {
@@ -119,13 +118,15 @@ namespace CCE.LevelLoading
                 }
             }
 
-            foreach(var levelCardInfo in _levelCardInfos)
+            foreach (var levelCardInfo in _levelCardInfos)
+            {
                 FillLevelCard(levelCardInfo, _filteredLevels[levelCardInfo.LevelIndex]);
+            }
 
             _currentLevelIndex = -1;
             Render();
         }
-            
+
 
         private void FillLevelCard(LevelCardInfo levelCardInfo, LevelData levelData)
         {
@@ -154,10 +155,10 @@ namespace CCE.LevelLoading
 
             if (_helpText.activeSelf) _helpText.SetActive(false);
 
-            int wholeOffset = (int) _offset;
-            float fractionalOffset = wholeOffset - _offset;
+            var wholeOffset = (int)_offset;
+            var fractionalOffset = wholeOffset - _offset;
 
-            int currentLevelCard = GetCurrentLevelCard();
+            var currentLevelCard = GetCurrentLevelCard();
 
             while (_levelCardInfos[_levelCardInfos.Count - 1].LevelIndex + 1 < _filteredLevels.Count
                    && wholeOffset > PoolSize / 2
@@ -173,7 +174,7 @@ namespace CCE.LevelLoading
                 MoveBottomCardToTop();
             }
 
-            for (int i = 0; i < PoolSize && i < _levelCardInfos.Count; i++)
+            for (var i = 0; i < PoolSize && i < _levelCardInfos.Count; i++)
             {
                 _levelCardInfos[i].RectTransform.anchoredPosition =
                     new Vector2(
@@ -215,7 +216,7 @@ namespace CCE.LevelLoading
 
         public void FreeResources()
         {
-            foreach (LevelCardInfo levelCardInfo in _levelCardInfos)
+            foreach (var levelCardInfo in _levelCardInfos)
             {
                 FreeLevelCardResources(levelCardInfo);
             }

@@ -10,7 +10,7 @@ namespace CCE.Utils
     {
         public static void DeleteDeadAssets(string levelStoragePath, LevelData levelData)
         {
-            foreach (LevelData.ChartFileData chart in levelData.Charts)
+            foreach (var chart in levelData.Charts)
             {
                 if (!String.IsNullOrEmpty(chart.Storyboard?.Path))
                 {
@@ -20,7 +20,7 @@ namespace CCE.Utils
                 }
             }
 
-            string levelDir = Path.Combine(levelStoragePath, levelData.ID);
+            var levelDir = Path.Combine(levelStoragePath, levelData.ID);
 
             // The huge amount of Path.GetFullPath() comes from the need to use a consistent path scheme
             // so that the string comparisons don't return false negatives
@@ -31,22 +31,32 @@ namespace CCE.Utils
                 Path.GetFullPath(Path.Combine(levelDir, ".bg"))
             };
             if (levelData.Background?.Path != null)
+            {
                 validFiles.Add(Path.GetFullPath(Path.Combine(levelDir, levelData.Background.Path)));
-            if (levelData.Music?.Path != null)
-                validFiles.Add(Path.GetFullPath(Path.Combine(levelDir, levelData.Music.Path)));
-            if (levelData.MusicPreview?.Path != null)
-                validFiles.Add(Path.GetFullPath(Path.Combine(levelDir, levelData.MusicPreview.Path)));
+            }
 
-            foreach (LevelData.ChartFileData chart in levelData.Charts)
+            if (levelData.Music?.Path != null)
+            {
+                validFiles.Add(Path.GetFullPath(Path.Combine(levelDir, levelData.Music.Path)));
+            }
+
+            if (levelData.MusicPreview?.Path != null)
+            {
+                validFiles.Add(Path.GetFullPath(Path.Combine(levelDir, levelData.MusicPreview.Path)));
+            }
+
+            foreach (var chart in levelData.Charts)
             {
                 validFiles.Add(Path.GetFullPath(Path.Combine(levelDir, chart.Path)));
                 if (chart.MusicOverride?.Path != null)
+                {
                     validFiles.Add(Path.GetFullPath(Path.Combine(levelDir, chart.MusicOverride.Path)));
+                }
             }
 
-            List<string> filesToRemove = FileUtils.GetFilesInDirectory(levelDir).Except(validFiles).ToList();
+            var filesToRemove = FileUtils.GetFilesInDirectory(levelDir).Except(validFiles).ToList();
 
-            foreach (string file in filesToRemove)
+            foreach (var file in filesToRemove)
             {
                 File.Delete(file);
             }

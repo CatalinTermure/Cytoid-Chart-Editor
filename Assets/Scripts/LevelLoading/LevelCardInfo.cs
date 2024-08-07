@@ -11,9 +11,9 @@ namespace CCE.LevelLoading
         public Text CharterName;
         public Text Title;
         public RawImage BackgroundPreview;
-        
-        [NonSerialized] public string OriginalBackgroundPath;
         [NonSerialized] public int LevelIndex;
+
+        [NonSerialized] public string OriginalBackgroundPath;
         [NonSerialized] public int PreviewAudioHandle;
     }
 }

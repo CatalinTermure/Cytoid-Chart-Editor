@@ -10,9 +10,9 @@ namespace CCE.LevelLoading
     public class AudioPicker : MonoBehaviour
     {
         [SerializeField] private LevelList LevelList;
+        private string _finalPath;
 
         private bool _isRunning;
-        private string _finalPath;
 
         private void PickAudioMobile()
         {
@@ -46,9 +46,10 @@ namespace CCE.LevelLoading
             }
 
             importer.ImportFile();
-            string levelPath = Path.Combine(importer.FilePath, "level.json");
+            var levelPath = Path.Combine(importer.FilePath, "level.json");
             var level = JsonConvert.DeserializeObject<LevelData>(File.ReadAllText(levelPath));
-            LevelPopulator.CacheBackground(Path.Combine(importer.FilePath, level.Background.Path), Path.Combine(importer.FilePath, ".bg"));
+            LevelPopulator.CacheBackground(Path.Combine(importer.FilePath, level.Background.Path),
+                Path.Combine(importer.FilePath, ".bg"));
             LevelList.AddLevel(level);
             LevelList.Behaviour.SearchInputField.SetTextWithoutNotify(level.ID);
             LevelList.Query(level.ID);

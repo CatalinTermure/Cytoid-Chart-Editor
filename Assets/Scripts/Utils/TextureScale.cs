@@ -43,8 +43,8 @@ namespace CCE.Utils
 
             _w = tex.width;
             _w2 = newWidth;
-            int cores = Mathf.Min(SystemInfo.processorCount, newHeight);
-            int slice = newHeight / cores;
+            var cores = Mathf.Min(SystemInfo.processorCount, newHeight);
+            var slice = newHeight / cores;
 
             _finishCount = 0;
             if (_mutex == null)
@@ -54,12 +54,12 @@ namespace CCE.Utils
 
             if (cores > 1)
             {
-                int i = 0;
+                int i;
                 ThreadData threadData;
                 for (i = 0; i < cores - 1; i++)
                 {
                     threadData = new ThreadData(slice * i, slice * (i + 1));
-                    ParameterizedThreadStart ts = useBilinear ? BilinearScale : new ParameterizedThreadStart(PointScale);
+                    var ts = useBilinear ? BilinearScale : new ParameterizedThreadStart(PointScale);
                     var thread = new Thread(ts);
                     thread.Start(threadData);
                 }
@@ -103,17 +103,17 @@ namespace CCE.Utils
         private static void BilinearScale(object obj)
         {
             var threadData = (ThreadData)obj;
-            for (int y = threadData.Start; y < threadData.End; y++)
+            for (var y = threadData.Start; y < threadData.End; y++)
             {
-                int yFloor = (int)Mathf.Floor(y * _ratioY);
-                int y1 = yFloor * _w;
-                int y2 = (yFloor + 1) * _w;
-                int yw = y * _w2;
+                var yFloor = (int)Mathf.Floor(y * _ratioY);
+                var y1 = yFloor * _w;
+                var y2 = (yFloor + 1) * _w;
+                var yw = y * _w2;
 
-                for (int x = 0; x < _w2; x++)
+                for (var x = 0; x < _w2; x++)
                 {
-                    int xFloor = (int)Mathf.Floor(x * _ratioX);
-                    float xLerp = x * _ratioX - xFloor;
+                    var xFloor = (int)Mathf.Floor(x * _ratioX);
+                    var xLerp = x * _ratioX - xFloor;
                     _newColors[yw + x] = ColorLerpUnclamped(
                         ColorLerpUnclamped(_texColors[y1 + xFloor], _texColors[y1 + xFloor + 1], xLerp),
                         ColorLerpUnclamped(_texColors[y2 + xFloor], _texColors[y2 + xFloor + 1], xLerp),
@@ -129,11 +129,11 @@ namespace CCE.Utils
         private static void PointScale(object obj)
         {
             var threadData = (ThreadData)obj;
-            for (int y = threadData.Start; y < threadData.End; y++)
+            for (var y = threadData.Start; y < threadData.End; y++)
             {
-                int thisY = (int)(_ratioY * y) * _w;
-                int yw = y * _w2;
-                for (int x = 0; x < _w2; x++)
+                var thisY = (int)(_ratioY * y) * _w;
+                var yw = y * _w2;
+                for (var x = 0; x < _w2; x++)
                 {
                     _newColors[yw + x] = _texColors[(int)(thisY + _ratioX * x)];
                 }

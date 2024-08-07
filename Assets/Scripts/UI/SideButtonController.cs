@@ -8,12 +8,12 @@ namespace CCE.UI
     public class SideButtonController : MonoBehaviour
     {
         /// <summary>
-        /// The default color of side buttons.
+        ///     The default color of side buttons.
         /// </summary>
         public Color DefaultColor;
 
         /// <summary>
-        /// The color of side buttons when higlighted
+        ///     The color of side buttons when higlighted
         /// </summary>
         public Color HighlightedColor;
 
@@ -22,7 +22,7 @@ namespace CCE.UI
         public Sprite HoldNoteButtonSprite, LongHoldNoteButtonSprite, DragNoteButtonSprite, CDragNoteButtonSprite;
 
         /// <summary>
-        /// Highlights the pressed side button and changes the current note added or tool used.
+        ///     Highlights the pressed side button and changes the current note added or tool used.
         /// </summary>
         /// <param name="btn"> The button that was pressed. </param>
         public void HighlightButton(GameObject btn)
@@ -45,6 +45,7 @@ namespace CCE.UI
                     {
                         GameLogic.CurrentTool = NoteType.Hold;
                     }
+
                     break;
                 case "Drag Head":
                     if (GameLogic.CurrentTool == NoteType.DragHead)
@@ -59,6 +60,7 @@ namespace CCE.UI
                     {
                         GameLogic.CurrentTool = NoteType.DragHead;
                     }
+
                     break;
                 case "Flick":
                     GameLogic.CurrentTool = GameLogic.CurrentTool == NoteType.Flick ? NoteType.None : NoteType.Flick;
@@ -67,7 +69,8 @@ namespace CCE.UI
                     GameLogic.CurrentTool = GameLogic.CurrentTool == NoteType.Move ? NoteType.None : NoteType.Move;
                     break;
                 case "Settings":
-                    GameLogic.CurrentTool = GameLogic.CurrentTool == NoteType.Scanline ? NoteType.None : NoteType.Scanline;
+                    GameLogic.CurrentTool =
+                        GameLogic.CurrentTool == NoteType.Scanline ? NoteType.None : NoteType.Scanline;
                     break;
             }
 
@@ -193,6 +196,5 @@ namespace CCE.UI
                 }
             }
         }
-
     }
 }

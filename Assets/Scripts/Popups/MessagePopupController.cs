@@ -10,8 +10,14 @@ namespace CCE.Popups
 
         private void OnEnable()
         {
-            if (_instance == null) _instance = this;
-            else Debug.LogError($"Instantiating multiple {nameof(MessagePopupController)} singletons.");
+            if (_instance == null)
+            {
+                _instance = this;
+            }
+            else
+            {
+                Debug.LogError($"Instantiating multiple {nameof(MessagePopupController)} singletons.");
+            }
         }
 
         private void OnDisable()
@@ -21,7 +27,7 @@ namespace CCE.Popups
 
         public static void ShowPopup(string message, UnityAction acceptCallback, UnityAction declineCallback)
         {
-            GameObject obj = Instantiate(_instance.PopupTemplate, Vector3.zero, Quaternion.identity,
+            var obj = Instantiate(_instance.PopupTemplate, Vector3.zero, Quaternion.identity,
                 _instance.transform);
 
             var messagePopupInfo = obj.GetComponent<MessagePopupInfo>();

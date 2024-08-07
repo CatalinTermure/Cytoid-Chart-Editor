@@ -9,7 +9,10 @@ namespace CCE.Notes
     public class ScanlineNoteController : MonoBehaviour, ITempo
     {
         public InputField TimeInputField;
-        [FormerlySerializedAs("BPMInputField")] public InputField BpmInputField;
+
+        [FormerlySerializedAs("BPMInputField")]
+        public InputField BpmInputField;
+
         public int NoteType { get; set; }
 
         private void Start()

@@ -5,8 +5,8 @@ namespace CCE.Game
 {
     public static class Clipboard
     {
-        private static readonly List<Note> _notes = new List<Note>();
-        private static readonly List<Tempo> _tempos = new List<Tempo>();
+        private static readonly List<Note> _notes = new();
+        private static readonly List<Tempo> _tempos = new();
 
         public static int ReferenceTick;
         public static int ReferencePageIndex;
@@ -23,11 +23,12 @@ namespace CCE.Game
 
         public static List<Note> GetNotes()
         {
-            List<Note> aux = new List<Note>(_notes.Count);
-            for (int i = 0; i < _notes.Count; i++)
+            var aux = new List<Note>(_notes.Count);
+            for (var i = 0; i < _notes.Count; i++)
             {
                 aux.Add(new Note(_notes[i]));
             }
+
             return aux;
         }
 

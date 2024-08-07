@@ -9,10 +9,10 @@ namespace CCE.LevelLoading
     public class WindowsDropFileHandler : MonoBehaviour
     {
         [SerializeField] private LevelListBehaviour LevelListBehaviour;
-        
+
         private void OnEnable()
         {
-            if (Application.platform != RuntimePlatform.WindowsPlayer) return; 
+            if (Application.platform != RuntimePlatform.WindowsPlayer) return;
             UnityDragAndDropHook.InstallHook();
             UnityDragAndDropHook.OnDroppedFiles += OnFiles;
         }
@@ -25,16 +25,17 @@ namespace CCE.LevelLoading
 
         private void OnFiles(List<string> filePaths, POINT positions)
         {
-            foreach (string filePath in filePaths)
+            foreach (var filePath in filePaths)
             {
-                if (FileUtils.IsAudioFile(filePath) 
+                if (FileUtils.IsAudioFile(filePath)
                     && SceneManager.GetActiveScene().name == SceneUtils.LevelSelectSceneName)
                 {
                     LevelListBehaviour.ShowLevelMetadataPopup(filePath);
                     return;
                 }
-                if (FileUtils.IsImageFile(filePath) 
-                         && SceneManager.GetActiveScene().name == SceneUtils.MainSceneName)
+
+                if (FileUtils.IsImageFile(filePath)
+                    && SceneManager.GetActiveScene().name == SceneUtils.MainSceneName)
                 {
                     Debug.LogError("TODO: Add functionality for changing the background during chart edit.");
                     return;

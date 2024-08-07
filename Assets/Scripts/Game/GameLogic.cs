@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Text;
 using CCE.Commands;
 using CCE.Core;
 using CCE.Data;
@@ -48,8 +47,6 @@ namespace CCE.Game
         private readonly Dictionary<int, bool> _isObjectMovingDict = new();
         private readonly List<MovingNote> _movingNotes = new();
         private readonly float[] _playbackSpeeds = { 0.25f, 0.5f, 0.75f, 1.0f };
-
-        private readonly StringBuilder _timeTextBuilder = new(32);
 
         private int _currentDragID;
 
@@ -265,7 +262,9 @@ namespace CCE.Game
                 {
                     CurrentPageIndex++;
 
-                    if (CurrentChart.PageList[CurrentPageIndex - 1].ActualPageSize != CurrentPage.ActualPageSize)
+                    if (Math.Abs(
+                            CurrentChart.PageList[CurrentPageIndex - 1].ActualPageSize - CurrentPage.ActualPageSize) >
+                        0.001)
                     {
                         UpdateBpmText();
                     }
@@ -307,16 +306,18 @@ namespace CCE.Game
                 _lastSafeArea = Screen.safeArea;
                 if (Screen.orientation == ScreenOrientation.LandscapeLeft)
                 {
-                    foreach (var transform in LeftNotchObstructedObjects)
+                    foreach (var obstructedObject in LeftNotchObstructedObjects)
                     {
-                        transform.anchoredPosition = new Vector2(Screen.safeArea.x, transform.anchoredPosition.y);
+                        obstructedObject.anchoredPosition =
+                            new Vector2(Screen.safeArea.x, obstructedObject.anchoredPosition.y);
                     }
                 }
                 else if (Screen.orientation == ScreenOrientation.LandscapeRight)
                 {
-                    foreach (var transform in RightNotchObstructedObjects)
+                    foreach (var obstructedObject in RightNotchObstructedObjects)
                     {
-                        transform.anchoredPosition = new Vector2(-Screen.safeArea.x, transform.anchoredPosition.y);
+                        obstructedObject.anchoredPosition =
+                            new Vector2(-Screen.safeArea.x, obstructedObject.anchoredPosition.y);
                     }
                 }
             }
@@ -1129,9 +1130,6 @@ namespace CCE.Game
                 CurrentPage.ScanLineDirection == 1 ? "Up" : "Down";
 
             GameObject.Find("PageText").GetComponent<Text>().text = CurrentPageIndex.ToString();
-            var milliseconds = (int)((time - CurrentChart.MusicOffset) * 1000 -
-                                     Math.Floor(time - CurrentChart.MusicOffset) * 1000);
-            if (time < CurrentChart.MusicOffset && milliseconds != 0) milliseconds = 1000 - milliseconds;
 
             TimeText.text = TimestampParser.Serialize(time - CurrentChart.MusicOffset);
 

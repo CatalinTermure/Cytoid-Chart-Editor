@@ -9,10 +9,9 @@ namespace CCE.Core
     /// </summary>
     public class BackgroundManager : MonoBehaviour
     {
-        [Range(0f, 1f)]
-        public float Brightness;
-
         public static Sprite BackgroundOverride = null;
+
+        [Range(0f, 1f)] public float Brightness;
 
         public Sprite DefaultBackground;
 
@@ -22,7 +21,7 @@ namespace CCE.Core
 
         private void Start()
         {
-            Rect canvasRect = gameObject.GetComponent<Image>()
+            var canvasRect = gameObject.GetComponent<Image>()
                 .canvas.gameObject.GetComponent<RectTransform>().rect;
 
             _canvasHeight = canvasRect.height;
@@ -34,7 +33,7 @@ namespace CCE.Core
 
         public void ChangeBackground(Sprite sprite)
         {
-            GameObject obj = gameObject;
+            var obj = gameObject;
             var backgroundImage = obj.GetComponent<Image>();
             backgroundImage.sprite = sprite;
 
@@ -45,18 +44,18 @@ namespace CCE.Core
             // Crop image to fit into the screen's aspect ratio without stretching
             // or letter boxing
 
-            float imageAspectRatio =
+            var imageAspectRatio =
                 (float)sprite.texture.width / sprite.texture.height;
 
             if (imageAspectRatio > _canvasAspectRatio)
-            // if the image is longer in width than the canvas
+                // if the image is longer in width than the canvas
             {
                 // then fill the height and spill on the sides
                 ((RectTransform)obj.transform).sizeDelta =
                     new Vector2(_canvasHeight * imageAspectRatio, _canvasHeight);
             }
             else
-            // if the image is taller in height than the canvas
+                // if the image is taller in height than the canvas
             {
                 // then fill the width and spill on the top and bottom
                 ((RectTransform)obj.transform).sizeDelta =

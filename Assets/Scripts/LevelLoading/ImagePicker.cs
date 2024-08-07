@@ -8,12 +8,12 @@ namespace CCE.LevelLoading
 {
     public class ImagePicker : MonoBehaviour
     {
+        public delegate void OnImagePickedEvent(string path);
+
         public Image ImagePreview;
+        private string _finalPath;
 
         private bool _isRunning;
-        private string _finalPath;
-        
-        public delegate void OnImagePickedEvent(string path);
         public OnImagePickedEvent OnImagePicked;
 
         public void LoadImage(string path)
@@ -21,7 +21,7 @@ namespace CCE.LevelLoading
             if (path == null) return;
             ImagePreview.sprite = LoadSpriteFromPath(path);
         }
-        
+
         private void PickImageMobile()
         {
             NativeGallery.GetImageFromGallery(path =>
@@ -34,7 +34,7 @@ namespace CCE.LevelLoading
         private void PickImageDesktop()
         {
             var extensions = new[] { new ExtensionFilter("Image Files", "png", "jpg", "jpeg") };
-            
+
             StandaloneFileBrowser.OpenFilePanelAsync("Choose a background", "", extensions, false, paths =>
             {
                 if (paths.Length == 0) return;
@@ -42,7 +42,7 @@ namespace CCE.LevelLoading
                 _finalPath = paths[0];
             });
         }
-        
+
         public void PickImage()
         {
             _isRunning = true;
@@ -54,6 +54,7 @@ namespace CCE.LevelLoading
             {
                 PickImageDesktop();
             }
+
             StartCoroutine(nameof(PickImageCoroutine));
         }
 
@@ -65,16 +66,16 @@ namespace CCE.LevelLoading
             }
 
             if (_finalPath == null) yield break;
-            
+
             ImagePreview.sprite = LoadSpriteFromPath(_finalPath);
             OnImagePicked(_finalPath);
         }
-        
+
         private static Sprite LoadSpriteFromPath(string path)
         {
             var tex = new Texture2D(1, 1);
             tex.LoadImage(File.ReadAllBytes(path));
             return Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), Vector2.zero);
         }
-     }
+    }
 }

@@ -1,15 +1,17 @@
-﻿namespace CCE.Data
+﻿using System;
+using Newtonsoft.Json;
+
+namespace CCE.Data
 {
     /// <summary>
-    /// Class holding all the necessary information for a chart.
+    ///     Class holding all the necessary information for a chart.
     /// </summary>
     public class Chart : ChartData
     {
-        [Newtonsoft.Json.JsonIgnore, System.NonSerialized]
-        public LevelData.ChartFileData Data;
+        [JsonIgnore] [NonSerialized] public LevelData.ChartFileData Data;
 
         /// <summary>
-        /// Constructs a chart and does a member-wise copy of the parameters of <see cref="ChartData"/>.
+        ///     Constructs a chart and does a member-wise copy of the parameters of <see cref="ChartData" />.
         /// </summary>
         public Chart(ChartData chart, LevelData.ChartFileData data)
         {

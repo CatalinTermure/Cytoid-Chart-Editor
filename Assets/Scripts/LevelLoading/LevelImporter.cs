@@ -12,8 +12,8 @@ namespace CCE.LevelLoading
 {
     public class LevelImporter
     {
-        public bool IsRunning;
         [NotNull] public string FilePath;
+        public bool IsRunning;
 
         public LevelImporter(string path)
         {
@@ -61,7 +61,7 @@ namespace CCE.LevelLoading
             var levelData =
                 JsonConvert.DeserializeObject<LevelData>(File.ReadAllText(Path.Combine(folderPath, "level.json")));
 
-            string finalFolderPath = Path.Combine(GlobalState.Config.LevelStoragePath, levelData.ID);
+            var finalFolderPath = Path.Combine(GlobalState.Config.LevelStoragePath, levelData.ID);
 
             if (Directory.Exists(finalFolderPath))
             {
@@ -84,10 +84,10 @@ namespace CCE.LevelLoading
 
         private void ImportCytoidLevel(string filePath)
         {
-            string tempFolderPath = Path.Combine(GlobalState.Config.TempStoragePath,
+            var tempFolderPath = Path.Combine(GlobalState.Config.TempStoragePath,
                 Path.GetFileNameWithoutExtension(filePath));
 
-            string finalFolderPath = "";
+            var finalFolderPath = "";
 
             try
             {
@@ -159,14 +159,14 @@ namespace CCE.LevelLoading
                     File.Delete(filePath);
                 }
 
-                foreach (string levelPath in
+                foreach (var levelPath in
                          Directory.EnumerateFiles(GlobalState.Config.TempStoragePath, "*.cytoidlevel"))
                 {
                     FilePath = levelPath;
                     ImportCytoidLevel(levelPath);
                 }
 
-                foreach (string unpackedLevelPath in
+                foreach (var unpackedLevelPath in
                          Directory.EnumerateDirectories(GlobalState.Config.TempStoragePath))
                 {
                     FilePath = unpackedLevelPath;
@@ -175,13 +175,13 @@ namespace CCE.LevelLoading
             }
             finally
             {
-                foreach (string dir in
+                foreach (var dir in
                          Directory.EnumerateDirectories(GlobalState.Config.TempStoragePath))
                 {
                     Directory.Delete(dir, true);
                 }
 
-                foreach (string file in
+                foreach (var file in
                          Directory.EnumerateFiles(GlobalState.Config.TempStoragePath))
                 {
                     File.Delete(file);

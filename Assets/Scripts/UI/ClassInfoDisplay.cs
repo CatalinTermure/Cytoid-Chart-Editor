@@ -35,7 +35,7 @@ namespace CCE.UI
         // The class type restriction is so that value types don't accidentally get passed to this.
         public void DrawGui<TTarget>(TTarget targetObject, int offset, string filter = "") where TTarget : class
         {
-            if(offset == 0)
+            if (offset == 0)
             {
                 foreach (Transform child in FillTarget)
                 {
@@ -46,20 +46,20 @@ namespace CCE.UI
             _targetObject = targetObject;
             _currentElementTopMargin = -offset + ElementSpacing; // to compensate for the first section header
 
-            IEnumerable<FieldInfo> fieldsToDisplay = typeof(TTarget)
+            var fieldsToDisplay = typeof(TTarget)
                 .GetFields()
                 .Where(x =>
                 {
                     if (!Attribute.IsDefined(x, typeof(DisplayableAttribute))) return false;
-                    
+
                     return String.IsNullOrEmpty(filter) || GetAttributeInfo(x).Filter == filter;
                 });
 
-            IOrderedEnumerable<IGrouping<string, FieldInfo>> sections = fieldsToDisplay
+            var sections = fieldsToDisplay
                 .GroupBy(fieldInfo => GetAttributeInfo(fieldInfo).Section)
                 .OrderBy(grouping => grouping.Key);
 
-            foreach (IGrouping<string, FieldInfo> section in sections)
+            foreach (var section in sections)
             {
                 DrawSection(section.Key, section);
             }
@@ -78,7 +78,7 @@ namespace CCE.UI
                 DrawSectionHeader(title);
             }
 
-            foreach (FieldInfo field in fields)
+            foreach (var field in fields)
             {
                 DrawField(field);
             }
@@ -87,7 +87,7 @@ namespace CCE.UI
         private void DrawSectionHeader(string title)
         {
             _currentElementTopMargin -= ElementSpacing * 1.5f;
-            GameObject obj = Instantiate(SectionHeaderDisplayTemplate, FillTarget);
+            var obj = Instantiate(SectionHeaderDisplayTemplate, FillTarget);
             obj.GetComponent<RectTransform>().anchoredPosition =
                 new Vector2(ElementLeftMargin * 0.5f, _currentElementTopMargin);
             obj.GetComponent<ClassFieldDisplay>().FieldName.text = title;
@@ -135,7 +135,7 @@ namespace CCE.UI
 
         private void DrawBackgroundField(FieldInfo fieldInfo)
         {
-            GameObject obj = Instantiate(BackgroundDisplayTemplate, FillTarget);
+            var obj = Instantiate(BackgroundDisplayTemplate, FillTarget);
             obj.GetComponent<RectTransform>().anchoredPosition =
                 new Vector2(ElementLeftMargin, _currentElementTopMargin);
 
@@ -161,12 +161,12 @@ namespace CCE.UI
 
         private void DrawIntegerField(FieldInfo fieldInfo)
         {
-            GameObject obj = Instantiate(IntegerDisplayTemplate, FillTarget);
+            var obj = Instantiate(IntegerDisplayTemplate, FillTarget);
             obj.GetComponent<RectTransform>().anchoredPosition =
                 new Vector2(ElementLeftMargin, _currentElementTopMargin);
 
             var classFieldDisplay = obj.GetComponent<ClassFieldDisplay>();
-            DisplayableAttribute attributeInfo = GetAttributeInfo(fieldInfo);
+            var attributeInfo = GetAttributeInfo(fieldInfo);
 
             classFieldDisplay.FieldName.text = attributeInfo.Name ?? fieldInfo.Name;
 
@@ -185,7 +185,7 @@ namespace CCE.UI
             classFieldDisplay.ValueInputField.onEndEdit
                 .AddListener(stringValue =>
                 {
-                    int value = Int32.Parse(stringValue);
+                    var value = Int32.Parse(stringValue);
                     value = Mathf.RoundToInt(Mathf.Clamp(value, attributeInfo.MinValue, attributeInfo.MaxValue));
 
                     classFieldDisplay.ValueInputField.text = value.ToString();
@@ -196,12 +196,12 @@ namespace CCE.UI
 
         private void DrawBooleanField(FieldInfo fieldInfo)
         {
-            GameObject obj = Instantiate(BooleanDisplayTemplate, FillTarget);
+            var obj = Instantiate(BooleanDisplayTemplate, FillTarget);
             obj.GetComponent<RectTransform>().anchoredPosition =
                 new Vector2(ElementLeftMargin, _currentElementTopMargin);
 
             var classFieldDisplay = obj.GetComponent<ClassFieldDisplay>();
-            DisplayableAttribute attributeInfo = GetAttributeInfo(fieldInfo);
+            var attributeInfo = GetAttributeInfo(fieldInfo);
 
             classFieldDisplay.FieldName.text = attributeInfo.Name ?? fieldInfo.Name;
 
@@ -212,12 +212,12 @@ namespace CCE.UI
 
         private void DrawFloatField(FieldInfo fieldInfo)
         {
-            GameObject obj = Instantiate(FloatDisplayTemplate, FillTarget);
+            var obj = Instantiate(FloatDisplayTemplate, FillTarget);
             obj.GetComponent<RectTransform>().anchoredPosition =
                 new Vector2(ElementLeftMargin, _currentElementTopMargin);
 
             var classFieldDisplay = obj.GetComponent<ClassFieldDisplay>();
-            DisplayableAttribute attributeInfo = GetAttributeInfo(fieldInfo);
+            var attributeInfo = GetAttributeInfo(fieldInfo);
 
             classFieldDisplay.FieldName.text = attributeInfo.Name ?? fieldInfo.Name;
 
@@ -236,7 +236,7 @@ namespace CCE.UI
             classFieldDisplay.ValueInputField.onEndEdit
                 .AddListener(stringValue =>
                 {
-                    float value = Single.Parse(stringValue);
+                    var value = Single.Parse(stringValue);
                     value = Mathf.Clamp(value, attributeInfo.MinValue, attributeInfo.MaxValue);
 
                     classFieldDisplay.ValueInputField.text = value.ToString("F2");
@@ -247,7 +247,7 @@ namespace CCE.UI
 
         private void DrawStringField(FieldInfo fieldInfo)
         {
-            GameObject obj = Instantiate(StringDisplayTemplate, FillTarget);
+            var obj = Instantiate(StringDisplayTemplate, FillTarget);
             obj.GetComponent<RectTransform>().anchoredPosition =
                 new Vector2(ElementLeftMargin, _currentElementTopMargin);
 

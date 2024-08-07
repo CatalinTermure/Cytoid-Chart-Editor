@@ -7,18 +7,7 @@ namespace CCE.Game
 {
     public class ChartObjectPool
     {
-        #region Constants
-
-        private const int ClickNotePoolSize = 24;
-        private const int HoldNotePoolSize = 12;
-        private const int LongHoldNotePoolSize = 8;
-        private const int FlickNotePoolSize = 24;
-        private const int DragHeadPoolSize = 4;
-        private const int DragChildPoolSize = 48;
-        private const int CdragHeadPoolSize = 4;
-        private const int CdragChildPoolSize = 48;
-
-        private static readonly int[] _poolSizes = new int[8]
+        private static readonly int[] _poolSizes =
         {
             ClickNotePoolSize,
             HoldNotePoolSize,
@@ -30,9 +19,7 @@ namespace CCE.Game
             CdragChildPoolSize
         };
 
-        #endregion
-
-        private static readonly GameObject[] _prefabs = new GameObject[8]
+        private static readonly GameObject[] _prefabs =
         {
             (GameObject)Resources.Load("ClickNote"),
             (GameObject)Resources.Load("HoldNote"),
@@ -44,15 +31,16 @@ namespace CCE.Game
             (GameObject)Resources.Load("DragChildNote")
         };
 
-        private readonly Queue<GameObject>[] _notePools = new Queue<GameObject>[8] {
-            new Queue<GameObject>(ClickNotePoolSize),
-            new Queue<GameObject>(HoldNotePoolSize),
-            new Queue<GameObject>(LongHoldNotePoolSize),
-            new Queue<GameObject>(DragHeadPoolSize),
-            new Queue<GameObject>(DragChildPoolSize),
-            new Queue<GameObject>(FlickNotePoolSize),
-            new Queue<GameObject>(CdragHeadPoolSize),
-            new Queue<GameObject>(CdragChildPoolSize)
+        private readonly Queue<GameObject>[] _notePools =
+        {
+            new(ClickNotePoolSize),
+            new(HoldNotePoolSize),
+            new(LongHoldNotePoolSize),
+            new(DragHeadPoolSize),
+            new(DragChildPoolSize),
+            new(FlickNotePoolSize),
+            new(CdragHeadPoolSize),
+            new(CdragChildPoolSize)
         };
 
         public ChartObjectPool()
@@ -62,7 +50,9 @@ namespace CCE.Game
 
         public GameObject GetNote(NoteType type)
         {
-            return _notePools[(int)type].Count > 0 ? _notePools[(int)type].Dequeue() : Object.Instantiate(_prefabs[(int)type]);
+            return _notePools[(int)type].Count > 0
+                ? _notePools[(int)type].Dequeue()
+                : Object.Instantiate(_prefabs[(int)type]);
         }
 
         public void ReturnToPool(GameObject obj, int type)
@@ -71,6 +61,7 @@ namespace CCE.Game
             {
                 return;
             }
+
             if (_notePools[type].Count < _poolSizes[type])
             {
                 obj.SetActive(false);
@@ -84,11 +75,11 @@ namespace CCE.Game
 
         private void InitializePool()
         {
-            for (int i = 0; i < 8; i++)
+            for (var i = 0; i < 8; i++)
             {
                 _prefabs[i].SetActive(false);
                 _notePools[i].Clear();
-                for (int j = 0; j < _poolSizes[i]; j++)
+                for (var j = 0; j < _poolSizes[i]; j++)
                 {
                     _notePools[i].Enqueue(Object.Instantiate(_prefabs[i]));
                 }
@@ -99,12 +90,26 @@ namespace CCE.Game
         {
             var sb = new StringBuilder();
             sb.Append("Pools: ");
-            for (int i = 0; i < 8; i++)
+            for (var i = 0; i < 8; i++)
             {
                 sb.Append(_notePools[i].Count);
                 sb.Append(" ");
             }
+
             return sb.ToString();
         }
+
+        #region Constants
+
+        private const int ClickNotePoolSize = 24;
+        private const int HoldNotePoolSize = 12;
+        private const int LongHoldNotePoolSize = 8;
+        private const int FlickNotePoolSize = 24;
+        private const int DragHeadPoolSize = 4;
+        private const int DragChildPoolSize = 48;
+        private const int CdragHeadPoolSize = 4;
+        private const int CdragChildPoolSize = 48;
+
+        #endregion
     }
 }

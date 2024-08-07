@@ -7,13 +7,13 @@ namespace CCE.Commands
 {
     public class RemoveNotesCommand : NoteCommand
     {
-        private readonly List<Note> _removedNotes = new List<Note>();
+        private readonly List<Note> _removedNotes = new();
 
         public RemoveNotesCommand(int[] noteIDs)
         {
             AffectedNoteIDs = noteIDs;
         }
-    
+
         public override void Execute()
         {
             foreach (var noteID in AffectedNoteIDs)

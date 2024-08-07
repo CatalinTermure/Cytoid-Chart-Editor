@@ -54,7 +54,9 @@ namespace CCE.LevelLoading
                 !Directory.Exists(Path.Combine(GlobalState.Config.DirPath, "charts")))
             {
                 foreach (var dirPath in Directory.EnumerateDirectories(GlobalState.Config.DirPath))
+                {
                     ImportLevel(dirPath);
+                }
 
                 GlobalState.Config.DirPath = "DEPRECATED";
             }
@@ -97,8 +99,12 @@ namespace CCE.LevelLoading
                 }
 
                 foreach (var file in Directory.EnumerateFiles(levelDir))
+                {
                     if (Path.GetFileName(file) == "level.json")
+                    {
                         AddLevelToPool(file);
+                    }
+                }
             }
 
             _levelList.Query("");

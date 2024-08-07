@@ -6,8 +6,8 @@ namespace CCE.Commands
 {
     internal static class CommandSystem
     {
-        private static readonly Stack<NoteCommand> _commandStack = new Stack<NoteCommand>();
-        private static readonly Stack<NoteCommand> _redoStack = new Stack<NoteCommand>();
+        private static readonly Stack<NoteCommand> _commandStack = new();
+        private static readonly Stack<NoteCommand> _redoStack = new();
 
         public static void AppendInvoke(NoteCommand command)
         {
@@ -40,7 +40,7 @@ namespace CCE.Commands
             PostCommandUpdate();
         }
 
-        static void PostCommandUpdate()
+        private static void PostCommandUpdate()
         {
             GameLogic.ForceUpdate();
         }

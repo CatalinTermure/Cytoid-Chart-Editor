@@ -1,5 +1,8 @@
-﻿public interface IHighlightable
+﻿namespace CCE.Utils
 {
-    bool Highlighted { get; set; }
-    void Highlight();
+    public interface IHighlightable
+    {
+        bool Highlighted { get; set; }
+        void Highlight();
+    }
 }

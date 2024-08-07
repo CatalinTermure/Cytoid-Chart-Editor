@@ -17,8 +17,8 @@ namespace CCE.UI
         [SerializeField] private GameObject PreviewSelectorTemplate;
 
         public bool DidPreviewChange;
-        private string _oldId;
         private string _oldBackgroundPath;
+        private string _oldId;
 
         private void Awake()
         {
@@ -33,10 +33,10 @@ namespace CCE.UI
             LevelIDInputField.onEndEdit.AddListener(ChangeID);
 
             var rectTransform = gameObject.GetComponent<RectTransform>();
-            Vector2 sizeDelta = rectTransform.sizeDelta;
+            var sizeDelta = rectTransform.sizeDelta;
             sizeDelta = new Vector2(sizeDelta.x, sizeDelta.y + 525);
             rectTransform.sizeDelta = sizeDelta;
-            GameObject previewSelector =
+            var previewSelector =
                 Instantiate(PreviewSelectorTemplate, Vector3.zero, Quaternion.identity, rectTransform);
             previewSelector.GetComponent<RectTransform>().anchoredPosition3D = new Vector3(35, -sizeDelta.y + 525, 0);
             previewSelector.GetComponent<PreviewSelector>().LevelDataDisplay = this;
@@ -73,7 +73,7 @@ namespace CCE.UI
                 _oldId = GlobalState.CurrentLevel.ID;
             }
 
-            string levelDirPath = Path.Combine(GlobalState.Config.LevelStoragePath, GlobalState.CurrentLevel.ID);
+            var levelDirPath = Path.Combine(GlobalState.Config.LevelStoragePath, GlobalState.CurrentLevel.ID);
 
             SaveBackground(levelDirPath);
 
@@ -91,9 +91,9 @@ namespace CCE.UI
 
         private void SaveBackground(string levelDirPath)
         {
-            string backgroundPath =
+            var backgroundPath =
                 Path.GetFullPath(Path.Combine(levelDirPath, GlobalState.CurrentLevel.Background.Path));
-            string oldBackgroundFullPath = Path.GetFullPath(Path.Combine(levelDirPath, _oldBackgroundPath));
+            var oldBackgroundFullPath = Path.GetFullPath(Path.Combine(levelDirPath, _oldBackgroundPath));
 
             if (oldBackgroundFullPath == Path.GetFullPath(GlobalState.CurrentLevel.Background.Path))
             {
@@ -102,7 +102,7 @@ namespace CCE.UI
             else if (backgroundPath != oldBackgroundFullPath)
             {
                 File.Delete(oldBackgroundFullPath);
-                string extension = Path.GetExtension(GlobalState.CurrentLevel.Background.Path);
+                var extension = Path.GetExtension(GlobalState.CurrentLevel.Background.Path);
                 backgroundPath = FileUtils.GetUniqueFilePath(Path.Combine(levelDirPath, "background" + extension));
                 File.Copy(GlobalState.CurrentLevel.Background.Path!, backgroundPath);
                 GlobalState.CurrentLevel.Background.Path = Path.GetFileName(backgroundPath);

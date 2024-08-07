@@ -7,10 +7,9 @@ namespace CCE.Data
 {
     public class LevelData
     {
-        [JsonProperty("artist")]
-        [Displayable(Section = "Artist", Name = "Artist:", Filter = "Existing Level")]
+        [JsonProperty("artist")] [Displayable(Section = "Artist", Name = "Artist:", Filter = "Existing Level")]
         public string Artist;
-        
+
         [JsonProperty("artist_localized")]
         [Displayable(Section = "Artist", Name = "Localized artist:", Filter = "Existing Level")]
         public string ArtistLocalized;
@@ -23,20 +22,18 @@ namespace CCE.Data
         [Displayable(Section = "Illustrator", Name = "Background:", Filter = "Existing Level")]
         public BackgroundData Background;
 
-        [JsonProperty("charter")]
-        [Displayable(Section = "Creator", Name = "Charter:", Filter = "Existing Level")]
+        [JsonProperty("charter")] [Displayable(Section = "Creator", Name = "Charter:", Filter = "Existing Level")]
         public string Charter;
 
-        [JsonProperty("charts")] public List<ChartFileData> Charts = new List<ChartFileData>();
+        [JsonProperty("charts")] public List<ChartFileData> Charts = new();
 
-        [JsonProperty("id")]
-        [Displayable(Name = "Level ID:")]
+        [JsonProperty("id")] [Displayable(Name = "Level ID:")]
         public string ID;
 
         [JsonProperty("illustrator")]
         [Displayable(Section = "Illustrator", Name = "Illustrator:", Filter = "Existing Level")]
         public string Illustrator;
-        
+
         [JsonProperty("illustrator_source")]
         [Displayable(Section = "Illustrator", Name = "Illustrator source:", Filter = "Existing Level")]
         public string IllustratorSource;
@@ -44,26 +41,23 @@ namespace CCE.Data
         [JsonProperty("music")] public MusicData Music;
         [JsonProperty("music_preview")] public MusicData MusicPreview;
         [JsonProperty("schema_version")] public int SchemaVersion = 2;
-        
+
         [JsonProperty("storyboarder")]
         [Displayable(Section = "Creator", Name = "Storyboarder:", Filter = "Existing Level")]
         public string Storyboarder;
 
-        [JsonProperty("title")]
-        [Displayable(Name = "Song title:", Filter = "Existing Level")]
+        [JsonProperty("title")] [Displayable(Name = "Song title:", Filter = "Existing Level")]
         public string Title;
-        
-        [JsonProperty("title_localized")]
-        [Displayable(Name = "Localized title:", Filter = "Existing Level")]
+
+        [JsonProperty("title_localized")] [Displayable(Name = "Localized title:", Filter = "Existing Level")]
         public string TitleLocalized;
-        
+
         [JsonProperty("version")] public int Version = 1;
 
-        [JsonIgnore]
-        public string DisplayTitle => !String.IsNullOrWhiteSpace(TitleLocalized) ? TitleLocalized : Title;
+        [JsonIgnore] public string DisplayTitle => !String.IsNullOrWhiteSpace(TitleLocalized) ? TitleLocalized : Title;
 
         [JsonIgnore]
-        public string DisplayArtist =>!String.IsNullOrWhiteSpace(ArtistLocalized) ? ArtistLocalized : Artist;
+        public string DisplayArtist => !String.IsNullOrWhiteSpace(ArtistLocalized) ? ArtistLocalized : Artist;
 
         public bool ShouldSerializeTitleLocalized()
         {

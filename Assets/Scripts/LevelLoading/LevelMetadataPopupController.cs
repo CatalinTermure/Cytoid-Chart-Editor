@@ -10,13 +10,12 @@ namespace CCE.LevelLoading
 {
     public class LevelMetadataPopupController : MonoBehaviour
     {
+        private const string LevelIdRegex = "^[a-z0-9_]+([-_.][a-z0-9_]+)+$";
         [SerializeField] private ToastMessageManager ErrorToaster;
-        
-        private LevelData _levelData;
         private string _audioAbsolutePath;
 
-        private const string LevelIdRegex = "^[a-z0-9_]+([-_.][a-z0-9_]+)+$";
-        
+        private LevelData _levelData;
+
         private void Awake()
         {
             _levelData = new LevelData();
@@ -42,11 +41,12 @@ namespace CCE.LevelLoading
                                          "Choose a new, unique ID or delete the existing level.", 5);
                 return false;
             }
-            
+
             if (!Regex.IsMatch(id, LevelIdRegex))
             {
-                errorToaster.CreateToast("Level ID must contain only lowercase letters, numbers and separators(_, -, or .).\n" +
-                                         "It also must contain at least one separator(_, - or .).", 8);
+                errorToaster.CreateToast(
+                    "Level ID must contain only lowercase letters, numbers and separators(_, -, or .).\n" +
+                    "It also must contain at least one separator(_, - or .).", 8);
                 return false;
             }
 
@@ -65,17 +65,17 @@ namespace CCE.LevelLoading
 
             return true;
         }
-        
+
         public void SaveMetadata()
         {
             if (_audioAbsolutePath == null) return;
             if (!IsLevelDataValid()) return;
 
-            _levelData.Music = new LevelData.MusicData() { Path = Path.GetFileName(_audioAbsolutePath) };
-            _levelData.MusicPreview = new LevelData.MusicData() { Path = Path.GetFileName(_audioAbsolutePath) };
+            _levelData.Music = new LevelData.MusicData { Path = Path.GetFileName(_audioAbsolutePath) };
+            _levelData.MusicPreview = new LevelData.MusicData { Path = Path.GetFileName(_audioAbsolutePath) };
 
-            string levelFolderPath = Path.Combine(GlobalState.Config.LevelStoragePath, _levelData.ID);
-            string finalBackgroundPath = Path.Combine(levelFolderPath,
+            var levelFolderPath = Path.Combine(GlobalState.Config.LevelStoragePath, _levelData.ID);
+            var finalBackgroundPath = Path.Combine(levelFolderPath,
                 "background" + Path.GetExtension(_levelData.Background.Path));
 
             Directory.CreateDirectory(levelFolderPath);

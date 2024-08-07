@@ -4,18 +4,12 @@ using UnityEngine.UI;
 namespace CCE.UI
 {
     /// <summary>
-    /// Class responsible for showing toast messages.
-    /// Must be attached to a <see cref="GameObject"/> with a <see cref="Text"/> component.
+    ///     Class responsible for showing toast messages.
+    ///     Must be attached to a <see cref="GameObject" /> with a <see cref="Text" /> component.
     /// </summary>
     public class ToastMessageManager : MonoBehaviour
     {
         private float _toastEndTime = -1;
-
-        public void CreateToast(string toast, int toastDuration = 3)
-        {
-            gameObject.GetComponent<Text>().text = toast;
-            _toastEndTime = Time.time + toastDuration;
-        }
 
         private void Update()
         {
@@ -28,10 +22,16 @@ namespace CCE.UI
                 }
                 else
                 {
-                    Color c = gameObject.GetComponent<Text>().color;
+                    var c = gameObject.GetComponent<Text>().color;
                     gameObject.GetComponent<Text>().color = new Color(c.r, c.g, c.b, _toastEndTime - Time.time);
                 }
             }
+        }
+
+        public void CreateToast(string toast, int toastDuration = 3)
+        {
+            gameObject.GetComponent<Text>().text = toast;
+            _toastEndTime = Time.time + toastDuration;
         }
     }
 }
