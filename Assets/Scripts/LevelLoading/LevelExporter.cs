@@ -1,7 +1,7 @@
-using CCE.Core;
-using CCE.Utils;
 using System.IO;
 using System.IO.Compression;
+using CCE.Core;
+using CCE.Utils;
 using SFB;
 using UnityEngine;
 
@@ -12,10 +12,10 @@ namespace CCE.LevelLoading
         public void ExportLevel()
         {
             LevelUtils.DeleteDeadAssets(GlobalState.Config.LevelStoragePath, GlobalState.CurrentLevel);
-            string srcDirPath = GlobalState.CurrentLevelPath;
-            string tempDirPath = Path.Combine(GlobalState.Config.TempStoragePath,
+            var srcDirPath = GlobalState.CurrentLevelPath;
+            var tempDirPath = Path.Combine(GlobalState.Config.TempStoragePath,
                 GlobalState.CurrentLevel.ID);
-            string tempArchivePath = Path.Combine(
+            var tempArchivePath = Path.Combine(
                 GlobalState.Config.TempStoragePath,
                 GlobalState.CurrentLevel.ID + ".cytoidlevel");
 
@@ -49,7 +49,7 @@ namespace CCE.LevelLoading
 
         private static void ExportArchiveDesktop(string tempArchivePath)
         {
-            string destinationPath = StandaloneFileBrowser.SaveFilePanel("Export .cytoidlevel", "",
+            var destinationPath = StandaloneFileBrowser.SaveFilePanel("Export .cytoidlevel", "",
                 GlobalState.CurrentLevel.ID + ".cytoidlevel", "cytoidlevel");
             File.Move(tempArchivePath, destinationPath);
         }
@@ -59,9 +59,7 @@ namespace CCE.LevelLoading
             using var unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
             using var currentActivity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
             using var plugin = new AndroidJavaClass(GlobalState.AndroidPluginPackageName);
-            using var fileUtils = plugin.CallStatic<AndroidJavaObject>("getInstance");
-
-            fileUtils.Call("ExportCytoidLevel", currentActivity, tempArchivePath);
+            plugin.CallStatic("ExportCytoidLevel", currentActivity, tempArchivePath);
         }
     }
 }

@@ -23,12 +23,20 @@ namespace CCE.LevelLoading
         {
             var unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
             var currentActivity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
-            var intent = currentActivity.Call<AndroidJavaObject>("getIntent");
-            var filePath = intent.Call<string>("getDataString");
+            using var plugin = new AndroidJavaClass(GlobalState.AndroidPluginPackageName);
+            var filePath = plugin.CallStatic<string>("HandleIntent", currentActivity);
 
-            if (String.IsNullOrEmpty(filePath)) return;
+            if (filePath == "No uri") return;
 
-            filePath = new Uri(filePath).LocalPath;
+            try
+            {
+                filePath = new Uri(filePath).LocalPath;
+            }
+            catch (Exception)
+            {
+                Debug.LogError($"Invalid file path: {filePath}");
+                throw;
+            }
 
             _isIntentHandled = true;
 

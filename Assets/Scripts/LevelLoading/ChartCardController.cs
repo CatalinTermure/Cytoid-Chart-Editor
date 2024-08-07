@@ -23,21 +23,21 @@ namespace CCE.LevelLoading
         [SerializeField] private List<GameObject> ChartCards;
         private readonly List<Button> _chartCardButtons = new();
         private readonly List<Text> _chartCardTexts = new();
-        private readonly List<Image> _chartDeleteProgressCircles = new();
         private readonly List<Collider2D> _chartDeleteButtonColliders = new();
+        private readonly List<Image> _chartDeleteProgressCircles = new();
         private readonly List<string> _chartTypes = new();
-        private Camera _mainCamera;
 
         private bool _isDeletingChart;
         private LevelData _levelData;
 
         private LevelList _levelList;
+        private Camera _mainCamera;
 
         private IEnumerator _updateChartCardsCoroutine;
 
         private void Awake()
         {
-            foreach (ChartCardInfo chartCardInfo in
+            foreach (var chartCardInfo in
                      ChartCards.Select(chartCard => chartCard.GetComponent<ChartCardInfo>()))
             {
                 _chartCardButtons.Add(chartCardInfo.CardButton);
@@ -62,29 +62,29 @@ namespace CCE.LevelLoading
             if (_levelData == null) return;
             if (_isDeletingChart) return;
             if (!Input.GetMouseButton(0)) return;
-            
+
             HandleChartDeleteButton();
         }
-        
+
         private void HandleChartDeleteButton()
         {
-            for (int i = 0; i < _chartTypes.Count; i++)
+            for (var i = 0; i < _chartTypes.Count; i++)
             {
                 if (_levelData.Charts.All(chart => chart.Type != _chartTypes[i])) continue;
-                
+
                 if (_chartDeleteButtonColliders[i].OverlapPoint(_mainCamera.ScreenToWorldPoint(Input.mousePosition)))
                 {
                     StartCoroutine(DeleteChartCoroutine(_chartDeleteProgressCircles[i], _chartTypes[i]));
                 }
             }
         }
-        
+
         private IEnumerator DeleteChartCoroutine(Image progressGraphic, string type)
         {
             _isDeletingChart = true;
 
-            float startTime = Time.time;
-            float currentTime = Time.time;
+            var startTime = Time.time;
+            var currentTime = Time.time;
             progressGraphic.fillAmount = 0.0f;
             while (Input.GetMouseButton(0) && startTime + HoldDeleteTimeThreshold > currentTime)
             {
@@ -111,15 +111,15 @@ namespace CCE.LevelLoading
 
             _levelData = levelData;
 
-            for (int i = 0; i < _chartTypes.Count; i++)
+            for (var i = 0; i < _chartTypes.Count; i++)
             {
-                LevelData.ChartFileData chartData = levelData.Charts.Find(chart => chart.Type == _chartTypes[i]);
+                var chartData = levelData.Charts.Find(chart => chart.Type == _chartTypes[i]);
 
                 if (chartData == null)
                 {
                     _chartCardTexts[i].text = $"Add {_chartTypes[i]}";
                     _chartCardButtons[i].onClick.RemoveAllListeners();
-                    int iCapture = i;
+                    var iCapture = i;
                     _chartCardButtons[i].onClick.AddListener(() => LoadNewChart(levelData, _chartTypes[iCapture]));
                     continue;
                 }
@@ -133,12 +133,12 @@ namespace CCE.LevelLoading
 
         private async void LoadChart(LevelData levelData, LevelData.ChartFileData chartData)
         {
-            string audioFilePath = Path.Combine(GlobalState.Config.LevelStoragePath, levelData.ID,
+            var audioFilePath = Path.Combine(GlobalState.Config.LevelStoragePath, levelData.ID,
                 chartData.MusicOverride?.Path ?? levelData.Music.Path);
 
             _levelList.View.FreeResources();
 
-            byte[] data = await LevelAssetsManager.LoadFileAsync(audioFilePath);
+            var data = await LevelAssetsManager.LoadFileAsync(audioFilePath);
             SceneNavigator.NavigateToChartEdit(levelData, chartData,
                 Bass.CreateStream(data, 0, data.Length, BassFlags.Decode));
         }
@@ -152,18 +152,18 @@ namespace CCE.LevelLoading
 
         public static void LoadNewChart(LevelData levelData, string type)
         {
-            string levelDirPath = Path.Combine(GlobalState.Config.LevelStoragePath, levelData.ID);
-            string audioFilePath = Path.Combine(levelDirPath, levelData.Music.Path);
-            string chartFilePath = FileUtils.GetUniqueFilePath(Path.Combine(levelDirPath, $"chart-{type}.json"));
+            var levelDirPath = Path.Combine(GlobalState.Config.LevelStoragePath, levelData.ID);
+            var audioFilePath = Path.Combine(levelDirPath, levelData.Music.Path);
+            var chartFilePath = FileUtils.GetUniqueFilePath(Path.Combine(levelDirPath, $"chart-{type}.json"));
 
-            Task chartWriteTask = File.WriteAllTextAsync(chartFilePath, GlobalState.NewChartString);
-            Task levelDataWriteTask = File.WriteAllTextAsync(Path.Combine(levelDirPath, "level.json"),
+            var chartWriteTask = File.WriteAllTextAsync(chartFilePath, GlobalState.NewChartString);
+            var levelDataWriteTask = File.WriteAllTextAsync(Path.Combine(levelDirPath, "level.json"),
                 JsonConvert.SerializeObject(levelData, new JsonSerializerSettings
                 {
                     NullValueHandling = NullValueHandling.Ignore,
                     Formatting = Formatting.Indented
                 }));
-            Task<byte[]> readAudioTask = LevelAssetsManager.LoadFileAsync(audioFilePath);
+            var readAudioTask = LevelAssetsManager.LoadFileAsync(audioFilePath);
 
             var chartData = new LevelData.ChartFileData
             {
@@ -174,7 +174,7 @@ namespace CCE.LevelLoading
             levelData.Charts.Add(chartData);
 
             Task.WaitAll(chartWriteTask, levelDataWriteTask, readAudioTask);
-            byte[] data = readAudioTask.Result;
+            var data = readAudioTask.Result;
             SceneNavigator.NavigateToChartEdit(levelData, chartData,
                 Bass.CreateStream(data, 0, data.Length, BassFlags.Decode));
         }
@@ -210,7 +210,7 @@ namespace CCE.LevelLoading
 
         private void SaveLevel()
         {
-            string levelDirPath = Path.Combine(GlobalState.Config.LevelStoragePath, _levelData.ID);
+            var levelDirPath = Path.Combine(GlobalState.Config.LevelStoragePath, _levelData.ID);
             File.WriteAllText(Path.Combine(levelDirPath, "level.json"),
                 JsonConvert.SerializeObject(_levelData, new JsonSerializerSettings
                 {
