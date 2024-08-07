@@ -8,7 +8,6 @@ using CCE.Data;
 using CCE.Popups;
 using CCE.UI;
 using CCE.Utils;
-using ManagedBass;
 using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.UI;
@@ -131,16 +130,14 @@ namespace CCE.LevelLoading
             }
         }
 
-        private async void LoadChart(LevelData levelData, LevelData.ChartFileData chartData)
+        private void LoadChart(LevelData levelData, LevelData.ChartFileData chartData)
         {
             var audioFilePath = Path.Combine(GlobalState.Config.LevelStoragePath, levelData.ID,
                 chartData.MusicOverride?.Path ?? levelData.Music.Path);
 
             _levelList.View.FreeResources();
 
-            var data = await LevelAssetsManager.LoadFileAsync(audioFilePath);
-            SceneNavigator.NavigateToChartEdit(levelData, chartData,
-                Bass.CreateStream(data, 0, data.Length, BassFlags.Decode));
+            SceneNavigator.NavigateToChartEdit(levelData, chartData, AudioManager.CreateStream(audioFilePath));
         }
 
         public void UpdateChartCards(LevelData levelData)
@@ -163,7 +160,6 @@ namespace CCE.LevelLoading
                     NullValueHandling = NullValueHandling.Ignore,
                     Formatting = Formatting.Indented
                 }));
-            var readAudioTask = LevelAssetsManager.LoadFileAsync(audioFilePath);
 
             var chartData = new LevelData.ChartFileData
             {
@@ -173,10 +169,8 @@ namespace CCE.LevelLoading
 
             levelData.Charts.Add(chartData);
 
-            Task.WaitAll(chartWriteTask, levelDataWriteTask, readAudioTask);
-            var data = readAudioTask.Result;
-            SceneNavigator.NavigateToChartEdit(levelData, chartData,
-                Bass.CreateStream(data, 0, data.Length, BassFlags.Decode));
+            SceneNavigator.NavigateToChartEdit(levelData, chartData, AudioManager.CreateStream(audioFilePath));
+            Task.WaitAll(chartWriteTask, levelDataWriteTask);
         }
 
         private void ShowDeleteMessagePopup(string type)

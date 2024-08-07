@@ -1,10 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using CCE.Core;
 using CCE.Data;
-using ManagedBass;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace CCE.LevelLoading
 {
@@ -22,34 +23,27 @@ namespace CCE.LevelLoading
 
         private readonly HashSet<string> _currentlyProcessingLevels = new();
 
-        private readonly Sprite _defaultBackground;
+        private readonly Sprite _defaultBackground =
+            GameObject.Find("Screen Background").GetComponent<BackgroundManager>().DefaultBackground;
 
         private readonly List<string> _levelIdOrderList = new();
 
         private readonly Dictionary<string, LevelAssets> _loadedLevels = new(PoolSize);
 
-        public LevelAssetsManager()
-        {
-            _defaultBackground =
-                GameObject.Find("Screen Background").GetComponent<BackgroundManager>().DefaultBackground;
-        }
-
         public async void ScheduleLevelLoad(LevelCardInfo levelCardInfo, LevelData level)
         {
-            if (_loadedLevels.ContainsKey(level.ID))
+            if (_loadedLevels.TryGetValue(level.ID, out var loadedLevel))
             {
                 _levelIdOrderList.Remove(level.ID);
                 _levelIdOrderList.Add(level.ID);
-                AddAssetsToCard(levelCardInfo, _loadedLevels[level.ID]);
+                AddAssetsToCard(levelCardInfo, loadedLevel);
                 return;
             }
 
-            if (_currentlyProcessingLevels.Contains(level.ID))
+            if (!_currentlyProcessingLevels.Add(level.ID))
             {
                 return;
             }
-
-            _currentlyProcessingLevels.Add(level.ID);
 
             if (_currentlyProcessingLevels.Count + _loadedLevels.Count >= PoolSize)
             {
@@ -66,8 +60,8 @@ namespace CCE.LevelLoading
 
             var assets = new LevelAssets
             {
-                PreviewStreamHandle =
-                    await LoadPreviewStream(File.Exists(audioPreviewFilePath) ? audioPreviewFilePath : audioFilePath),
+                PreviewAudio =
+                    LoadPreviewAudio(File.Exists(audioPreviewFilePath) ? audioPreviewFilePath : audioFilePath),
                 OriginalBackgroundPath = backgroundFilePath
             };
 
@@ -90,7 +84,7 @@ namespace CCE.LevelLoading
 
         private void AddAssetsToCard(LevelCardInfo levelCardInfo, LevelAssets levelAssets)
         {
-            levelCardInfo.PreviewAudioHandle = levelAssets.PreviewStreamHandle;
+            levelCardInfo.PreviewAudioHandle = levelAssets.PreviewAudio;
             levelCardInfo.OriginalBackgroundPath = levelAssets.OriginalBackgroundPath;
 
             levelCardInfo.BackgroundPreview.texture =
@@ -101,26 +95,19 @@ namespace CCE.LevelLoading
         {
             var id = _levelIdOrderList[0];
             _levelIdOrderList.RemoveAt(0);
-            Bass.StreamFree(_loadedLevels[id].PreviewStreamHandle);
+            AudioManager.Free(_loadedLevels[id].PreviewAudio);
             Object.Destroy(_loadedLevels[id].PreviewTexture);
             _loadedLevels.Remove(id);
         }
 
-        private static async Task<int> LoadPreviewStream(string path)
+        private static AudioStream LoadPreviewAudio(string path)
         {
             if (!File.Exists(path))
             {
-                return 0;
+                throw new ArgumentException("Could not find audio file at " + path);
             }
 
-            var data = await LoadFileAsync(path);
-            if (data.Length == 0)
-            {
-                Debug.LogError($"CCE.LevelLoading: Could not load audio at {path}.");
-                return 0;
-            }
-
-            return Bass.CreateStream(data, 0, data.Length, BassFlags.Loop);
+            return AudioManager.CreateStream(path, true);
         }
 
         private static async Task<Texture2D> LoadBackground(string path)
@@ -128,31 +115,15 @@ namespace CCE.LevelLoading
             var cachePath = Path.Combine(Path.GetDirectoryName(path)!, ".bg");
 
             var tex = new Texture2D(CacheImageSize, CacheImageSize, TextureFormat.ARGB32, false);
-            tex.LoadRawTextureData(await LoadFileAsync(cachePath));
+            tex.LoadRawTextureData(await File.ReadAllBytesAsync(cachePath));
             tex.Apply();
             return tex;
-        }
-
-        public static async Task<byte[]> LoadFileAsync(string path)
-        {
-            await using var stream = File.Open(path, FileMode.Open);
-            var result = new byte[stream.Length];
-            var readAsync = await stream.ReadAsync(result, 0, (int)stream.Length);
-
-            if (readAsync != (int)stream.Length)
-            {
-                Debug.LogError("CCELog: Could not read file entirely " + path);
-            }
-
-            stream.Close();
-
-            return result;
         }
 
         private class LevelAssets
         {
             public string OriginalBackgroundPath;
-            public int PreviewStreamHandle;
+            public AudioStream PreviewAudio;
             public Texture2D PreviewTexture;
         }
     }

@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.IO;
 using CCE.Core;
+using CCE.Data;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -111,20 +112,20 @@ namespace CCE.LevelLoading
             StartCoroutine(_updateBackgroundCoroutine);
         }
 
-        public void UpdateMusic(int handle)
+        public void UpdateMusic(AudioStream audio)
         {
             if (_updateMusicCoroutine != null) StopCoroutine(_updateMusicCoroutine);
-            _updateMusicCoroutine = UpdateMusicCoroutine(handle);
+            _updateMusicCoroutine = UpdateMusicCoroutine(audio);
             StartCoroutine(_updateMusicCoroutine);
         }
 
-        private static IEnumerator UpdateMusicCoroutine(int handle)
+        private static IEnumerator UpdateMusicCoroutine(AudioStream audio)
         {
             AudioManager.Stop();
 
             yield return new WaitForSeconds(UpdateBackgroundDelay);
 
-            AudioManager.LoadAudio(handle);
+            AudioManager.LoadAudio(audio);
             AudioManager.Time = 0;
             AudioManager.Play();
         }

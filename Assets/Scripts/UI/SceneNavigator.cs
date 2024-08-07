@@ -45,9 +45,9 @@ namespace CCE.UI
         }
 
         public static void NavigateToChartEdit(LevelData levelData, LevelData.ChartFileData chartFileData,
-            int audioHandle)
+            AudioStream audio)
         {
-            AudioManager.LoadAudio(audioHandle, true);
+            AudioManager.LoadAudio(audio, true);
             GlobalState.LoadLevel(levelData,
                 Path.Combine(GlobalState.Config.LevelStoragePath, levelData.ID, "level.json"));
             GlobalState.LoadChart(chartFileData);

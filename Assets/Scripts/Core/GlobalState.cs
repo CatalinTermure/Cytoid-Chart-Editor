@@ -3,10 +3,6 @@ using System.IO;
 using CCE.Data;
 using Newtonsoft.Json;
 using UnityEngine;
-#if !UNITY_EDITOR
-using CCE.Utils;
-using ManagedBass;
-#endif
 
 namespace CCE.Core
 {
@@ -202,8 +198,7 @@ namespace CCE.Core
         {
             AudioManager.Stop();
 #if !UNITY_EDITOR
-            Bass.Free();
-            BassUtils.PrintLastError();
+            AudioManager.Cleanup();
 #endif
         }
     }

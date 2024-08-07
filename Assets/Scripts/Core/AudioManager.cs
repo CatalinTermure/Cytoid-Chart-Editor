@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using CCE.Data;
 using CCE.Utils;
 using ManagedBass;
 using ManagedBass.Fx;
@@ -82,15 +83,25 @@ namespace CCE.Core
             Bass.ChannelStop(_audioChannel);
         }
 
+#if !UNITY_EDITOR
+        public static void Cleanup()
+        {
+            Bass.Free();
+        }
+#endif
+
         /// <summary>
-        ///     Loads audio from the specified handle.
+        ///     Loads the audio stream into the <see cref="AudioManager" />.
         /// </summary>
-        /// <param name="handle"> Handle to a BASS stream. </param>
-        /// <param name="loadForPlaybackSpeed"> Indicates if the playback speed may be changed eventually for this audio handle </param>
-        public static void LoadAudio(int handle, bool loadForPlaybackSpeed = false)
+        /// <param name="audio"> Stream containing audio to be loaded. </param>
+        /// <param name="loadForPlaybackSpeed">
+        ///     If set, playback speed can be edited. If not set, <see cref="SetPlaybackSpeed" />
+        ///     does nothing.
+        /// </param>
+        public static void LoadAudio(AudioStream audio, bool loadForPlaybackSpeed = false)
         {
             Stop();
-            _audioHandle = handle;
+            _audioHandle = audio.Handle;
             _isPlaybackSpeedEditable = loadForPlaybackSpeed;
 
             if (loadForPlaybackSpeed)
@@ -183,6 +194,19 @@ namespace CCE.Core
             LoadHitsounds();
 
             IsInitialized = true;
+        }
+
+        public static void Free(AudioStream stream)
+        {
+            Bass.StreamFree(stream.Handle);
+        }
+
+        public static AudioStream CreateStream(string path, bool looping = false)
+        {
+            var flags = looping ? BassFlags.Loop : BassFlags.Decode;
+            var handle = Bass.CreateStream(path, 0, 0, flags);
+            BassUtils.PrintLastError();
+            return new AudioStream { Handle = handle };
         }
     }
 }

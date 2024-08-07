@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
+using CCE.Core;
 using CCE.Data;
-using ManagedBass;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -63,7 +63,7 @@ namespace CCE.LevelLoading
 
             _filteredLevels = levels;
 
-            _levelCards.ForEach(obj => Destroy(obj));
+            _levelCards.ForEach(Destroy);
             _levelCards.Clear();
             _levelCardInfos.Clear();
 
@@ -224,7 +224,7 @@ namespace CCE.LevelLoading
 
         private static void FreeLevelCardResources(LevelCardInfo levelCardInfo)
         {
-            Bass.StreamFree(levelCardInfo.PreviewAudioHandle);
+            AudioManager.Free(levelCardInfo.PreviewAudioHandle);
         }
 
         private void MoveBottomCardToTop()

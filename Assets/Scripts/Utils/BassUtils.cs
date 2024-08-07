@@ -1,5 +1,4 @@
 using ManagedBass;
-using UnityEngine;
 
 namespace CCE.Utils
 {
@@ -12,7 +11,7 @@ namespace CCE.Utils
                 return;
             }
 
-            Debug.LogError($"Error with BASS {Bass.LastError:D}: {Bass.LastError:G}");
+            throw new BassException(Bass.LastError);
         }
     }
 }

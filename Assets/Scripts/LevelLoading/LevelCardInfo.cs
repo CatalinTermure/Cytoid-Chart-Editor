@@ -1,4 +1,5 @@
 using System;
+using CCE.Data;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -14,6 +15,6 @@ namespace CCE.LevelLoading
         [NonSerialized] public int LevelIndex;
 
         [NonSerialized] public string OriginalBackgroundPath;
-        [NonSerialized] public int PreviewAudioHandle;
+        [NonSerialized] public AudioStream PreviewAudioHandle;
     }
 }
