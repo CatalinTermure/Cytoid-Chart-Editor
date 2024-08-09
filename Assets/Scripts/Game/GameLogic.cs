@@ -2070,7 +2070,7 @@ namespace CCE.Game
 
         public void GoToNextPage()
         {
-            if (!IsGameRunning && CurrentChart != null && CurrentPageIndex < CurrentChart.PageList.Count)
+            if (!IsGameRunning && CurrentChart != null && CurrentPageIndex + 1 < CurrentChart.PageList.Count)
             {
                 CurrentPageIndex++;
                 UpdateTime(CurrentPage.ActualStartTime);
