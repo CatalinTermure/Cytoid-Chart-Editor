@@ -1,6 +1,8 @@
+using System;
 using System.IO;
 using System.IO.Compression;
 using CCE.Core;
+using CCE.UI;
 using CCE.Utils;
 using SFB;
 using UnityEngine;
@@ -9,7 +11,19 @@ namespace CCE.LevelLoading
 {
     public class LevelExporter : MonoBehaviour
     {
-        public void ExportLevel()
+        public ToastMessageManager ExportedToast;
+
+        private delegate void ExportDelegate(string tempArchivePath);
+
+        private void Start()
+        {
+            if (Application.platform != RuntimePlatform.Android)
+            {
+                GameObject.Find("Export Button").SetActive(false);
+            }
+        }
+
+        private static void ExportToTempAndThen(ExportDelegate callback)
         {
             LevelUtils.DeleteDeadAssets(GlobalState.Config.LevelStoragePath, GlobalState.CurrentLevel);
             var srcDirPath = GlobalState.CurrentLevelPath;
@@ -31,20 +45,36 @@ namespace CCE.LevelLoading
 
                 ZipFile.CreateFromDirectory(tempDirPath, tempArchivePath);
 
-                if (Application.platform == RuntimePlatform.Android)
-                {
-                    ExportArchiveAndroid(tempArchivePath);
-                }
-                else
-                {
-                    ExportArchiveDesktop(tempArchivePath);
-                }
+                callback(tempArchivePath);
             }
             finally
             {
                 Directory.Delete(tempDirPath, true);
                 File.Delete(tempArchivePath);
             }
+        }
+
+        public void ExportLevel()
+        {
+            ExportToTempAndThen(tempArchivePath =>
+            {
+                if (Application.platform == RuntimePlatform.Android)
+                {
+                    var success = ExportToDownloadsAndroid(tempArchivePath);
+                    if (success) ExportedToast.CreateToast("Exported to Downloads");
+                }
+                else
+                {
+                    ExportArchiveDesktop(tempArchivePath);
+                }
+            });
+        }
+
+        public void ExportToCytoid()
+        {
+            if (Application.platform != RuntimePlatform.Android) return;
+
+            ExportToTempAndThen(ExportArchiveAndroid);
         }
 
         private static void ExportArchiveDesktop(string tempArchivePath)
@@ -59,7 +89,20 @@ namespace CCE.LevelLoading
             using var unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
             using var currentActivity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
             using var plugin = new AndroidJavaClass(GlobalState.AndroidPluginPackageName);
-            plugin.CallStatic("ExportCytoidLevel", currentActivity, tempArchivePath);
+            var message = plugin.CallStatic<string>("ExportToCytoid", currentActivity, tempArchivePath);
+            if (message == "") return;
+            Debug.LogError(message);
+        }
+
+        private static bool ExportToDownloadsAndroid(string tempArchivePath)
+        {
+            using var unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
+            using var currentActivity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
+            using var plugin = new AndroidJavaClass(GlobalState.AndroidPluginPackageName);
+            var message = plugin.CallStatic<string>("ExportCytoidLevel", currentActivity, tempArchivePath);
+            if (message == "") return true;
+            Debug.LogError(message);
+            return false;
         }
     }
 }

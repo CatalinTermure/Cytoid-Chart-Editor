@@ -8,20 +8,18 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
-import android.os.Environment;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
-import android.util.Log;
+
+import androidx.core.content.FileProvider;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
-import java.util.Objects;
 
 
 /**
@@ -54,6 +52,7 @@ public class FileUtils {
         String filename = GetFileNameFromContentUri(context, uri);
         File outputFile = new File(context.getExternalFilesDir(null), filename);
         try (OutputStream output = new FileOutputStream(outputFile)) {
+            assert inputStream != null;
             CopyFile(inputStream, output);
         }
 
@@ -70,108 +69,49 @@ public class FileUtils {
         try {
             return CopyFileToExternalStorage(activity, uri);
         } catch (IOException e) {
-            return Arrays.toString(e.getStackTrace());
+            return e + "\n" + Arrays.toString(e.getStackTrace());
         }
     }
 
-    public static void ExportCytoidLevel(Context context, String localFilePath) {
-        File localFile = new File(localFilePath);
-        Intent launchIntent = context.getPackageManager().getLaunchIntentForPackage("me.tigerhix.cytoid");
+    public static String ExportCytoidLevel(Context context, String filePath) {
+        File localFile = new File(filePath);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            ExportCytoidLevelMediaStore(context, localFilePath, localFile, launchIntent);
-        } else {
-            ExportCytoidLevelIntent(context, localFilePath, localFile, launchIntent);
+        try {
+            ExportCytoidLevelToDownloads(context, filePath, localFile);
+        } catch (Exception e) {
+            return e + "\n" + Arrays.toString(e.getStackTrace());
         }
+
+        return "";
     }
 
-    private static void ExportCytoidLevelMediaStore(Context context, String localFilePath, File localFile, Intent launchIntent) {
+    public static String ExportToCytoid(Context context, String filePath) {
+        File localFile = new File(filePath);
+        Uri contentUri = FileProvider.getUriForFile(context, "com.chovvy.fileprovider", localFile);
+        if (contentUri == null) return "Could not get content uri";
+
+        Intent intent = new Intent();
+        intent.setAction(Intent.ACTION_VIEW);
+        intent.setDataAndType(contentUri, "application/octet-stream");
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+        context.startActivity(intent);
+        return "";
+    }
+
+    private static void ExportCytoidLevelToDownloads(Context context, String localFilePath, File localFile) throws IOException {
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q) return;
         ContentValues contentValues = new ContentValues();
         contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, localFile.getName());
-        contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "application/zip");
+        contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "application/octet-stream");
         contentValues.put(MediaStore.MediaColumns.SIZE, localFile.length());
 
         ContentResolver resolver = context.getContentResolver();
         Uri destinationFileUri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues);
-        try (OutputStream output = resolver.openOutputStream(destinationFileUri);
-             InputStream input = new FileInputStream(localFile)) {
-            CopyFile(input, output);
-
-            if (launchIntent == null) return;
-            launchIntent.setData(destinationFileUri);
-            launchIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            context.startActivity(launchIntent);
-        } catch (FileNotFoundException e) {
-            Log.e(LOGTAG, "Could not find input file. Path: " + localFilePath);
-        } catch (SecurityException e) {
-            Log.e(LOGTAG, "No permission to open the local file. Path: " + localFilePath);
-        } catch (Exception e) {
-            Log.e(LOGTAG, "Could not export file. Path: " + localFilePath);
-        }
-    }
-
-    private static void ExportCytoidLevelIntent(Context context, String localFilePath, File localFile, Intent launchIntent) {
-        File downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-
-        File destinationFile = new File(downloadsDir, localFile.getName());
-
-        File cytoidExportedFile = new File(GetCytoidStorageDirectory(), localFile.getName());
-
-        boolean success = true;
-
-        try {
-            try (InputStream input = new FileInputStream(localFile);
-                 OutputStream output = new FileOutputStream(destinationFile)) {
-                CopyFile(input, output);
-            } catch (FileNotFoundException e) {
-                Log.e(LOGTAG, "Could not find output file. Path: " + destinationFile.getAbsolutePath());
-                success = false;
-            } catch (SecurityException e) {
-                Log.e(LOGTAG, "No permission to open the external file. Path: " + destinationFile.getAbsolutePath());
-                success = false;
-            }
-        } catch (FileNotFoundException e) {
-            Log.e(LOGTAG, "Could not find input file. Path: " + localFilePath);
-            success = false;
-        } catch (SecurityException e) {
-            Log.e(LOGTAG, "No permission to open the local file. Path: " + localFilePath);
-            success = false;
-        } catch (IOException e) {
-            e.printStackTrace();
-            success = false;
-        }
-
-        if (!success) return;
-
-        try {
-            try (InputStream input = new FileInputStream(localFile)) {
-                try (OutputStream output = new FileOutputStream(cytoidExportedFile)) {
-                    CopyFile(input, output);
-                }
-            } catch (FileNotFoundException e) {
-                Log.e(LOGTAG, "Could not find output file. Path: " + cytoidExportedFile.getAbsolutePath());
-                success = false;
-            } catch (SecurityException e) {
-                Log.e(LOGTAG, "No permission to open the external file. Path: " + cytoidExportedFile.getAbsolutePath());
-                success = false;
-            }
-        } catch (FileNotFoundException e) {
-            Log.e(LOGTAG, "Could not find input file. Path: " + localFilePath);
-            success = false;
-        } catch (SecurityException e) {
-            Log.e(LOGTAG, "No permission to open the local file. Path: " + localFilePath);
-            success = false;
-        } catch (IOException e) {
-            e.printStackTrace();
-            success = false;
-        }
-
-        if (!success) return;
-
-        if (launchIntent == null) return;
-
-        context.startActivity(launchIntent);
+        assert destinationFileUri != null;
+        OutputStream output = resolver.openOutputStream(destinationFileUri);
+        InputStream input = new FileInputStream(localFile);
+        CopyFile(input, output);
     }
 
     private static void CopyFile(InputStream input, OutputStream output) throws IOException {
