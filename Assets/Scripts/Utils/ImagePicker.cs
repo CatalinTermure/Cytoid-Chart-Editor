@@ -4,7 +4,7 @@ using SFB;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace CCE.LevelLoading
+namespace CCE.Utils
 {
     public class ImagePicker : MonoBehaviour
     {

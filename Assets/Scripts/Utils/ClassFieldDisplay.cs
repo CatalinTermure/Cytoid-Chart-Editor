@@ -2,7 +2,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace CCE.UI
+namespace CCE.Utils
 {
     public class ClassFieldDisplay : MonoBehaviour
     {

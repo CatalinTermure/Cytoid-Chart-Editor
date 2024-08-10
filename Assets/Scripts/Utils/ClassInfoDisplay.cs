@@ -2,12 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using CCE.Core;
 using CCE.Data;
-using CCE.LevelLoading;
 using UnityEngine;
 
-namespace CCE.UI
+namespace CCE.Utils
 {
     public class ClassInfoDisplay : MonoBehaviour
     {
@@ -97,12 +95,10 @@ namespace CCE.UI
         {
             if (!_possibleTypes.Contains(fieldInfo.FieldType))
             {
-                Logging.LogError($"{nameof(ClassInfoDisplay)}.{nameof(DrawField)}",
+                throw new ArgumentException($"{nameof(ClassInfoDisplay)}.{nameof(DrawField)}",
                     $"Field {fieldInfo.Name} is of a type that is " +
                     $"not supported by the {nameof(DisplayableAttribute)} attribute. " +
                     "Add support for it or remove the attribute.");
-
-                return;
             }
 
             _currentElementTopMargin -= ElementSpacing;
