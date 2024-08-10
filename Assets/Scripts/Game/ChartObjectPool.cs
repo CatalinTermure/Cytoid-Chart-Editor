@@ -57,7 +57,7 @@ namespace CCE.Game
 
         public void ReturnToPool(GameObject obj, int type)
         {
-            if (obj == null)
+            if (!obj)
             {
                 return;
             }
@@ -105,10 +105,10 @@ namespace CCE.Game
         private const int HoldNotePoolSize = 12;
         private const int LongHoldNotePoolSize = 8;
         private const int FlickNotePoolSize = 24;
-        private const int DragHeadPoolSize = 4;
-        private const int DragChildPoolSize = 48;
-        private const int CdragHeadPoolSize = 4;
-        private const int CdragChildPoolSize = 48;
+        private const int DragHeadPoolSize = 16;
+        private const int DragChildPoolSize = 64;
+        private const int CdragHeadPoolSize = 16;
+        private const int CdragChildPoolSize = 64;
 
         #endregion
     }
