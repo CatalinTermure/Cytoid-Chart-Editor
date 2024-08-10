@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using CCE.Data;
+using CCE.Utils;
 using UnityEngine;
 
-namespace CCE.Utils
+namespace CCE.GameUtils
 {
     public class ClassInfoDisplay : MonoBehaviour
     {

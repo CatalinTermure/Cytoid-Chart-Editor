@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CCE.Data
+namespace CCE.Utils
 {
     [AttributeUsage(AttributeTargets.Field)]
     public class DisplayableAttribute : Attribute

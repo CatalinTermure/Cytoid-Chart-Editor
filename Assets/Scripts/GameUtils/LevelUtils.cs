@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using CCE.Data;
+using CCE.Utils;
 
-namespace CCE.Utils
+namespace CCE.GameUtils
 {
     public static class LevelUtils
     {

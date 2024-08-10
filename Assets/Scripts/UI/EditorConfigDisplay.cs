@@ -1,5 +1,5 @@
 ﻿using CCE.Core;
-using CCE.Utils;
+using CCE.GameUtils;
 using UnityEngine;
 
 namespace CCE.UI

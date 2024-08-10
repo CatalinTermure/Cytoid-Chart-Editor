@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Text;
-using CCE.Data;
 
 namespace CCE.Utils
 {
@@ -41,16 +40,6 @@ namespace CCE.Utils
             return 60 * minutes + seconds;
         }
 
-        public static int ParseNoteTimestamp(string timestamp)
-        {
-            if (!Int32.TryParse(timestamp.Split(_idSeparators)[1], out var noteId))
-            {
-                throw new FormatException("Could not parse note timestamp. Invalid Format");
-            }
-
-            return noteId;
-        }
-
         public static string Serialize(double time)
         {
             var sb = new StringBuilder(9);
@@ -72,11 +61,6 @@ namespace CCE.Utils
             sb.Append(milliseconds.ToString("D3"));
 
             return sb.ToString();
-        }
-
-        public static string Serialize(Note note)
-        {
-            return $"{Serialize(note.Time)} ({note.ID})";
         }
     }
 }

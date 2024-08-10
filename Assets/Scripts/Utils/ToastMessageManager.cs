@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 
-namespace CCE.UI
+namespace CCE.Utils
 {
     /// <summary>
     ///     Class responsible for showing toast messages.

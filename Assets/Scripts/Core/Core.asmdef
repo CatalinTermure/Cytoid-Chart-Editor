@@ -1,14 +1,13 @@
 {
-  "name": "Utils",
+  "name": "Core",
   "rootNamespace": "CCE",
   "references": [
-    "GUID:6e5063adab271564ba0098a06a8cebda",
-    "GUID:356be917a3024d668edb5fee2fff68f0",
-    "GUID:6055be8ebefd69e48b49212b09b47b2f"
+    "GUID:b4f7d1bce6144faf92c29d6f8e53a81c",
+    "GUID:ae93059319644353ab8126ed88d0bb40"
   ],
   "includePlatforms": [],
   "excludePlatforms": [],
-  "allowUnsafeCode": false,
+  "allowUnsafeCode": true,
   "overrideReferences": false,
   "precompiledReferences": [],
   "autoReferenced": true,
