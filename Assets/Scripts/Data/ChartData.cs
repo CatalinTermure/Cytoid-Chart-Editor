@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using Newtonsoft.Json;
-
-// ReSharper disable RedundantDefaultMemberInitializer
 
 namespace CCE.Data
 {
+    [SuppressMessage("ReSharper", "UnusedMember.Global",
+        Justification = "Newtonsoft.Json uses reflection for ShouldSerialize methods")]
     public class ChartData
     {
         [JsonProperty("display_background")] public bool? DisplayBackground;
@@ -16,15 +17,15 @@ namespace CCE.Data
         [JsonProperty("fill_colors")] public List<string> FillColors =
             new(12) { null, null, null, null, null, null, null, null, null, null, null, null };
 
-        [JsonProperty("format_version")] public int FormatVersion = 0;
+        [JsonProperty("format_version")] public int FormatVersion;
         [JsonProperty("horizontal_margin")] public int? HorizontalMargin;
-        [JsonProperty("music_offset")] public double MusicOffset = 0;
+        [JsonProperty("music_offset")] public double MusicOffset;
         [JsonProperty("note_list")] public List<Note> NoteList = new();
         [JsonProperty("opacity")] public double Opacity = 1.0;
 
         [JsonProperty("page_list")] public List<Page> PageList = new();
 
-        [JsonProperty("ring_color")] public string RingColor = null;
+        [JsonProperty("ring_color")] public string RingColor;
 
         [JsonProperty("size")] public double Size = 1.0;
 

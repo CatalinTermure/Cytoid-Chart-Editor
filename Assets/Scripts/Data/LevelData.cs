@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using CCE.UI;
+using System.Diagnostics.CodeAnalysis;
 using Newtonsoft.Json;
 
 namespace CCE.Data
 {
+    [SuppressMessage("ReSharper", "UnusedMember.Global",
+        Justification = "Newtonsoft.Json uses reflection for ShouldSerialize methods")]
     public class LevelData
     {
         [JsonProperty("artist")] [Displayable(Section = "Artist", Name = "Artist:", Filter = "Existing Level")]
