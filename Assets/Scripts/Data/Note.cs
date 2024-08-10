@@ -23,7 +23,7 @@ namespace CCE.Data
         [JsonIgnore] public double ApproachTime;
         [JsonIgnore] public double ActualOpacity = 1.0;
         [JsonIgnore] public double ActualSize = 1.0;
-        [JsonIgnore] public int DragID = -1;
+        [JsonIgnore] public int DragChainID = -1;
         [JsonIgnore] public double HoldTime;
         [JsonIgnore] public double Time;
         [JsonIgnore] public double Y;

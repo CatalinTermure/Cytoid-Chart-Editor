@@ -579,11 +579,11 @@ namespace CCE.Game
                 var id = note.ID;
                 while (CurrentChart.NoteList[id].NextID >= 0)
                 {
-                    CurrentChart.NoteList[id].DragID = dragID;
+                    CurrentChart.NoteList[id].DragChainID = dragID;
                     id = CurrentChart.NoteList[id].NextID;
                 }
 
-                CurrentChart.NoteList[id].DragID = dragID;
+                CurrentChart.NoteList[id].DragChainID = dragID;
             }
 
             _currentDragID = dragID + 1;
@@ -623,7 +623,7 @@ namespace CCE.Game
                     note.Type == (int)NoteType.CDragChild ||
                     note.Type == (int)NoteType.CDragHead)
                 {
-                    if (note.NextID == -1 && note.DragID == noteToAdd.DragID) note.NextID = noteToAdd.ID;
+                    if (note.NextID == -1 && note.DragChainID == noteToAdd.DragChainID) note.NextID = noteToAdd.ID;
 
                     if (note.NextID >= pos) note.NextID++;
                 }
@@ -1231,7 +1231,7 @@ namespace CCE.Game
 
                         CurrentChart.NoteList[highlightedID].NextID = -1;
                         CurrentChart.NoteList[highlightedID].HoldTick = 0;
-                        CurrentChart.NoteList[highlightedID].DragID = -1;
+                        CurrentChart.NoteList[highlightedID].DragChainID = -1;
                     }
                 }
                 else
@@ -1580,7 +1580,7 @@ namespace CCE.Game
                                         HoldTick = 0,
                                         NextID = -1,
                                         Tick = tick,
-                                        DragID = CurrentChart.NoteList[noteID].DragID
+                                        DragChainID = CurrentChart.NoteList[noteID].DragChainID
                                     });
                                     idToHighlight = id;
                                     CurrentChart.NoteList[noteID].NextID = id;
@@ -1602,7 +1602,7 @@ namespace CCE.Game
                                 HoldTick = 0,
                                 NextID = -1,
                                 Tick = (int)GetTickForTouchPosition(touchPos),
-                                DragID = _currentDragID + 1
+                                DragChainID = _currentDragID + 1
                             });
                             _currentDragID++;
                         }
@@ -1637,7 +1637,7 @@ namespace CCE.Game
                                         HoldTick = 0,
                                         NextID = -1,
                                         Tick = tick,
-                                        DragID = CurrentChart.NoteList[noteID].Tick
+                                        DragChainID = CurrentChart.NoteList[noteID].Tick
                                     });
                                     idToHighlight = id;
                                     CurrentChart.NoteList[obj.GetComponent<NoteController>().NoteID].NextID = id;
@@ -1659,7 +1659,7 @@ namespace CCE.Game
                                 HoldTick = 0,
                                 NextID = -1,
                                 Tick = (int)GetTickForTouchPosition(touchPos),
-                                DragID = _currentDragID + 1
+                                DragChainID = _currentDragID + 1
                             });
                             _currentDragID++;
                         }
@@ -2382,7 +2382,7 @@ namespace CCE.Game
                         note.Type == (int)NoteType.CDragChild || note.Type == (int)NoteType.CDragHead)
                     {
                         note.NextID = -1;
-                        note.DragID += 1000005;
+                        note.DragChainID += 1000005;
                     }
 
                     AddNote(note);
@@ -2413,14 +2413,14 @@ namespace CCE.Game
             var dragChains = new Dictionary<int, List<int>>();
             for (var i = 0; i < CurrentChart.NoteList.Count; i++)
             {
-                if (CurrentChart.NoteList[i].DragID > 1000000)
+                if (CurrentChart.NoteList[i].DragChainID > 1000000)
                 {
-                    if (!dragChains.ContainsKey(CurrentChart.NoteList[i].DragID))
+                    if (!dragChains.ContainsKey(CurrentChart.NoteList[i].DragChainID))
                     {
-                        dragChains.Add(CurrentChart.NoteList[i].DragID, new List<int>());
+                        dragChains.Add(CurrentChart.NoteList[i].DragChainID, new List<int>());
                     }
 
-                    dragChains[CurrentChart.NoteList[i].DragID].Add(i);
+                    dragChains[CurrentChart.NoteList[i].DragChainID].Add(i);
                 }
             }
 
@@ -2880,7 +2880,7 @@ namespace CCE.Game
                     var id = obj.GetComponent<NoteController>().NoteID;
                     CurrentChart.NoteList[id].Type = (int)NoteType.Click;
                     CurrentChart.NoteList[id].HoldTick = 0;
-                    CurrentChart.NoteList[id].DragID = -1;
+                    CurrentChart.NoteList[id].DragChainID = -1;
 
                     var dragParent = GetDragParent(id);
                     if (dragParent > -1)
@@ -2918,7 +2918,7 @@ namespace CCE.Game
                     var id = obj.GetComponent<NoteController>().NoteID;
                     CurrentChart.NoteList[id].Type = (int)NoteType.Flick;
                     CurrentChart.NoteList[id].HoldTick = 0;
-                    CurrentChart.NoteList[id].DragID = -1;
+                    CurrentChart.NoteList[id].DragChainID = -1;
 
                     var dragParent = GetDragParent(id);
                     if (dragParent > -1)
@@ -2961,7 +2961,7 @@ namespace CCE.Game
                         _beatDivisorValue,
                         CurrentChart.PageList[CurrentChart.NoteList[id].PageIndex].EndTick -
                         CurrentChart.NoteList[id].Tick);
-                    CurrentChart.NoteList[id].DragID = -1;
+                    CurrentChart.NoteList[id].DragChainID = -1;
 
                     var dragParent = GetDragParent(id);
                     if (dragParent > -1)
@@ -3004,7 +3004,7 @@ namespace CCE.Game
                         _beatDivisorValue,
                         CurrentChart.PageList[CurrentChart.NoteList[id].PageIndex].EndTick -
                         CurrentChart.NoteList[id].Tick);
-                    CurrentChart.NoteList[id].DragID = -1;
+                    CurrentChart.NoteList[id].DragChainID = -1;
 
                     var dragParent = GetDragParent(id);
                     if (dragParent > -1)
@@ -3042,7 +3042,7 @@ namespace CCE.Game
 
                     var id = obj.GetComponent<NoteController>().NoteID;
                     CurrentChart.NoteList[id].HoldTick = 0;
-                    CurrentChart.NoteList[id].DragID = _currentDragID + 1;
+                    CurrentChart.NoteList[id].DragChainID = _currentDragID + 1;
 
                     var dragParent = GetDragParent(id);
                     if (dragParent > -1)
@@ -3108,7 +3108,7 @@ namespace CCE.Game
 
                     var id = obj.GetComponent<NoteController>().NoteID;
                     CurrentChart.NoteList[id].HoldTick = 0;
-                    CurrentChart.NoteList[id].DragID = _currentDragID + 1;
+                    CurrentChart.NoteList[id].DragChainID = _currentDragID + 1;
 
                     var dragParent = GetDragParent(id);
                     if (dragParent > -1)
