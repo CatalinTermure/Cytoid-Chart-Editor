@@ -7,6 +7,7 @@ using System.Linq;
 using CCE.Commands;
 using CCE.Core;
 using CCE.Data;
+using CCE.Game.Commands;
 using CCE.Notes;
 using CCE.UI;
 using CCE.Utils;
@@ -3166,10 +3167,12 @@ namespace CCE.Game
             else if (WasPressed(HotkeyManager.Undo))
             {
                 CommandSystem.Undo();
+                ForceUpdate();
             }
             else if (WasPressed(HotkeyManager.Redo))
             {
                 CommandSystem.Redo();
+                ForceUpdate();
             }
 
             foreach (var noteToHighlight in toHighlight)

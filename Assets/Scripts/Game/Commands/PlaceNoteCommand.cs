@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using System.Linq;
+using CCE.Commands;
 using CCE.Data;
-using CCE.Game;
 
-namespace CCE.Commands
+namespace CCE.Game.Commands
 {
     public class PlaceNotesCommand : NoteCommand
     {

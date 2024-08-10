@@ -1,9 +1,9 @@
 using System.Collections.Generic;
+using CCE.Commands;
 using CCE.Core;
 using CCE.Data;
-using CCE.Game;
 
-namespace CCE.Commands
+namespace CCE.Game.Commands
 {
     public class RemoveNotesCommand : NoteCommand
     {
