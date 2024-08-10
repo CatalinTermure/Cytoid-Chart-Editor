@@ -650,6 +650,11 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1510299668}
     m_Modifications:
+    - target: {fileID: 656868973078109562, guid: f811b2764cd34124b98433ace646664f,
+        type: 3}
+      propertyPath: ChartType
+      value: extreme
+      objectReference: {fileID: 0}
     - target: {fileID: 4331395265683873760, guid: f811b2764cd34124b98433ace646664f,
         type: 3}
       propertyPath: m_Sprite
@@ -775,6 +780,17 @@ PrefabInstance:
         type: 3}
       propertyPath: ChartType
       value: extreme
+      objectReference: {fileID: 0}
+    - target: {fileID: 5072384034621677045, guid: f811b2764cd34124b98433ace646664f,
+        type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 6f4998685cce42e4c867ab20bae0e4b0,
+        type: 3}
+    - target: {fileID: 5140300686099190737, guid: f811b2764cd34124b98433ace646664f,
+        type: 3}
+      propertyPath: m_Text
+      value: Add extreme
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1200,6 +1216,11 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1510299668}
     m_Modifications:
+    - target: {fileID: 656868973078109562, guid: f811b2764cd34124b98433ace646664f,
+        type: 3}
+      propertyPath: ChartType
+      value: hard
+      objectReference: {fileID: 0}
     - target: {fileID: 4331395265683873760, guid: f811b2764cd34124b98433ace646664f,
         type: 3}
       propertyPath: m_Sprite
@@ -1325,6 +1346,17 @@ PrefabInstance:
         type: 3}
       propertyPath: ChartType
       value: hard
+      objectReference: {fileID: 0}
+    - target: {fileID: 5072384034621677045, guid: f811b2764cd34124b98433ace646664f,
+        type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: ed6838545f90b5b468fd85a150553bfd,
+        type: 3}
+    - target: {fileID: 5140300686099190737, guid: f811b2764cd34124b98433ace646664f,
+        type: 3}
+      propertyPath: m_Text
+      value: Add hard
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -2201,6 +2233,11 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1510299668}
     m_Modifications:
+    - target: {fileID: 656868973078109562, guid: f811b2764cd34124b98433ace646664f,
+        type: 3}
+      propertyPath: ChartType
+      value: easy
+      objectReference: {fileID: 0}
     - target: {fileID: 4331395265683873761, guid: f811b2764cd34124b98433ace646664f,
         type: 3}
       propertyPath: m_Pivot.x
@@ -2325,6 +2362,11 @@ PrefabInstance:
         type: 3}
       propertyPath: ChartType
       value: easy
+      objectReference: {fileID: 0}
+    - target: {fileID: 5140300686099190737, guid: f811b2764cd34124b98433ace646664f,
+        type: 3}
+      propertyPath: m_Text
+      value: Add easy
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

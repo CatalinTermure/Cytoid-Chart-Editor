@@ -37,7 +37,7 @@ namespace CCE.LevelLoading
         private void Awake()
         {
             foreach (var chartCardInfo in
-                     ChartCards.Select(chartCard => chartCard.GetComponent<ChartCardInfo>()))
+                     ChartCards.Select(chartCard => chartCard.GetComponentInChildren<ChartCardInfo>()))
             {
                 _chartCardButtons.Add(chartCardInfo.CardButton);
                 _chartCardTexts.Add(chartCardInfo.CardText);
