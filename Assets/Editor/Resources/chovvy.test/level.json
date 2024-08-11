@@ -1,0 +1,28 @@
+{
+  "artist": "Amaski",
+  "artist_source": "https://pixabay.com/users/amaksi-28332361/",
+  "background": {
+    "path": "background.png"
+  },
+  "charter": "chovvy",
+  "charts": [
+    {
+      "difficulty": 0,
+      "name": "testing",
+      "path": "chart-extreme.json",
+      "type": "extreme"
+    }
+  ],
+  "id": "chovvy.test",
+  "illustrator": "chovvy",
+  "music": {
+    "path": "test-audio.mp3"
+  },
+  "music_preview": {
+    "path": "preview.ogg"
+  },
+  "schema_version": 2,
+  "storyboarder": "chovvy",
+  "title": "Night Detective",
+  "version": 1
+}

@@ -3,7 +3,7 @@ using CCE.Core;
 using NUnit.Framework;
 using UnityEngine.TestTools;
 
-namespace EditorTests
+namespace CCE.EditorTests
 {
     public class EditorTests
     {
