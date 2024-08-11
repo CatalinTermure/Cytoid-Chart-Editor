@@ -2,7 +2,6 @@ using System.IO;
 using System.IO.Compression;
 using CCE.Core;
 using CCE.GameUtils;
-using CCE.UI;
 using CCE.Utils;
 using SFB;
 using UnityEngine;
@@ -12,8 +11,6 @@ namespace CCE.LevelLoading
     public class LevelExporter : MonoBehaviour
     {
         public ToastMessageManager ExportedToast;
-
-        private delegate void ExportDelegate(string tempArchivePath);
 
         private void Start()
         {
@@ -104,5 +101,7 @@ namespace CCE.LevelLoading
             Debug.LogError(message);
             return false;
         }
+
+        private delegate void ExportDelegate(string tempArchivePath);
     }
 }

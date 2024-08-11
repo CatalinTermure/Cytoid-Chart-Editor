@@ -32,15 +32,9 @@ namespace CCE.Core
         private static float _musicVolume = 1;
         private static float _hitsoundVolume = 1;
 
-        public static AudioStream CurrentAudioStream => new() { Handle = _audioHandle };
-
-        private struct AudioBuffer
-        {
-            public byte[] Data;
-            public IntPtr Pointer;
-        }
-
         private static readonly Dictionary<AudioStream, AudioBuffer> _streamBuffers = new();
+
+        public static AudioStream CurrentAudioStream => new() { Handle = _audioHandle };
 
         public static double Time
         {
@@ -95,12 +89,11 @@ namespace CCE.Core
             Bass.ChannelStop(_audioChannel);
         }
 
-#if !UNITY_EDITOR
         public static void Cleanup()
         {
             Bass.Free();
+            IsInitialized = false;
         }
-#endif
 
         /// <summary>
         ///     Loads the audio stream into the <see cref="AudioManager" />.
@@ -246,6 +239,12 @@ namespace CCE.Core
             _streamBuffers.Add(new AudioStream { Handle = handle }, buffer);
             BassUtils.PrintLastError();
             return new AudioStream { Handle = handle };
+        }
+
+        private struct AudioBuffer
+        {
+            public byte[] Data;
+            public IntPtr Pointer;
         }
     }
 }

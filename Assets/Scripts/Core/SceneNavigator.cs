@@ -1,10 +1,9 @@
 ﻿using System.IO;
-using CCE.Core;
 using CCE.Data;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace CCE.UI
+namespace CCE.Core
 {
     public class SceneNavigator : MonoBehaviour
     {

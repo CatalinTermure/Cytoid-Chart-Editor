@@ -10,6 +10,11 @@ namespace CCE.Core
     {
         public const float NormalAspectRatio = 16f / 9f;
 
+        public const string AndroidPluginPackageName = "com.chovvy.unityfileutils.FileUtils";
+
+        public const string NewChartString =
+            "{\"format_version\":0,\"time_base\":480,\"start_offset_time\":0,\"page_list\":[{\"start_tick\":0,\"end_tick\":480,\"scan_line_direction\":-1}],\"tempo_list\":[{\"tick\":0,\"value\":1000000}],\"event_order_list\":[],\"note_list\":[]}";
+
         /// <summary>
         ///     Distance, in Unity units, from the center of the screen to the top/bottom edge of the screen.
         /// </summary>
@@ -41,26 +46,22 @@ namespace CCE.Core
 
         public static readonly int[] ColorIndexes = { 0, 4, 6, 2, 2, 8, 10, 10 };
 
-        /// <summary>
-        ///     The current path to use for relative paths referenced in the level.json
-        /// </summary>
-        public static string CurrentLevelPath => Path.Combine(Config.LevelStoragePath, CurrentLevel.ID);
-
         public static LevelData CurrentLevel;
         public static Chart CurrentChart;
 
         public static bool IsGameRunning = false;
-
-        public const string AndroidPluginPackageName = "com.chovvy.unityfileutils.FileUtils";
-
-        public const string NewChartString =
-            "{\"format_version\":0,\"time_base\":480,\"start_offset_time\":0,\"page_list\":[{\"start_tick\":0,\"end_tick\":480,\"scan_line_direction\":-1}],\"tempo_list\":[{\"tick\":0,\"value\":1000000}],\"event_order_list\":[],\"note_list\":[]}";
 
         public static string InAppLogString = "";
 
 #if UNITY_STANDALONE
         private static bool _loadedHotkeys;
 #endif
+
+        /// <summary>
+        ///     The current path to use for relative paths referenced in the level.json
+        /// </summary>
+        public static string CurrentLevelPath => Path.Combine(Config.LevelStoragePath, CurrentLevel.ID);
+
         public static double Offset => CurrentChart.MusicOffset - Config.UserOffset / 1000.0;
 
         private void Awake()
@@ -100,6 +101,22 @@ namespace CCE.Core
                 HotkeyManager.LoadCustomHotkeys();
                 _loadedHotkeys = true;
             }
+#endif
+        }
+
+        private void OnEnable()
+        {
+            if (AudioManager.IsInitialized) return;
+            AudioManager.Initialize();
+            AudioManager.SetMusicVolume(Config.MusicVolume);
+            AudioManager.SetHitsoundVolume(Config.HitsoundVolume);
+        }
+
+        private void OnApplicationQuit()
+        {
+            AudioManager.Stop();
+#if !UNITY_EDITOR
+            AudioManager.Cleanup();
 #endif
         }
 
@@ -184,22 +201,6 @@ namespace CCE.Core
             else if (val.CompareTo(r) == 1) val = r;
 
             return val;
-        }
-
-        private void OnEnable()
-        {
-            if (AudioManager.IsInitialized) return;
-            AudioManager.Initialize();
-            AudioManager.SetMusicVolume(Config.MusicVolume);
-            AudioManager.SetHitsoundVolume(Config.HitsoundVolume);
-        }
-
-        private void OnApplicationQuit()
-        {
-            AudioManager.Stop();
-#if !UNITY_EDITOR
-            AudioManager.Cleanup();
-#endif
         }
     }
 }

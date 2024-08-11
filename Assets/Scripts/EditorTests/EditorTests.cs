@@ -1,4 +1,5 @@
 using System.Collections;
+using CCE.Core;
 using NUnit.Framework;
 using UnityEngine.TestTools;
 
@@ -6,11 +7,20 @@ namespace EditorTests
 {
     public class EditorTests
     {
-        // A Test behaves as an ordinary method
         [Test]
-        public void EditorTestsSimplePasses()
+        public void AudioManagerInitializeSetsIsInitialized()
         {
-            // Use the Assert class to test conditions
+            AudioManager.Initialize();
+            Assert.IsTrue(AudioManager.IsInitialized);
+            AudioManager.Cleanup();
+        }
+
+        [Test]
+        public void AudioManagerCleanupSetsIsInitialized()
+        {
+            AudioManager.Initialize();
+            AudioManager.Cleanup();
+            Assert.IsFalse(AudioManager.IsInitialized);
         }
 
         // A UnityTest behaves like a coroutine in Play Mode. In Edit Mode you can use

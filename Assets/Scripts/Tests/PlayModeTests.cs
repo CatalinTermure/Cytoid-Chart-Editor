@@ -8,15 +8,20 @@ namespace CCE.Tests
     {
         // A Test behaves as an ordinary method
         [Test]
-        public void ListLoadsSimplePasses()
+        public void PlayModeTestsSimplePasses()
         {
             // Use the Assert class to test conditions
+        }
+
+        [Test]
+        public void LevelListLoads()
+        {
         }
 
         // A UnityTest behaves like a coroutine in Play Mode. In Edit Mode you can use
         // `yield return null;` to skip a frame.
         [UnityTest]
-        public IEnumerator ListLoadsWithEnumeratorPasses()
+        public IEnumerator PlayModeTestsWithEnumeratorPasses()
         {
             // Use the Assert class to test conditions.
             // Use yield to skip a frame.
