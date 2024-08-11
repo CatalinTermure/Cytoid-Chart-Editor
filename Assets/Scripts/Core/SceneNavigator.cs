@@ -7,12 +7,12 @@ namespace CCE.Core
 {
     public class SceneNavigator : MonoBehaviour
     {
-        public void NavigateToFileSelect()
+        public static void NavigateToFileSelect()
         {
             NavigateToScene("LevelSelectScene");
         }
 
-        public void NavigateToMainScreen()
+        public static void NavigateToMainScreen()
         {
             if (GlobalState.CurrentChart != null)
             {
@@ -20,12 +20,12 @@ namespace CCE.Core
             }
         }
 
-        public void NavigateToMainScreenUnsafe()
+        public static void NavigateToMainScreenUnsafe()
         {
             NavigateToScene("MainScene");
         }
 
-        public void NavigateToLevelOptions()
+        public static void NavigateToLevelOptions()
         {
             if (GlobalState.CurrentChart != null)
             {
@@ -33,12 +33,12 @@ namespace CCE.Core
             }
         }
 
-        public void NavigateToChartOptions()
+        public static void NavigateToChartOptions()
         {
             NavigateToScene("ChartOptionsScene");
         }
 
-        public void NavigateToEditorOptions()
+        public static void NavigateToEditorOptions()
         {
             NavigateToScene("EditorOptionsScene");
         }
