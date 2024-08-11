@@ -1,4 +1,5 @@
-﻿using CCE.Utils;
+﻿using CCE.Core;
+using CCE.Utils;
 using ManagedBass;
 using UnityEditor;
 
@@ -18,7 +19,7 @@ namespace CCE.Editor
 
         private static void Quit(PlayModeStateChange state)
         {
-            if (state == PlayModeStateChange.ExitingPlayMode)
+            if (state == PlayModeStateChange.ExitingPlayMode && AudioManager.IsInitialized)
             {
                 Bass.Free();
                 BassUtils.PrintLastError();

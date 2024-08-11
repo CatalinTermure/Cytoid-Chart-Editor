@@ -195,6 +195,8 @@ namespace CCE.Core
             Bass.Configure(Configuration.DevNonStop, true);
 
             Bass.Init();
+            IsInitialized = true;
+
 #if UNITY_EDITOR
             if (Bass.LastError == Errors.Already)
             {
@@ -204,8 +206,6 @@ namespace CCE.Core
 #endif
 
             LoadHitsounds();
-
-            IsInitialized = true;
         }
 
         public static void Free(AudioStream stream)
