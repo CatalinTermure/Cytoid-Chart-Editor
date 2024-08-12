@@ -5,10 +5,10 @@ namespace CCE.Commands
 {
     public static class CommandSystem
     {
-        private static readonly Stack<NoteCommand> _commandStack = new();
-        private static readonly Stack<NoteCommand> _redoStack = new();
+        private static readonly Stack<ICommand> _commandStack = new();
+        private static readonly Stack<ICommand> _redoStack = new();
 
-        public static void AppendInvoke(NoteCommand command)
+        public static void AppendInvoke(ICommand command)
         {
             _commandStack.Push(command);
             command.Execute();

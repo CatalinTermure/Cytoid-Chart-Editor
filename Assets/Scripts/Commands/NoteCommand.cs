@@ -1,6 +1,6 @@
 namespace CCE.Commands
 {
-    public abstract class NoteCommand
+    public abstract class NoteCommand : ICommand
     {
         public int[] AffectedNoteIDs;
 
