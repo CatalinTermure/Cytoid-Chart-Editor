@@ -203,6 +203,9 @@ namespace CCE.Core
 
         public static void Free(AudioStream stream)
         {
+            // A stream with a handle of 0 is not loaded.
+            if (stream.Handle == 0) return;
+
             if (!_streamBuffers.ContainsKey(stream))
             {
                 throw new ArgumentException($"Trying to free stream that was not loaded. Handle: {stream.Handle}");
