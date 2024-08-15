@@ -13,7 +13,6 @@ using CCE.UI;
 using CCE.Utils;
 using Newtonsoft.Json;
 using UnityEngine;
-using UnityEngine.Audio;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
 using static CCE.Core.GlobalState;
@@ -36,8 +35,6 @@ namespace CCE.Game
         private static string _logPath;
 
         private static int _beatDivisorValue = 8;
-
-        public AudioMixerGroup HalfSpeedMixer, ThreeQuarterSpeedMixer;
 
         [HideInInspector] public int CurrentPageIndex;
 
@@ -612,7 +609,7 @@ namespace CCE.Game
         {
             var pos = 0; // Determine the position to be inserted in
             // Currently using sequential search and not binary because we already have necessary O(N) complexity
-            // following so it does not make much of a difference, to be changed if performance is hit because of this.
+            // following, so it does not make much of a difference, to be changed if performance is hit because of this.
             while (pos < CurrentChart.NoteList.Count && CurrentChart.NoteList[pos].Tick < noteToAdd.Tick) pos++;
 
             noteToAdd.ID = pos;
@@ -1266,8 +1263,8 @@ namespace CCE.Game
                         CurrentChart.NoteList[highlighted[i]].HoldTick = 0;
                     }
 
-                    CurrentChart.NoteList[highlighted[highlighted.Count - 1]].Type = targetType;
-                    CurrentChart.NoteList[highlighted[highlighted.Count - 1]].HoldTick = 0;
+                    CurrentChart.NoteList[highlighted[^1]].Type = targetType;
+                    CurrentChart.NoteList[highlighted[^1]].HoldTick = 0;
 
                     if (targetType == (int)NoteType.CDragChild)
                     {
@@ -1280,7 +1277,7 @@ namespace CCE.Game
                     }
                     else
                     {
-                        CurrentChart.NoteList[highlighted[highlighted.Count - 1]].NextID = -1;
+                        CurrentChart.NoteList[highlighted[^1]].NextID = -1;
                     }
                 }
             }
@@ -1288,7 +1285,10 @@ namespace CCE.Game
             CalculateTimings();
             UpdateTime(CurrentPage.ActualStartTime);
 
-            for (var i = 0; i < highlighted.Count; i++) HighlightNoteWithID(highlighted[i]);
+            foreach (var highlightedObjectId in highlighted)
+            {
+                HighlightNoteWithID(highlightedObjectId);
+            }
         }
 
         private void HandleInput()
@@ -1827,9 +1827,8 @@ namespace CCE.Game
 
                                 if (pid2 >= 0) CurrentChart.NoteList[pid2].NextID--;
 
-                                var aux = CurrentChart.NoteList[id];
-                                CurrentChart.NoteList[id] = CurrentChart.NoteList[id + 1];
-                                CurrentChart.NoteList[id + 1] = aux;
+                                (CurrentChart.NoteList[id], CurrentChart.NoteList[id + 1]) = (
+                                    CurrentChart.NoteList[id + 1], CurrentChart.NoteList[id]);
                                 CurrentChart.NoteList[id].ID = id;
                                 CurrentChart.NoteList[id + 1].ID = id + 1;
                                 id++;
@@ -1842,9 +1841,8 @@ namespace CCE.Game
 
                                 if (pid2 >= 0) CurrentChart.NoteList[pid2].NextID++;
 
-                                var aux = CurrentChart.NoteList[id];
-                                CurrentChart.NoteList[id] = CurrentChart.NoteList[id - 1];
-                                CurrentChart.NoteList[id - 1] = aux;
+                                (CurrentChart.NoteList[id], CurrentChart.NoteList[id - 1]) = (
+                                    CurrentChart.NoteList[id - 1], CurrentChart.NoteList[id]);
                                 CurrentChart.NoteList[id].ID = id;
                                 CurrentChart.NoteList[id - 1].ID = id - 1;
                                 id--;
@@ -1976,9 +1974,8 @@ namespace CCE.Game
 
                             if (pid2 >= 0) CurrentChart.NoteList[pid2].NextID--;
 
-                            var aux = CurrentChart.NoteList[id];
-                            CurrentChart.NoteList[id] = CurrentChart.NoteList[id + 1];
-                            CurrentChart.NoteList[id + 1] = aux;
+                            (CurrentChart.NoteList[id], CurrentChart.NoteList[id + 1]) = (CurrentChart.NoteList[id + 1],
+                                CurrentChart.NoteList[id]);
                             CurrentChart.NoteList[id].ID = id;
                             CurrentChart.NoteList[id + 1].ID = id + 1;
                             id++;
@@ -1991,9 +1988,8 @@ namespace CCE.Game
 
                             if (pid2 >= 0) CurrentChart.NoteList[pid2].NextID++;
 
-                            var aux = CurrentChart.NoteList[id];
-                            CurrentChart.NoteList[id] = CurrentChart.NoteList[id - 1];
-                            CurrentChart.NoteList[id - 1] = aux;
+                            (CurrentChart.NoteList[id], CurrentChart.NoteList[id - 1]) = (CurrentChart.NoteList[id - 1],
+                                CurrentChart.NoteList[id]);
                             CurrentChart.NoteList[id].ID = id;
                             CurrentChart.NoteList[id - 1].ID = id - 1;
                             id--;
@@ -2005,7 +2001,10 @@ namespace CCE.Game
                     CalculateTimings();
                     UpdateTime(CurrentPage.ActualStartTime);
 
-                    for (var i = 0; i < ids.Count; i++) HighlightNoteWithID(ids[i]);
+                    foreach (var id in ids)
+                    {
+                        HighlightNoteWithID(id);
+                    }
 
                     _movingNotes.Clear();
                 }
@@ -2326,7 +2325,7 @@ namespace CCE.Game
                 }
 
                 while (CurrentChart.NoteList.Count > 0 &&
-                       CurrentChart.NoteList[CurrentChart.NoteList.Count - 1].PageIndex >= CurrentChart.PageList.Count)
+                       CurrentChart.NoteList[^1].PageIndex >= CurrentChart.PageList.Count)
                 {
                     CurrentChart.NoteList.RemoveAt(CurrentChart.NoteList.Count - 1);
                 }
@@ -2429,7 +2428,7 @@ namespace CCE.Game
                 chain.Sort();
                 for (var i = 0; i + 1 < chain.Count; i++) CurrentChart.NoteList[chain[i]].NextID = chain[i + 1];
 
-                CurrentChart.NoteList[chain[chain.Count - 1]].NextID = -1;
+                CurrentChart.NoteList[chain[^1]].NextID = -1;
             }
         }
 
@@ -2500,7 +2499,7 @@ namespace CCE.Game
         #endregion
 
 #if UNITY_STANDALONE
-        private const double _nudgeDistance = 0.01;
+        private const double NudgeDistance = 0.01;
 
         private bool _mouseDragStarted;
         private Vector2 _mouseStartPos = new(0, 0);
@@ -2708,7 +2707,7 @@ namespace CCE.Game
                     if (!obj.GetComponent<IHighlightable>().Highlighted) continue;
 
                     toHighlight.Add(CurrentChart.NoteList[obj.GetComponent<NoteController>().NoteID]);
-                    CurrentChart.NoteList[obj.GetComponent<NoteController>().NoteID].X -= _nudgeDistance;
+                    CurrentChart.NoteList[obj.GetComponent<NoteController>().NoteID].X -= NudgeDistance;
                 }
 
                 UpdateTime(CurrentPage.StartTime);
@@ -2721,7 +2720,7 @@ namespace CCE.Game
                     if (!obj.GetComponent<IHighlightable>().Highlighted) continue;
 
                     toHighlight.Add(CurrentChart.NoteList[obj.GetComponent<NoteController>().NoteID]);
-                    CurrentChart.NoteList[obj.GetComponent<NoteController>().NoteID].X += _nudgeDistance;
+                    CurrentChart.NoteList[obj.GetComponent<NoteController>().NoteID].X += NudgeDistance;
                 }
 
                 UpdateTime(CurrentPage.StartTime);
@@ -3077,11 +3076,11 @@ namespace CCE.Game
                         CurrentChart.NoteList[ids[i]].NextID = ids[i + 1];
                     }
 
-                    CurrentChart.NoteList[ids[ids.Count - 1]].Type = (int)NoteType.DragChild;
+                    CurrentChart.NoteList[ids[^1]].Type = (int)NoteType.DragChild;
 
-                    if (CurrentChart.NoteList[ids[ids.Count - 1]].NextID > 0)
+                    if (CurrentChart.NoteList[ids[^1]].NextID > 0)
                     {
-                        var id = CurrentChart.NoteList[ids[ids.Count - 1]].NextID;
+                        var id = CurrentChart.NoteList[ids[^1]].NextID;
 
                         while (id > 0)
                         {
@@ -3091,7 +3090,7 @@ namespace CCE.Game
                     }
                     else
                     {
-                        CurrentChart.NoteList[ids[ids.Count - 1]].NextID = -1;
+                        CurrentChart.NoteList[ids[^1]].NextID = -1;
                     }
                 }
 
@@ -3143,11 +3142,11 @@ namespace CCE.Game
                         CurrentChart.NoteList[ids[i]].NextID = ids[i + 1];
                     }
 
-                    CurrentChart.NoteList[ids[ids.Count - 1]].Type = (int)NoteType.CDragChild;
+                    CurrentChart.NoteList[ids[^1]].Type = (int)NoteType.CDragChild;
 
-                    if (CurrentChart.NoteList[ids[ids.Count - 1]].NextID > 0)
+                    if (CurrentChart.NoteList[ids[^1]].NextID > 0)
                     {
-                        var id = CurrentChart.NoteList[ids[ids.Count - 1]].NextID;
+                        var id = CurrentChart.NoteList[ids[^1]].NextID;
 
                         while (id > 0)
                         {
@@ -3157,7 +3156,7 @@ namespace CCE.Game
                     }
                     else
                     {
-                        CurrentChart.NoteList[ids[ids.Count - 1]].NextID = -1;
+                        CurrentChart.NoteList[ids[^1]].NextID = -1;
                     }
                 }
 
@@ -3282,9 +3281,8 @@ namespace CCE.Game
                         CurrentChart.NoteList[pid2].NextID--;
                     }
 
-                    var aux = CurrentChart.NoteList[id];
-                    CurrentChart.NoteList[id] = CurrentChart.NoteList[id + 1];
-                    CurrentChart.NoteList[id + 1] = aux;
+                    (CurrentChart.NoteList[id], CurrentChart.NoteList[id + 1]) =
+                        (CurrentChart.NoteList[id + 1], CurrentChart.NoteList[id]);
                     CurrentChart.NoteList[id].ID = id;
                     CurrentChart.NoteList[id + 1].ID = id + 1;
                     id++;
@@ -3303,9 +3301,8 @@ namespace CCE.Game
                         CurrentChart.NoteList[pid2].NextID++;
                     }
 
-                    var aux = CurrentChart.NoteList[id];
-                    CurrentChart.NoteList[id] = CurrentChart.NoteList[id - 1];
-                    CurrentChart.NoteList[id - 1] = aux;
+                    (CurrentChart.NoteList[id], CurrentChart.NoteList[id - 1]) =
+                        (CurrentChart.NoteList[id - 1], CurrentChart.NoteList[id]);
                     CurrentChart.NoteList[id].ID = id;
                     CurrentChart.NoteList[id - 1].ID = id - 1;
                     id--;

@@ -16,7 +16,7 @@ namespace CCE.LevelLoading
         private string _lastQuery;
         [NonSerialized] public LevelListBehaviour Behaviour;
         [NonSerialized] public ChartCardController ChartCardController;
-        [NonSerialized] public LevelPopulator Populator;
+        [NonSerialized] private LevelPopulator _populator;
         [NonSerialized] public LevelListView View;
 
         private void Awake()
@@ -28,8 +28,8 @@ namespace CCE.LevelLoading
 
         private void Start()
         {
-            Populator = new LevelPopulator(this);
-            StartCoroutine(Populator.PopulateLevelsCoroutine());
+            _populator = new LevelPopulator(this);
+            StartCoroutine(_populator.PopulateLevelsCoroutine());
         }
 
         public void AddLevel(LevelData level)

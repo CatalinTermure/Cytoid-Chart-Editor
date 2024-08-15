@@ -21,11 +21,6 @@ namespace CCE.Core
         public static float Height;
 
         /// <summary>
-        ///     Distance, in Unity units, from the center of the screen to the left/right edge of the screen.
-        /// </summary>
-        public static float Width;
-
-        /// <summary>
         ///     The dimension of the play area, in Unity units.
         /// </summary>
         public static float PlayAreaWidth, PlayAreaHeight;
@@ -35,8 +30,6 @@ namespace CCE.Core
         public static EditorConfig Config;
 
         private static Sprite _backgroundSprite;
-
-        public static string DefaultRingColor = "#FFFFFF";
 
         public static readonly string[] DefaultFillColors =
         {
@@ -50,8 +43,6 @@ namespace CCE.Core
         public static Chart CurrentChart;
 
         public static bool IsGameRunning = false;
-
-        public static string InAppLogString = "";
 
 #if UNITY_STANDALONE
         private static bool _loadedHotkeys;
@@ -69,7 +60,6 @@ namespace CCE.Core
             Application.targetFrameRate = 60;
 
             Height = Camera.main!.orthographicSize;
-            Width = AspectRatio * Height;
             PlayAreaWidth = 24 * AspectRatio / NormalAspectRatio;
             PlayAreaHeight = 12;
 

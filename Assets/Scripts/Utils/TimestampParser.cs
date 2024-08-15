@@ -5,8 +5,6 @@ namespace CCE.Utils
 {
     public static class TimestampParser
     {
-        private static readonly char[] _idSeparators = { '(', ')' };
-
         public static double Parse(string timestamp)
         {
             if (timestamp.Contains("("))
