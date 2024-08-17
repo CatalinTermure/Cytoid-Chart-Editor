@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using CCE.Data;
+using CCE.GameUtils;
 using Newtonsoft.Json;
 using UnityEngine;
 
@@ -125,10 +126,7 @@ namespace CCE.Core
 
         public static void LoadChart(ChartMetadata chartMetadata)
         {
-            CurrentChart =
-                JsonConvert.DeserializeObject<Chart>(
-                    File.ReadAllText(Path.Combine(CurrentLevelPath, chartMetadata.Path)));
-            CurrentChart.Metadata = chartMetadata;
+            CurrentChart = LevelLoader.LoadChart(Path.Combine(CurrentLevelPath, chartMetadata.Path), chartMetadata);
         }
 
         public static void LoadBackground()

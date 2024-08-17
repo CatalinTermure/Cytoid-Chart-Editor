@@ -3,7 +3,8 @@
   "rootNamespace": "CCE",
   "references": [
     "GUID:b4f7d1bce6144faf92c29d6f8e53a81c",
-    "GUID:ae93059319644353ab8126ed88d0bb40"
+    "GUID:ae93059319644353ab8126ed88d0bb40",
+    "GUID:bc8e5e6d418749baa0e8bd16f7937147"
   ],
   "includePlatforms": [],
   "excludePlatforms": [],
