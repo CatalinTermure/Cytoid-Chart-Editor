@@ -43,7 +43,7 @@ namespace CCE.Core
             NavigateToScene("EditorOptionsScene");
         }
 
-        public static void NavigateToChartEdit(LevelData levelData, LevelData.ChartFileData chartFileData,
+        public static void NavigateToChartEdit(LevelData levelData, ChartMetadata chartFileData,
             AudioStream audio)
         {
             AudioManager.LoadAudio(audio, true);

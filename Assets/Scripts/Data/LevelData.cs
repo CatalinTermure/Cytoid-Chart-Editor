@@ -28,7 +28,7 @@ namespace CCE.Data
         [JsonProperty("charter")] [Displayable(Section = "Creator", Name = "Charter:", Filter = "Existing Level")]
         public string Charter;
 
-        [JsonProperty("charts")] public List<ChartFileData> Charts = new();
+        [JsonProperty("charts")] public List<ChartMetadata> Charts = new();
 
         [JsonProperty("id")] [Displayable(Name = "Level ID:")]
         public string ID;
@@ -85,38 +85,6 @@ namespace CCE.Data
         public class BackgroundData
         {
             [JsonProperty("path")] public string Path;
-        }
-
-        public class ChartFileData
-        {
-            [JsonProperty("difficulty")] public int Difficulty;
-            [JsonProperty("music_override")] public MusicData MusicOverride;
-            [JsonProperty("name")] public string Name;
-            [JsonProperty("path")] public string Path;
-            [JsonProperty("storyboard")] public StoryboardData Storyboard;
-            [JsonProperty("type")] public string Type;
-
-            [JsonIgnore] public string DisplayName => Name?.Length > 0 ? Name : Type;
-
-            public bool ShouldSerializeMusicOverride()
-            {
-                return !String.IsNullOrEmpty(MusicOverride?.Path);
-            }
-
-            public bool ShouldSerializeName()
-            {
-                return !String.IsNullOrEmpty(Name);
-            }
-
-            public bool ShouldSerializeStoryboard()
-            {
-                return !String.IsNullOrEmpty(Storyboard?.Path);
-            }
-
-            public class StoryboardData
-            {
-                [JsonProperty("path")] public string Path;
-            }
         }
     }
 }

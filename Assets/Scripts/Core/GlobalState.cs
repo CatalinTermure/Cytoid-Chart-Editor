@@ -123,7 +123,7 @@ namespace CCE.Core
             LoadBackground();
         }
 
-        public static void LoadChart(LevelData.ChartFileData chart)
+        public static void LoadChart(ChartMetadata chart)
         {
             CurrentChart =
                 new Chart(

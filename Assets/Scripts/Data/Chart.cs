@@ -8,12 +8,12 @@ namespace CCE.Data
     /// </summary>
     public class Chart : ChartData
     {
-        [JsonIgnore] [NonSerialized] public LevelData.ChartFileData Data;
+        [JsonIgnore] [NonSerialized] public ChartMetadata Data;
 
         /// <summary>
         ///     Constructs a chart and does a member-wise copy of the parameters of <see cref="ChartData" />.
         /// </summary>
-        public Chart(ChartData chart, LevelData.ChartFileData data)
+        public Chart(ChartData chart, ChartMetadata data)
         {
             FormatVersion = chart.FormatVersion;
             TimeBase = chart.TimeBase;

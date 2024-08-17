@@ -130,7 +130,7 @@ namespace CCE.LevelLoading
             }
         }
 
-        private void LoadChart(LevelData levelData, LevelData.ChartFileData chartData)
+        private void LoadChart(LevelData levelData, ChartMetadata chartData)
         {
             var audioFilePath = Path.Combine(GlobalState.Config.LevelStoragePath, levelData.ID,
                 chartData.MusicOverride?.Path ?? levelData.Music.Path);
@@ -161,7 +161,7 @@ namespace CCE.LevelLoading
                     Formatting = Formatting.Indented
                 }));
 
-            var chartData = new LevelData.ChartFileData
+            var chartData = new ChartMetadata
             {
                 Type = type,
                 Path = Path.GetFileName(chartFilePath)
