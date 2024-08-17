@@ -571,7 +571,7 @@ namespace CCE.Game
         {
             var dragID = -1;
             foreach (var note in CurrentChart.NoteList
-                         .Where(note => note.Type == (int)NoteType.CDragHead || note.Type == (int)NoteType.DragHead))
+                         .Where(note => note.Type is (int)NoteType.CDragHead or (int)NoteType.DragHead))
             {
                 dragID++;
                 var id = note.ID;
@@ -589,12 +589,9 @@ namespace CCE.Game
 
         public static int GetDragParent(int id)
         {
-            var i = id - 1;
-            while (i >= 0)
+            for (var i = id - 1; i >= 0; i--)
             {
                 if (CurrentChart.NoteList[i].NextID == id) return i;
-
-                i--;
             }
 
             return -1;
@@ -616,10 +613,8 @@ namespace CCE.Game
             noteToAdd.ID = pos;
             foreach (var note in CurrentChart.NoteList)
             {
-                if (note.Type == (int)NoteType.DragHead ||
-                    note.Type == (int)NoteType.DragChild ||
-                    note.Type == (int)NoteType.CDragChild ||
-                    note.Type == (int)NoteType.CDragHead)
+                if (note.Type is (int)NoteType.DragHead or (int)NoteType.DragChild or (int)NoteType.CDragChild
+                    or (int)NoteType.CDragHead)
                 {
                     if (note.NextID == -1 && note.DragChainID == noteToAdd.DragChainID) note.NextID = noteToAdd.ID;
 
@@ -998,8 +993,8 @@ namespace CCE.Game
                 if (obj.GetComponent<NoteController>().NoteID == noteID)
                 {
                     var type = obj.GetComponent<NoteController>().NoteType;
-                    if (type == (int)NoteType.DragHead || type == (int)NoteType.DragChild ||
-                        type == (int)NoteType.CDragHead || type == (int)NoteType.CDragChild)
+                    if (type is (int)NoteType.DragHead or (int)NoteType.DragChild or (int)NoteType.CDragHead
+                        or (int)NoteType.CDragChild)
                     {
                         needUpdate = true;
                     }
@@ -1519,7 +1514,7 @@ namespace CCE.Game
                         CalculateTimings();
                         UpdateTime(CurrentPage.ActualStartTime);
                     }
-                    else if (CurrentTool == NoteType.Hold || CurrentTool == NoteType.LongHold) // Add hold notes
+                    else if (CurrentTool is NoteType.Hold or NoteType.LongHold) // Add hold notes
                     {
                         var tick = (int)GetTickForTouchPosition(touchPos);
 
@@ -1564,8 +1559,8 @@ namespace CCE.Game
                             var noteType = obj.GetComponent<NoteController>().NoteType;
                             var noteID = obj.GetComponent<NoteController>().NoteID;
                             if (obj.GetComponent<IHighlightable>().Highlighted &&
-                                CurrentChart.NoteList[noteID].NextID == -1 && (noteType == (int)NoteType.DragHead ||
-                                                                               noteType == (int)NoteType.DragChild))
+                                CurrentChart.NoteList[noteID].NextID == -1 &&
+                                noteType is (int)NoteType.DragHead or (int)NoteType.DragChild)
                                 // Add drag child
                             {
                                 var tick = (int)GetTickForTouchPosition(touchPos);
@@ -1621,8 +1616,8 @@ namespace CCE.Game
                             var noteID = obj.GetComponent<NoteController>().NoteID;
                             var noteType = obj.GetComponent<NoteController>().NoteType;
                             if (obj.GetComponent<IHighlightable>().Highlighted &&
-                                CurrentChart.NoteList[noteID].NextID == -1 && (noteType == (int)NoteType.CDragHead ||
-                                                                               noteType == (int)NoteType.CDragChild))
+                                CurrentChart.NoteList[noteID].NextID == -1 &&
+                                noteType is (int)NoteType.CDragHead or (int)NoteType.CDragChild)
                                 // Add cdrag child
                             {
                                 var tick = (int)GetTickForTouchPosition(touchPos);
@@ -2307,47 +2302,46 @@ namespace CCE.Game
 
         public void SaveChart()
         {
-            if (CurrentChart != null)
+            if (CurrentChart == null) return;
+
+            CurrentChart.OrderedEventBatches.Clear();
+
+            for (var i = 1; i < CurrentChart.TempoList.Count; i++)
             {
-                CurrentChart.OrderedEventBatches.Clear();
-
-                for (var i = 1; i < CurrentChart.TempoList.Count; i++)
+                CurrentChart.OrderedEventBatches.Add(new EventBatch
                 {
-                    CurrentChart.OrderedEventBatches.Add(new EventBatch
-                    {
-                        Tick = CurrentChart.TempoList[i].Tick - CurrentChart.TimeBase,
-                        EventList = new List<Event>(1)
-                    });
-                    CurrentChart.OrderedEventBatches[i - 1].EventList.Add(new Event
-                    {
-                        Type = CurrentChart.TempoList[i].Value > CurrentChart.TempoList[i - 1].Value ? 1 : 0,
-                        Args = CurrentChart.TempoList[i].Value > CurrentChart.TempoList[i - 1].Value ? "G" : "R"
-                    });
-                }
-
-                while (CurrentChart.NoteList.Count > 0 &&
-                       CurrentChart.NoteList[^1].PageIndex >= CurrentChart.PageList.Count)
+                    Tick = CurrentChart.TempoList[i].Tick - CurrentChart.TimeBase,
+                    EventList = new List<Event>(1)
+                });
+                CurrentChart.OrderedEventBatches[i - 1].EventList.Add(new Event
                 {
-                    CurrentChart.NoteList.RemoveAt(CurrentChart.NoteList.Count - 1);
-                }
+                    Type = CurrentChart.TempoList[i].Value > CurrentChart.TempoList[i - 1].Value ? 1 : 0,
+                    Args = CurrentChart.TempoList[i].Value > CurrentChart.TempoList[i - 1].Value ? "G" : "R"
+                });
+            }
 
-                File.WriteAllText(Path.Combine(CurrentLevelPath, CurrentChart.Metadata.Path),
-                    JsonConvert.SerializeObject(
-                        CurrentChart, new JsonSerializerSettings
-                        {
-                            NullValueHandling = NullValueHandling.Ignore
-                        }));
+            while (CurrentChart.NoteList.Count > 0 &&
+                   CurrentChart.NoteList[^1].PageIndex >= CurrentChart.PageList.Count)
+            {
+                CurrentChart.NoteList.RemoveAt(CurrentChart.NoteList.Count - 1);
+            }
 
-                var levelDirPath = Path.Combine(Config.LevelStoragePath, CurrentLevel.ID);
-                File.WriteAllText(Path.Combine(levelDirPath, "level.json"),
-                    JsonConvert.SerializeObject(CurrentLevel, new JsonSerializerSettings
+            File.WriteAllText(Path.Combine(CurrentLevelPath, CurrentChart.Metadata.Path),
+                JsonConvert.SerializeObject(
+                    CurrentChart, new JsonSerializerSettings
                     {
-                        NullValueHandling = NullValueHandling.Ignore,
-                        Formatting = Formatting.Indented
+                        NullValueHandling = NullValueHandling.Ignore
                     }));
 
-                GameObject.Find("ToastText").GetComponent<ToastMessageManager>().CreateToast("Saved chart!");
-            }
+            var levelDirPath = Path.Combine(Config.LevelStoragePath, CurrentLevel.ID);
+            File.WriteAllText(Path.Combine(levelDirPath, "level.json"),
+                JsonConvert.SerializeObject(CurrentLevel, new JsonSerializerSettings
+                {
+                    NullValueHandling = NullValueHandling.Ignore,
+                    Formatting = Formatting.Indented
+                }));
+
+            GameObject.Find("ToastText").GetComponent<ToastMessageManager>().CreateToast("Saved chart!");
         }
 
         public void CopySelection()
@@ -2379,8 +2373,8 @@ namespace CCE.Game
                     note.Tick += CurrentPage.StartTick - Clipboard.ReferenceTick;
                     note.PageIndex += CurrentPageIndex - Clipboard.ReferencePageIndex;
                     note.ID = -1;
-                    if (note.Type == (int)NoteType.DragChild || note.Type == (int)NoteType.DragHead ||
-                        note.Type == (int)NoteType.CDragChild || note.Type == (int)NoteType.CDragHead)
+                    if (note.Type is (int)NoteType.DragChild or (int)NoteType.DragHead or (int)NoteType.CDragChild
+                        or (int)NoteType.CDragHead)
                     {
                         note.NextID = -1;
                         note.DragChainID += 1000005;
@@ -2459,7 +2453,7 @@ namespace CCE.Game
             public Vector2 ReferencePosition;
         }
 
-        #region Prefabs for instantiating
+        #region Prefabs
 
         public GameObject ScanlineNotePrefab;
         public GameObject DivisorLinePrefab;
@@ -3201,8 +3195,8 @@ namespace CCE.Game
                     break;
                 default:
                 {
-                    if ((note.Type == (int)NoteType.DragHead || note.Type == (int)NoteType.DragChild ||
-                         note.Type == (int)NoteType.CDragChild || note.Type == (int)NoteType.CDragHead)
+                    if (note.Type is (int)NoteType.DragHead or (int)NoteType.DragChild or (int)NoteType.CDragChild
+                            or (int)NoteType.CDragHead
                         && note.NextID > 0)
                     {
                         if (note.Tick + deltaTick <= Math.Min(p.EndTick, CurrentChart.NoteList[note.NextID].Tick))
@@ -3237,8 +3231,8 @@ namespace CCE.Game
             var p = CurrentChart.PageList[note.PageIndex];
             var deltaTick = (int)p.ActualPageSize / _beatDivisorValue;
 
-            if ((note.Type == (int)NoteType.DragHead || note.Type == (int)NoteType.DragChild ||
-                 note.Type == (int)NoteType.CDragChild || note.Type == (int)NoteType.CDragHead)
+            if (note.Type is (int)NoteType.DragHead or (int)NoteType.DragChild or (int)NoteType.CDragChild
+                    or (int)NoteType.CDragHead
                 && GetDragParent(note.ID) > -1)
             {
                 var parent = GetDragParent(note.ID);

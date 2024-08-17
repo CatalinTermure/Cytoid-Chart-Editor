@@ -10,7 +10,7 @@ namespace CCE.UI
 {
     public class NotePropertiesManager : MonoBehaviour
     {
-        private static readonly List<int> _notes = new();
+        private readonly List<int> _notes = new();
 
         public GameObject NoteXLabel, NoteXInputField, NoteARLabel, NoteARInputField, NoteYLabel, NoteYInputField;
         private bool _changeNoteAR, _changeNoteXPosition, _changeNoteY;
@@ -87,10 +87,10 @@ namespace CCE.UI
                 }
 
 
-                for (var i = 0; i < _notes.Count; i++)
+                foreach (var noteID in _notes)
                 {
-                    GlobalState.CurrentChart.NoteList[_notes[i]].ApproachRate = approachRate;
-                    GameLogic.RefreshNote(_notes[i]);
+                    GlobalState.CurrentChart.NoteList[noteID].ApproachRate = approachRate;
+                    GameLogic.RefreshNote(noteID);
                 }
 
                 GameLogic.ForceUpdate();
@@ -123,44 +123,44 @@ namespace CCE.UI
 
                 y = GlobalState.Clamp(y, 0.0, 1.0);
 
-                for (var i = 0; i < _notes.Count; i++)
+                foreach (var noteID in _notes)
                 {
                     var tick = (int)Math.Round(
-                        GlobalState.CurrentChart.PageList[GlobalState.CurrentChart.NoteList[_notes[i]].PageIndex]
+                        GlobalState.CurrentChart.PageList[GlobalState.CurrentChart.NoteList[noteID].PageIndex]
                             .StartTick +
-                        GlobalState.CurrentChart.PageList[GlobalState.CurrentChart.NoteList[_notes[i]].PageIndex]
+                        GlobalState.CurrentChart.PageList[GlobalState.CurrentChart.NoteList[noteID].PageIndex]
                             .PageSize * y);
 
-                    if (GlobalState.CurrentChart.NoteList[_notes[i]].Type == (int)NoteType.CDragHead ||
-                        GlobalState.CurrentChart.NoteList[_notes[i]].Type == (int)NoteType.DragHead)
+                    if (GlobalState.CurrentChart.NoteList[noteID].Type == (int)NoteType.CDragHead ||
+                        GlobalState.CurrentChart.NoteList[noteID].Type == (int)NoteType.DragHead)
                     {
                         tick = Math.Min(tick,
-                            GlobalState.CurrentChart.NoteList[_notes[i]].NextID >= 0
-                                ? GlobalState.CurrentChart.NoteList[GlobalState.CurrentChart.NoteList[_notes[i]].NextID]
+                            GlobalState.CurrentChart.NoteList[noteID].NextID >= 0
+                                ? GlobalState.CurrentChart.NoteList[GlobalState.CurrentChart.NoteList[noteID].NextID]
                                     .Tick
                                 : 0);
                     }
-                    else if (GlobalState.CurrentChart.NoteList[_notes[i]].Type == (int)NoteType.CDragChild ||
-                             GlobalState.CurrentChart.NoteList[_notes[i]].Type == (int)NoteType.DragChild)
+                    else if (GlobalState.CurrentChart.NoteList[noteID].Type == (int)NoteType.CDragChild ||
+                             GlobalState.CurrentChart.NoteList[noteID].Type == (int)NoteType.DragChild)
                     {
                         tick = GlobalState.Clamp(tick,
-                            GlobalState.CurrentChart.NoteList[GameLogic.GetDragParent(_notes[i])].Tick,
-                            GlobalState.CurrentChart.NoteList[_notes[i]].NextID >= 0
-                                ? GlobalState.CurrentChart.NoteList[GlobalState.CurrentChart.NoteList[_notes[i]].NextID]
+                            GlobalState.CurrentChart.NoteList[GameLogic.GetDragParent(noteID)].Tick,
+                            GlobalState.CurrentChart.NoteList[noteID].NextID >= 0
+                                ? GlobalState.CurrentChart.NoteList[GlobalState.CurrentChart.NoteList[noteID].NextID]
                                     .Tick
                                 : 0);
                     }
 
-                    GlobalState.CurrentChart.NoteList[_notes[i]].Tick = tick;
+                    GlobalState.CurrentChart.NoteList[noteID].Tick = tick;
 
-                    var id = _notes[i];
+                    var id = noteID;
                     while (id + 1 < GlobalState.CurrentChart.NoteList.Count &&
                            GlobalState.CurrentChart.NoteList[id].Tick > GlobalState.CurrentChart.NoteList[id + 1].Tick)
                     {
-                        var dragparent = GameLogic.GetDragParent(id);
-                        if (dragparent > -1)
+                        var dragParent = GameLogic.GetDragParent(id);
+                        if (dragParent > -1)
                         {
-                            GlobalState.CurrentChart.NoteList[dragparent].NextID++;
+                            GlobalState.CurrentChart.NoteList[dragParent].NextID++;
                         }
 
                         var aux = GlobalState.CurrentChart.NoteList[id];
@@ -221,7 +221,7 @@ namespace CCE.UI
                 {
                     NoteXInputField.GetComponent<InputField>().text = "";
                 }
-                else if (Math.Abs(GlobalState.CurrentChart.NoteList[_notes[_notes.Count - 1]].X - _notesX) < 0.001)
+                else if (Math.Abs(GlobalState.CurrentChart.NoteList[_notes[^1]].X - _notesX) < 0.001)
                 {
                     NoteXInputField.GetComponent<InputField>().text = _notesX.ToString("F3");
                 }
@@ -235,7 +235,7 @@ namespace CCE.UI
                 {
                     NoteARInputField.GetComponent<InputField>().text = "";
                 }
-                else if (Math.Abs(GlobalState.CurrentChart.NoteList[_notes[_notes.Count - 1]].ApproachRate - _notesAR) <
+                else if (Math.Abs(GlobalState.CurrentChart.NoteList[_notes[^1]].ApproachRate - _notesAR) <
                          0.001)
                 {
                     NoteARInputField.GetComponent<InputField>().text = _notesAR.ToString("F3");
@@ -250,7 +250,7 @@ namespace CCE.UI
                 {
                     NoteYInputField.GetComponent<InputField>().text = "";
                 }
-                else if (Math.Abs(GlobalState.CurrentChart.NoteList[_notes[_notes.Count - 1]].Y - _notesY) < 0.001)
+                else if (Math.Abs(GlobalState.CurrentChart.NoteList[_notes[^1]].Y - _notesY) < 0.001)
                 {
                     NoteYInputField.GetComponent<InputField>().text = _notesY.ToString("F3");
                 }
@@ -296,7 +296,7 @@ namespace CCE.UI
                 _notesX = GlobalState.CurrentChart.NoteList[_notes[0]].X;
                 for (var i = 1; i < _notes.Count; i++)
                 {
-                    if (Math.Abs(GlobalState.CurrentChart.NoteList[_notes[_notes.Count - 1]].X - _notesX) > 0.001)
+                    if (Math.Abs(GlobalState.CurrentChart.NoteList[_notes[^1]].X - _notesX) > 0.001)
                     {
                         isNoteXSame = false;
                         _notesX = -1;
@@ -316,7 +316,7 @@ namespace CCE.UI
                 _notesAR = GlobalState.CurrentChart.NoteList[_notes[0]].ApproachRate;
                 for (var i = 1; i < _notes.Count; i++)
                 {
-                    if (Math.Abs(GlobalState.CurrentChart.NoteList[_notes[_notes.Count - 1]].ApproachRate - _notesAR) >
+                    if (Math.Abs(GlobalState.CurrentChart.NoteList[_notes[^1]].ApproachRate - _notesAR) >
                         0.001)
                     {
                         isNoteARSame = false;
@@ -337,7 +337,7 @@ namespace CCE.UI
                 _notesY = GlobalState.CurrentChart.NoteList[_notes[0]].Y;
                 for (var i = 1; i < _notes.Count; i++)
                 {
-                    if (Math.Abs(GlobalState.CurrentChart.NoteList[_notes[_notes.Count - 1]].Y - _notesY) > 0.001)
+                    if (Math.Abs(GlobalState.CurrentChart.NoteList[_notes[^1]].Y - _notesY) > 0.001)
                     {
                         isNoteYSame = false;
                         _notesY = -1;
