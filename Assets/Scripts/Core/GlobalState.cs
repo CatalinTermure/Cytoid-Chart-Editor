@@ -123,13 +123,12 @@ namespace CCE.Core
             LoadBackground();
         }
 
-        public static void LoadChart(ChartMetadata chart)
+        public static void LoadChart(ChartMetadata chartMetadata)
         {
             CurrentChart =
-                new Chart(
-                    JsonConvert.DeserializeObject<ChartData>(
-                        File.ReadAllText(Path.Combine(CurrentLevelPath, chart.Path))),
-                    chart);
+                JsonConvert.DeserializeObject<Chart>(
+                    File.ReadAllText(Path.Combine(CurrentLevelPath, chartMetadata.Path)));
+            CurrentChart.Metadata = chartMetadata;
         }
 
         public static void LoadBackground()

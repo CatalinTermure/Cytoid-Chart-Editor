@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 using CCE.Core;
-using CCE.Data;
+using CCE.GameUtils;
 using CCE.Utils;
 using Newtonsoft.Json;
 using SFB;
@@ -22,14 +22,14 @@ namespace CCE.UI
 
         private void Start()
         {
-            ChartNameInputField.text = GlobalState.CurrentChart.Data.Name;
+            ChartNameInputField.text = GlobalState.CurrentChart.Metadata.Name;
 
-            DifficultyInputField.text = GlobalState.CurrentChart.Data.Difficulty.ToString();
+            DifficultyInputField.text = GlobalState.CurrentChart.Metadata.Difficulty.ToString();
 
-            _highlightedButton = GameObject.Find(GlobalState.CurrentChart.Data.Type + "Button");
+            _highlightedButton = GameObject.Find(GlobalState.CurrentChart.Metadata.Type + "Button");
             if (_highlightedButton == null)
             {
-                Debug.LogError($"CCELog: Could not find button {GlobalState.CurrentChart.Data.Type}Button");
+                Debug.LogError($"CCELog: Could not find button {GlobalState.CurrentChart.Metadata.Type}Button");
             }
 
             _highlightedButton.GetComponent<Image>().color = _highlightColor;
@@ -38,7 +38,7 @@ namespace CCE.UI
         public void ChangeType(GameObject btn)
         {
             _highlightedButton.GetComponent<Image>().color = _normalColor;
-            GlobalState.CurrentChart.Data.Type = btn.GetComponentInChildren<Text>().text;
+            GlobalState.CurrentChart.Metadata.Type = btn.GetComponentInChildren<Text>().text;
             _highlightedButton = btn;
             _highlightedButton.GetComponent<Image>().color = _highlightColor;
         }
@@ -61,8 +61,7 @@ namespace CCE.UI
             {
                 try
                 {
-                    var chartData = JsonConvert.DeserializeObject<ChartData>(File.ReadAllText(pickedFile));
-                    GlobalState.CurrentChart = new Chart(chartData, GlobalState.CurrentChart.Data);
+                    GlobalState.CurrentChart = LevelLoader.LoadChart(pickedFile, GlobalState.CurrentChart.Metadata);
                     MessageToaster.CreateToast(
                         "Chart file imported. It will not be saved unless you save the chart in the chart editing screen.");
                 }
@@ -82,8 +81,7 @@ namespace CCE.UI
                     if (paths.Length == 0) return;
                     try
                     {
-                        var chartData = JsonConvert.DeserializeObject<ChartData>(File.ReadAllText(paths[0]));
-                        GlobalState.CurrentChart = new Chart(chartData, GlobalState.CurrentChart.Data);
+                        GlobalState.CurrentChart = LevelLoader.LoadChart(paths[0], GlobalState.CurrentChart.Metadata);
                         MessageToaster.CreateToast(
                             "Chart file imported. It will not be saved unless you save the chart in the chart editing screen.");
                     }
@@ -97,9 +95,9 @@ namespace CCE.UI
         public void SaveData()
         {
             var difficultyName = ChartNameInputField.text;
-            GlobalState.CurrentChart.Data.Name = difficultyName.Length > 0 ? difficultyName : null;
+            GlobalState.CurrentChart.Metadata.Name = difficultyName.Length > 0 ? difficultyName : null;
 
-            GlobalState.CurrentChart.Data.Difficulty = Int32.Parse(DifficultyInputField.text);
+            GlobalState.CurrentChart.Metadata.Difficulty = Int32.Parse(DifficultyInputField.text);
 
             File.WriteAllText(Path.Combine(GlobalState.CurrentLevelPath, "level.json"),
                 JsonConvert.SerializeObject(GlobalState.CurrentLevel, new JsonSerializerSettings

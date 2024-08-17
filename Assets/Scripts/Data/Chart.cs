@@ -1,36 +1,61 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using Newtonsoft.Json;
 
 namespace CCE.Data
 {
-    /// <summary>
-    ///     Class holding all the necessary information for a chart.
-    /// </summary>
-    public class Chart : ChartData
+    [SuppressMessage("ReSharper", "UnusedMember.Global",
+        Justification = "Newtonsoft.Json uses reflection for ShouldSerialize methods")]
+    public class Chart
     {
-        [JsonIgnore] [NonSerialized] public ChartMetadata Data;
+        [JsonIgnore] [NonSerialized] public ChartMetadata Metadata;
 
-        /// <summary>
-        ///     Constructs a chart and does a member-wise copy of the parameters of <see cref="ChartData" />.
-        /// </summary>
-        public Chart(ChartData chart, ChartMetadata data)
+        [JsonProperty("display_background")] public bool? DisplayBackground;
+
+        [JsonProperty("display_boundaries")] public bool? DisplayBoundaries;
+        [JsonProperty("event_order_list")] public List<EventBatch> OrderedEventBatches = new();
+
+        [JsonProperty("fill_colors")] public List<string> FillColors =
+            new(12) { null, null, null, null, null, null, null, null, null, null, null, null };
+
+        [JsonProperty("format_version")] public int FormatVersion;
+        [JsonProperty("horizontal_margin")] public int? HorizontalMargin;
+        [JsonProperty("music_offset")] public double MusicOffset;
+        [JsonProperty("note_list")] public List<Note> NoteList = new();
+        [JsonProperty("opacity")] public double Opacity = 1.0;
+
+        [JsonProperty("page_list")] public List<Page> PageList = new();
+
+        [JsonProperty("ring_color")] public string RingColor;
+
+        [JsonProperty("size")] public double Size = 1.0;
+
+        [JsonProperty("skip_music_on_completion")]
+        public bool? SkipMusicOnCompletion;
+
+        [JsonProperty("tempo_list")] public List<Tempo> TempoList = new();
+        [JsonProperty("time_base")] public int TimeBase = 480;
+        [JsonProperty("vertical_margin")] public int? VerticalMargin;
+
+        public bool ShouldSerializeSize()
         {
-            FormatVersion = chart.FormatVersion;
-            TimeBase = chart.TimeBase;
-            MusicOffset = chart.MusicOffset;
+            return Math.Abs(Size - 1.0) > 0.001;
+        }
 
-            Opacity = chart.Opacity;
-            Size = chart.Size;
+        public bool ShouldSerializeOpacity()
+        {
+            return Math.Abs(Opacity - 1.0) > 0.001;
+        }
 
-            RingColor = chart.RingColor;
-            FillColors = chart.FillColors;
+        public bool ShouldSerializeRingColor()
+        {
+            return !String.IsNullOrEmpty(RingColor);
+        }
 
-            PageList = chart.PageList;
-            TempoList = chart.TempoList;
-            NoteList = chart.NoteList;
-            EventOrderList = chart.EventOrderList;
-
-            Data = data;
+        public bool ShouldSerializeFillColors()
+        {
+            return !FillColors.TrueForAll(String.IsNullOrEmpty);
         }
     }
 }

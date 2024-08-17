@@ -16,6 +16,7 @@ using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
 using static CCE.Core.GlobalState;
+using Event = CCE.Data.Event;
 
 namespace CCE.Game
 {
@@ -2308,16 +2309,16 @@ namespace CCE.Game
         {
             if (CurrentChart != null)
             {
-                CurrentChart.EventOrderList.Clear();
+                CurrentChart.OrderedEventBatches.Clear();
 
                 for (var i = 1; i < CurrentChart.TempoList.Count; i++)
                 {
-                    CurrentChart.EventOrderList.Add(new EventOrder
+                    CurrentChart.OrderedEventBatches.Add(new EventBatch
                     {
                         Tick = CurrentChart.TempoList[i].Tick - CurrentChart.TimeBase,
-                        EventList = new List<EventOrder.Event>(1)
+                        EventList = new List<Event>(1)
                     });
-                    CurrentChart.EventOrderList[i - 1].EventList.Add(new EventOrder.Event
+                    CurrentChart.OrderedEventBatches[i - 1].EventList.Add(new Event
                     {
                         Type = CurrentChart.TempoList[i].Value > CurrentChart.TempoList[i - 1].Value ? 1 : 0,
                         Args = CurrentChart.TempoList[i].Value > CurrentChart.TempoList[i - 1].Value ? "G" : "R"
@@ -2330,11 +2331,12 @@ namespace CCE.Game
                     CurrentChart.NoteList.RemoveAt(CurrentChart.NoteList.Count - 1);
                 }
 
-                File.WriteAllText(Path.Combine(CurrentLevelPath, CurrentChart.Data.Path), JsonConvert.SerializeObject(
-                    CurrentChart, new JsonSerializerSettings
-                    {
-                        NullValueHandling = NullValueHandling.Ignore
-                    }));
+                File.WriteAllText(Path.Combine(CurrentLevelPath, CurrentChart.Metadata.Path),
+                    JsonConvert.SerializeObject(
+                        CurrentChart, new JsonSerializerSettings
+                        {
+                            NullValueHandling = NullValueHandling.Ignore
+                        }));
 
                 var levelDirPath = Path.Combine(Config.LevelStoragePath, CurrentLevel.ID);
                 File.WriteAllText(Path.Combine(levelDirPath, "level.json"),
