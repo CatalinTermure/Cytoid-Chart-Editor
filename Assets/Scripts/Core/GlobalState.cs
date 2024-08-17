@@ -39,7 +39,7 @@ namespace CCE.Core
 
         public static readonly int[] ColorIndexes = { 0, 4, 6, 2, 2, 8, 10, 10 };
 
-        public static LevelData CurrentLevel;
+        public static Level CurrentLevel;
         public static Chart CurrentChart;
 
         public static bool IsGameRunning = false;
@@ -116,7 +116,7 @@ namespace CCE.Core
                 JsonConvert.SerializeObject(Config));
         }
 
-        public static void LoadLevel(LevelData level, string path)
+        public static void LoadLevel(Level level, string path)
         {
             CurrentLevel = level;
 

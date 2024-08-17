@@ -9,7 +9,7 @@ namespace CCE.Data
     public class ChartMetadata
     {
         [JsonProperty("difficulty")] public int Difficulty;
-        [JsonProperty("music_override")] public LevelData.MusicData MusicOverride;
+        [JsonProperty("music_override")] public Level.MusicData MusicOverride;
         [JsonProperty("name")] public string Name;
         [JsonProperty("path")] public string Path;
         [JsonProperty("storyboard")] public StoryboardData Storyboard;

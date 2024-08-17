@@ -30,7 +30,7 @@ namespace CCE.LevelLoading
 
         private readonly Dictionary<string, LevelAssets> _loadedLevels = new(PoolSize);
 
-        public async void ScheduleLevelLoad(LevelCardInfo levelCardInfo, LevelData level)
+        public async void ScheduleLevelLoad(LevelCardInfo levelCardInfo, Level level)
         {
             if (_loadedLevels.TryGetValue(level.ID, out var loadedLevel))
             {

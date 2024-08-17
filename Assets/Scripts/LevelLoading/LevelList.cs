@@ -12,7 +12,7 @@ namespace CCE.LevelLoading
     {
         private readonly List<string> _levelDescriptions = new();
 
-        private readonly List<LevelData> _levels = new();
+        private readonly List<Level> _levels = new();
         private string _lastQuery;
         [NonSerialized] public LevelListBehaviour Behaviour;
         [NonSerialized] public ChartCardController ChartCardController;
@@ -32,7 +32,7 @@ namespace CCE.LevelLoading
             StartCoroutine(_populator.PopulateLevelsCoroutine());
         }
 
-        public void AddLevel(LevelData level)
+        public void AddLevel(Level level)
         {
             _levels.Add(level);
 
@@ -43,7 +43,7 @@ namespace CCE.LevelLoading
                                    $"{level.Charter} {level.Storyboarder}");
         }
 
-        public void RemoveLevel(LevelData level)
+        public void RemoveLevel(Level level)
         {
             var index = _levels.IndexOf(level);
             _levels.RemoveAt(index);
@@ -58,7 +58,7 @@ namespace CCE.LevelLoading
             _lastQuery = query;
 
             var queryParts = query.Split(' ');
-            var results = new List<LevelData>();
+            var results = new List<Level>();
 
             for (var i = 0; i < _levelDescriptions.Count; i++)
             {

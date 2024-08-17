@@ -9,9 +9,9 @@ namespace CCE.GameUtils
 {
     public static class LevelUtils
     {
-        public static void DeleteDeadAssets(string levelStoragePath, LevelData levelData)
+        public static void DeleteDeadAssets(string levelStoragePath, Level level)
         {
-            foreach (var chart in levelData.Charts)
+            foreach (var chart in level.Charts)
             {
                 if (!String.IsNullOrEmpty(chart.Storyboard?.Path))
                 {
@@ -21,7 +21,7 @@ namespace CCE.GameUtils
                 }
             }
 
-            var levelDir = Path.Combine(levelStoragePath, levelData.ID);
+            var levelDir = Path.Combine(levelStoragePath, level.ID);
 
             // The huge amount of Path.GetFullPath() comes from the need to use a consistent path scheme
             // so that the string comparisons don't return false negatives
@@ -31,22 +31,22 @@ namespace CCE.GameUtils
                 Path.GetFullPath(Path.Combine(levelDir, "level.json")),
                 Path.GetFullPath(Path.Combine(levelDir, ".bg"))
             };
-            if (levelData.Background?.Path != null)
+            if (level.Background?.Path != null)
             {
-                validFiles.Add(Path.GetFullPath(Path.Combine(levelDir, levelData.Background.Path)));
+                validFiles.Add(Path.GetFullPath(Path.Combine(levelDir, level.Background.Path)));
             }
 
-            if (levelData.Music?.Path != null)
+            if (level.Music?.Path != null)
             {
-                validFiles.Add(Path.GetFullPath(Path.Combine(levelDir, levelData.Music.Path)));
+                validFiles.Add(Path.GetFullPath(Path.Combine(levelDir, level.Music.Path)));
             }
 
-            if (levelData.MusicPreview?.Path != null)
+            if (level.MusicPreview?.Path != null)
             {
-                validFiles.Add(Path.GetFullPath(Path.Combine(levelDir, levelData.MusicPreview.Path)));
+                validFiles.Add(Path.GetFullPath(Path.Combine(levelDir, level.MusicPreview.Path)));
             }
 
-            foreach (var chart in levelData.Charts)
+            foreach (var chart in level.Charts)
             {
                 validFiles.Add(Path.GetFullPath(Path.Combine(levelDir, chart.Path)));
                 if (chart.MusicOverride?.Path != null)

@@ -59,7 +59,7 @@ namespace CCE.LevelLoading
             }
 
             var levelData =
-                JsonConvert.DeserializeObject<LevelData>(File.ReadAllText(Path.Combine(folderPath, "level.json")));
+                JsonConvert.DeserializeObject<Level>(File.ReadAllText(Path.Combine(folderPath, "level.json")));
 
             var finalFolderPath = Path.Combine(GlobalState.Config.LevelStoragePath, levelData.ID);
 
@@ -109,7 +109,7 @@ namespace CCE.LevelLoading
                                    "Did you zip the folder rather than the files?");
                 }
 
-                var levelData = JsonConvert.DeserializeObject<LevelData>(
+                var levelData = JsonConvert.DeserializeObject<Level>(
                     File.ReadAllText(Path.Combine(tempFolderPath, "level.json")));
 
                 finalFolderPath = Path.Combine(GlobalState.Config.LevelStoragePath, levelData.ID);

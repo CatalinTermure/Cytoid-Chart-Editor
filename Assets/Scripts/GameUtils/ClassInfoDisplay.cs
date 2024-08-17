@@ -24,7 +24,7 @@ namespace CCE.GameUtils
 
         private readonly Type[] _possibleTypes =
         {
-            typeof(int), typeof(float), typeof(bool), typeof(string), typeof(LevelData.BackgroundData)
+            typeof(int), typeof(float), typeof(bool), typeof(string), typeof(Level.BackgroundData)
         };
 
         private float _currentElementTopMargin;
@@ -119,7 +119,7 @@ namespace CCE.GameUtils
             {
                 DrawStringField(fieldInfo);
             }
-            else if (fieldInfo.FieldType == typeof(LevelData.BackgroundData))
+            else if (fieldInfo.FieldType == typeof(Level.BackgroundData))
             {
                 DrawBackgroundField(fieldInfo);
             }
@@ -140,16 +140,16 @@ namespace CCE.GameUtils
 
             obj.GetComponent<ImagePicker>().OnImagePicked += path =>
             {
-                if ((LevelData.BackgroundData)fieldInfo.GetValue(_targetObject) == null)
+                if ((Level.BackgroundData)fieldInfo.GetValue(_targetObject) == null)
                 {
-                    fieldInfo.SetValue(_targetObject, new LevelData.BackgroundData
+                    fieldInfo.SetValue(_targetObject, new Level.BackgroundData
                     {
                         Path = path
                     });
                 }
                 else
                 {
-                    ((LevelData.BackgroundData)fieldInfo.GetValue(_targetObject)).Path = path;
+                    ((Level.BackgroundData)fieldInfo.GetValue(_targetObject)).Path = path;
                 }
             };
 

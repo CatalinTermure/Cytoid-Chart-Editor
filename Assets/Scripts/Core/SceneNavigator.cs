@@ -43,12 +43,12 @@ namespace CCE.Core
             NavigateToScene("EditorOptionsScene");
         }
 
-        public static void NavigateToChartEdit(LevelData levelData, ChartMetadata chartFileData,
+        public static void NavigateToChartEdit(Level level, ChartMetadata chartFileData,
             AudioStream audio)
         {
             AudioManager.LoadAudio(audio, true);
-            GlobalState.LoadLevel(levelData,
-                Path.Combine(GlobalState.Config.LevelStoragePath, levelData.ID, "level.json"));
+            GlobalState.LoadLevel(level,
+                Path.Combine(GlobalState.Config.LevelStoragePath, level.ID, "level.json"));
             GlobalState.LoadChart(chartFileData);
             NavigateToScene("MainScene");
         }

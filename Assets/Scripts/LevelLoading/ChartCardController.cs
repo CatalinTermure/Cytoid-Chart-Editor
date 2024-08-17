@@ -27,7 +27,7 @@ namespace CCE.LevelLoading
         private readonly List<string> _chartTypes = new();
 
         private bool _isDeletingChart;
-        private LevelData _levelData;
+        private Level _level;
 
         private LevelList _levelList;
         private Camera _mainCamera;
@@ -58,7 +58,7 @@ namespace CCE.LevelLoading
 
         private void Update()
         {
-            if (_levelData == null) return;
+            if (_level == null) return;
             if (_isDeletingChart) return;
             if (!Input.GetMouseButton(0)) return;
 
@@ -69,7 +69,7 @@ namespace CCE.LevelLoading
         {
             for (var i = 0; i < _chartTypes.Count; i++)
             {
-                if (_levelData.Charts.All(chart => chart.Type != _chartTypes[i])) continue;
+                if (_level.Charts.All(chart => chart.Type != _chartTypes[i])) continue;
 
                 if (_chartDeleteButtonColliders[i].OverlapPoint(_mainCamera.ScreenToWorldPoint(Input.mousePosition)))
                 {
@@ -104,58 +104,58 @@ namespace CCE.LevelLoading
             progressGraphic.fillAmount = 1.0f;
         }
 
-        private IEnumerator UpdateChartCardsCoroutine(LevelData levelData)
+        private IEnumerator UpdateChartCardsCoroutine(Level level)
         {
             yield return new WaitForSeconds(LevelListBehaviour.UpdateBackgroundDelay);
 
-            _levelData = levelData;
+            _level = level;
 
             for (var i = 0; i < _chartTypes.Count; i++)
             {
-                var chartData = levelData.Charts.Find(chart => chart.Type == _chartTypes[i]);
+                var chartData = level.Charts.Find(chart => chart.Type == _chartTypes[i]);
 
                 if (chartData == null)
                 {
                     _chartCardTexts[i].text = $"Add {_chartTypes[i]}";
                     _chartCardButtons[i].onClick.RemoveAllListeners();
                     var iCapture = i;
-                    _chartCardButtons[i].onClick.AddListener(() => LoadNewChart(levelData, _chartTypes[iCapture]));
+                    _chartCardButtons[i].onClick.AddListener(() => LoadNewChart(level, _chartTypes[iCapture]));
                     continue;
                 }
 
                 _chartCardButtons[i].onClick.RemoveAllListeners();
-                _chartCardButtons[i].onClick.AddListener(() => LoadChart(levelData, chartData));
+                _chartCardButtons[i].onClick.AddListener(() => LoadChart(level, chartData));
 
                 _chartCardTexts[i].text = $"{chartData.DisplayName} Lvl. {chartData.Difficulty}";
             }
         }
 
-        private void LoadChart(LevelData levelData, ChartMetadata chartData)
+        private void LoadChart(Level level, ChartMetadata chartData)
         {
-            var audioFilePath = Path.Combine(GlobalState.Config.LevelStoragePath, levelData.ID,
-                chartData.MusicOverride?.Path ?? levelData.Music.Path);
+            var audioFilePath = Path.Combine(GlobalState.Config.LevelStoragePath, level.ID,
+                chartData.MusicOverride?.Path ?? level.Music.Path);
 
             _levelList.View.FreeResources();
 
-            SceneNavigator.NavigateToChartEdit(levelData, chartData, AudioManager.CreateStream(audioFilePath));
+            SceneNavigator.NavigateToChartEdit(level, chartData, AudioManager.CreateStream(audioFilePath));
         }
 
-        public void UpdateChartCards(LevelData levelData)
+        public void UpdateChartCards(Level level)
         {
             if (_updateChartCardsCoroutine != null) StopCoroutine(_updateChartCardsCoroutine);
-            _updateChartCardsCoroutine = UpdateChartCardsCoroutine(levelData);
+            _updateChartCardsCoroutine = UpdateChartCardsCoroutine(level);
             StartCoroutine(_updateChartCardsCoroutine);
         }
 
-        public static void LoadNewChart(LevelData levelData, string type)
+        public static void LoadNewChart(Level level, string type)
         {
-            var levelDirPath = Path.Combine(GlobalState.Config.LevelStoragePath, levelData.ID);
-            var audioFilePath = Path.Combine(levelDirPath, levelData.Music.Path);
+            var levelDirPath = Path.Combine(GlobalState.Config.LevelStoragePath, level.ID);
+            var audioFilePath = Path.Combine(levelDirPath, level.Music.Path);
             var chartFilePath = FileUtils.GetUniqueFilePath(Path.Combine(levelDirPath, $"chart-{type}.json"));
 
             var chartWriteTask = File.WriteAllTextAsync(chartFilePath, GlobalState.NewChartString);
             var levelDataWriteTask = File.WriteAllTextAsync(Path.Combine(levelDirPath, "level.json"),
-                JsonConvert.SerializeObject(levelData, new JsonSerializerSettings
+                JsonConvert.SerializeObject(level, new JsonSerializerSettings
                 {
                     NullValueHandling = NullValueHandling.Ignore,
                     Formatting = Formatting.Indented
@@ -167,22 +167,22 @@ namespace CCE.LevelLoading
                 Path = Path.GetFileName(chartFilePath)
             };
 
-            levelData.Charts.Add(chartData);
+            level.Charts.Add(chartData);
 
-            SceneNavigator.NavigateToChartEdit(levelData, chartData, AudioManager.CreateStream(audioFilePath));
+            SceneNavigator.NavigateToChartEdit(level, chartData, AudioManager.CreateStream(audioFilePath));
             Task.WaitAll(chartWriteTask, levelDataWriteTask);
         }
 
         private void ShowDeleteMessagePopup(string type)
         {
-            if (_levelData.Charts.Count() == 1)
+            if (_level.Charts.Count() == 1)
             {
                 MessagePopupController.ShowPopup(
                     "Deleting the only chart of a level will also delete the level. Are you sure you want to delete the level?",
                     () =>
                     {
-                        Directory.Delete(Path.Combine(GlobalState.Config.LevelStoragePath, _levelData.ID), true);
-                        _levelList.RemoveLevel(_levelData);
+                        Directory.Delete(Path.Combine(GlobalState.Config.LevelStoragePath, _level.ID), true);
+                        _levelList.RemoveLevel(_level);
                         _isDeletingChart = false;
                     },
                     () => _isDeletingChart = false);
@@ -192,10 +192,10 @@ namespace CCE.LevelLoading
                 MessagePopupController.ShowPopup($"Are you sure you want to delete the {type} chart for this level?",
                     () =>
                     {
-                        _levelData.Charts.RemoveAll(chartData => chartData.Type == type);
-                        LevelUtils.DeleteDeadAssets(GlobalState.Config.LevelStoragePath, _levelData);
+                        _level.Charts.RemoveAll(chartData => chartData.Type == type);
+                        LevelUtils.DeleteDeadAssets(GlobalState.Config.LevelStoragePath, _level);
                         SaveLevel();
-                        UpdateChartCards(_levelData);
+                        UpdateChartCards(_level);
                         _isDeletingChart = false;
                     },
                     () => _isDeletingChart = false);
@@ -204,9 +204,9 @@ namespace CCE.LevelLoading
 
         private void SaveLevel()
         {
-            var levelDirPath = Path.Combine(GlobalState.Config.LevelStoragePath, _levelData.ID);
+            var levelDirPath = Path.Combine(GlobalState.Config.LevelStoragePath, _level.ID);
             File.WriteAllText(Path.Combine(levelDirPath, "level.json"),
-                JsonConvert.SerializeObject(_levelData, new JsonSerializerSettings
+                JsonConvert.SerializeObject(_level, new JsonSerializerSettings
                 {
                     NullValueHandling = NullValueHandling.Ignore,
                     Formatting = Formatting.Indented

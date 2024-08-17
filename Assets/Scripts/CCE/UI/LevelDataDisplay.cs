@@ -63,7 +63,7 @@ namespace CCE.UI
                 File.Move(Path.Combine(GlobalState.CurrentLevelPath, "tmp-preview.ogg"),
                     Path.Combine(GlobalState.CurrentLevelPath, "preview.ogg"));
 
-                GlobalState.CurrentLevel.MusicPreview = new LevelData.MusicData { Path = "preview.ogg" };
+                GlobalState.CurrentLevel.MusicPreview = new Level.MusicData { Path = "preview.ogg" };
             }
 
             if (_oldId != null)

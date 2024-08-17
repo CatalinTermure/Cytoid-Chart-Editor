@@ -8,7 +8,7 @@ namespace CCE.Data
 {
     [SuppressMessage("ReSharper", "UnusedMember.Global",
         Justification = "Newtonsoft.Json uses reflection for ShouldSerialize methods")]
-    public class LevelData
+    public class Level
     {
         [JsonProperty("artist")] [Displayable(Section = "Artist", Name = "Artist:", Filter = "Existing Level")]
         public string Artist;

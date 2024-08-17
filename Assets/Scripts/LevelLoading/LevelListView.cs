@@ -19,7 +19,7 @@ namespace CCE.LevelLoading
 
         private int _currentLevelIndex = -1;
 
-        private List<LevelData> _filteredLevels = new();
+        private List<Level> _filteredLevels = new();
 
         private GameObject _helpText;
         private int _lastRenderedOffset = PoolSize / 2;
@@ -56,7 +56,7 @@ namespace CCE.LevelLoading
             _levelAssetsManager = new LevelAssetsManager();
         }
 
-        public void Initialize(List<LevelData> levels)
+        public void Initialize(List<Level> levels)
         {
             _lastRenderedOffset = 0;
             _offset = 0;
@@ -92,7 +92,7 @@ namespace CCE.LevelLoading
             Render();
         }
 
-        public void RemoveLevel(LevelData level)
+        public void RemoveLevel(Level level)
         {
             var index = _filteredLevels.IndexOf(level);
             if (index == -1) return;
@@ -128,13 +128,13 @@ namespace CCE.LevelLoading
         }
 
 
-        private void FillLevelCard(LevelCardInfo levelCardInfo, LevelData levelData)
+        private void FillLevelCard(LevelCardInfo levelCardInfo, Level level)
         {
-            levelCardInfo.ArtistName.text = $"by: {levelData.DisplayArtist}";
-            levelCardInfo.Title.text = levelData.DisplayTitle;
-            levelCardInfo.CharterName.text = levelData.Charter;
+            levelCardInfo.ArtistName.text = $"by: {level.DisplayArtist}";
+            levelCardInfo.Title.text = level.DisplayTitle;
+            levelCardInfo.CharterName.text = level.Charter;
 
-            _levelAssetsManager.ScheduleLevelLoad(levelCardInfo, levelData);
+            _levelAssetsManager.ScheduleLevelLoad(levelCardInfo, level);
         }
 
         private void UpdateCurrentLevel(LevelCardInfo levelCardInfo)

@@ -15,12 +15,12 @@ namespace CCE.LevelLoading
         [SerializeField] private ToastMessageManager ErrorToaster;
         private string _audioAbsolutePath;
 
-        private LevelData _levelData;
+        private Level _level;
 
         private void Awake()
         {
-            _levelData = new LevelData();
-            gameObject.GetComponent<ClassInfoDisplay>().DrawGui(_levelData, 0);
+            _level = new Level();
+            gameObject.GetComponent<ClassInfoDisplay>().DrawGui(_level, 0);
         }
 
         public void SetAudioFile(string filePath)
@@ -56,9 +56,9 @@ namespace CCE.LevelLoading
 
         private bool IsLevelDataValid()
         {
-            if (!IsLevelIDValid(_levelData.ID, ErrorToaster)) return false;
+            if (!IsLevelIDValid(_level.ID, ErrorToaster)) return false;
 
-            if (_levelData.Background?.Path == null)
+            if (_level.Background?.Path == null)
             {
                 ErrorToaster.CreateToast("You must choose a background picture.");
                 return false;
@@ -72,19 +72,19 @@ namespace CCE.LevelLoading
             if (_audioAbsolutePath == null) return;
             if (!IsLevelDataValid()) return;
 
-            _levelData.Music = new LevelData.MusicData { Path = Path.GetFileName(_audioAbsolutePath) };
-            _levelData.MusicPreview = new LevelData.MusicData { Path = Path.GetFileName(_audioAbsolutePath) };
+            _level.Music = new Level.MusicData { Path = Path.GetFileName(_audioAbsolutePath) };
+            _level.MusicPreview = new Level.MusicData { Path = Path.GetFileName(_audioAbsolutePath) };
 
-            var levelFolderPath = Path.Combine(GlobalState.Config.LevelStoragePath, _levelData.ID);
+            var levelFolderPath = Path.Combine(GlobalState.Config.LevelStoragePath, _level.ID);
             var finalBackgroundPath = Path.Combine(levelFolderPath,
-                "background" + Path.GetExtension(_levelData.Background.Path));
+                "background" + Path.GetExtension(_level.Background.Path));
 
             Directory.CreateDirectory(levelFolderPath);
             File.Copy(_audioAbsolutePath!, Path.Combine(levelFolderPath, Path.GetFileName(_audioAbsolutePath)));
-            File.Copy(_levelData.Background.Path!, finalBackgroundPath);
-            _levelData.Background.Path = Path.GetFileName(finalBackgroundPath);
+            File.Copy(_level.Background.Path!, finalBackgroundPath);
+            _level.Background.Path = Path.GetFileName(finalBackgroundPath);
 
-            ChartCardController.LoadNewChart(_levelData, "easy");
+            ChartCardController.LoadNewChart(_level, "easy");
         }
 
         public void Cancel()

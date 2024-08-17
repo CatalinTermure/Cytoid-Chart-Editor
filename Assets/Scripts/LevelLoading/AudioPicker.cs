@@ -47,7 +47,7 @@ namespace CCE.LevelLoading
 
             importer.ImportFile();
             var levelPath = Path.Combine(importer.FilePath, "level.json");
-            var level = JsonConvert.DeserializeObject<LevelData>(File.ReadAllText(levelPath));
+            var level = JsonConvert.DeserializeObject<Level>(File.ReadAllText(levelPath));
             LevelPopulator.CacheBackground(Path.Combine(importer.FilePath, level.Background.Path),
                 Path.Combine(importer.FilePath, ".bg"));
             LevelList.AddLevel(level);

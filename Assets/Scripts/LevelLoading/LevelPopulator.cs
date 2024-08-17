@@ -35,7 +35,7 @@ namespace CCE.LevelLoading
 
         private void AddLevelToPool(string path)
         {
-            var level = JsonConvert.DeserializeObject<LevelData>(File.ReadAllText(path));
+            var level = JsonConvert.DeserializeObject<Level>(File.ReadAllText(path));
 
             _levelList.AddLevel(level);
         }
@@ -91,7 +91,7 @@ namespace CCE.LevelLoading
                 if (!File.Exists(Path.Combine(levelDir, ".bg")))
                 {
                     var levelData =
-                        JsonConvert.DeserializeObject<LevelData>(
+                        JsonConvert.DeserializeObject<Level>(
                             File.ReadAllText(Path.Combine(levelDir, "level.json")));
 
                     if (!File.Exists(Path.Combine(levelDir, levelData.Background.Path))) continue;
