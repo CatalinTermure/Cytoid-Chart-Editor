@@ -19,5 +19,10 @@ namespace CCE.Utils
         {
             return (float)Math.Sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
         }
+
+        public static bool Approximately(double val, double target)
+        {
+            return Math.Abs(val - target) < 0.0001;
+        }
     }
 }

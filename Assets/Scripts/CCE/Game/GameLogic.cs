@@ -557,7 +557,7 @@ namespace CCE.Game
 
             _noteSpawns.Sort(
                 (a, b) =>
-                    Math.Abs(a.Time - b.Time) < 0.0001
+                    MiscUtils.Approximately(a.Time, b.Time)
                         ? CurrentChart.NoteList[a.ID].PageIndex.CompareTo(CurrentChart.NoteList[b.ID].PageIndex)
                         : a.Time.CompareTo(b.Time)
             );
@@ -697,27 +697,15 @@ namespace CCE.Game
                 }
             }
 
-            for (var i = 0; i < _hitsoundTimings.Count; i++)
-            {
-                if (Math.Abs(CurrentChart.NoteList[noteID].Time - _hitsoundTimings[i]) < 0.001)
-                {
-                    _hitsoundTimings.RemoveAt(i);
-                    break;
-                }
-            }
+            _hitsoundTimings.RemoveAt(_hitsoundTimings.FindIndex(timing =>
+                MiscUtils.Approximately(timing, CurrentChart.NoteList[noteID].Time)));
 
             if (Config.PlayHitsoundsOnHoldEnd && (CurrentChart.NoteList[noteID].Type == (int)NoteType.Hold ||
                                                   CurrentChart.NoteList[noteID].Type == (int)NoteType.LongHold))
             {
-                for (var i = 0; i < _hitsoundTimings.Count; i++)
-                {
-                    if (Math.Abs(CurrentChart.NoteList[noteID].Time + CurrentChart.NoteList[noteID].HoldTime -
-                                 _hitsoundTimings[i]) < 0.001)
-                    {
-                        _hitsoundTimings.RemoveAt(i);
-                        break;
-                    }
-                }
+                _hitsoundTimings.RemoveAt(_hitsoundTimings.FindIndex(timing =>
+                    MiscUtils.Approximately(timing,
+                        CurrentChart.NoteList[noteID].Time + CurrentChart.NoteList[noteID].HoldTime)));
             }
 
             // Use a classic deletion algorithm while modifying ids accordingly
@@ -758,16 +746,13 @@ namespace CCE.Game
             obj.SetActive(true);
 
             var colorIndex = ColorIndexes[note.Type];
+            if (CurrentChart.PageList[note.PageIndex].ScanLineDirection == 1)
+            {
+                colorIndex++;
+            }
 
-            ColorUtility.TryParseHtmlString(note.FillColor ??
-                                            CurrentChart.FillColors[
-                                                CurrentChart.PageList[note.PageIndex].ScanLineDirection == 1
-                                                    ? colorIndex
-                                                    : colorIndex + 1] ??
-                                            DefaultFillColors[
-                                                CurrentChart.PageList[note.PageIndex].ScanLineDirection == 1
-                                                    ? colorIndex
-                                                    : colorIndex + 1],
+            ColorUtility.TryParseHtmlString(
+                note.FillColor ?? CurrentChart.FillColors[colorIndex] ?? DefaultFillColors[colorIndex],
                 out var noteColor);
 
             noteColor.a = (float)note.ActualOpacity / (lowerOpacity ? 3 : 1);
@@ -785,7 +770,7 @@ namespace CCE.Game
                         obj.transform.position.x,
                         CurrentPage.ScanLineDirection *
                         (PlayAreaHeight * (note.Tick + note.HoldTick - CurrentPage.ActualStartTick) /
-                            (int)CurrentPage.ActualPageSize - PlayAreaHeight / 2)
+                            CurrentPage.ActualPageSize - PlayAreaHeight / 2)
                     );
             }
             else
@@ -1011,7 +996,7 @@ namespace CCE.Game
                                                           (PlayAreaHeight *
                                                               (note.Tick + note.HoldTick -
                                                                currentPage.ActualStartTick) /
-                                                              (int)currentPage.ActualPageSize - PlayAreaHeight / 2));
+                                                              currentPage.ActualPageSize - PlayAreaHeight / 2));
                         }
                         else
                         {
@@ -1690,7 +1675,8 @@ namespace CCE.Game
 
                     Vector2 pos = _mainCamera.ScreenToWorldPoint(Input.mousePosition);
 
-                    if (CurrentChart != null && MiscUtils.GetDistance(pos.x, pos.y, _mouseStartPos.x, _mouseStartPos.y) > 0.1)
+                    if (CurrentChart != null &&
+                        MiscUtils.GetDistance(pos.x, pos.y, _mouseStartPos.x, _mouseStartPos.y) > 0.1)
                     {
                         if (!Input.GetKey(KeyCode.LeftShift))
                         {
@@ -1758,7 +1744,9 @@ namespace CCE.Game
                     {
                         _currentlyMovingObject.transform.position = new Vector3(
                             MiscUtils.Clamp(objectPosition.x, -PlayAreaWidth / 2, PlayAreaWidth / 2),
-                            _lockY ? _lockedY : MiscUtils.Clamp(objectPosition.y, -PlayAreaHeight / 2, PlayAreaHeight / 2));
+                            _lockY
+                                ? _lockedY
+                                : MiscUtils.Clamp(objectPosition.y, -PlayAreaHeight / 2, PlayAreaHeight / 2));
 
 
                         if (_currentlyMovingObject.CompareTag("Note"))
@@ -1884,7 +1872,8 @@ namespace CCE.Game
                         }
 
                         _movingNotes[i].Object.transform.position = new Vector3(
-                            MiscUtils.Clamp(_movingNotes[i].Object.transform.position.x, -PlayAreaWidth / 2, PlayAreaWidth / 2),
+                            MiscUtils.Clamp(_movingNotes[i].Object.transform.position.x, -PlayAreaWidth / 2,
+                                PlayAreaWidth / 2),
                             _lockY
                                 ? _movingNotes[i].ReferencePosition.y
                                 : MiscUtils.Clamp(_movingNotes[i].Object.transform.position.y, -PlayAreaHeight / 2,
@@ -3180,7 +3169,7 @@ namespace CCE.Game
         {
             var note = CurrentChart.NoteList[noteID];
             var p = CurrentChart.PageList[note.PageIndex];
-            var deltaTick = (int)p.ActualPageSize / _beatDivisorValue;
+            var deltaTick = p.ActualPageSize / _beatDivisorValue;
             switch (note.Type)
             {
                 case (int)NoteType.Hold when note.Tick + note.HoldTick + deltaTick <= p.EndTick:
@@ -3229,7 +3218,7 @@ namespace CCE.Game
         {
             var note = CurrentChart.NoteList[noteID];
             var p = CurrentChart.PageList[note.PageIndex];
-            var deltaTick = (int)p.ActualPageSize / _beatDivisorValue;
+            var deltaTick = p.ActualPageSize / _beatDivisorValue;
 
             if (note.Type is (int)NoteType.DragHead or (int)NoteType.DragChild or (int)NoteType.CDragChild
                     or (int)NoteType.CDragHead

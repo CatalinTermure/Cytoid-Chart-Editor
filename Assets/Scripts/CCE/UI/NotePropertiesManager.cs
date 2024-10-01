@@ -221,7 +221,7 @@ namespace CCE.UI
                 {
                     NoteXInputField.GetComponent<InputField>().text = "";
                 }
-                else if (Math.Abs(GlobalState.CurrentChart.NoteList[_notes[^1]].X - _notesX) < 0.001)
+                else if (MiscUtils.Approximately(GlobalState.CurrentChart.NoteList[_notes[^1]].X, _notesX))
                 {
                     NoteXInputField.GetComponent<InputField>().text = _notesX.ToString("F3");
                 }
@@ -235,8 +235,7 @@ namespace CCE.UI
                 {
                     NoteARInputField.GetComponent<InputField>().text = "";
                 }
-                else if (Math.Abs(GlobalState.CurrentChart.NoteList[_notes[^1]].ApproachRate - _notesAR) <
-                         0.001)
+                else if (MiscUtils.Approximately(GlobalState.CurrentChart.NoteList[_notes[^1]].ApproachRate, _notesAR))
                 {
                     NoteARInputField.GetComponent<InputField>().text = _notesAR.ToString("F3");
                 }
@@ -250,7 +249,7 @@ namespace CCE.UI
                 {
                     NoteYInputField.GetComponent<InputField>().text = "";
                 }
-                else if (Math.Abs(GlobalState.CurrentChart.NoteList[_notes[^1]].Y - _notesY) < 0.001)
+                else if (MiscUtils.Approximately(GlobalState.CurrentChart.NoteList[_notes[^1]].Y, _notesY))
                 {
                     NoteYInputField.GetComponent<InputField>().text = _notesY.ToString("F3");
                 }
