@@ -64,7 +64,7 @@ namespace CCE.UI
             new Thread(GetAudioData).Start();
 
             SetStartTime(0.0);
-            SetEndTime(GlobalState.Clamp(5.0, 0, _audioLength));
+            SetEndTime(MiscUtils.Clamp(5.0, 0, _audioLength));
         }
 
         private void Update()
@@ -207,8 +207,8 @@ namespace CCE.UI
                 index++;
             }
 
-            var scalingFactor = 1.0f / maximumValue; // scales the waveform data
-            // so it fits more nicely in the [-1, 1] interval
+            // scales the waveform data to fit into the [-1, 1] range
+            var scalingFactor = 1.0f / maximumValue;
             for (var i = 0; i < index; i++)
             {
                 if (i % waveformPortionsPerFrame == 0) yield return null;

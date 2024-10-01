@@ -20,7 +20,7 @@ namespace CCE.Game.Commands
             {
                 var noteClone = new Note(GlobalState.CurrentChart.NoteList[noteID]);
                 _removedNotes.Add(noteClone);
-                GameLogic.Instance.RemoveNoteInternal(noteID);
+                GameLogic.Instance.RemoveNote(noteID);
             }
         }
 
@@ -28,7 +28,7 @@ namespace CCE.Game.Commands
         {
             foreach (var note in _removedNotes)
             {
-                GameLogic.Instance.AddNoteInternal(note);
+                GameLogic.AddNote(note);
             }
         }
     }

@@ -4,6 +4,7 @@ using System.Diagnostics;
 using CCE.Core;
 using CCE.Data;
 using CCE.Game;
+using CCE.Utils;
 using UnityEngine;
 
 namespace CCE.Notes
@@ -79,7 +80,7 @@ namespace CCE.Notes
             if (_paths.Count > 1)
             {
                 DragConnector.GetComponent<SpriteRenderer>().size = new Vector2(0.175f,
-                    GlobalState.GetDistance(_paths[1].X, _paths[1].Y, _paths[0].X, _paths[0].Y) /
+                    MiscUtils.GetDistance(_paths[1].X, _paths[1].Y, _paths[0].X, _paths[0].Y) /
                     gameObject.transform.localScale.x);
                 if (NoteType == (int)Data.NoteType.CDragHead)
                 {
@@ -186,7 +187,7 @@ namespace CCE.Notes
                         {
                             DragConnector.GetComponent<SpriteRenderer>().size = new Vector2(0.175f,
                                 (1.0f - pathCompletion) *
-                                GlobalState.GetDistance(_paths[_currentPath - 1].X, _paths[_currentPath - 1].Y,
+                                MiscUtils.GetDistance(_paths[_currentPath - 1].X, _paths[_currentPath - 1].Y,
                                     _paths[_currentPath].X,
                                     _paths[_currentPath].Y) / gameObject.transform.localScale.x);
 

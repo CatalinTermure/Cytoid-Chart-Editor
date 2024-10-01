@@ -20,7 +20,7 @@ namespace CCE.Game.Commands
             for (var i = 0; i < _addedNotes.Length; i++)
             {
                 var note = _addedNotes[i];
-                var id = GameLogic.Instance.AddNoteInternal(note);
+                var id = GameLogic.AddNote(note);
                 AffectedNoteIDs[i] = id;
             }
         }
@@ -29,7 +29,7 @@ namespace CCE.Game.Commands
         {
             foreach (var id in AffectedNoteIDs)
             {
-                GameLogic.Instance.RemoveNoteInternal(id);
+                GameLogic.Instance.RemoveNote(id);
             }
         }
     }

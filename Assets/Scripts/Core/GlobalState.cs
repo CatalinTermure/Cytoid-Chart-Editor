@@ -117,7 +117,7 @@ namespace CCE.Core
                 JsonConvert.SerializeObject(Config));
         }
 
-        public static void LoadLevel(Level level, string path)
+        public static void LoadLevel(Level level)
         {
             CurrentLevel = level;
 
@@ -142,52 +142,6 @@ namespace CCE.Core
             {
                 _backgroundSprite = null;
             }
-        }
-
-        public static float GetDistance(float x1, float y1, float x2, float y2)
-        {
-            return (float)Math.Sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
-        }
-
-        /// <summary>
-        ///     Gets the page that contains <paramref name="time" />.
-        /// </summary>
-        /// <param name="time"> Time to snap to the page, in seconds. </param>
-        /// <returns> Index of the page containing <paramref name="time" /> </returns>
-        public static int SnapTimeToPage(double time)
-        {
-            var p = CurrentChart.PageList;
-            int l = 0, cnt = p.Count;
-
-            while (cnt > 0)
-            {
-                var step = cnt / 2;
-                var i = l + step;
-                if (p[i].ActualStartTime < time)
-                {
-                    l = i;
-                    cnt -= step + 1;
-                }
-                else
-                {
-                    cnt = step;
-                }
-            }
-
-            while (l + 1 < p.Count && p[l + 1].ActualStartTime < time) l++;
-
-            return l;
-        }
-
-        public static T Clamp<T>(T val, T l, T r) where T : IComparable
-        {
-            if (val.CompareTo(l) == -1)
-            {
-                val = l;
-            }
-            else if (val.CompareTo(r) == 1) val = r;
-
-            return val;
         }
     }
 }

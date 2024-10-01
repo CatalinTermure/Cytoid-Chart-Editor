@@ -35,20 +35,12 @@ namespace CCE.LevelLoading
                 File.Delete(tempArchivePath);
             }
 
-            try
-            {
-                FileUtils.CopyDirectory(srcDirPath, tempDirPath);
-                File.Delete(Path.Combine(tempDirPath, ".bg"));
+            FileUtils.CopyDirectory(srcDirPath, tempDirPath);
+            File.Delete(Path.Combine(tempDirPath, ".bg"));
 
-                ZipFile.CreateFromDirectory(tempDirPath, tempArchivePath);
+            ZipFile.CreateFromDirectory(tempDirPath, tempArchivePath);
 
-                callback(tempArchivePath);
-            }
-            finally
-            {
-                Directory.Delete(tempDirPath, true);
-                File.Delete(tempArchivePath);
-            }
+            callback(tempArchivePath);
         }
 
         public void ExportLevel()

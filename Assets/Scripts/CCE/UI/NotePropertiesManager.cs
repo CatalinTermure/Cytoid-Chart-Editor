@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using CCE.Core;
 using CCE.Data;
 using CCE.Game;
+using CCE.Utils;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -28,22 +29,22 @@ namespace CCE.UI
             NoteYInputField.SetActive(false);
             NoteYLabel.SetActive(false);
 
-            NoteXInputField.GetComponent<InputField>().onEndEdit.AddListener(s =>
+            NoteXInputField.GetComponent<InputField>().onEndEdit.AddListener(xPosInputString =>
             {
                 GameLogic.BlockInput = false;
 
-                double x;
+                double xPos;
 
                 try
                 {
-                    if (s.Contains("/"))
+                    if (xPosInputString.Contains("/"))
                     {
-                        var numbers = s.Split('/');
-                        x = (double)int.Parse(numbers[0]) / int.Parse(numbers[1]);
+                        var numbers = xPosInputString.Split('/');
+                        xPos = (double)int.Parse(numbers[0]) / int.Parse(numbers[1]);
                     }
                     else
                     {
-                        x = double.Parse(s);
+                        xPos = double.Parse(xPosInputString);
                     }
                 }
                 catch (FormatException)
@@ -52,18 +53,18 @@ namespace CCE.UI
                 }
 
 
-                x = GlobalState.Clamp(x, 0.0, 1.0);
+                xPos = MiscUtils.Clamp(xPos, 0.0, 1.0);
 
-                for (var i = 0; i < _notes.Count; i++)
+                foreach (var note in _notes)
                 {
-                    GlobalState.CurrentChart.NoteList[_notes[i]].X = x;
-                    GameLogic.RefreshNote(_notes[i]);
+                    GlobalState.CurrentChart.NoteList[note].X = xPos;
+                    GameLogic.RefreshNote(note);
                 }
 
                 Clear();
             });
 
-            NoteARInputField.GetComponent<InputField>().onEndEdit.AddListener(s =>
+            NoteARInputField.GetComponent<InputField>().onEndEdit.AddListener(approachRateInputString =>
             {
                 GameLogic.BlockInput = false;
 
@@ -71,14 +72,14 @@ namespace CCE.UI
 
                 try
                 {
-                    if (s.Contains("/"))
+                    if (approachRateInputString.Contains("/"))
                     {
-                        var numbers = s.Split('/');
+                        var numbers = approachRateInputString.Split('/');
                         approachRate = (double)int.Parse(numbers[0]) / int.Parse(numbers[1]);
                     }
                     else
                     {
-                        approachRate = double.Parse(s);
+                        approachRate = double.Parse(approachRateInputString);
                     }
                 }
                 catch (FormatException)
@@ -97,7 +98,7 @@ namespace CCE.UI
                 Clear();
             });
 
-            NoteYInputField.GetComponent<InputField>().onEndEdit.AddListener(s =>
+            NoteYInputField.GetComponent<InputField>().onEndEdit.AddListener(yPosInputString =>
             {
                 GameLogic.BlockInput = false;
 
@@ -105,14 +106,14 @@ namespace CCE.UI
 
                 try
                 {
-                    if (s.Contains("/"))
+                    if (yPosInputString.Contains("/"))
                     {
-                        var numbers = s.Split('/');
+                        var numbers = yPosInputString.Split('/');
                         y = (double)int.Parse(numbers[0]) / int.Parse(numbers[1]);
                     }
                     else
                     {
-                        y = double.Parse(s);
+                        y = double.Parse(yPosInputString);
                     }
                 }
                 catch (FormatException)
@@ -121,7 +122,7 @@ namespace CCE.UI
                 }
 
 
-                y = GlobalState.Clamp(y, 0.0, 1.0);
+                y = MiscUtils.Clamp(y, 0.0, 1.0);
 
                 foreach (var noteID in _notes)
                 {
@@ -143,7 +144,7 @@ namespace CCE.UI
                     else if (GlobalState.CurrentChart.NoteList[noteID].Type == (int)NoteType.CDragChild ||
                              GlobalState.CurrentChart.NoteList[noteID].Type == (int)NoteType.DragChild)
                     {
-                        tick = GlobalState.Clamp(tick,
+                        tick = MiscUtils.Clamp(tick,
                             GlobalState.CurrentChart.NoteList[GameLogic.GetDragParent(noteID)].Tick,
                             GlobalState.CurrentChart.NoteList[noteID].NextID >= 0
                                 ? GlobalState.CurrentChart.NoteList[GlobalState.CurrentChart.NoteList[noteID].NextID]
@@ -163,9 +164,8 @@ namespace CCE.UI
                             GlobalState.CurrentChart.NoteList[dragParent].NextID++;
                         }
 
-                        var aux = GlobalState.CurrentChart.NoteList[id];
-                        GlobalState.CurrentChart.NoteList[id] = GlobalState.CurrentChart.NoteList[id + 1];
-                        GlobalState.CurrentChart.NoteList[id + 1] = aux;
+                        (GlobalState.CurrentChart.NoteList[id], GlobalState.CurrentChart.NoteList[id + 1]) = (
+                            GlobalState.CurrentChart.NoteList[id + 1], GlobalState.CurrentChart.NoteList[id]);
                         GlobalState.CurrentChart.NoteList[id + 1].ID = id + 1;
                         GlobalState.CurrentChart.NoteList[id].ID = id;
                         id++;

@@ -6,7 +6,8 @@
     "UnityEditor.TestRunner",
     "Core",
     "CCE",
-    "LevelLoading"
+    "LevelLoading",
+    "Data"
   ],
   "includePlatforms": [],
   "excludePlatforms": [],

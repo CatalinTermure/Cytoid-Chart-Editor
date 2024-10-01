@@ -1,5 +1,4 @@
-﻿using System.IO;
-using CCE.Data;
+﻿using CCE.Data;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -47,8 +46,7 @@ namespace CCE.Core
             AudioStream audio)
         {
             AudioManager.LoadAudio(audio, true);
-            GlobalState.LoadLevel(level,
-                Path.Combine(GlobalState.Config.LevelStoragePath, level.ID, "level.json"));
+            GlobalState.LoadLevel(level);
             GlobalState.LoadChart(chartFileData);
             NavigateToScene("MainScene");
         }

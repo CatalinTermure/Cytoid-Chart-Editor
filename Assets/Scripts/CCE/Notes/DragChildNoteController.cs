@@ -3,6 +3,7 @@ using System.Diagnostics;
 using CCE.Core;
 using CCE.Data;
 using CCE.Game;
+using CCE.Utils;
 using UnityEngine;
 
 namespace CCE.Notes
@@ -45,7 +46,7 @@ namespace CCE.Notes
                 DragConnector.transform.rotation =
                     Quaternion.AngleAxis(90 + (float)(Math.Atan2(y1 - y2, x1 - x2) * 180 / Math.PI), Vector3.forward);
                 DragConnector.GetComponent<SpriteRenderer>().size = new Vector2(0.175f,
-                    GlobalState.GetDistance(x2, y2, x1, y1) / gameObject.transform.localScale.x);
+                    MiscUtils.GetDistance(x2, y2, x1, y1) / gameObject.transform.localScale.x);
                 DragConnector.SetActive(true);
             }
             else

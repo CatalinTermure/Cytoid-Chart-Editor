@@ -79,6 +79,8 @@ CodeCoverage/
 .DS_Store
 /NativeAndroidCode/build
 /NativeAndroidCode/captures
+/NativeAndroidCode/fakecytoid
 .externalNativeBuild
 .cxx
 local.properties
+*.logcat
