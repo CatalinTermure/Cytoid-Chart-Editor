@@ -67,7 +67,7 @@ namespace CCE.Game
 
         private ChartObjectPool _objectPool;
 
-        private double _saveEditorOffsetScheduledTime = -1;
+        private double? _saveEditorOffsetScheduledTime;
         private Vector2 _startMovePos;
 
         public static GameLogic Instance
@@ -214,20 +214,17 @@ namespace CCE.Game
                 PlayPause();
             }
 #endif
-            if (_saveEditorOffsetScheduledTime > 0 && Time.time > _saveEditorOffsetScheduledTime)
+            if (_saveEditorOffsetScheduledTime.HasValue && Time.time > _saveEditorOffsetScheduledTime)
             {
                 SaveConfig();
-                _saveEditorOffsetScheduledTime = -1;
+                _saveEditorOffsetScheduledTime = null;
             }
 
-            if (_isStartScheduled)
+            if (_isStartScheduled && AudioSettings.dspTime > ScheduledTime)
             {
-                if (AudioSettings.dspTime > ScheduledTime)
-                {
-                    IsGameRunning = true;
-                    _playPauseButton.SetActive(true);
-                    _isStartScheduled = false;
-                }
+                IsGameRunning = true;
+                _playPauseButton.SetActive(true);
+                _isStartScheduled = false;
             }
 
             if (IsGameRunning)
@@ -304,6 +301,8 @@ namespace CCE.Game
                 HandleInput();
             }
 
+            // If screen area changed(orientation changed), move objects that can be obstructed by the notch
+            // TODO: move this to another script
             if (Screen.safeArea != _lastSafeArea)
             {
                 _lastSafeArea = Screen.safeArea;
@@ -328,6 +327,7 @@ namespace CCE.Game
 #if UNITY_STANDALONE
         private static bool WasPressed(KeyValuePair<KeyCode, KeyCode> key)
         {
+            // TODO: make this more explicit, maybe not use KeyValuePair
             if (key.Key == KeyCode.None && (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.LeftShift) ||
                                             Input.GetKey(KeyCode.LeftAlt)))
             {
