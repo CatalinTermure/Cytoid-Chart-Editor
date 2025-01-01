@@ -76,7 +76,7 @@ namespace CCE.Game
             {
                 if (_instance == null)
                 {
-                    _instance = FindObjectOfType<GameLogic>();
+                    _instance = FindFirstObjectByType<GameLogic>();
                 }
 
                 return _instance;

@@ -25,7 +25,7 @@ namespace CCE.UI
         {
             _oldBackgroundPath = GlobalState.CurrentLevel.Background.Path;
             gameObject.GetComponent<ClassInfoDisplay>().DrawGui(GlobalState.CurrentLevel, 75, "Existing Level");
-            FindObjectOfType<ImagePicker>()
+            FindFirstObjectByType<ImagePicker>()
                 .LoadImage(Path.Combine(GlobalState.Config.LevelStoragePath,
                     GlobalState.CurrentLevel.ID,
                     GlobalState.CurrentLevel.Background.Path));
