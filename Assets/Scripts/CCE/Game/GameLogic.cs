@@ -837,6 +837,16 @@ namespace CCE.Game
         /// <param name="id"> The ID of the tempo to be removed. </param>
         private void RemoveTempo(int id)
         {
+            // Arbitrary value to prevent removing tempos that would result in too many pages being created
+            const int arbitraryHighBpmValue = 5;
+
+            if (CurrentChart.TempoList[id - 1].Value < arbitraryHighBpmValue)
+            {
+                GameObject.Find("ToastText").GetComponent<ToastMessageManager>()
+                    .CreateToast("Previous BPM is too high, can't remove this BPM");
+                return;
+            }
+
             CurrentChart.TempoList.RemoveAt(id);
             CalculateTimings();
         }
@@ -2094,7 +2104,7 @@ namespace CCE.Game
 
             if (double.TryParse(bpmInput, out var bpm))
             {
-                CurrentChart.TempoList[id].Value = (long)Math.Round(120000000 / bpm);
+                CurrentChart.TempoList[id].Value = Tempo.ComputeValueFromBpm(bpm);
             }
 
             if (updateOffset && double.TryParse(timeInput, out var time) && id == 0) CurrentChart.MusicOffset = -time;

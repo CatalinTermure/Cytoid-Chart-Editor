@@ -13,25 +13,19 @@ namespace CCE.Notes
         [FormerlySerializedAs("BPMInputField")]
         public InputField BpmInputField;
 
-        public int NoteType { get; set; }
-
         private void Start()
         {
             TimeInputField.onEndEdit.AddListener(_ =>
             {
-                if (GameLogic.CurrentTool != Data.NoteType.Move)
-                {
-                    GameLogic.BlockInput = false;
-                    GameObject.Find("UICanvas").GetComponent<GameLogic>().ChangeTempo(gameObject, true);
-                }
+                if (GameLogic.CurrentTool == Data.NoteType.Move) return;
+                GameLogic.BlockInput = false;
+                GameObject.Find("UICanvas").GetComponent<GameLogic>().ChangeTempo(gameObject, true);
             });
             BpmInputField.onEndEdit.AddListener(_ =>
             {
-                if (GameLogic.CurrentTool != Data.NoteType.Move)
-                {
-                    GameLogic.BlockInput = false;
-                    GameObject.Find("UICanvas").GetComponent<GameLogic>().ChangeTempo(gameObject);
-                }
+                if (GameLogic.CurrentTool == Data.NoteType.Move) return;
+                GameLogic.BlockInput = false;
+                GameObject.Find("UICanvas").GetComponent<GameLogic>().ChangeTempo(gameObject);
             });
         }
 
