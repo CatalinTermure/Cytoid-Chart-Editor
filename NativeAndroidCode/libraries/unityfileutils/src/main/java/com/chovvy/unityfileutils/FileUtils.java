@@ -1,6 +1,7 @@
 package com.chovvy.unityfileutils;
 
 import android.app.Activity;
+import android.app.DownloadManager;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
@@ -8,6 +9,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 
@@ -100,7 +102,12 @@ public class FileUtils {
     }
 
     private static void ExportCytoidLevelToDownloads(Context context, String localFilePath, File localFile) throws IOException {
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q) return;
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q) {
+            // save to downloads
+            DownloadManager downloadManager = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
+            downloadManager.enqueue(new DownloadManager.Request(Uri.fromFile(localFile)));
+            return;
+        }
         ContentValues contentValues = new ContentValues();
         contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, localFile.getName());
         contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "application/octet-stream");

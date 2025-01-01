@@ -1,5 +1,4 @@
 apply plugin: 'com.android.library'
-apply from: '../shared/keepUnitySymbols.gradle'
 **APPLY_PLUGINS**
 
 dependencies {
@@ -9,8 +8,6 @@ dependencies {
 }
 
 android {
-    namespace "com.unity3d.player"
-    ndkVersion "**NDKVERSION**"
     ndkPath "**NDKPATH**"
 
     compileSdkVersion **APIVERSION**
@@ -25,7 +22,6 @@ android {
         minSdkVersion **MINSDKVERSION**
         targetSdkVersion **TARGETSDKVERSION**
         ndk {
-            debugSymbolLevel **DEBUGSYMBOLLEVEL**
             abiFilters **ABIFILTERS**
         }
         versionCode **VERSIONCODE**
