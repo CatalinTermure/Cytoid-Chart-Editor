@@ -794,8 +794,9 @@ namespace CCE.Game
                 new Vector3(
                     -PlayAreaWidth / 2 - 1,
                     -PlayAreaHeight / 2 + PlayAreaHeight * (float)(CurrentPage.ScanLineDirection == 1
-                        ? (CurrentChart.TempoList[id].Tick - CurrentPage.ActualStartTick) / CurrentPage.ActualPageSize
-                        : 1.0 - (CurrentChart.TempoList[id].Tick - CurrentPage.ActualStartTick) /
+                        ? (float)(CurrentChart.TempoList[id].Tick - CurrentPage.ActualStartTick) /
+                          CurrentPage.ActualPageSize
+                        : 1.0 - (float)(CurrentChart.TempoList[id].Tick - CurrentPage.ActualStartTick) /
                         CurrentPage.ActualPageSize)
                 )
             );

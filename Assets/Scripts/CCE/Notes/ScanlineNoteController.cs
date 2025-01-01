@@ -41,10 +41,12 @@ namespace CCE.Notes
         {
             gameObject.transform.position = pos;
             TimeInputField.transform.position -=
-                new Vector3(Screen.width / 2 * (-pos.x / ((float)Screen.width / Screen.height * GlobalState.Height)),
+                new Vector3(
+                    (float)Screen.width / 2 * (-pos.x / ((float)Screen.width / Screen.height * GlobalState.Height)),
                     -(pos.y / GlobalState.Height) * Screen.height / 2f);
             BpmInputField.transform.position -=
-                new Vector3(Screen.width / 2 * (-pos.x / ((float)Screen.width / Screen.height * GlobalState.Height)),
+                new Vector3(
+                    (float)Screen.width / 2 * (-pos.x / ((float)Screen.width / Screen.height * GlobalState.Height)),
                     -(pos.y / GlobalState.Height) * Screen.height / 2f);
         }
 
