@@ -1,0 +1,331 @@
+﻿using System;
+using System.IO;
+using CCE.Audio.Abstract;
+using ManagedBass;
+using ManagedBass.Fx;
+using UnityEngine;
+using UnityEngine.Assertions;
+
+namespace CCE.Audio.BASS
+{
+    /// <summary>
+    ///     Class responsible for playing audio resources.
+    /// </summary>
+    public class BassAudioManager : IAudioManager
+    {
+        private const int ConcurrentHitsoundCount = 4;
+
+        public bool IsInitialized { get; private set; }
+        public bool IsPlaying { get; private set; }
+
+        // Handle to the original audio stream to apply effects on.
+        private int _audioHandle;
+
+        // Handle to the audio stream used for playback.
+        private int _audioChannel;
+        private int _hitsoundHandle;
+        private readonly int[] _hitsoundChannels = new int[ConcurrentHitsoundCount];
+        private int _hitsoundChannelIndex;
+        private bool _isPlaybackSpeedEditable;
+
+        private float _musicVolume = 1;
+        private float _hitsoundVolume = 1;
+
+        public double Time
+        {
+            get => Bass.ChannelBytes2Seconds(_audioChannel, Bass.ChannelGetPosition(_audioChannel));
+            set => Bass.ChannelSetPosition(_audioChannel, Bass.ChannelSeconds2Bytes(_audioChannel, value));
+        }
+
+        public double MaxTime =>
+            Bass.ChannelBytes2Seconds(_audioChannel, Bass.ChannelGetLength(_audioChannel));
+
+        public void SetPlaybackSpeed(double playbackSpeed)
+        {
+            if (!_isPlaybackSpeedEditable)
+            {
+                throw new InvalidOperationException("CCELog: Tried to change playback speed without loading the" +
+                                                    " audio for playback speed editing. See: LoadAudio.");
+            }
+
+            var success = Bass.ChannelSetAttribute(_audioChannel, ChannelAttribute.Tempo, (playbackSpeed - 1) * 100);
+            if (!success)
+            {
+                HandleBassError($"Could not set playback speed of {_audioChannel} to {playbackSpeed}");
+            }
+        }
+
+        /// <summary>
+        ///     Plays the <see cref="AudioClip" />
+        ///     loaded into the <see cref="BassAudioManager" />.
+        /// </summary>
+        public double Play()
+        {
+            if (!IsInitialized || IsPlaying || _audioHandle == 0)
+            {
+                return 0;
+            }
+
+            IsPlaying = true;
+            var success = Bass.ChannelPlay(_audioChannel);
+            if (!success)
+            {
+                HandleBassError($"Could not play audio on channel {_audioChannel}");
+            }
+
+            return AudioSettings.dspTime;
+        }
+
+        public void Pause()
+        {
+            if (!IsPlaying || _audioChannel == 0) return;
+            IsPlaying = false;
+            var success = Bass.ChannelPause(_audioChannel);
+            if (!success)
+            {
+                HandleBassError($"Could not pause audio on channel {_audioChannel}");
+            }
+        }
+
+        public void Stop()
+        {
+            if (!IsPlaying || _audioChannel == 0) return;
+            IsPlaying = false;
+            var success = Bass.ChannelStop(_audioChannel);
+            if (!success)
+            {
+                HandleBassError($"Could not stop audio on channel {_audioChannel}");
+            }
+        }
+
+        public void Cleanup()
+        {
+            var success = Bass.Free();
+            if (!success)
+            {
+                HandleBassError("Could not free BASS.");
+            }
+
+            IsInitialized = false;
+        }
+
+        /// <summary>
+        ///     Loads the audio stream into the <see cref="BassAudioManager" />.
+        /// </summary>
+        /// <param name="audioStream"> Stream containing audio to be loaded. </param>
+        /// <param name="loadForPlaybackSpeed">
+        ///     If set, playback speed can be edited. If not set, <see cref="SetPlaybackSpeed" />
+        ///     does nothing.
+        /// </param>
+        public void LoadAudio(IAudioStream audioStream, bool loadForPlaybackSpeed = false)
+        {
+            if (audioStream is not BassAudioStream bassAudio)
+            {
+                throw new ArgumentException("CCELog: Audio stream must be of type BassAudioStream.");
+            }
+
+            Stop();
+            _audioHandle = bassAudio.Handle;
+            _isPlaybackSpeedEditable = loadForPlaybackSpeed;
+
+            if (loadForPlaybackSpeed)
+            {
+                if (_audioChannel != 0)
+                {
+                    var success = Bass.StreamFree(_audioChannel);
+                    if (!success)
+                    {
+                        HandleBassError($"Could not free previous stream with handle {_audioChannel}");
+                    }
+                }
+
+                _audioChannel = BassFx.TempoCreate(_audioHandle, BassFlags.Default | BassFlags.FxFreeSource);
+                if (_audioChannel == 0)
+                {
+                    HandleBassError($"Could not create playback speed editable stream from handle {_audioHandle}");
+                }
+            }
+            else
+            {
+                _audioChannel = _audioHandle;
+            }
+
+            SetMusicVolume(_musicVolume);
+        }
+
+        // ReSharper disable Unity.PerformanceAnalysis
+        private static void HandleBassError(string errorMessage)
+        {
+            Debug.LogError(errorMessage);
+            Assert.AreNotEqual(Bass.LastError, Errors.OK);
+            throw new BassException(Bass.LastError);
+        }
+
+        private void LoadDefaultHitsounds()
+        {
+            var hitsoundClip = Resources.Load<AudioClip>("hitsound");
+            hitsoundClip.LoadAudioData();
+
+            var sampleCount = hitsoundClip.samples * hitsoundClip.channels;
+            var samples = new float[sampleCount];
+
+            hitsoundClip.GetData(samples, 0);
+
+            _hitsoundHandle =
+                Bass.CreateSample(sampleCount * 4, hitsoundClip.frequency, hitsoundClip.channels,
+                    ConcurrentHitsoundCount, BassFlags.Float | BassFlags.SampleOverrideLongestPlaying);
+            if (_hitsoundHandle == 0)
+            {
+                HandleBassError("Could not create hitsound sample for default hitsounds.");
+            }
+
+            var success = Bass.SampleSetData(_hitsoundHandle, samples);
+            if (!success)
+            {
+                HandleBassError("Could not set hitsound sample data for default hitsounds.");
+            }
+        }
+
+        private void LoadHitsounds()
+        {
+            var customHitsoundPath = Path.Combine(Application.persistentDataPath, "Hitsound.wav");
+            if (File.Exists(customHitsoundPath))
+            {
+                _hitsoundHandle = Bass.SampleLoad(customHitsoundPath, 0, 0,
+                    ConcurrentHitsoundCount, BassFlags.Default);
+                if (_hitsoundHandle == 0)
+                {
+                    HandleBassError("Could not load custom hitsound sample.");
+                }
+            }
+            else
+            {
+                LoadDefaultHitsounds();
+            }
+
+            for (var i = 0; i < ConcurrentHitsoundCount; i++)
+            {
+                _hitsoundChannels[i] = Bass.SampleGetChannel(_hitsoundHandle, true);
+                if (_hitsoundChannels[i] == 0)
+                {
+                    HandleBassError($"Could not get channel for hitsound {i}");
+                }
+
+                var success = Bass.ChannelSetAttribute(_hitsoundChannels[i], ChannelAttribute.Volume, _hitsoundVolume);
+                if (!success)
+                {
+                    HandleBassError(
+                        $"Could not set hitsound volume to {_hitsoundVolume} for channel {_hitsoundChannels[i]}");
+                }
+            }
+        }
+
+        public void PlayHitsound()
+        {
+            var success = Bass.ChannelPlay(_hitsoundChannels[_hitsoundChannelIndex++], true);
+            if (!success)
+            {
+                HandleBassError($"Could not play hitsound on channel {_hitsoundChannelIndex - 1}");
+            }
+
+            if (_hitsoundChannelIndex == ConcurrentHitsoundCount)
+            {
+                _hitsoundChannelIndex = 0;
+            }
+        }
+
+        public void SetHitsoundVolume(float volume)
+        {
+            for (var i = 0; i < ConcurrentHitsoundCount; i++)
+            {
+                var success = Bass.ChannelSetAttribute(_hitsoundChannels[i], ChannelAttribute.Volume, volume);
+                if (!success)
+                {
+                    HandleBassError($"Could not set hitsound volume to {volume} for channel {_hitsoundChannels[i]}");
+                }
+            }
+
+            _hitsoundVolume = volume;
+        }
+
+        public void SetMusicVolume(float volume)
+        {
+            if (_audioChannel == 0) return;
+            var success = Bass.ChannelSetAttribute(_audioChannel, ChannelAttribute.Volume, volume);
+            if (!success)
+            {
+                HandleBassError($"Could not set music volume to {volume} for channel {_audioChannel}");
+            }
+
+            _musicVolume = volume;
+        }
+
+        public void Initialize()
+        {
+            var success = Bass.Configure(Configuration.TruePlayPosition, 0);
+            if (!success)
+            {
+                HandleBassError("Could not configure BASS TruePlayPosition.");
+            }
+
+            success = Bass.Configure(Configuration.DevNonStop, true);
+            if (!success)
+            {
+                HandleBassError("Could not configure BASS DeviceNonStop.");
+            }
+
+            success = Bass.Init();
+            if (!success)
+            {
+#if UNITY_EDITOR
+                if (Bass.LastError == Errors.Already)
+                {
+                    Debug.Log("Could not start BASS, please restart unity.");
+                    return;
+                }
+#endif
+                HandleBassError("Could not start BASS.");
+            }
+
+            IsInitialized = true;
+
+            LoadHitsounds();
+        }
+
+        private static AudioBuffer CreateBuffer(string path)
+        {
+            var buffer = new AudioBuffer
+            {
+                Data = File.ReadAllBytes(path),
+                Pointer = IntPtr.Zero
+            };
+            unsafe
+            {
+                fixed (byte* ptr = buffer.Data)
+                {
+                    buffer.Pointer = (IntPtr)ptr;
+                }
+            }
+
+            return buffer;
+        }
+
+        public IAudioStream CreateStream(string path, bool looping = false)
+        {
+            var buffer = CreateBuffer(path);
+            var flags = looping ? BassFlags.Loop : BassFlags.Decode;
+            var handle = Bass.CreateStream(buffer.Pointer, 0, buffer.Data.Length, flags);
+            if (handle == 0)
+            {
+                HandleBassError($"Could not create stream from {path} with looping = {looping}");
+            }
+
+            return new BassAudioStream(handle, buffer);
+        }
+        
+        ~BassAudioManager()
+        {
+            Cleanup();
+        }
+    }
+}

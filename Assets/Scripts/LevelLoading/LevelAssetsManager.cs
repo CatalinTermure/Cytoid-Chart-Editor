@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using CCE.Audio.Abstract;
 using CCE.Core;
 using CCE.Data;
 using UnityEngine;
@@ -95,19 +96,18 @@ namespace CCE.LevelLoading
         {
             var id = _levelIdOrderList[0];
             _levelIdOrderList.RemoveAt(0);
-            AudioManager.Free(_loadedLevels[id].PreviewAudio);
             Object.Destroy(_loadedLevels[id].PreviewTexture);
             _loadedLevels.Remove(id);
         }
 
-        private static AudioStream LoadPreviewAudio(string path)
+        private static IAudioStream LoadPreviewAudio(string path)
         {
             if (!File.Exists(path))
             {
                 throw new ArgumentException("Could not find audio file at " + path);
             }
 
-            return AudioManager.CreateStream(path, true);
+            return GlobalState.AudioManager.CreateStream(path, true);
         }
 
         private static async Task<Texture2D> LoadBackground(string path)
@@ -123,7 +123,7 @@ namespace CCE.LevelLoading
         private class LevelAssets
         {
             public string OriginalBackgroundPath;
-            public AudioStream PreviewAudio;
+            public IAudioStream PreviewAudio;
             public Texture2D PreviewTexture;
         }
     }

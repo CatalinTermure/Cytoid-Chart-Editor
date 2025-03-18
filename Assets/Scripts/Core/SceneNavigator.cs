@@ -1,4 +1,5 @@
-﻿using CCE.Data;
+﻿using CCE.Audio.Abstract;
+using CCE.Data;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -43,9 +44,9 @@ namespace CCE.Core
         }
 
         public static void NavigateToChartEdit(Level level, ChartMetadata chartFileData,
-            AudioStream audio)
+            IAudioStream audio)
         {
-            AudioManager.LoadAudio(audio, true);
+            GlobalState.AudioManager.LoadAudio(audio, true);
             GlobalState.LoadLevel(level);
             GlobalState.LoadChart(chartFileData);
             NavigateToScene("MainScene");
@@ -54,7 +55,7 @@ namespace CCE.Core
         private static void NavigateToScene(string sceneName)
         {
             SceneManager.LoadScene(sceneName);
-            AudioManager.Pause();
+            GlobalState.AudioManager.Pause();
         }
     }
 }

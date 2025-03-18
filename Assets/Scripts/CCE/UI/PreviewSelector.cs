@@ -55,7 +55,7 @@ namespace CCE.UI
             _canvasWidth = (int)canvasRect.width;
             _canvasHeight = (int)canvasRect.height;
 
-            _audioLength = AudioManager.MaxTime;
+            _audioLength = GlobalState.AudioManager.MaxTime;
         }
 
         private void Start()
@@ -69,9 +69,9 @@ namespace CCE.UI
 
         private void Update()
         {
-            if (AudioManager.IsPlaying && AudioManager.Time >= _endTime)
+            if (GlobalState.AudioManager.IsPlaying && GlobalState.AudioManager.Time >= _endTime)
             {
-                AudioManager.Stop();
+                GlobalState.AudioManager.Stop();
             }
 
             if (_isSampleDataValid)
@@ -231,14 +231,14 @@ namespace CCE.UI
 
         public void PlayPreview()
         {
-            if (AudioManager.IsPlaying)
+            if (GlobalState.AudioManager.IsPlaying)
             {
-                AudioManager.Stop();
+                GlobalState.AudioManager.Stop();
                 return;
             }
 
-            AudioManager.Time = _startTime;
-            AudioManager.Play();
+            GlobalState.AudioManager.Time = _startTime;
+            GlobalState.AudioManager.Play();
         }
 
         public void SavePreview()

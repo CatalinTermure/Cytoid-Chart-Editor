@@ -102,7 +102,6 @@ namespace CCE.LevelLoading
             if (index == _filteredLevels.Count) _offset--;
 
             var cardIndex = index - _levelCardInfos[0].LevelIndex;
-            FreeLevelCardResources(_levelCardInfos[cardIndex]);
 
             if (_levelCardInfos[_levelCardInfos.Count - 1].LevelIndex >= _filteredLevels.Count)
             {
@@ -216,17 +215,7 @@ namespace CCE.LevelLoading
 
         public void FreeResources()
         {
-            foreach (var levelCardInfo in _levelCardInfos)
-            {
-                FreeLevelCardResources(levelCardInfo);
-            }
-
             _levelCardInfos.Clear();
-        }
-
-        private static void FreeLevelCardResources(LevelCardInfo levelCardInfo)
-        {
-            AudioManager.Free(levelCardInfo.PreviewAudioHandle);
         }
 
         private void MoveBottomCardToTop()

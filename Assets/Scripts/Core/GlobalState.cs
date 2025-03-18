@@ -1,5 +1,7 @@
 ﻿using System;
 using System.IO;
+using CCE.Audio.Abstract;
+using CCE.Audio.BASS;
 using CCE.Data;
 using CCE.GameUtils;
 using Newtonsoft.Json;
@@ -30,6 +32,8 @@ namespace CCE.Core
 
         public static EditorConfig Config;
 
+        public static IAudioManager AudioManager;
+
         private static Sprite _backgroundSprite;
 
         public static readonly string[] DefaultFillColors =
@@ -58,6 +62,8 @@ namespace CCE.Core
 
         private void Awake()
         {
+            AudioManager ??= new BassAudioManager();
+            
             Application.targetFrameRate = 60;
 
             Height = Camera.main!.orthographicSize;
