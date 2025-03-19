@@ -11,22 +11,22 @@ namespace CCE.Audio.BASS
     public class BassAudioManager : IAudioManager
     {
         private const int ConcurrentHitsoundCount = 4;
-
-        public bool IsInitialized { get; private set; }
-        public bool IsPlaying { get; private set; }
+        private readonly int[] _hitsoundChannels = new int[ConcurrentHitsoundCount];
+        private int _hitsoundChannelIndex;
+        private int _hitsoundHandle;
+        private float _hitsoundVolume = 1;
+        private bool _isPlaybackSpeedEditable;
 
         // Handle to the original audio stream to apply effects on.
         private BassAudioStream _loadedAudioStream;
 
+        private float _musicVolume = 1;
+
         // Handle to the audio stream used for playback.
         private int _playingAudioHandle;
-        private int _hitsoundHandle;
-        private readonly int[] _hitsoundChannels = new int[ConcurrentHitsoundCount];
-        private int _hitsoundChannelIndex;
-        private bool _isPlaybackSpeedEditable;
 
-        private float _musicVolume = 1;
-        private float _hitsoundVolume = 1;
+        public bool IsInitialized { get; private set; }
+        public bool IsPlaying { get; private set; }
 
         public double Time
         {
@@ -45,7 +45,8 @@ namespace CCE.Audio.BASS
                                                     " audio for playback speed editing. See: LoadAudio.");
             }
 
-            var success = Bass.ChannelSetAttribute(_playingAudioHandle, ChannelAttribute.Tempo, (playbackSpeed - 1) * 100);
+            var success =
+                Bass.ChannelSetAttribute(_playingAudioHandle, ChannelAttribute.Tempo, (playbackSpeed - 1) * 100);
             if (!success)
             {
                 HandleBassError($"Could not set playback speed of {_playingAudioHandle} to {playbackSpeed}");
@@ -91,17 +92,6 @@ namespace CCE.Audio.BASS
             }
         }
 
-        public void Cleanup()
-        {
-            var success = Bass.Free();
-            if (!success)
-            {
-                HandleBassError("Could not free BASS.");
-            }
-
-            IsInitialized = false;
-        }
-
         public void LoadAudio(IAudioStream audioStream, bool loadForPlaybackSpeed = false)
         {
             if (audioStream == null)
@@ -109,7 +99,7 @@ namespace CCE.Audio.BASS
                 Debug.LogWarning("CCELog: Tried to load null audio stream.");
                 return;
             }
-            
+
             if (audioStream is not BassAudioStream bassAudio)
             {
                 throw new ArgumentException("CCELog: Audio stream must be of type BassAudioStream.");
@@ -130,10 +120,12 @@ namespace CCE.Audio.BASS
                     }
                 }
 
-                _playingAudioHandle = BassFx.TempoCreate(_loadedAudioStream.Handle, BassFlags.Default | BassFlags.FxFreeSource);
+                _playingAudioHandle =
+                    BassFx.TempoCreate(_loadedAudioStream.Handle, BassFlags.Default | BassFlags.FxFreeSource);
                 if (_playingAudioHandle == 0)
                 {
-                    HandleBassError($"Could not create playback speed editable stream from handle {_loadedAudioStream}");
+                    HandleBassError(
+                        $"Could not create playback speed editable stream from handle {_loadedAudioStream}");
                 }
             }
             else
@@ -144,7 +136,16 @@ namespace CCE.Audio.BASS
             SetMusicVolume(_musicVolume);
         }
 
-        // ReSharper disable Unity.PerformanceAnalysis
+        public void Cleanup()
+        {
+            var success = Bass.Free();
+            if (!success)
+            {
+                HandleBassError("Could not free BASS.");
+            }
+
+            IsInitialized = false;
+        } // ReSharper disable Unity.PerformanceAnalysis
         private static void HandleBassError(string errorMessage)
         {
             Debug.LogError(errorMessage);
@@ -313,7 +314,7 @@ namespace CCE.Audio.BASS
 
             return new BassAudioStream(handle, buffer);
         }
-        
+
         ~BassAudioManager()
         {
             Cleanup();

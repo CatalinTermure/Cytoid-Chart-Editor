@@ -10,18 +10,19 @@ namespace CCE.Audio.BASS
         public byte[] Data;
         public IntPtr Pointer;
     }
-    
+
     public class BassAudioStream : IAudioStream
     {
-        public int Handle { get; }
         private readonly AudioBuffer _buffer;
-        
+
         public BassAudioStream(int handle, AudioBuffer buffer)
         {
             Handle = handle;
             _buffer = buffer;
         }
-        
+
+        public int Handle { get; }
+
         ~BassAudioStream()
         {
             Assert.AreNotEqual(_buffer.Pointer, IntPtr.Zero);
