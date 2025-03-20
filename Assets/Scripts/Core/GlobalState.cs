@@ -121,6 +121,8 @@ namespace CCE.Core
         {
             File.WriteAllText(Path.Combine(Application.persistentDataPath, "data.txt"),
                 JsonConvert.SerializeObject(Config));
+            AudioManager.SetMusicVolume(Config.MusicVolume);
+            AudioManager.SetHitsoundVolume(Config.HitsoundVolume);
         }
 
         public static void LoadLevel(Level level)

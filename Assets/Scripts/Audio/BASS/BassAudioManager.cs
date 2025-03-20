@@ -136,7 +136,7 @@ namespace CCE.Audio.BASS
             SetMusicVolume(_musicVolume);
         }
 
-        public void Cleanup()
+        private void Cleanup()
         {
             var success = Bass.Free();
             if (!success)
@@ -145,7 +145,9 @@ namespace CCE.Audio.BASS
             }
 
             IsInitialized = false;
-        } // ReSharper disable Unity.PerformanceAnalysis
+        } 
+        
+        // ReSharper disable Unity.PerformanceAnalysis
         private static void HandleBassError(string errorMessage)
         {
             Debug.LogError(errorMessage);
@@ -210,6 +212,8 @@ namespace CCE.Audio.BASS
                         $"Could not set hitsound volume to {_hitsoundVolume} for channel {_hitsoundChannels[i]}");
                 }
             }
+            
+            SetHitsoundVolume(_hitsoundVolume);
         }
 
         public void PlayHitsound()
@@ -242,14 +246,14 @@ namespace CCE.Audio.BASS
 
         public void SetMusicVolume(float volume)
         {
+            _musicVolume = volume;
+            
             if (_playingAudioHandle == 0) return;
             var success = Bass.ChannelSetAttribute(_playingAudioHandle, ChannelAttribute.Volume, volume);
             if (!success)
             {
                 HandleBassError($"Could not set music volume to {volume} for channel {_playingAudioHandle}");
             }
-
-            _musicVolume = volume;
         }
 
         public void Initialize()
