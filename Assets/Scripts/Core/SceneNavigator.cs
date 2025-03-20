@@ -55,7 +55,6 @@ namespace CCE.Core
         private static void NavigateToScene(string sceneName)
         {
             SceneManager.LoadScene(sceneName);
-            GlobalState.AudioManager.Pause();
         }
     }
 }
