@@ -24,13 +24,13 @@ namespace CCE.Utils
             if (!File.Exists(path)) return path;
             var i = 1;
             var uniquePath = Path.Combine(Path.GetDirectoryName(path)!,
-                $"{Path.GetFileNameWithoutExtension(path)}-{i}.{Path.GetExtension(path)}");
+                $"{Path.GetFileNameWithoutExtension(path)}-{i}{Path.GetExtension(path)}");
 
             while (File.Exists(uniquePath))
             {
                 i++;
                 uniquePath = Path.Combine(Path.GetDirectoryName(path)!,
-                    $"{Path.GetFileNameWithoutExtension(path)}-{i}.{Path.GetExtension(path)}");
+                    $"{Path.GetFileNameWithoutExtension(path)}-{i}{Path.GetExtension(path)}");
             }
 
             return uniquePath;
