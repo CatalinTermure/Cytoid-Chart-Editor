@@ -28,7 +28,7 @@ namespace CCE.LevelLoading
         {
             _fileImporters.Add(new LevelImporter(levelFilePath));
 
-            var t = new Thread(_fileImporters[_fileImporters.Count - 1].ImportFile);
+            var t = new Thread(_fileImporters[^1].ImportFile);
 
             t.Start();
         }
@@ -46,7 +46,7 @@ namespace CCE.LevelLoading
                      Directory.EnumerateFiles(GlobalState.Config.LevelStoragePath))
             {
                 var extension = Path.GetExtension(filePath);
-                if (extension == ".cytoidpack" || extension == ".cytoidlevel") ImportLevel(filePath);
+                if (extension is ".cytoidpack" or ".cytoidlevel") ImportLevel(filePath);
             }
 
             // Importing levels from old directory
@@ -132,7 +132,14 @@ namespace CCE.LevelLoading
                     finalSize,
                     finalSize));
 
-            TextureScale.Bilinear(finalTex, CacheImageSize, CacheImageSize);
+            if (tex.width < CacheImageSize || tex.height < CacheImageSize)
+            {
+                TextureScale.Point(finalTex, CacheImageSize, CacheImageSize);
+            }
+            else
+            {
+                TextureScale.Bilinear(finalTex, CacheImageSize, CacheImageSize);
+            }
 
             File.WriteAllBytes(cacheFilePath, finalTex.GetRawTextureData());
         }
