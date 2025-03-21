@@ -24,6 +24,7 @@ namespace CCE.UI
         private void Awake()
         {
             _oldBackgroundPath = GlobalState.CurrentLevel.Background.Path;
+            _oldId = GlobalState.CurrentLevel.ID;
             gameObject.GetComponent<ClassInfoDisplay>().DrawGui(GlobalState.CurrentLevel, 75, "Existing Level");
             FindFirstObjectByType<ImagePicker>()
                 .LoadImage(Path.Combine(GlobalState.Config.LevelStoragePath,
@@ -86,10 +87,20 @@ namespace CCE.UI
                 }));
 
             LevelUtils.DeleteDeadAssets(GlobalState.Config.LevelStoragePath, GlobalState.CurrentLevel);
+            
+            _oldBackgroundPath = GlobalState.CurrentLevel.Background.Path;
+            _oldId = GlobalState.CurrentLevel.ID;
 
             ErrorToaster.CreateToast("Level metadata saved!");
         }
 
+        public void DiscardChanges()
+        {
+            GlobalState.CurrentLevel.Background.Path = _oldBackgroundPath;
+            GlobalState.CurrentLevel.ID = _oldId;
+            SceneNavigator.NavigateToMainScreen();
+        }
+        
         private void SaveBackground(string levelDirPath)
         {
             var backgroundPath =

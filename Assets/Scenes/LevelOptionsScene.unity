@@ -963,9 +963,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 363621548}
-        m_TargetAssemblyTypeName: SceneNavigator, Assembly-CSharp
-        m_MethodName: NavigateToMainScreen
+      - m_Target: {fileID: 244471046}
+        m_TargetAssemblyTypeName: CCE.UI.LevelDataDisplay, CCE
+        m_MethodName: DiscardChanges
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
