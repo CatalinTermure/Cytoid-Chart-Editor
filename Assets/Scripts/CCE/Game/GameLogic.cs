@@ -14,7 +14,6 @@ using CCE.UI;
 using CCE.Utils;
 using Newtonsoft.Json;
 using UnityEngine;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 using static CCE.Core.GlobalState;
 using Event = CCE.Data.Event;
@@ -40,8 +39,7 @@ namespace CCE.Game
 
         [HideInInspector] public int CurrentPageIndex;
 
-        [FormerlySerializedAs("utilityLineRenderer")] [SerializeField]
-        private LineRenderer UtilityLineRenderer;
+        [SerializeField] private LineRenderer UtilityLineRenderer;
 
         private readonly int[] _allowedDivisors = { 1, 2, 3, 4, 6, 8, 12, 16 };
         private readonly Dictionary<int, bool> _isObjectMovingDict = new();
@@ -96,7 +94,6 @@ namespace CCE.Game
             _mainCamera = Camera.main;
             _lockYText = GameObject.Find("LockYText");
             _lockYText.SetActive(false);
-            UtilityLineRenderer = GetComponent<LineRenderer>();
 
             if (CurrentChart == null) return;
 
