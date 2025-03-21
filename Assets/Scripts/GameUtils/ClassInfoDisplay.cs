@@ -123,6 +123,11 @@ namespace CCE.GameUtils
             {
                 DrawBackgroundField(fieldInfo);
             }
+            else
+            {
+                throw new ArgumentException($"{nameof(ClassInfoDisplay)}.{nameof(DrawField)}",
+                    $"Field {fieldInfo.Name} of type {fieldInfo.FieldType} could not be drawn.");
+            }
         }
 
         private static DisplayableAttribute GetAttributeInfo(FieldInfo fieldInfo)
