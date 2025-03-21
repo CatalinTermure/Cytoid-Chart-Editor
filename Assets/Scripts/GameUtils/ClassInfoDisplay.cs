@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using CCE.Data;
 using CCE.Utils;
 using UnityEngine;
 
@@ -14,26 +13,46 @@ namespace CCE.GameUtils
         [SerializeField] private GameObject StringDisplayTemplate;
         [SerializeField] private GameObject FloatDisplayTemplate;
         [SerializeField] private GameObject BooleanDisplayTemplate;
-        [SerializeField] private GameObject BackgroundDisplayTemplate;
         [SerializeField] private GameObject SectionHeaderDisplayTemplate;
+        [SerializeField] private List<MonoBehaviour> ClassFieldRenderers;
 
         [SerializeField] private RectTransform FillTarget;
         [SerializeField] private bool ShouldStretchFillTarget;
         [SerializeField] private float ElementSpacing;
         [SerializeField] private float ElementLeftMargin;
 
-        private readonly Type[] _possibleTypes =
+        private readonly Dictionary<Type, IClassFieldRenderer> _classFieldRenderers = new();
+
+        private readonly Type[] _defaultTypes =
         {
-            typeof(int), typeof(float), typeof(bool), typeof(string), typeof(Level.BackgroundData)
+            typeof(int), typeof(float), typeof(bool), typeof(string)
         };
 
         private float _currentElementTopMargin;
 
         private object _targetObject;
 
+        private void InitializeClassFieldRenderers()
+        {
+            if (_classFieldRenderers.Count != 0) return;
+            foreach (var classFieldRenderer in ClassFieldRenderers)
+            {
+                if (classFieldRenderer is not IClassFieldRenderer fieldRenderer)
+                {
+                    throw new ArgumentException($"{nameof(ClassInfoDisplay)}.{nameof(DrawGui)}",
+                        $"Object {classFieldRenderer} in {nameof(ClassFieldRenderers)} " +
+                        "does not implement the IClassFieldRenderer interface.");
+                }
+
+                _classFieldRenderers.Add(fieldRenderer.FieldType, fieldRenderer);
+            }
+        }
+
         // The class type restriction is so that value types don't accidentally get passed to this.
         public void DrawGui<TTarget>(TTarget targetObject, int offset, string filter = "") where TTarget : class
         {
+            InitializeClassFieldRenderers();
+
             if (offset == 0)
             {
                 foreach (Transform child in FillTarget)
@@ -51,7 +70,7 @@ namespace CCE.GameUtils
                 {
                     if (!Attribute.IsDefined(x, typeof(DisplayableAttribute))) return false;
 
-                    return String.IsNullOrEmpty(filter) || GetAttributeInfo(x).Filter == filter;
+                    return string.IsNullOrEmpty(filter) || GetAttributeInfo(x).Filter == filter;
                 });
 
             var sections = fieldsToDisplay
@@ -72,7 +91,7 @@ namespace CCE.GameUtils
 
         private void DrawSection(string title, IEnumerable<FieldInfo> fields)
         {
-            if (!String.IsNullOrEmpty(title))
+            if (!string.IsNullOrEmpty(title))
             {
                 DrawSectionHeader(title);
             }
@@ -94,7 +113,22 @@ namespace CCE.GameUtils
 
         private void DrawField(FieldInfo fieldInfo)
         {
-            if (!_possibleTypes.Contains(fieldInfo.FieldType))
+            if (_classFieldRenderers.TryGetValue(fieldInfo.FieldType, out var fieldRenderer))
+            {
+                _currentElementTopMargin -= fieldRenderer
+                    .RenderField(new ClassFieldRenderInfo
+                    {
+                        FieldInfo = fieldInfo,
+                        TargetObject = _targetObject,
+                        CurrentElementTopMargin = _currentElementTopMargin,
+                        ElementLeftMargin = ElementLeftMargin,
+                        ElementSpacing = ElementSpacing,
+                        FillTarget = FillTarget
+                    });
+                return;
+            }
+
+            if (!_defaultTypes.Contains(fieldInfo.FieldType))
             {
                 throw new ArgumentException($"{nameof(ClassInfoDisplay)}.{nameof(DrawField)}",
                     $"Field {fieldInfo.Name} is of a type that is " +
@@ -119,10 +153,6 @@ namespace CCE.GameUtils
             {
                 DrawStringField(fieldInfo);
             }
-            else if (fieldInfo.FieldType == typeof(Level.BackgroundData))
-            {
-                DrawBackgroundField(fieldInfo);
-            }
             else
             {
                 throw new ArgumentException($"{nameof(ClassInfoDisplay)}.{nameof(DrawField)}",
@@ -133,32 +163,6 @@ namespace CCE.GameUtils
         private static DisplayableAttribute GetAttributeInfo(FieldInfo fieldInfo)
         {
             return (DisplayableAttribute)fieldInfo.GetCustomAttribute(typeof(DisplayableAttribute));
-        }
-
-        private void DrawBackgroundField(FieldInfo fieldInfo)
-        {
-            var obj = Instantiate(BackgroundDisplayTemplate, FillTarget);
-            obj.GetComponent<RectTransform>().anchoredPosition =
-                new Vector2(ElementLeftMargin, _currentElementTopMargin);
-
-            obj.GetComponent<ClassFieldDisplay>().FieldName.text = GetAttributeInfo(fieldInfo).Name ?? fieldInfo.Name;
-
-            obj.GetComponent<ImagePicker>().OnImagePicked += path =>
-            {
-                if ((Level.BackgroundData)fieldInfo.GetValue(_targetObject) == null)
-                {
-                    fieldInfo.SetValue(_targetObject, new Level.BackgroundData
-                    {
-                        Path = path
-                    });
-                }
-                else
-                {
-                    ((Level.BackgroundData)fieldInfo.GetValue(_targetObject)).Path = path;
-                }
-            };
-
-            _currentElementTopMargin -= ElementSpacing * 1.5f;
         }
 
         private void DrawIntegerField(FieldInfo fieldInfo)
@@ -187,7 +191,7 @@ namespace CCE.GameUtils
             classFieldDisplay.ValueInputField.onEndEdit
                 .AddListener(stringValue =>
                 {
-                    var value = Int32.Parse(stringValue);
+                    var value = int.Parse(stringValue);
                     value = Mathf.RoundToInt(Mathf.Clamp(value, attributeInfo.MinValue, attributeInfo.MaxValue));
 
                     classFieldDisplay.ValueInputField.text = value.ToString();
@@ -238,7 +242,7 @@ namespace CCE.GameUtils
             classFieldDisplay.ValueInputField.onEndEdit
                 .AddListener(stringValue =>
                 {
-                    var value = Single.Parse(stringValue);
+                    var value = float.Parse(stringValue);
                     value = Mathf.Clamp(value, attributeInfo.MinValue, attributeInfo.MaxValue);
 
                     classFieldDisplay.ValueInputField.text = value.ToString("F2");
