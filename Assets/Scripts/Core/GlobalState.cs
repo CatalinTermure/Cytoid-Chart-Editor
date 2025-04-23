@@ -112,9 +112,6 @@ namespace CCE.Core
         private void OnApplicationQuit()
         {
             AudioManager.Stop();
-#if !UNITY_EDITOR
-            AudioManager.Cleanup();
-#endif
         }
 
         public static void SaveConfig()
