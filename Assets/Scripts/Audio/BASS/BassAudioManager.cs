@@ -288,11 +288,11 @@ namespace CCE.Audio.BASS
             LoadHitsounds();
         }
 
-        private static AudioBuffer CreateBuffer(string path)
+        private static AudioBuffer CreateBuffer(byte[] data)
         {
             var buffer = new AudioBuffer
             {
-                Data = File.ReadAllBytes(path),
+                Data = data,
                 Pointer = IntPtr.Zero
             };
             unsafe
@@ -306,14 +306,14 @@ namespace CCE.Audio.BASS
             return buffer;
         }
 
-        public IAudioStream CreateStream(string path, bool looping = false)
+        public IAudioStream CreateStream(byte[] data, bool looping = false)
         {
-            var buffer = CreateBuffer(path);
+            var buffer = CreateBuffer(data);
             var flags = looping ? BassFlags.Loop : BassFlags.Decode;
             var handle = Bass.CreateStream(buffer.Pointer, 0, buffer.Data.Length, flags);
             if (handle == 0)
             {
-                HandleBassError($"Could not create stream from {path} with looping = {looping}");
+                HandleBassError($"Could not create stream from {data} with looping = {looping}");
             }
 
             return new BassAudioStream(handle, buffer);

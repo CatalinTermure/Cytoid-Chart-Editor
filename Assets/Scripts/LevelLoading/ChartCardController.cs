@@ -137,7 +137,8 @@ namespace CCE.LevelLoading
 
             _levelList.View.FreeResources();
 
-            SceneNavigator.NavigateToChartEdit(level, chartData, GlobalState.AudioManager.CreateStream(audioFilePath));
+            SceneNavigator.NavigateToChartEdit(level, chartData,
+                GlobalState.AudioManager.CreateStream(File.ReadAllBytes(audioFilePath)));
         }
 
         public void UpdateChartCards(Level level)
@@ -169,7 +170,8 @@ namespace CCE.LevelLoading
 
             level.Charts.Add(chartData);
 
-            SceneNavigator.NavigateToChartEdit(level, chartData, GlobalState.AudioManager.CreateStream(audioFilePath));
+            SceneNavigator.NavigateToChartEdit(level, chartData,
+                GlobalState.AudioManager.CreateStream(File.ReadAllBytes(audioFilePath)));
             Task.WaitAll(chartWriteTask, levelDataWriteTask);
         }
 

@@ -31,7 +31,7 @@ namespace CCE.LevelLoading
 
         private readonly Dictionary<string, LevelAssets> _loadedLevels = new(PoolSize);
 
-        public async void ScheduleLevelLoad(LevelCardInfo levelCardInfo, Level level)
+        public async Task ScheduleLevelLoad(LevelCardInfo levelCardInfo, Level level)
         {
             if (_loadedLevels.TryGetValue(level.ID, out var loadedLevel))
             {
@@ -59,20 +59,28 @@ namespace CCE.LevelLoading
 
             var audioFilePath = Path.Combine(GlobalState.Config.LevelStoragePath, level.ID, level.Music.Path);
 
-            var assets = new LevelAssets
-            {
-                PreviewAudio =
-                    LoadPreviewAudio(File.Exists(audioPreviewFilePath) ? audioPreviewFilePath : audioFilePath),
-                OriginalBackgroundPath = backgroundFilePath
-            };
+            var previewAudio =
+                LoadPreviewAudio(File.Exists(audioPreviewFilePath) ? audioPreviewFilePath : audioFilePath);
 
+            LevelAssets assets;
             if (GlobalState.Config.LoadBackgroundsInLevelSelect && File.Exists(backgroundFilePath))
             {
-                assets.PreviewTexture = await LoadBackground(backgroundFilePath);
+                var previewTexture = LoadBackground(backgroundFilePath);
+                await Task.WhenAll(previewAudio, previewTexture);
+                assets = new LevelAssets
+                {
+                    PreviewAudio = previewAudio.Result,
+                    OriginalBackgroundPath = backgroundFilePath,
+                    PreviewTexture = previewTexture.Result
+                };
             }
             else
             {
-                assets.PreviewTexture = null;
+                assets = new LevelAssets
+                {
+                    PreviewAudio = await previewAudio,
+                    OriginalBackgroundPath = backgroundFilePath
+                };
             }
 
             AddAssetsToCard(levelCardInfo, assets);
@@ -100,14 +108,14 @@ namespace CCE.LevelLoading
             _loadedLevels.Remove(id);
         }
 
-        private static IAudioStream LoadPreviewAudio(string path)
+        private static async Task<IAudioStream> LoadPreviewAudio(string path)
         {
             if (!File.Exists(path))
             {
                 throw new ArgumentException("Could not find audio file at " + path);
             }
 
-            return GlobalState.AudioManager.CreateStream(path, true);
+            return GlobalState.AudioManager.CreateStream(await File.ReadAllBytesAsync(path), true);
         }
 
         private static async Task<Texture2D> LoadBackground(string path)

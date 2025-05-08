@@ -133,7 +133,7 @@ namespace CCE.LevelLoading
             levelCardInfo.Title.text = level.DisplayTitle;
             levelCardInfo.CharterName.text = level.Charter;
 
-            _levelAssetsManager.ScheduleLevelLoad(levelCardInfo, level);
+            _ = _levelAssetsManager.ScheduleLevelLoad(levelCardInfo, level);
         }
 
         private void UpdateCurrentLevel(LevelCardInfo levelCardInfo)
