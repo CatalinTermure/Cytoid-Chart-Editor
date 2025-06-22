@@ -1,28 +1,23 @@
 ﻿#if UNITY_EDITOR || UNITY_ANDROID
-using System.Threading;
 using UnityEngine;
 
 namespace NativeFilePickerNamespace
 {
 	public class FPPermissionCallbackAndroid : AndroidJavaProxy
 	{
-		private object threadLock;
-		public int Result { get; private set; }
+		private readonly NativeFilePicker.PermissionCallback callback;
+		private readonly FPCallbackHelper callbackHelper;
 
-		public FPPermissionCallbackAndroid( object threadLock ) : base( "com.yasirkula.unity.NativeFilePickerPermissionReceiver" )
+		public FPPermissionCallbackAndroid( NativeFilePicker.PermissionCallback callback ) : base( "com.yasirkula.unity.NativeFilePickerPermissionReceiver" )
 		{
-			Result = -1;
-			this.threadLock = threadLock;
+			this.callback = callback;
+			callbackHelper = FPCallbackHelper.Create( true );
 		}
 
+		[UnityEngine.Scripting.Preserve]
 		public void OnPermissionResult( int result )
 		{
-			Result = result;
-
-			lock( threadLock )
-			{
-				Monitor.Pulse( threadLock );
-			}
+			callbackHelper.CallOnMainThread( () => callback( (NativeFilePicker.Permission) result ) );
 		}
 	}
 }
