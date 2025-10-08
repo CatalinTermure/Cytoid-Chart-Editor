@@ -96,7 +96,7 @@ namespace CCE.Audio.BASS
         {
             if (audioStream == null)
             {
-                Debug.LogWarning("CCELog: Tried to load null audio stream.");
+                Debug.Log("CCELog: Tried to load null audio stream.");
                 return;
             }
 
