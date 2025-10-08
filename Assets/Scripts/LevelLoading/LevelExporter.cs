@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.IO.Compression;
 using CCE.Core;
@@ -69,7 +70,12 @@ namespace CCE.LevelLoading
         private static void ExportArchiveDesktop(string tempArchivePath)
         {
             var destinationPath = StandaloneFileBrowser.SaveFilePanel("Export .cytoidlevel", "",
-                GlobalState.CurrentLevel.ID + ".cytoidlevel", "cytoidlevel");
+                GlobalState.CurrentLevel.ID, "cytoidlevel");
+            if (String.IsNullOrEmpty(destinationPath))
+            {
+                Debug.LogWarning("Export cancelled.");
+                return;
+            }
             File.Move(tempArchivePath, destinationPath);
         }
 
