@@ -14,7 +14,6 @@ namespace CCE.GameUtils
         [SerializeField] private GameObject FloatDisplayTemplate;
         [SerializeField] private GameObject BooleanDisplayTemplate;
         [SerializeField] private GameObject SectionHeaderDisplayTemplate;
-        [SerializeField] private List<MonoBehaviour> ClassFieldRenderers;
 
         [SerializeField] private RectTransform FillTarget;
         [SerializeField] private bool ShouldStretchFillTarget;
@@ -35,16 +34,9 @@ namespace CCE.GameUtils
         private void InitializeClassFieldRenderers()
         {
             if (_classFieldRenderers.Count != 0) return;
-            foreach (var classFieldRenderer in ClassFieldRenderers)
+            foreach (var classFieldRenderer in GetComponents<IClassFieldRenderer>())
             {
-                if (classFieldRenderer is not IClassFieldRenderer fieldRenderer)
-                {
-                    throw new ArgumentException($"{nameof(ClassInfoDisplay)}.{nameof(DrawGui)}",
-                        $"Object {classFieldRenderer} in {nameof(ClassFieldRenderers)} " +
-                        "does not implement the IClassFieldRenderer interface.");
-                }
-
-                _classFieldRenderers.Add(fieldRenderer.FieldType, fieldRenderer);
+                _classFieldRenderers.Add(classFieldRenderer.FieldType, classFieldRenderer);
             }
         }
 
