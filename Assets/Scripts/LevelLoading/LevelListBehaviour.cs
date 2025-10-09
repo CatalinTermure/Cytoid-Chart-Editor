@@ -2,6 +2,7 @@
 using System.IO;
 using CCE.Audio.Abstract;
 using CCE.Core;
+using CCE.Coroutines;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -54,7 +55,11 @@ namespace CCE.LevelLoading
 
         private void Update()
         {
-            if (_isPopupActive) return;
+            if (_isPopupActive)
+            {
+                _isDragging = false;
+                return;
+            }
 
             if (Input.GetMouseButtonDown(0) && Input.mousePosition.x > Screen.width / 2.0f)
             {
@@ -99,8 +104,13 @@ namespace CCE.LevelLoading
         public void ShowLevelMetadataPopup(string audioPath)
         {
             _isPopupActive = true;
-            Instantiate(LevelMetadataPopup, Vector3.zero, Quaternion.identity, transform.parent)
-                .GetComponent<LevelMetadataPopupController>().SetAudioFile(audioPath);
+            var audioPopupController = Instantiate(LevelMetadataPopup, Vector3.zero, Quaternion.identity, transform.parent)
+                .GetComponent<LevelMetadataPopupController>();
+            audioPopupController.SetAudioFile(audioPath);
+            audioPopupController.OnEnd += () =>
+            {
+                StartCoroutine(CoroutineUtils.WaitForSecondsAndThen(0.5f, () => { _isPopupActive = false; }));
+            };
         }
 
         public void UpdateBackground(string path)

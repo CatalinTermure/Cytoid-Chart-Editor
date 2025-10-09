@@ -11,6 +11,8 @@ namespace CCE.LevelLoading
 {
     public class LevelMetadataPopupController : MonoBehaviour
     {
+        public event Action OnEnd;
+        
         private const string LevelIdRegex = "^[a-z0-9_]+([-_.][a-z0-9_]+)+$";
         [SerializeField] private ToastMessageManager ErrorToaster;
         private string _audioAbsolutePath;
@@ -21,6 +23,11 @@ namespace CCE.LevelLoading
         {
             _level = new Level();
             gameObject.GetComponent<ClassInfoDisplay>().DrawGui(_level, 0);
+        }
+
+        private void OnDestroy()
+        {
+            OnEnd?.Invoke();
         }
 
         public void SetAudioFile(string filePath)
@@ -91,5 +98,6 @@ namespace CCE.LevelLoading
         {
             Destroy(gameObject);
         }
+
     }
 }
