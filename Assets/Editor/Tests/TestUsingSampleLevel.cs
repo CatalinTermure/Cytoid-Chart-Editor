@@ -8,6 +8,8 @@ namespace CCE.Tests
 {
     public class TestUsingSampleLevel
     {
+        protected string TestLevelPath;
+            
         [UnitySetUp]
         public IEnumerator SetUp()
         {
@@ -15,7 +17,8 @@ namespace CCE.Tests
             yield return null;
 
             var levelsPath = GlobalState.Config.LevelStoragePath;
-            if (Directory.Exists(Path.Combine(levelsPath, "chovvy.test"))) yield break;
+            TestLevelPath = Path.Combine(levelsPath, "chovvy.test");
+            if (Directory.Exists(TestLevelPath)) yield break;
 
             TestUtils.ImportSampleLevel(levelsPath);
             Assert.Fail("Sample level was not found and it was loaded. Please re-run the test.");
