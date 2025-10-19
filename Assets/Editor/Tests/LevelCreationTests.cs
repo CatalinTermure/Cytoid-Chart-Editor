@@ -13,7 +13,7 @@ namespace CCE.Tests
             var importButton = GameObject.Find("Import Button");
             Assert.IsNotNull(importButton);
         }
-        
+
         [Test]
         public void LevelListBehaviourExists()
         {
@@ -21,13 +21,13 @@ namespace CCE.Tests
                 Object.FindObjectsByType<LevelListBehaviour>(FindObjectsSortMode.None);
             Assert.AreEqual(1, levelListBehaviours.Length);
         }
-        
+
         [Test]
         public void ShowLevelMetadataPopupCreatesObject()
         {
             var levelListBehaviour =
                 Object.FindAnyObjectByType<LevelListBehaviour>();
-            var testAudioPath = Path.Combine(TestLevelPath, "test-audio.mp3");
+            var testAudioPath = Path.Combine(TestUtils.SampleLevelPath, "test-audio.mp3");
             levelListBehaviour.ShowLevelMetadataPopup(testAudioPath);
             var levelMetadataPopup = Object.FindAnyObjectByType<LevelMetadataPopupController>();
             Assert.IsNotNull(levelMetadataPopup);

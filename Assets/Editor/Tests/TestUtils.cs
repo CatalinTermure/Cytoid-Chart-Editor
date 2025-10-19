@@ -10,7 +10,7 @@ namespace CCE.Tests
 {
     public static class TestUtils
     {
-        private static readonly string SampleLevelPath =
+        public static readonly string SampleLevelPath =
             Path.Combine(Application.dataPath, "Editor", "Resources", "chovvy.test");
 
         public static void ImportSampleLevel(string levelsPath)

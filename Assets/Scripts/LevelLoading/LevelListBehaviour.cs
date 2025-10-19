@@ -55,11 +55,7 @@ namespace CCE.LevelLoading
 
         private void Update()
         {
-            if (_isPopupActive)
-            {
-                _isDragging = false;
-                return;
-            }
+            if (_isPopupActive) return;
 
             if (Input.GetMouseButtonDown(0) && Input.mousePosition.x > Screen.width / 2.0f)
             {
@@ -104,8 +100,9 @@ namespace CCE.LevelLoading
         public void ShowLevelMetadataPopup(string audioPath)
         {
             _isPopupActive = true;
-            var audioPopupController = Instantiate(LevelMetadataPopup, Vector3.zero, Quaternion.identity, transform.parent)
-                .GetComponent<LevelMetadataPopupController>();
+            var audioPopupController =
+                Instantiate(LevelMetadataPopup, Vector3.zero, Quaternion.identity, transform.parent)
+                    .GetComponent<LevelMetadataPopupController>();
             audioPopupController.SetAudioFile(audioPath);
             audioPopupController.OnEnd += () =>
             {
