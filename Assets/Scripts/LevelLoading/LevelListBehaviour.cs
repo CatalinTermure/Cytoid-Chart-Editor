@@ -109,6 +109,7 @@ namespace CCE.LevelLoading
             audioPopupController.SetAudioFile(audioPath);
             audioPopupController.OnEnd += () =>
             {
+                if (!gameObject.activeInHierarchy) return;
                 StartCoroutine(CoroutineUtils.WaitForSecondsAndThen(0.5f, () => { _isPopupActive = false; }));
             };
         }
