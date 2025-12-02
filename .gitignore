@@ -27,6 +27,7 @@ ExportedObj/
 *.csproj
 *.unityproj
 *.sln
+*.slnx
 *.suo
 *.tmp
 *.user
@@ -84,3 +85,4 @@ CodeCoverage/
 .cxx
 local.properties
 *.logcat
+.vscode/
