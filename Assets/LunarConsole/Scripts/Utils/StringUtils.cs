@@ -4,7 +4,7 @@
 //  Lunar Unity Mobile Console
 //  https://github.com/SpaceMadness/lunar-unity-console
 //
-//  Copyright 2015-2020 Alex Lementuev, SpaceMadness.
+//  Copyright 2015-2021 Alex Lementuev, SpaceMadness.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -20,9 +20,10 @@
 //
 
 
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -32,6 +33,7 @@ namespace LunarConsolePluginInternal
 {
     public static class StringUtils
     {
+        private const NumberStyles FLOAT_NUMBER_STYLES = NumberStyles.Integer | NumberStyles.Float | NumberStyles.AllowDecimalPoint;
         private static readonly char[] kSpaceSplitChars = { ' ' };
 
         internal static string TryFormat(string format, params object[] args)
@@ -92,7 +94,7 @@ namespace LunarConsolePluginInternal
         }
 
         public static int ParseInt(string str, int defValue)
-        {
+        {   
             if (!string.IsNullOrEmpty(str))
             {
                 int value;
@@ -116,34 +118,19 @@ namespace LunarConsolePluginInternal
             return 0;
         }
 
-        public static float ParseFloat(string str)
+        public static float ParseFloat(string str, float defValue = 0.0f)
         {
-            return ParseFloat(str, 0.0f);
-        }
-
-        public static float ParseFloat(string str, float defValue)
-        {
-            if (!string.IsNullOrEmpty(str))
+            if (ParseFloat(str, out float result))
             {
-                float value;
-                bool succeed = float.TryParse(str, out value);
-                return succeed ? value : defValue;
+                return result;
             }
-
             return defValue;
         }
 
-        public static float ParseFloat(string str, out bool succeed)
+        public static bool ParseFloat(string str, out float result)
         {
-            if (!string.IsNullOrEmpty(str))
-            {
-                float value;
-                succeed = float.TryParse(str, out value);
-                return succeed ? value : 0.0f;
-            }
-
-            succeed = false;
-            return 0.0f;
+            // Force '.' as decimal point
+            return float.TryParse(str, FLOAT_NUMBER_STYLES, CultureInfo.InvariantCulture, out result);
         }
 
         public static bool ParseBool(string str)
@@ -543,74 +530,80 @@ namespace LunarConsolePluginInternal
 
         #region string representation
 
-        internal static string ToString(int value)
+        public static string ToString(object value)
+        {
+            return value != null ? value.ToString() : null;
+        }
+
+        public static string ToString(int value)
         {
             return value.ToString();
         }
 
-        internal static string ToString(float value)
+        public static string ToString(float value)
         {
-            return value.ToString("G");
+            // For '.' as decimal point
+            return value.ToString("G", CultureInfo.InvariantCulture);
         }
 
-        internal static string ToString(bool value)
+        public static string ToString(bool value)
         {
             return value.ToString();
         }
 
-        internal static string ToString(ref Color value)
+        public static string ToString(ref Color value)
         {
             if (value.a > 0.0f)
             {
-                return string.Format("{0} {1} {2} {3}",
-                    value.r.ToString("G"),
-                    value.g.ToString("G"),
-                    value.b.ToString("G"),
-                    value.a.ToString("G")
+                return string.Format("{0} {1} {2} {3}", 
+                    ToString(value.r),
+                    ToString(value.g),
+                    ToString(value.b),
+                    ToString(value.a)
                 );
             }
 
             return string.Format("{0} {1} {2}",
-                value.r.ToString("G"),
-                value.g.ToString("G"),
-                value.b.ToString("G")
+                ToString(value.r),
+                ToString(value.g),
+                ToString(value.b)
             );
         }
 
-        internal static string ToString(ref Rect value)
+        public static string ToString(ref Rect value)
         {
-            return string.Format("{0} {1} {2} {3}",
-                value.x.ToString("G"),
-                value.y.ToString("G"),
-                value.width.ToString("G"),
-                value.height.ToString("G")
+            return string.Format("{0} {1} {2} {3}", 
+                ToString(value.x), 
+                ToString(value.y), 
+                ToString(value.width), 
+                ToString(value.height)
             );
         }
 
-        internal static string ToString(ref Vector2 value)
+        public static string ToString(ref Vector2 value)
         {
-            return string.Format("{0} {1}",
-                value.x.ToString("G"),
-                value.y.ToString("G")
+            return string.Format("{0} {1}", 
+                ToString(value.x), 
+                ToString(value.y)
             );
         }
 
-        internal static string ToString(ref Vector3 value)
+        public static string ToString(ref Vector3 value)
         {
-            return string.Format("{0} {1} {2}",
-                value.x.ToString("G"),
-                value.y.ToString("G"),
-                value.z.ToString("G")
+            return string.Format("{0} {1} {2}", 
+                ToString(value.x), 
+                ToString(value.y), 
+                ToString(value.z)
             );
         }
 
-        internal static string ToString(ref Vector4 value)
+        public static string ToString(ref Vector4 value)
         {
-            return string.Format("{0} {1} {2} {3}",
-                value.x.ToString("G"),
-                value.y.ToString("G"),
-                value.z.ToString("G"),
-                value.w.ToString("G")
+            return string.Format("{0} {1} {2} {3}", 
+                ToString(value.x), 
+                ToString(value.y), 
+                ToString(value.z), 
+                ToString(value.w)
             );
         }
 
@@ -620,7 +613,7 @@ namespace LunarConsolePluginInternal
             for (int i = 0; i < list.Count; ++i)
             {
                 builder.Append(list[i]);
-                if (i < list.Count - 1) builder.Append(separator);
+                if (i < list.Count-1) builder.Append(separator);
             }
             return builder.ToString();
         }

@@ -1,7 +1,14 @@
 fileFormatVersion: 2
-guid: 157e51c1d3cae0a4e9654100d266a466
+guid: 723222b0798932348a6eaf63c6a167a0
 DefaultImporter:
   externalObjects: {}
   userData: 
   assetBundleName: 
   assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 82881
+  packageName: Lunar Mobile Console - FREE
+  packageVersion: 1.8.4
+  assetPath: Assets/LunarConsole/Editor/iOS/Lunar.projmods
+  uploadId: 731196

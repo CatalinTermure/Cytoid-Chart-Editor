@@ -1,3 +1,10 @@
 ﻿fileFormatVersion: 2
 guid: bde7b8f949d44b7baaa14326ee01ee45
 timeCreated: 1589413651
+AssetOrigin:
+  serializedVersion: 1
+  productId: 82881
+  packageName: Lunar Mobile Console - FREE
+  packageVersion: 1.8.4
+  assetPath: Assets/LunarConsole/Editor/EditorHelper.cs
+  uploadId: 731196

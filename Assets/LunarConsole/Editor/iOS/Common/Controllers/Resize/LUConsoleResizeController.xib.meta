@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 4ee1efcc84f561748a3d041d445fc592
+guid: abdfe1f3400266b4182c4abe2d311801
 PluginImporter:
   externalObjects: {}
   serializedVersion: 2
@@ -25,3 +25,10 @@ PluginImporter:
   userData: 
   assetBundleName: 
   assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 82881
+  packageName: Lunar Mobile Console - FREE
+  packageVersion: 1.8.4
+  assetPath: Assets/LunarConsole/Editor/iOS/Common/Controllers/Resize/LUConsoleResizeController.xib
+  uploadId: 731196

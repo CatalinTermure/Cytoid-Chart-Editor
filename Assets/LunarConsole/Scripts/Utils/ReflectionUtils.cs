@@ -4,7 +4,7 @@
 //  Lunar Unity Mobile Console
 //  https://github.com/SpaceMadness/lunar-unity-console
 //
-//  Copyright 2015-2020 Alex Lementuev, SpaceMadness.
+//  Copyright 2015-2021 Alex Lementuev, SpaceMadness.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@
 //
 
 
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
@@ -186,7 +186,7 @@ namespace LunarConsolePluginInternal
                 return value;
             }
 
-            throw new ReflectionException("Can't parse int arg: '" + arg + "'");
+            throw new ReflectionException("Can't parse int arg: '" + arg + "'"); 
         }
 
         public static float NextFloatArg(Iterator<string> iter)
@@ -199,16 +199,16 @@ namespace LunarConsolePluginInternal
                 return value;
             }
 
-            throw new ReflectionException("Can't parse float arg: '" + arg + "'");
+            throw new ReflectionException("Can't parse float arg: '" + arg + "'"); 
         }
 
         public static bool NextBoolArg(Iterator<string> iter)
         {
             string arg = NextArg(iter).ToLower();
             if (arg == "1" || arg == "yes" || arg == "true") return true;
-            if (arg == "0" || arg == "no" || arg == "false") return false;
+            if (arg == "0" || arg == "no"  || arg == "false") return false;
 
-            throw new ReflectionException("Can't parse bool arg: '" + arg + "'");
+            throw new ReflectionException("Can't parse bool arg: '" + arg + "'"); 
         }
 
         public static string NextArg(Iterator<string> iter)
@@ -216,7 +216,7 @@ namespace LunarConsolePluginInternal
             if (iter.HasNext())
             {
                 string arg = StringUtils.UnArg(iter.Next());
-                if (!IsValidArg(arg))
+                if (!IsValidArg(arg)) 
                 {
                     throw new ReflectionException("Invalid arg: " + arg);
                 }
@@ -259,7 +259,7 @@ namespace LunarConsolePluginInternal
 
         public static List<Type> FindAttributeTypes(Assembly assembly, Type attributeType)
         {
-            return FindTypes(assembly, delegate (Type type)
+            return FindTypes(assembly, delegate(Type type)
             {
                 var attributes = type.GetCustomAttributes(attributeType, false);
                 return attributes != null && attributes.Length > 0;

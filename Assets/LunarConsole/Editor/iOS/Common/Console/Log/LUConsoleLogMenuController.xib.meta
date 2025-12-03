@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 98cf7eee26a69b847ba2cf9abd2f78ee
+guid: e735e53a15489094f8740ee0191f247d
 PluginImporter:
   externalObjects: {}
   serializedVersion: 2
@@ -25,3 +25,10 @@ PluginImporter:
   userData: 
   assetBundleName: 
   assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 82881
+  packageName: Lunar Mobile Console - FREE
+  packageVersion: 1.8.4
+  assetPath: Assets/LunarConsole/Editor/iOS/Common/Console/Log/LUConsoleLogMenuController.xib
+  uploadId: 731196

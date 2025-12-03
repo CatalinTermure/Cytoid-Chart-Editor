@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 63c9ae8cb58068444a7752b0ea2c14c9
+guid: 26798c43e64aa8c43a06333f6962663d
 PluginImporter:
   externalObjects: {}
   serializedVersion: 2
@@ -25,3 +25,10 @@ PluginImporter:
   userData: 
   assetBundleName: 
   assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 82881
+  packageName: Lunar Mobile Console - FREE
+  packageVersion: 1.8.4
+  assetPath: Assets/LunarConsole/Editor/iOS/Common/Controllers/Actions/LUActionController.xib
+  uploadId: 731196

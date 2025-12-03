@@ -4,7 +4,7 @@
 //  Lunar Unity Mobile Console
 //  https://github.com/SpaceMadness/lunar-unity-console
 //
-//  Copyright 2015-2020 Alex Lementuev, SpaceMadness.
+//  Copyright 2015-2021 Alex Lementuev, SpaceMadness.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -244,7 +244,12 @@ static NSString *const kScriptMessageTrackEvent = @"track_event";
 
 - (LUCVar *)registerVariableWithId:(int)entryId name:(NSString *)name type:(NSString *)type value:(NSString *)value defaultValue:(NSString *)defaultValue
 {
-    return [_actionRegistry registerVariableWithId:entryId name:name typeName:type value:value defaultValue:defaultValue];
+    return [self registerVariableWithId:entryId name:name type:type value:value defaultValue:value values:nil];
+}
+
+- (LUCVar *)registerVariableWithId:(int)entryId name:(NSString *)name type:(NSString *)type value:(NSString *)value defaultValue:(NSString *)defaultValue values:(NSArray<NSString *> *)values
+{
+    return [_actionRegistry registerVariableWithId:entryId name:name typeName:type value:value defaultValue:defaultValue values:values];
 }
 
 - (void)setValue:(NSString *)value forVariableWithId:(int)variableId

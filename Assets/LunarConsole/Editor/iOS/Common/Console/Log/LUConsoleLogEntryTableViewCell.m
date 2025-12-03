@@ -4,7 +4,7 @@
 //  Lunar Unity Mobile Console
 //  https://github.com/SpaceMadness/lunar-unity-console
 //
-//  Copyright 2015-2020 Alex Lementuev, SpaceMadness.
+//  Copyright 2015-2021 Alex Lementuev, SpaceMadness.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -62,13 +62,14 @@ static UIEdgeInsets _messageInsets;
 
 @implementation LUConsoleLogEntryTableViewCell
 
-+ (void)load
++ (void)initialize
 {
     if (!LU_IOS_MIN_VERSION_AVAILABLE) {
         return;
     }
 
-    if ([self class] == [LUConsoleLogEntryTableViewCell class]) {
+    if (_messageInsets.left == _messageInsets.right) // initialize can be called multiple times
+    {
         LUTheme *theme = [LUTheme mainTheme];
 
         UIImage *icon = theme.cellLog.icon;

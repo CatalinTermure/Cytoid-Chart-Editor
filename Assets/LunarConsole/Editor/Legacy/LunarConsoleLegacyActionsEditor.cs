@@ -4,7 +4,7 @@
 //  Lunar Unity Mobile Console
 //  https://github.com/SpaceMadness/lunar-unity-console
 //
-//  Copyright 2015-2020 Alex Lementuev, SpaceMadness.
+//  Copyright 2015-2021 Alex Lementuev, SpaceMadness.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@
 //
 
 
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
@@ -33,9 +33,9 @@ using LunarConsolePluginInternal;
 
 namespace LunarConsoleEditorInternal
 {
-#pragma warning disable 0618
+    #pragma warning disable 0618
     [CustomEditor(typeof(LunarConsoleLegacyActions))]
-#pragma warning restore 0618
+    #pragma warning restore 0618
     class LunarConsoleLegacyActionsEditor : Editor
     {
         struct Functions
@@ -251,8 +251,7 @@ namespace LunarConsoleEditorInternal
                 foreach (var component in obj.GetComponents<Component>())
                 {
                     var type = component.GetType();
-                    var methods = ClassUtils.ListInstanceMethods(type, delegate (MethodInfo method)
-                    {
+                    var methods = ClassUtils.ListInstanceMethods(type, delegate(MethodInfo method) {
                         return Array.IndexOf(kIgnoredMethods, method.Name) == -1 && // not forbidden name
                                method.ReturnType == typeof(void) && // with no return type
                                method.GetParameters().Length == 0; // and no parameters

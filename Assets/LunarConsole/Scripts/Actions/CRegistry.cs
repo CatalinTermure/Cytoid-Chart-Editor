@@ -4,7 +4,7 @@
 //  Lunar Unity Mobile Console
 //  https://github.com/SpaceMadness/lunar-unity-console
 //
-//  Copyright 2015-2020 Alex Lementuev, SpaceMadness.
+//  Copyright 2015-2021 Alex Lementuev, SpaceMadness.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -60,7 +60,7 @@ namespace LunarConsolePluginInternal
             {
                 throw new ArgumentException("Action's name is empty");
             }
-
+            
             if (actionDelegate == null)
             {
                 throw new ArgumentNullException("actionDelegate");
@@ -88,7 +88,7 @@ namespace LunarConsolePluginInternal
 
         public bool Unregister(string name)
         {
-            return Unregister(delegate (CAction action)
+            return Unregister(delegate(CAction action)
             {
                 return action.Name == name;
             });
@@ -96,7 +96,7 @@ namespace LunarConsolePluginInternal
 
         public bool Unregister(int id)
         {
-            return Unregister(delegate (CAction action)
+            return Unregister(delegate(CAction action)
             {
                 return action.Id == id;
             });
@@ -104,7 +104,7 @@ namespace LunarConsolePluginInternal
 
         public bool Unregister(Delegate del)
         {
-            return Unregister(delegate (CAction action)
+            return Unregister(delegate(CAction action)
             {
                 return action.ActionDelegate == del;
             });
@@ -112,7 +112,7 @@ namespace LunarConsolePluginInternal
 
         public bool UnregisterAll(object target)
         {
-            return target != null && Unregister(delegate (CAction action)
+            return target != null && Unregister(delegate(CAction action)
             {
                 return action.ActionDelegate.Target == target;
             });

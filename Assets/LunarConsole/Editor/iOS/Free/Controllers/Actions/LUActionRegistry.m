@@ -4,7 +4,7 @@
 //  Lunar Unity Mobile Console
 //  https://github.com/SpaceMadness/lunar-unity-console
 //
-//  Copyright 2015-2020 Alex Lementuev, SpaceMadness.
+//  Copyright 2015-2021 Alex Lementuev, SpaceMadness.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -57,6 +57,11 @@
 #pragma mark Variables
 
 - (LUCVar *)registerVariableWithId:(int)variableId name:(NSString *)name typeName:(NSString *)typeName value:(NSString *)value defaultValue:(NSString *)defaultValue
+{
+    return nil;
+}
+
+- (LUCVar *)registerVariableWithId:(int)variableId name:(NSString *)name typeName:(NSString *)type value:(NSString *)value defaultValue:(NSString *)defaultValue values:(NSArray<NSString *> *)values
 {
     return nil;
 }

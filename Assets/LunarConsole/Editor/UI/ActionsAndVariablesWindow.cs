@@ -4,7 +4,7 @@
 //  Lunar Unity Mobile Console
 //  https://github.com/SpaceMadness/lunar-unity-console
 //
-//  Copyright 2015-2020 Alex Lementuev, SpaceMadness.
+//  Copyright 2015-2021 Alex Lementuev, SpaceMadness.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -20,8 +20,7 @@
 //
 
 
-using System.Collections;
-using System.Collections.Generic;
+using System;
 using UnityEngine;
 using UnityEditor;
 
@@ -44,18 +43,18 @@ namespace LunarConsoleEditorInternal
 
         public ActionsAndVariablesWindow()
         {
-#if UNITY_5_0
+            #if UNITY_5_0
             this.title = "Actions & Vars";
-#else
+            #else
             this.titleContent = new GUIContent("Actions & Vars");
-#endif
+            #endif
         }
 
         void OnEnable()
         {
             m_filterText = EditorPrefs.GetString(PrefsKeyFilterText, "");
         }
-
+        
         void OnGUI()
         {
             if (Application.isPlaying)
@@ -132,6 +131,11 @@ namespace LunarConsoleEditorInternal
 
         void OnVariableGUI(CVar cvar)
         {
+            if (cvar.IsHidden)
+            {
+                return;
+            }
+            
             if (cvar.IsDefault)
             {
                 OnVariableFieldGUI(cvar);
@@ -143,7 +147,7 @@ namespace LunarConsoleEditorInternal
                     OnVariableFieldGUI(cvar);
 
                     GUI.SetNextControlName("Reset Button");
-                    if (GUILayout.Button("Reset", resetButtonStyle, GUILayout.Width(40)))
+                    if (GUILayout.Button("Reset", resetButtonStyle, GUILayout.Width(60)))
                     {
                         cvar.Value = cvar.DefaultValue;
                         GUI.FocusControl("Reset Button");
@@ -177,6 +181,14 @@ namespace LunarConsoleEditorInternal
                     break;
                 case CVarType.String:
                     cvar.Value = EditorGUILayout.TextField(cvar.Name, cvar.Value);
+                    break;
+                case CVarType.Enum:
+                    var selectedIndex = Array.IndexOf(cvar.AvailableValues, cvar.Value);
+                    var newSelectedIndex = EditorGUILayout.Popup(cvar.Name, selectedIndex, cvar.AvailableValues);
+                    if (selectedIndex != newSelectedIndex)
+                    {
+                        cvar.Value = cvar.AvailableValues[newSelectedIndex];
+                    }
                     break;
                 default:
                     EditorGUILayout.LabelField(cvar.Name, cvar.Value);

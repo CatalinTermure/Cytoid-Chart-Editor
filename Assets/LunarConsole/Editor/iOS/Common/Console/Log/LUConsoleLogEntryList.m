@@ -4,7 +4,7 @@
 //  Lunar Unity Mobile Console
 //  https://github.com/SpaceMadness/lunar-unity-console
 //
-//  Copyright 2015-2020 Alex Lementuev, SpaceMadness.
+//  Copyright 2015-2021 Alex Lementuev, SpaceMadness.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -314,8 +314,8 @@
     NSMutableString *text = [NSMutableString string];
     
     NSUInteger index = 0;
-    NSUInteger count = _currentEntries.count;
-    for (LUConsoleLogEntry *entry in _currentEntries)
+    NSUInteger count = _entries.count;
+    for (LUConsoleLogEntry *entry in _entries)
     {
         [text appendString:entry.message.text];
         if (entry.type == LUConsoleLogTypeException && entry.hasStackTrace)

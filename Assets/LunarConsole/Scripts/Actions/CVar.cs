@@ -4,7 +4,7 @@
 //  Lunar Unity Mobile Console
 //  https://github.com/SpaceMadness/lunar-unity-console
 //
-//  Copyright 2015-2020 Alex Lementuev, SpaceMadness.
+//  Copyright 2015-2021 Alex Lementuev, SpaceMadness.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@
 //
 
 
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
@@ -37,7 +37,8 @@ namespace LunarConsolePlugin
         Boolean,
         Integer,
         Float,
-        String
+        String,
+        Enum
     }
 
     struct CValue
@@ -73,17 +74,18 @@ namespace LunarConsolePlugin
         }
     }
 
+    [Flags]
     public enum CFlags
-    {
+    {   
         /// <summary>
         /// No flags (default value)
         /// </summary>
-        None = 0,
+        None      = 0,
 
         /// <summary>
         /// Won't be listed in UI
         /// </summary>
-        Hidden = 1 << 1,
+        Hidden    = 1 << 1,
 
         /// <summary>
         /// Don't save between sessions
@@ -133,8 +135,8 @@ namespace LunarConsolePlugin
             this.Value = defaultValue;
             m_defaultValue = m_value;
         }
-
-        private CVar(string name, CVarType type, CFlags flags)
+        
+        protected CVar(string name, CVarType type, CFlags flags)
         {
             if (name == null)
             {
@@ -147,8 +149,6 @@ namespace LunarConsolePlugin
             m_type = type;
             m_flags = flags;
         }
-
-        //////////////////////////////////////////////////////////////////////////////
 
         #region Delegates
 
@@ -212,8 +212,6 @@ namespace LunarConsolePlugin
 
         #endregion
 
-        //////////////////////////////////////////////////////////////////////////////
-
         #region IEquatable
 
         public bool Equals(CVar other)
@@ -227,8 +225,6 @@ namespace LunarConsolePlugin
 
         #endregion
 
-        //////////////////////////////////////////////////////////////////////////////
-
         #region IComparable
 
         public int CompareTo(CVar other)
@@ -237,8 +233,6 @@ namespace LunarConsolePlugin
         }
 
         #endregion
-
-        //////////////////////////////////////////////////////////////////////////////
 
         #region Properties
 
@@ -260,6 +254,7 @@ namespace LunarConsolePlugin
         public string DefaultValue
         {
             get { return m_defaultValue.stringValue; }
+            protected set { m_defaultValue.stringValue = value; }
         }
 
         public bool IsString
@@ -353,6 +348,11 @@ namespace LunarConsolePlugin
             set { this.IntValue = value ? 1 : 0; }
         }
 
+        public virtual string[] AvailableValues
+        {
+            get { return null; }
+        }
+
         public bool IsDefault
         {
             get { return m_value.Equals(m_defaultValue); }
@@ -376,6 +376,11 @@ namespace LunarConsolePlugin
         public CFlags Flags
         {
             get { return m_flags; }
+        }
+
+        public bool IsHidden
+        {
+            get { return (m_flags & CFlags.Hidden) != 0; }
         }
 
         #endregion
@@ -405,6 +410,53 @@ namespace LunarConsolePlugin
         #endregion
     }
 
+    public class CEnumVar<T> : CVar  where T : struct, IConvertible
+    {
+        private readonly IDictionary<string, T> m_valueLookup;
+        private readonly string[] m_names;
+
+        public CEnumVar(string name, T defaultValue, CFlags flags = CFlags.None) : base(name, CVarType.Enum, flags)
+        {
+            if (!typeof(T).IsEnum) 
+            {
+                throw new ArgumentException("T must be an enumerated type");
+            }
+            
+            var value = defaultValue.ToString();
+            
+            Value = value;
+            DefaultValue = value;
+            
+            var values = Enum.GetValues(typeof(T));
+            m_names = Enum.GetNames(typeof(T));
+            
+            m_valueLookup = new Dictionary<string, T>();
+            for (int i = 0; i < values.Length; i++)
+            {
+                m_valueLookup[m_names[i]] = (T) values.GetValue(i);
+            }
+        }
+
+        public override string[] AvailableValues
+        {
+            get { return m_names; }
+        }
+
+        public T EnumValue
+        {
+            get { return m_valueLookup[Value]; }
+        }
+
+        #if UNITY_2017_1_OR_NEWER
+        
+        public static implicit operator T(CEnumVar<T> cvar)
+        {
+            return cvar.EnumValue;
+        }
+        
+        #endif
+    }
+    
     public class CVarList : IEnumerable<CVar>
     {
         private readonly List<CVar> m_variables;
@@ -484,7 +536,7 @@ namespace LunarConsolePlugin
         }
     }
 
-    [AttributeUsage(AttributeTargets.Field, Inherited = true, AllowMultiple = false)]
+    [AttributeUsage (AttributeTargets.Field, Inherited = true, AllowMultiple = false)]
     public sealed class CVarRangeAttribute : Attribute
     {
         public readonly float min;

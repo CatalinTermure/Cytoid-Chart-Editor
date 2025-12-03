@@ -4,7 +4,7 @@
 //  Lunar Unity Mobile Console
 //  https://github.com/SpaceMadness/lunar-unity-console
 //
-//  Copyright 2015-2020 Alex Lementuev, SpaceMadness.
+//  Copyright 2015-2021 Alex Lementuev, SpaceMadness.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -126,9 +126,9 @@ namespace LunarConsoleEditorInternal
             }
         }
 
-#pragma warning disable 0649
+        #pragma warning disable 0649
         private static LastCheckDate s_lastInstallCheckDate;
-#pragma warning restore 0649
+        #pragma warning restore 0649
 
         public static void TryCheckForUpdates()
         {

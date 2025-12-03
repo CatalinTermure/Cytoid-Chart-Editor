@@ -1,23 +1,39 @@
 fileFormatVersion: 2
-guid: c86784c257c2c5241acfcd6cd9d54976
-timeCreated: 1595997099
-licenseType: Store
+guid: 8fc360f82e7bee34cbf0659e73d32cca
 PluginImporter:
-  serializedVersion: 1
+  externalObjects: {}
+  serializedVersion: 2
   iconMap: {}
   executionOrder: {}
+  defineConstraints: []
   isPreloaded: 0
+  isOverridable: 0
+  isExplicitlyReferenced: 0
+  validateReferences: 1
   platformData:
-    Android:
-      enabled: 1
-      settings: {}
-    Any:
+  - first:
+      : 
+    second:
       enabled: 0
       settings: {}
-    Editor:
+  - first:
+      Android: Android
+    second:
+      enabled: 1
+      settings: {}
+  - first:
+      Editor: Editor
+    second:
       enabled: 1
       settings:
         DefaultValueInitialized: true
   userData: 
   assetBundleName: 
   assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 82881
+  packageName: Lunar Mobile Console - FREE
+  packageVersion: 1.8.4
+  assetPath: Assets/LunarConsole/Editor/Android/lunar-console.aar
+  uploadId: 731196

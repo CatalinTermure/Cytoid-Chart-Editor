@@ -4,7 +4,7 @@
 //  Lunar Unity Mobile Console
 //  https://github.com/SpaceMadness/lunar-unity-console
 //
-//  Copyright 2015-2020 Alex Lementuev, SpaceMadness.
+//  Copyright 2015-2021 Alex Lementuev, SpaceMadness.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -101,7 +101,7 @@ namespace LunarConsoleEditorInternal
             list.drawElementCallback = DrawListElement;
             list.elementHeight = 43;
         }
-
+        
         public override void OnInspectorGUI()
         {
             base.OnInspectorGUI();
@@ -145,7 +145,7 @@ namespace LunarConsoleEditorInternal
             {
                 methodProperty.stringValue = null;
             }
-            LunarPersistentListenerMode persistentListenerMode = (LunarPersistentListenerMode)modeProperty.enumValueIndex;
+            LunarPersistentListenerMode persistentListenerMode = (LunarPersistentListenerMode) modeProperty.enumValueIndex;
             if (targetProperty.objectReferenceValue == null || string.IsNullOrEmpty(methodProperty.stringValue))
             {
                 persistentListenerMode = LunarPersistentListenerMode.Void;
@@ -244,8 +244,7 @@ namespace LunarConsoleEditorInternal
             SerializedProperty methodProperty = serializedProperty.FindPropertyRelative(kPropMethod);
 
             var menu = new GenericMenu();
-            menu.AddItem(new GUIContent("No Function"), methodProperty.stringValue == null, delegate ()
-            {
+            menu.AddItem(new GUIContent("No Function"), methodProperty.stringValue == null, delegate() {
                 methodProperty.stringValue = null;
                 serializedObject.ApplyModifiedProperties();
             });
@@ -259,8 +258,7 @@ namespace LunarConsoleEditorInternal
                 foreach (var function in functions)
                 {
                     var selected = target == function.target && methodProperty.stringValue == function.method.Name;
-                    menu.AddItem(new GUIContent(function.target.GetType().Name + "/" + function.displayName), selected, delegate ()
-                    {
+                    menu.AddItem(new GUIContent(function.target.GetType().Name + "/" + function.displayName), selected, delegate () {
                         targetProperty.objectReferenceValue = function.target;
                         methodProperty.stringValue = function.method.Name;
                         UpdateParamProperty(serializedProperty, function.paramType);
@@ -312,7 +310,7 @@ namespace LunarConsoleEditorInternal
 
         private Rect[] GetRowRects(Rect rect)
         {
-            Rect[] array = new Rect[4];
+            Rect[] array = new Rect[4]; 
             rect.height = 16f;
             rect.y += 2f;
             Rect rect2 = rect;
@@ -355,8 +353,7 @@ namespace LunarConsoleEditorInternal
                 foreach (var target in targets)
                 {
                     List<MethodInfo> methods = LunarConsoleActionCall.ListActionMethods(target);
-                    methods.Sort(delegate (MethodInfo a, MethodInfo b)
-                    {
+                    methods.Sort(delegate (MethodInfo a, MethodInfo b) {
                         return a.IsSpecialName == b.IsSpecialName ? a.Name.CompareTo(b.Name) : (a.IsSpecialName ? -1 : 1);
                     });
 

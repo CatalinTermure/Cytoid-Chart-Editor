@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 5688b49864b02d046be665f776797070
+guid: 7e3a5f2ba24d28244b7e8fa9d7fbe82b
 PluginImporter:
   externalObjects: {}
   serializedVersion: 2
@@ -25,3 +25,10 @@ PluginImporter:
   userData: 
   assetBundleName: 
   assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 82881
+  packageName: Lunar Mobile Console - FREE
+  packageVersion: 1.8.4
+  assetPath: Assets/LunarConsole/Editor/iOS/Common/Controllers/Warning/LUExceptionWarningController.xib
+  uploadId: 731196

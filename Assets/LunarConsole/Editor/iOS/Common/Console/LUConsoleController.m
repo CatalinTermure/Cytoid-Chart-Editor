@@ -4,7 +4,7 @@
 //  Lunar Unity Mobile Console
 //  https://github.com/SpaceMadness/lunar-unity-console
 //
-//  Copyright 2015-2020 Alex Lementuev, SpaceMadness.
+//  Copyright 2015-2021 Alex Lementuev, SpaceMadness.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -47,24 +47,6 @@ NSString *const LUConsoleControllerDidResizeNotification = @"LUConsoleController
 @end
 
 @implementation LUConsoleController
-
-+ (void)load
-{
-    if (!LU_IOS_MIN_VERSION_AVAILABLE) {
-        return;
-    }
-
-    if ([self class] == [LUConsoleLogController class]) {
-        // force linker to add these classes for Interface Builder
-        [LUButton class];
-        [LUConsoleLogTypeButton class];
-        [LUSlider class];
-        [LUSwitch class];
-        [LUTableView class];
-        [LUPassTouchView class];
-        [LUTextField class];
-    }
-}
 
 + (instancetype)controllerWithPlugin:(LUConsolePlugin *)plugin
 {
@@ -336,6 +318,18 @@ NSString *const LUConsoleControllerDidResizeNotification = @"LUConsoleController
 {
     if ([self class] == [LUConsoleControllerState class]) {
         [self setVersion:1];
+        
+        if (LU_IOS_MIN_VERSION_AVAILABLE)
+        {
+            // force linker to add these classes for Interface Builder
+            [LUButton class];
+            [LUConsoleLogTypeButton class];
+            [LUSlider class];
+            [LUSwitch class];
+            [LUTableView class];
+            [LUPassTouchView class];
+            [LUTextField class];
+        }
     }
 }
 

@@ -4,7 +4,7 @@
 //  Lunar Unity Mobile Console
 //  https://github.com/SpaceMadness/lunar-unity-console
 //
-//  Copyright 2015-2020 Alex Lementuev, SpaceMadness.
+//  Copyright 2015-2021 Alex Lementuev, SpaceMadness.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@
 //
 
 
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEditor;
 
 using System.Collections;
@@ -68,9 +68,9 @@ namespace LunarConsoleEditorInternal
             lunarConsole.name = objectName;
 
             // starting Unity 5.3 we need to add an undo operation or the scene would not be marked dirty
-#if UNITY_5_3_OR_NEWER
+            #if UNITY_5_3_OR_NEWER
             Undo.RegisterCreatedObjectUndo(lunarConsole, "Install Lunar Console");
-#endif
+            #endif
 
             if (!silent)
             {
