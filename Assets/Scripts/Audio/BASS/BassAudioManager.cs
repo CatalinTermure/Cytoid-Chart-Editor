@@ -145,8 +145,8 @@ namespace CCE.Audio.BASS
             }
 
             IsInitialized = false;
-        } 
-        
+        }
+
         // ReSharper disable Unity.PerformanceAnalysis
         private static void HandleBassError(string errorMessage)
         {
@@ -212,7 +212,7 @@ namespace CCE.Audio.BASS
                         $"Could not set hitsound volume to {_hitsoundVolume} for channel {_hitsoundChannels[i]}");
                 }
             }
-            
+
             SetHitsoundVolume(_hitsoundVolume);
         }
 
@@ -247,7 +247,7 @@ namespace CCE.Audio.BASS
         public void SetMusicVolume(float volume)
         {
             _musicVolume = volume;
-            
+
             if (_playingAudioHandle == 0) return;
             var success = Bass.ChannelSetAttribute(_playingAudioHandle, ChannelAttribute.Volume, volume);
             if (!success)
@@ -258,11 +258,14 @@ namespace CCE.Audio.BASS
 
         public void Initialize()
         {
-            var success = Bass.Configure(Configuration.TruePlayPosition, 0);
+            bool success = true;
+#if UNITY_STANDALONE_WIN
+            success = Bass.Configure(Configuration.TruePlayPosition, 0);
             if (!success)
             {
                 HandleBassError("Could not configure BASS TruePlayPosition.");
             }
+#endif
 
             success = Bass.Configure(Configuration.DevNonStop, true);
             if (!success)
