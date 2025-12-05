@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 9cbb865d0913a0d47bb6d2eb3ad04c4f
+guid: bc6d7fa0a99114a45b1a6800097c6eb1
 timeCreated: 1519060539
 licenseType: Store
 MonoImporter:
@@ -15,5 +15,5 @@ AssetOrigin:
   productId: 112630
   packageName: Native Gallery for Android & iOS
   packageVersion: 1.9.1
-  assetPath: Assets/Plugins/NativeGallery/iOS/NGMediaSaveCallbackiOS.cs
+  assetPath: Assets/Plugins/NativeGallery/iOS/NGPermissionCallbackiOS.cs
   uploadId: 757769

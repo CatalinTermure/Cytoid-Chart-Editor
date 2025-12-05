@@ -14,14 +14,16 @@ namespace NativeGalleryNamespace
 		{
 			this.callback = callback;
 			this.callbackMultiple = callbackMultiple;
-			callbackHelper = new GameObject( "NGCallbackHelper" ).AddComponent<NGCallbackHelper>();
+			callbackHelper = NGCallbackHelper.Create( true );
 		}
 
+		[UnityEngine.Scripting.Preserve]
 		public void OnMediaReceived( string path )
 		{
-			callbackHelper.CallOnMainThread( () => MediaReceiveCallback( path ) );
+			callbackHelper.CallOnMainThread( () => callback( !string.IsNullOrEmpty( path ) ? path : null ) );
 		}
 
+		[UnityEngine.Scripting.Preserve]
 		public void OnMultipleMediaReceived( string paths )
 		{
 			string[] result = null;
@@ -53,39 +55,7 @@ namespace NativeGalleryNamespace
 				result = pathsSplit;
 			}
 
-			callbackHelper.CallOnMainThread( () => MediaReceiveMultipleCallback( result ) );
-		}
-
-		private void MediaReceiveCallback( string path )
-		{
-			if( string.IsNullOrEmpty( path ) )
-				path = null;
-
-			try
-			{
-				if( callback != null )
-					callback( path );
-			}
-			finally
-			{
-				Object.Destroy( callbackHelper.gameObject );
-			}
-		}
-
-		private void MediaReceiveMultipleCallback( string[] paths )
-		{
-			if( paths != null && paths.Length == 0 )
-				paths = null;
-
-			try
-			{
-				if( callbackMultiple != null )
-					callbackMultiple( paths );
-			}
-			finally
-			{
-				Object.Destroy( callbackHelper.gameObject );
-			}
+			callbackHelper.CallOnMainThread( () => callbackMultiple( ( result != null && result.Length > 0 ) ? result : null ) );
 		}
 	}
 }

@@ -1073,7 +1073,7 @@ MonoBehaviour:
         m_Development: 1
         m_ConnectProfiler: 0
         m_BuildWithDeepProfilingSupport: 0
-        m_AllowDebugging: 0
+        m_AllowDebugging: 1
         m_WaitForManagedDebugger: 0
         m_ManagedDebuggerFixedPort: 0
         m_ExplicitNullChecks: 0
@@ -1088,7 +1088,7 @@ MonoBehaviour:
         m_ExportAsGoogleAndroidProject: 0
         m_DebugSymbolLevel: 1
         m_DebugSymbolFormat: 5
-        m_CurrentDeploymentTargetId: 0109bc950904
+        m_CurrentDeploymentTargetId: 000881486000007
         m_BuildType: 1
         m_LinkTimeOptimization: 0
         m_BuildAppBundle: 0
