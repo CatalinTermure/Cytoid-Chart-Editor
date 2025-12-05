@@ -189,7 +189,7 @@ MonoBehaviour:
     - line: '|   androidMaxAspectRatio: 2.1'
     - line: '|   androidMinAspectRatio: 1'
     - line: '|   applicationIdentifier:'
-    - line: '|     Android: com.Chovvy.CytoidEditor'
+    - line: '|     Android: '
     - line: '|     Standalone: com.Chovvy.Cytoid-Editor'
     - line: '|   buildNumber:'
     - line: '|     Standalone: 0'
