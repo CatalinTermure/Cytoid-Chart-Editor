@@ -15,10 +15,8 @@ namespace CCE.LevelLoading
 
         private void Start()
         {
-            if (Application.platform != RuntimePlatform.Android)
-            {
-                GameObject.Find("Export Button").SetActive(false);
-            }
+            // TODO: Implement this sometime in the future
+            GameObject.Find("Export Button").SetActive(false);
         }
 
         private static void ExportToTempAndThen(ExportDelegate callback)
