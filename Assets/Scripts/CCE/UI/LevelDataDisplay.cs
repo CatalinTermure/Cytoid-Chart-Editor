@@ -67,7 +67,7 @@ namespace CCE.UI
                 GlobalState.CurrentLevel.MusicPreview = new Level.MusicData { Path = "preview.ogg" };
             }
 
-            if (_oldId != null)
+            if (_oldId != null && _oldId != GlobalState.CurrentLevel.ID)
             {
                 Directory.Move(Path.Combine(GlobalState.Config.LevelStoragePath, _oldId),
                     Path.Combine(GlobalState.Config.LevelStoragePath, GlobalState.CurrentLevel.ID));
@@ -87,7 +87,7 @@ namespace CCE.UI
                 }));
 
             LevelUtils.DeleteDeadAssets(GlobalState.Config.LevelStoragePath, GlobalState.CurrentLevel);
-            
+
             _oldBackgroundPath = GlobalState.CurrentLevel.Background.Path;
             _oldId = GlobalState.CurrentLevel.ID;
 
@@ -100,7 +100,7 @@ namespace CCE.UI
             GlobalState.CurrentLevel.ID = _oldId;
             SceneNavigator.NavigateToMainScreen();
         }
-        
+
         private void SaveBackground(string levelDirPath)
         {
             var backgroundPath =

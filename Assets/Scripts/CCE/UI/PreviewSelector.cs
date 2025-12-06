@@ -3,6 +3,8 @@ using System.Collections;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
+using CCE.Audio.Abstract;
+using CCE.Audio.BASS;
 using CCE.Core;
 using CCE.Utils;
 using ManagedBass;
@@ -29,12 +31,11 @@ namespace CCE.UI
         private int _canvasHeight;
 
         private int _canvasWidth;
-        private int _decodeStream;
         private PreviewBarDragController _endBarDragController;
         private double _endTime;
 
         private bool _isSampleDataValid;
-        private float[] _sampleData;
+        private IAudioStream _audioDataStream;
 
         private PreviewBarDragController _startBarDragController;
         private double _startTime;
@@ -79,11 +80,6 @@ namespace CCE.UI
                 StartCoroutine(GenerateWaveformCoroutine());
                 _isSampleDataValid = false;
             }
-        }
-
-        private void OnDisable()
-        {
-            Bass.StreamFree(_decodeStream);
         }
 
         private void SetStartTime(double time)
@@ -170,21 +166,36 @@ namespace CCE.UI
         {
             var audioPath = Path.Combine(GlobalState.Config.LevelStoragePath, GlobalState.CurrentLevel.ID,
                 GlobalState.CurrentLevel.Music.Path);
+            var encodedAudioData = File.ReadAllBytes(audioPath);
 
-            _decodeStream =
-                Bass.CreateStream(audioPath, 0, 0, BassFlags.Decode | BassFlags.Mono | BassFlags.Float);
-
-            var bufferLength = (int)Bass.ChannelGetLength(_decodeStream);
-            var resultBuffer = new byte[bufferLength];
-            if (bufferLength != Bass.ChannelGetData(_decodeStream, resultBuffer, bufferLength))
-            {
-                throw new Exception("Could not get audio data for waveform");
-            }
-
-            _sampleData = new float[bufferLength / 4];
-            Buffer.BlockCopy(resultBuffer, 0, _sampleData, 0, bufferLength);
+            _audioDataStream = GlobalState.AudioManager.CreateStream(encodedAudioData, AudioStreamType.ForDecoding);
 
             _isSampleDataValid = true;
+        }
+
+        private float GetAmplitudeOfChunk(float[] array, int start, int end)
+        {
+            var max = 0.0f;
+            for (var i = start; i < end; i++)
+            {
+                max = Mathf.Max(max, Mathf.Abs(array[i]));
+            }
+
+            return max;
+        }
+
+        private void NormalizeWaveformData(float[] array)
+        {
+            var max = 0.0f;
+            for (var i = 0; i < array.Length; i++)
+            {
+                max = Mathf.Max(max, Mathf.Abs(array[i]));
+            }
+
+            for (var i = 0; i < array.Length; i++)
+            {
+                array[i] /= max;
+            }
         }
 
         private IEnumerator GenerateWaveformCoroutine()
@@ -194,27 +205,26 @@ namespace CCE.UI
 
             var waveform = new Texture2D(_canvasWidth, _canvasHeight);
 
-            var chunkSize = _sampleData.Length / _canvasWidth + 1;
-            var waveformData = new float[_sampleData.Length / chunkSize + 1];
+            float[] sampleData = _audioDataStream.GetSampleData();
+            var chunkSize = sampleData.Length / _canvasWidth + 1;
+            var waveformData = new float[sampleData.Length / chunkSize + 1];
 
-            var maximumValue = 0.0f;
             var index = 0;
-            for (var i = 0; i < _sampleData.Length; i += chunkSize)
+            for (var i = 0; i < sampleData.Length; i += chunkSize)
             {
                 if (i % computationsPerFrame == 0) yield return null;
-                waveformData[index] = Mathf.Abs(_sampleData[i]);
-                if (waveformData[index] > maximumValue) maximumValue = waveformData[index];
+                waveformData[index] = GetAmplitudeOfChunk(sampleData, i, Math.Min(i + chunkSize, sampleData.Length));
                 index++;
             }
 
-            // scales the waveform data to fit into the [-1, 1] range
-            var scalingFactor = 1.0f / maximumValue;
+            NormalizeWaveformData(waveformData);
+
             for (var i = 0; i < index; i++)
             {
                 if (i % waveformPortionsPerFrame == 0) yield return null;
 
                 var midPoint = _canvasHeight / 2;
-                var barSize = (int)(midPoint * waveformData[i] * scalingFactor);
+                var barSize = (int)(midPoint * waveformData[i]);
                 for (var j = 0; j <= barSize; j++)
                 {
                     waveform.SetPixel(i, midPoint + j, Color.black);
@@ -245,21 +255,24 @@ namespace CCE.UI
         {
             LevelDataDisplay.DidPreviewChange = true;
             var previewFilePath = Path.Combine(GlobalState.CurrentLevelPath, "tmp-preview.ogg");
+            var sampleData = _audioDataStream.GetSampleData();
 
-            var startSample = (int)Bass.ChannelSeconds2Bytes(_decodeStream, _startTime);
-            var endSample = (int)Bass.ChannelSeconds2Bytes(_decodeStream, _endTime);
+            // TODO: Remove this dependency on BASS and use IAudioStream directly
+            BassAudioStream bassAudioStream = _audioDataStream as BassAudioStream;
+            var startSample = (int)Bass.ChannelSeconds2Bytes(bassAudioStream.Handle, _startTime);
+            var endSample = (int)Bass.ChannelSeconds2Bytes(bassAudioStream.Handle, _endTime);
             var sampleCount = (endSample - startSample) / 4;
 
             var previewData = new float[sampleCount];
             var previewDataHandle = GCHandle.Alloc(previewData, GCHandleType.Pinned);
             var previewDataPtr = previewDataHandle.AddrOfPinnedObject();
 
-            Buffer.BlockCopy(_sampleData, startSample, previewData, 0, sampleCount * 4);
+            Buffer.BlockCopy(sampleData, startSample, previewData, 0, sampleCount * 4);
 
             var encoderHandle =
-                BassEnc_Ogg.Start(_decodeStream, null, EncodeFlags.ConvertFloatTo16BitInt, previewFilePath);
+                BassEnc_Ogg.Start(bassAudioStream.Handle, null, EncodeFlags.ConvertFloatTo16BitInt, previewFilePath);
 
-            var windowSize = (int)Bass.ChannelSeconds2Bytes(_decodeStream, BassEnc.Queue / 1000.0) / 8;
+            var windowSize = (int)Bass.ChannelSeconds2Bytes(bassAudioStream.Handle, BassEnc.Queue / 1000.0) / 8;
             var dataLength = sampleCount * 4;
             for (var index = 0; index + windowSize < dataLength; index += windowSize)
             {

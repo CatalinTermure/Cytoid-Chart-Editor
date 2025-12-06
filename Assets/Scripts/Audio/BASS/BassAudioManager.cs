@@ -309,14 +309,25 @@ namespace CCE.Audio.BASS
             return buffer;
         }
 
-        public IAudioStream CreateStream(byte[] data, bool looping = false)
+        private BassFlags GetFlagsForAudioStreamType(AudioStreamType audioStreamType)
+        {
+            return audioStreamType switch
+            {
+                AudioStreamType.ForPlayback => BassFlags.Decode,
+                AudioStreamType.ForPlaybackLooping => BassFlags.Default | BassFlags.Loop,
+                AudioStreamType.ForDecoding => BassFlags.Decode | BassFlags.Float,
+                _ => throw new ArgumentOutOfRangeException(nameof(audioStreamType), audioStreamType, null)
+            };
+        }
+
+        public IAudioStream CreateStream(byte[] data, AudioStreamType audioStreamType)
         {
             var buffer = CreateBuffer(data);
-            var flags = looping ? BassFlags.Loop : BassFlags.Decode;
+            var flags = GetFlagsForAudioStreamType(audioStreamType);
             var handle = Bass.CreateStream(buffer.Pointer, 0, buffer.Data.Length, flags);
             if (handle == 0)
             {
-                HandleBassError($"Could not create stream from {data} with looping = {looping}");
+                HandleBassError($"Could not create stream from data of length {data.Length} with flags {flags}. Error: {Bass.LastError}. AudioStreamType: {audioStreamType}");
             }
 
             return new BassAudioStream(handle, buffer);

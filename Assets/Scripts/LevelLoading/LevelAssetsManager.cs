@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using CCE.Audio.Abstract;
 using CCE.Core;
 using CCE.Data;
+using ManagedBass;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -115,7 +116,7 @@ namespace CCE.LevelLoading
                 throw new ArgumentException("Could not find audio file at " + path);
             }
 
-            return GlobalState.AudioManager.CreateStream(await File.ReadAllBytesAsync(path), true);
+            return GlobalState.AudioManager.CreateStream(await File.ReadAllBytesAsync(path), AudioStreamType.ForPlaybackLooping);
         }
 
         private static async Task<Texture2D> LoadBackground(string path)

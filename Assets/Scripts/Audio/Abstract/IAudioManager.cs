@@ -46,7 +46,7 @@
         /// <param name="data"></param>
         /// <param name="looping"> If true, the audio will be looping, i.e. it immediately begins again from the start after ending </param>
         /// <returns> An audio stream to be used with this <see cref="IAudioManager" /> </returns>
-        public IAudioStream CreateStream(byte[] data, bool looping = false);
+        public IAudioStream CreateStream(byte[] data, AudioStreamType audioStreamType);
 
         /// <summary>
         ///     Sets the playback speed of the audio stream. Must be called after LoadAudio with loadForPlaybackSpeed set to true.

@@ -28,5 +28,25 @@ namespace CCE.Audio.BASS
             Assert.AreNotEqual(_buffer.Pointer, IntPtr.Zero);
             Bass.StreamFree(Handle);
         }
+
+        private bool AreBufferLengthsApproximatelyEqual(int bufferLength, int decodedLength)
+        {
+            return decodedLength <= bufferLength && bufferLength - decodedLength < bufferLength / 10000;
+        }
+
+        public float[] GetSampleData()
+        {
+            var bufferLength = (int)Bass.ChannelGetLength(Handle);
+            var resultBuffer = new float[bufferLength / 4]; // Each float is 4 bytes
+            var decodedLength = Bass.ChannelGetData(Handle, resultBuffer, bufferLength);
+
+            // Decoded length should be approximately equal to buffer length
+            if (!AreBufferLengthsApproximatelyEqual(bufferLength, decodedLength))
+            {
+                throw new Exception($"Failed to get sample data. Expected {bufferLength} bytes, got {decodedLength} bytes.");
+            }
+
+            return resultBuffer;
+        }
     }
 }
