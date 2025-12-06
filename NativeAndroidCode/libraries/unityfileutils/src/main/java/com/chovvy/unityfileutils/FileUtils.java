@@ -103,9 +103,12 @@ public class FileUtils {
 
     private static void ExportCytoidLevelToDownloads(Context context, String localFilePath, File localFile) throws IOException {
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q) {
-            // save to downloads
-            DownloadManager downloadManager = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
-            downloadManager.enqueue(new DownloadManager.Request(Uri.fromFile(localFile)));
+            File downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+            File destinationFile = new File(downloadsDir, localFile.getName());
+            try (InputStream input = new FileInputStream(localFile);
+                 OutputStream output = new FileOutputStream(destinationFile)) {
+                CopyFile(input, output);
+            }
             return;
         }
         ContentValues contentValues = new ContentValues();
