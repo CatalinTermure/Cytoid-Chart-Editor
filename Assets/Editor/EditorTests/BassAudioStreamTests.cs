@@ -38,7 +38,7 @@ namespace CCE.EditorTests
             var audioData = File.ReadAllBytes(SampleAudioPath);
             var stream = _audioManager.CreateStream(audioData, AudioStreamType.ForDecoding);
 
-            float[] sampleData = stream.GetSampleData();
+            float[] sampleData = stream.GetSampleData().ToArray();
             Assert.IsTrue(sampleData.Length > 0);
             // all samples should be in the range [-1, 1], with some margin
             // Checking all sample values with Is.All.InRange may return a huge diff, so we do it manually
@@ -47,6 +47,25 @@ namespace CCE.EditorTests
                 if (sampleData[i] < -1.1f || sampleData[i] > 1.1f)
                 {
                     Assert.Fail($"Sample data should be within the range [-1, 1], with some margin, but we got: {sampleData[i]} at index {i}");
+                }
+            }
+        }
+
+        [Test]
+        public void GetAudioData_GetsAudioDataTwice()
+        {
+            var audioData = File.ReadAllBytes(SampleAudioPath);
+            var stream = _audioManager.CreateStream(audioData, AudioStreamType.ForDecoding);
+
+            float[] firstSampleData = stream.GetSampleData().ToArray();
+            float[] secondSampleData = stream.GetSampleData().ToArray();
+            // Sample data should be the same
+            Assert.IsTrue(secondSampleData.Length == firstSampleData.Length);
+            for (var i = 0; i < secondSampleData.Length; i++)
+            {
+                if (secondSampleData[i] != firstSampleData[i])
+                {
+                    Assert.Fail($"Sample data should be the same, but we got: {secondSampleData[i]} and {firstSampleData[i]} at index {i}");
                 }
             }
         }

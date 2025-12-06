@@ -14,6 +14,7 @@ namespace CCE.Audio.BASS
     public class BassAudioStream : IAudioStream
     {
         private readonly AudioBuffer _buffer;
+        private float[] _sampleData;
 
         public BassAudioStream(int handle, AudioBuffer buffer)
         {
@@ -34,11 +35,16 @@ namespace CCE.Audio.BASS
             return decodedLength <= bufferLength && bufferLength - decodedLength < bufferLength / 10000;
         }
 
-        public float[] GetSampleData()
+        public ArraySegment<float> GetSampleData()
         {
+            if (_sampleData != null)
+            {
+                return new ArraySegment<float>(_sampleData);
+            }
+
             var bufferLength = (int)Bass.ChannelGetLength(Handle);
-            var resultBuffer = new float[bufferLength / 4]; // Each float is 4 bytes
-            var decodedLength = Bass.ChannelGetData(Handle, resultBuffer, bufferLength);
+            _sampleData = new float[bufferLength / 4]; // Each float is 4 bytes
+            var decodedLength = Bass.ChannelGetData(Handle, _sampleData, bufferLength);
 
             // Decoded length should be approximately equal to buffer length
             if (!AreBufferLengthsApproximatelyEqual(bufferLength, decodedLength))
@@ -46,7 +52,7 @@ namespace CCE.Audio.BASS
                 throw new Exception($"Failed to get sample data. Expected {bufferLength} bytes, got {decodedLength} bytes.");
             }
 
-            return resultBuffer;
+            return new ArraySegment<float>(_sampleData);
         }
     }
 }

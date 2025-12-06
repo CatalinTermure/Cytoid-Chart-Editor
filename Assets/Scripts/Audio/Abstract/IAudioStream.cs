@@ -1,7 +1,9 @@
-﻿namespace CCE.Audio.Abstract
+﻿using System;
+
+namespace CCE.Audio.Abstract
 {
     public interface IAudioStream
     {
-        float[] GetSampleData();
+        ArraySegment<float> GetSampleData();
     }
 }

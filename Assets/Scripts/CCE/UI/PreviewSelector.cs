@@ -205,7 +205,7 @@ namespace CCE.UI
 
             var waveform = new Texture2D(_canvasWidth, _canvasHeight);
 
-            float[] sampleData = _audioDataStream.GetSampleData();
+            float[] sampleData = _audioDataStream.GetSampleData().ToArray();
             var chunkSize = sampleData.Length / _canvasWidth + 1;
             var waveformData = new float[sampleData.Length / chunkSize + 1];
 
@@ -255,7 +255,7 @@ namespace CCE.UI
         {
             LevelDataDisplay.DidPreviewChange = true;
             var previewFilePath = Path.Combine(GlobalState.CurrentLevelPath, "tmp-preview.ogg");
-            var sampleData = _audioDataStream.GetSampleData();
+            float[] sampleData = _audioDataStream.GetSampleData().ToArray();
 
             // TODO: Remove this dependency on BASS and use IAudioStream directly
             BassAudioStream bassAudioStream = _audioDataStream as BassAudioStream;
