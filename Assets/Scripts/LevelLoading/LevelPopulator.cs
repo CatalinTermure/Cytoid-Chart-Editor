@@ -45,8 +45,10 @@ namespace CCE.LevelLoading
             foreach (var filePath in
                      Directory.EnumerateFiles(GlobalState.Config.LevelStoragePath))
             {
-                var extension = Path.GetExtension(filePath);
-                if (extension is ".cytoidpack" or ".cytoidlevel") ImportLevel(filePath);
+                if (FileUtils.IsLevelFile(filePath))
+                {
+                    ImportLevel(filePath);
+                }
             }
 
             // Importing levels from old directory

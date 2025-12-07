@@ -80,12 +80,17 @@ namespace CCE.Utils
 
         public static bool IsLevelFile(string file)
         {
-            return Path.GetExtension(file) switch
+            string filename = Path.GetFileName(file);
+
+            if (filename.EndsWith(".cytoidlevel.zip") ||
+                filename.EndsWith(".cytoidpack.zip") ||
+                filename.EndsWith(".cytoidlevel") ||
+                filename.EndsWith(".cytoidpack"))
             {
-                ".cytoidlevel" => true,
-                ".cytoidpack" => true,
-                _ => false
-            };
+                return true;
+            }
+
+            return false;
         }
 
         public static bool IsImageFile(string file)

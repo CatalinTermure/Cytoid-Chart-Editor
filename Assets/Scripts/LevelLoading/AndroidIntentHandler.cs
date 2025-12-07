@@ -48,7 +48,7 @@ namespace CCE.LevelLoading
             }
             else if (FileUtils.IsLevelFile(filePath))
             {
-                File.Copy(filePath,
+                File.Move(filePath,
                     Path.Combine(GlobalState.Config.LevelStoragePath, Path.GetFileName(filePath)));
             }
         }
