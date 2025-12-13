@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using CCE.Data.Validators;
 using CCE.Utils;
 using Newtonsoft.Json;
 
@@ -10,27 +11,33 @@ namespace CCE.Data
         Justification = "Newtonsoft.Json uses reflection for ShouldSerialize methods")]
     public class Level
     {
-        [JsonProperty("artist")] [Displayable(Section = "Artist", Name = "Artist:", Filter = "Existing Level")]
+        [JsonProperty("artist")]
+        [Displayable(Section = "Artist", Name = "Artist:", Filter = "Existing Level")]
         public string Artist;
 
         [JsonProperty("artist_localized")]
         [Displayable(Section = "Artist", Name = "Localized artist:", Filter = "Existing Level")]
+        [Validatable(Validator = typeof(LocalizedStringValidator))]
         public string ArtistLocalized;
 
         [JsonProperty("artist_source")]
         [Displayable(Section = "Artist", Name = "Artist source:", Filter = "Existing Level")]
+        [Validatable(Validator = typeof(SourceValidator))]
         public string ArtistSource;
 
         [JsonProperty("background")]
         [Displayable(Section = "Illustrator", Name = "Background:", Filter = "Existing Level")]
         public BackgroundData Background;
 
-        [JsonProperty("charter")] [Displayable(Section = "Creator", Name = "Charter:", Filter = "Existing Level")]
+        [JsonProperty("charter")]
+        [Displayable(Section = "Creator", Name = "Charter:", Filter = "Existing Level")]
         public string Charter;
 
         [JsonProperty("charts")] public List<ChartMetadata> Charts = new();
 
-        [JsonProperty("id")] [Displayable(Name = "Level ID:")]
+        [JsonProperty("id")]
+        [Displayable(Name = "Level ID:")]
+        [Validatable(Validator = typeof(LevelIdValidator))]
         public string ID;
 
         [JsonProperty("illustrator")]
@@ -39,6 +46,7 @@ namespace CCE.Data
 
         [JsonProperty("illustrator_source")]
         [Displayable(Section = "Illustrator", Name = "Illustrator source:", Filter = "Existing Level")]
+        [Validatable(Validator = typeof(SourceValidator))]
         public string IllustratorSource;
 
         [JsonProperty("music")] public MusicData Music;
@@ -49,10 +57,13 @@ namespace CCE.Data
         [Displayable(Section = "Creator", Name = "Storyboarder:", Filter = "Existing Level")]
         public string Storyboarder;
 
-        [JsonProperty("title")] [Displayable(Name = "Song title:", Filter = "Existing Level")]
+        [JsonProperty("title")]
+        [Displayable(Name = "Song title:", Filter = "Existing Level")]
         public string Title;
 
-        [JsonProperty("title_localized")] [Displayable(Name = "Localized title:", Filter = "Existing Level")]
+        [JsonProperty("title_localized")]
+        [Displayable(Name = "Localized title:", Filter = "Existing Level")]
+        [Validatable(Validator = typeof(LocalizedStringValidator))]
         public string TitleLocalized;
 
         [JsonProperty("version")] public int Version = 1;
@@ -67,7 +78,7 @@ namespace CCE.Data
             return !String.IsNullOrEmpty(TitleLocalized);
         }
 
-        public bool ShouldSerializeLocalizedArtist()
+        public bool ShouldSerializeArtistLocalized()
         {
             return !String.IsNullOrEmpty(ArtistLocalized);
         }

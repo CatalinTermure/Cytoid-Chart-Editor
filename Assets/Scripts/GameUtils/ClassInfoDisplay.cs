@@ -81,6 +81,27 @@ namespace CCE.GameUtils
             }
         }
 
+        private void SetValidationResults(List<ValidationResult> results, ClassFieldDisplay classFieldDisplay)
+        {
+            if (results.Count == 0)
+            {
+                classFieldDisplay.ValueInputField.textComponent.color = Color.black;
+                classFieldDisplay.validationResult.gameObject.SetActive(false);
+                return;
+            }
+
+            classFieldDisplay.validationResult.gameObject.SetActive(true);
+
+            if (results.Any(result => result.Severity == ValidationSeverity.Error))
+            {
+                classFieldDisplay.ValueInputField.textComponent.color = Color.red;
+            }
+            else if (results.Any(result => result.Severity == ValidationSeverity.Warning))
+            {
+                classFieldDisplay.ValueInputField.textComponent.color = Color.yellowNice;
+            }
+        }
+
         private void DrawSection(string title, IEnumerable<FieldInfo> fields)
         {
             if (!string.IsNullOrEmpty(title))
@@ -256,6 +277,11 @@ namespace CCE.GameUtils
             classFieldDisplay.ValueInputField.text = (string)fieldInfo.GetValue(_targetObject);
             classFieldDisplay.ValueInputField.onEndEdit
                 .AddListener(stringValue => fieldInfo.SetValue(_targetObject, stringValue));
+
+            var validatableAttribute = fieldInfo.GetCustomAttribute<ValidatableAttribute>();
+            if (validatableAttribute == null) return;
+            var validator = (IValidator)Activator.CreateInstance(validatableAttribute.Validator);
+            classFieldDisplay.ValueInputField.onEndEdit.AddListener(value => SetValidationResults(validator.Validate(value), classFieldDisplay));
         }
     }
 }

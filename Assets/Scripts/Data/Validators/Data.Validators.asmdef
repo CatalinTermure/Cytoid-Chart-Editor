@@ -1,9 +1,8 @@
 {
-    "name": "Data",
+    "name": "Validators",
     "rootNamespace": "CCE",
     "references": [
-        "GUID:ae93059319644353ab8126ed88d0bb40",
-        "GUID:b2c41b81ac857ab4dae0326bb86e4ff1"
+        "GUID:ae93059319644353ab8126ed88d0bb40"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
