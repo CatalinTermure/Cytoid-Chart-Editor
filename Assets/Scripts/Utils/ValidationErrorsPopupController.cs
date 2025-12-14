@@ -1,6 +1,8 @@
+using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using CCE.Validation;
 
 namespace CCE.Utils
 {
@@ -27,7 +29,7 @@ namespace CCE.Utils
                 {
                     ValidationSeverity.Warning => _warningPrefab,
                     ValidationSeverity.Error => _errorPrefab,
-                    _ => throw new System.ArgumentOutOfRangeException()
+                    _ => throw new ArgumentOutOfRangeException()
                 };
                 var resultObject = Instantiate(prefab);
                 resultObject.GetComponentInChildren<TMP_Text>().text = validationResult.Message;

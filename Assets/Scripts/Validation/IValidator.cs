@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace CCE.Utils
+namespace CCE.Validation
 {
     public interface IValidator
     {

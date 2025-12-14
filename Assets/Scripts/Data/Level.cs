@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using CCE.Data.Validators;
-using CCE.Utils;
+using CCE.Validation;
 using Newtonsoft.Json;
 
 namespace CCE.Data

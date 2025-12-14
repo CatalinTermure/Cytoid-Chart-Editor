@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using CCE.Utils;
+using CCE.Validation;
 
 namespace CCE.Data.Validators
 {

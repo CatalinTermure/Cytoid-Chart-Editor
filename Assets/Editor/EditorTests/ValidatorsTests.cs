@@ -1,5 +1,5 @@
 using CCE.Data.Validators;
-using CCE.Utils;
+using CCE.Validation;
 using NUnit.Framework;
 
 namespace CCE.EditorTests

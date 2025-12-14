@@ -1,5 +1,4 @@
-
-namespace CCE.Utils
+namespace CCE.Validation
 {
     public enum ValidationSeverity
     {

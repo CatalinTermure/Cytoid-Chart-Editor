@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CCE.Utils
+namespace CCE.Validation
 {
     [AttributeUsage(AttributeTargets.Field)]
     public class ValidatableAttribute : Attribute

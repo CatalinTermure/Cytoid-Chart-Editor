@@ -1,4 +1,4 @@
-namespace CCE.Utils
+namespace CCE.Validation
 {
     public record ValidationResult
     {
