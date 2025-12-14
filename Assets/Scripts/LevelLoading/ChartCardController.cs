@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using CCE.Audio;
 using CCE.Core;
 using CCE.Data;
 using CCE.GameUtils;
@@ -138,7 +139,7 @@ namespace CCE.LevelLoading
             _levelList.View.FreeResources();
 
             SceneNavigator.NavigateToChartEdit(level, chartData,
-                GlobalState.AudioManager.CreateStream(File.ReadAllBytes(audioFilePath), Audio.Abstract.AudioStreamType.ForPlayback));
+                GlobalState.AudioManager.CreateStream(File.ReadAllBytes(audioFilePath), AudioStreamType.ForPlayback));
         }
 
         public void UpdateChartCards(Level level)
@@ -171,7 +172,7 @@ namespace CCE.LevelLoading
             level.Charts.Add(chartData);
 
             SceneNavigator.NavigateToChartEdit(level, chartData,
-                GlobalState.AudioManager.CreateStream(File.ReadAllBytes(audioFilePath), Audio.Abstract.AudioStreamType.ForPlayback));
+                GlobalState.AudioManager.CreateStream(File.ReadAllBytes(audioFilePath), AudioStreamType.ForPlayback));
             Task.WaitAll(chartWriteTask, levelDataWriteTask);
         }
 

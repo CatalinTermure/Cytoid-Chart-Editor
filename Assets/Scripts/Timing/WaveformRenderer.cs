@@ -1,4 +1,4 @@
-using CCE.Audio.Abstract;
+using CCE.Audio;
 using UnityEngine;
 
 namespace CCE.Timing

@@ -1,11 +1,10 @@
 {
-    "name": "Audio.Abstract",
-    "rootNamespace": "CCE",
-    "references": [
-    ],
+    "name": "Audio",
+    "rootNamespace": "",
+    "references": [],
     "includePlatforms": [],
     "excludePlatforms": [],
-    "allowUnsafeCode": false,
+    "allowUnsafeCode": true,
     "overrideReferences": false,
     "precompiledReferences": [],
     "autoReferenced": true,

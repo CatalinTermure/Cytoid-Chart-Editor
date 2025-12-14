@@ -2,7 +2,7 @@
     "name": "Timing",
     "rootNamespace": "CCE",
     "references": [
-        "Audio.Abstract"
+        "GUID:6190b59e83958664d8460759c0030d9c"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

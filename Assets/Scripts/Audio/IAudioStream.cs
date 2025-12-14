@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CCE.Audio.Abstract
+namespace CCE.Audio
 {
     public interface IAudioStream
     {

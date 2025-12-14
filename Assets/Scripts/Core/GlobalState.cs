@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
-using CCE.Audio.Abstract;
-using CCE.Audio.BASS;
+using CCE.Audio;
 using CCE.Data;
 using CCE.GameUtils;
 using Newtonsoft.Json;
@@ -63,7 +62,7 @@ namespace CCE.Core
         private void Awake()
         {
             AudioManager ??= new BassAudioManager();
-            
+
             Application.targetFrameRate = 60;
 
             Height = Camera.main!.orthographicSize;

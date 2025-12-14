@@ -1,9 +1,8 @@
 ﻿using System;
-using CCE.Audio.Abstract;
 using ManagedBass;
 using UnityEngine.Assertions;
 
-namespace CCE.Audio.BASS
+namespace CCE.Audio
 {
     public class AudioBuffer
     {

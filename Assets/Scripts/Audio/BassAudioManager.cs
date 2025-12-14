@@ -1,12 +1,11 @@
 ﻿using System;
 using System.IO;
-using CCE.Audio.Abstract;
 using ManagedBass;
 using ManagedBass.Fx;
 using UnityEngine;
 using UnityEngine.Assertions;
 
-namespace CCE.Audio.BASS
+namespace CCE.Audio
 {
     public class BassAudioManager : IAudioManager
     {
