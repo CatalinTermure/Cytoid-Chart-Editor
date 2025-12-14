@@ -237,6 +237,7 @@ MonoBehaviour:
   m_VerticalAlignment: 256
   m_textAlignment: 65535
   m_characterSpacing: 0
+  m_characterHorizontalScale: 1
   m_wordSpacing: 0
   m_lineSpacing: 0
   m_lineSpacingMax: 0
@@ -507,6 +508,7 @@ MonoBehaviour:
   m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
+  m_characterHorizontalScale: 1
   m_wordSpacing: 0
   m_lineSpacing: 0
   m_lineSpacingMax: 0
@@ -918,6 +920,8 @@ MonoBehaviour:
   ShouldStretchFillTarget: 1
   ElementSpacing: 65
   ElementLeftMargin: 30
+  _validationErrorPopupPrefab: {fileID: 3838488122368298528, guid: 58b23ac77bf97c44593314e7a0520772,
+    type: 3}
 --- !u!114 &8093492413710341451
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1307,6 +1311,7 @@ MonoBehaviour:
   m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
+  m_characterHorizontalScale: 1
   m_wordSpacing: 0
   m_lineSpacing: 0
   m_lineSpacingMax: 0

@@ -1,25 +1,27 @@
 {
-  "name": "Tests",
-  "rootNamespace": "CCE",
-  "references": [
-    "UnityEngine.TestRunner",
-    "UnityEditor.TestRunner",
-    "Core",
-    "CCE",
-    "LevelLoading",
-    "Data"
-  ],
-  "includePlatforms": [],
-  "excludePlatforms": [],
-  "allowUnsafeCode": false,
-  "overrideReferences": true,
-  "precompiledReferences": [
-    "nunit.framework.dll"
-  ],
-  "autoReferenced": false,
-  "defineConstraints": [
-    "UNITY_INCLUDE_TESTS"
-  ],
-  "versionDefines": [],
-  "noEngineReferences": false
+    "name": "Tests",
+    "rootNamespace": "CCE",
+    "references": [
+        "UnityEngine.TestRunner",
+        "UnityEditor.TestRunner",
+        "Core",
+        "CCE",
+        "LevelLoading",
+        "Data",
+        "Unity.TextMeshPro",
+        "Utils"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "nunit.framework.dll"
+    ],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "UNITY_INCLUDE_TESTS"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
 }

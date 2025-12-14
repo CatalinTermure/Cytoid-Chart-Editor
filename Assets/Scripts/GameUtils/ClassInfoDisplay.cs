@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using CCE.Utils;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace CCE.GameUtils
 {
@@ -20,6 +22,8 @@ namespace CCE.GameUtils
         [SerializeField] private float ElementSpacing;
         [SerializeField] private float ElementLeftMargin;
 
+        [SerializeField] private GameObject _validationErrorPopupPrefab;
+
         private readonly Dictionary<Type, IClassFieldRenderer> _classFieldRenderers = new();
 
         private readonly Type[] _defaultTypes =
@@ -30,6 +34,9 @@ namespace CCE.GameUtils
         private float _currentElementTopMargin;
 
         private object _targetObject;
+
+        private GameObject _popupParentCanvas;
+
 
         private void InitializeClassFieldRenderers()
         {
@@ -100,6 +107,15 @@ namespace CCE.GameUtils
             {
                 classFieldDisplay.ValueInputField.textComponent.color = Color.yellowNice;
             }
+
+            var resultsPopupButton =
+                classFieldDisplay.validationResult.gameObject.GetComponent<Button>();
+            resultsPopupButton.onClick.RemoveAllListeners();
+            resultsPopupButton.onClick.AddListener(() =>
+            {
+                var popup = Instantiate(_validationErrorPopupPrefab, _popupParentCanvas.transform);
+                popup.GetComponent<ValidationErrorsPopupController>().PopulateValidationResults(results);
+            });
         }
 
         private void DrawSection(string title, IEnumerable<FieldInfo> fields)
@@ -181,6 +197,7 @@ namespace CCE.GameUtils
         private void DrawIntegerField(FieldInfo fieldInfo)
         {
             var obj = Instantiate(IntegerDisplayTemplate, FillTarget);
+            obj.name = fieldInfo.Name + "Field";
             obj.GetComponent<RectTransform>().anchoredPosition =
                 new Vector2(ElementLeftMargin, _currentElementTopMargin);
 
@@ -216,6 +233,7 @@ namespace CCE.GameUtils
         private void DrawBooleanField(FieldInfo fieldInfo)
         {
             var obj = Instantiate(BooleanDisplayTemplate, FillTarget);
+            obj.name = fieldInfo.Name + "Field";
             obj.GetComponent<RectTransform>().anchoredPosition =
                 new Vector2(ElementLeftMargin, _currentElementTopMargin);
 
@@ -232,6 +250,7 @@ namespace CCE.GameUtils
         private void DrawFloatField(FieldInfo fieldInfo)
         {
             var obj = Instantiate(FloatDisplayTemplate, FillTarget);
+            obj.name = fieldInfo.Name + "Field";
             obj.GetComponent<RectTransform>().anchoredPosition =
                 new Vector2(ElementLeftMargin, _currentElementTopMargin);
 
@@ -267,6 +286,7 @@ namespace CCE.GameUtils
         private void DrawStringField(FieldInfo fieldInfo)
         {
             var obj = Instantiate(StringDisplayTemplate, FillTarget);
+            obj.name = fieldInfo.Name + "Field";
             obj.GetComponent<RectTransform>().anchoredPosition =
                 new Vector2(ElementLeftMargin, _currentElementTopMargin);
 
@@ -282,6 +302,11 @@ namespace CCE.GameUtils
             if (validatableAttribute == null) return;
             var validator = (IValidator)Activator.CreateInstance(validatableAttribute.Validator);
             classFieldDisplay.ValueInputField.onEndEdit.AddListener(value => SetValidationResults(validator.Validate(value), classFieldDisplay));
+        }
+
+        public void Awake()
+        {
+            _popupParentCanvas = GetComponentInParent<Canvas>().gameObject;
         }
     }
 }

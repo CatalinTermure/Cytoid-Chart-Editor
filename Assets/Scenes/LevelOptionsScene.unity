@@ -340,7 +340,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1977450336}
   m_Direction: 2
   m_Value: 0
-  m_Size: 0.4158878
+  m_Size: 0.9999789
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -442,6 +442,8 @@ MonoBehaviour:
   ShouldStretchFillTarget: 1
   ElementSpacing: 70
   ElementLeftMargin: 35
+  _validationErrorPopupPrefab: {fileID: 3838488122368298528, guid: 58b23ac77bf97c44593314e7a0520772,
+    type: 3}
 --- !u!224 &244471048
 RectTransform:
   m_ObjectHideFlags: 0
@@ -459,7 +461,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0.000025022022}
+  m_AnchoredPosition: {x: 0, y: 0.000020933709}
   m_SizeDelta: {x: 0, y: 500}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &244471049
@@ -661,6 +663,7 @@ MonoBehaviour:
   BooleanToggle: {fileID: 0}
   ValueSlider: {fileID: 0}
   ValueInputField: {fileID: 783462424}
+  validationResult: {fileID: 0}
 --- !u!1 &545769865
 GameObject:
   m_ObjectHideFlags: 0
