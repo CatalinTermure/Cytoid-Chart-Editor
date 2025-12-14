@@ -1,5 +1,5 @@
 {
-    "name": "Audio.Timing",
+    "name": "Timing",
     "rootNamespace": "CCE",
     "references": [
         "Audio.Abstract"

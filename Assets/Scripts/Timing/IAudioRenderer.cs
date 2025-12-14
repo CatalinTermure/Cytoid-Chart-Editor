@@ -1,7 +1,7 @@
 using CCE.Audio.Abstract;
 using UnityEngine;
 
-namespace CCE.Audio.Timing
+namespace CCE.Timing
 {
     /// <summary>
     /// Interface for classes that can render an <see cref="IAudioStream"/> to a <see cref="Texture2D"/>.
