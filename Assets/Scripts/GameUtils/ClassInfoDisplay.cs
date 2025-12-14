@@ -301,6 +301,7 @@ namespace CCE.GameUtils
             var validatableAttribute = fieldInfo.GetCustomAttribute<ValidatableAttribute>();
             if (validatableAttribute == null) return;
             var validator = (IValidator)Activator.CreateInstance(validatableAttribute.Validator);
+            SetValidationResults(validator.Validate(classFieldDisplay.ValueInputField.text), classFieldDisplay);
             classFieldDisplay.ValueInputField.onEndEdit.AddListener(value => SetValidationResults(validator.Validate(value), classFieldDisplay));
         }
 
