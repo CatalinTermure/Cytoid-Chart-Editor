@@ -5,7 +5,7 @@ using UnityEngine;
 // ReSharper disable FieldCanBeMadeReadOnly.Global
 // ReSharper disable ConvertToConstant.Global
 
-namespace CCE.Core
+namespace CCE.Data
 {
     public class EditorConfig
     {
