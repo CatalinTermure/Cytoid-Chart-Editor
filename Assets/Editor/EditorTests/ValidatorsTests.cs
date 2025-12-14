@@ -75,7 +75,9 @@ namespace CCE.EditorTests
         {
             var validator = new SourceValidator();
             var results = validator.Validate("Hello World");
-            Assert.Contains(ValidationResult.Error("Source must be a link"), results);
+            Assert.Contains(
+                ValidationResult.Error("Source must be a link to an official upload of the audio/image (e.g. Pixiv, Bandcamp, SoundCloud, Music Label's website)"),
+                results);
         }
 
         [Test]

@@ -17,7 +17,7 @@ namespace CCE.Data.Validators
 
             if (!source.StartsWith("http://") && !source.StartsWith("https://"))
             {
-                results.Add(ValidationResult.Error("Source must be a link to an official upload of the audio/image (e.g. Pixiv, Bandcamp, SoundCloud, Music Label's website)."));
+                results.Add(ValidationResult.Error("Source must be a link to an official upload of the audio/image (e.g. Pixiv, Bandcamp, SoundCloud, Music Label's website)"));
             }
 
             return results;
