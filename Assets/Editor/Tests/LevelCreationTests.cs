@@ -2,6 +2,7 @@
 using System.IO;
 using CCE.LevelLoading;
 using CCE.Utils;
+using CCE.Popups;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;

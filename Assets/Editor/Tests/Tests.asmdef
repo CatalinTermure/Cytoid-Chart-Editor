@@ -9,7 +9,8 @@
         "LevelLoading",
         "Data",
         "Unity.TextMeshPro",
-        "Utils"
+        "Utils",
+        "Popups"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

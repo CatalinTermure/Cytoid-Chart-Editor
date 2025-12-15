@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using CCE.Validation;
+using CCE.Utils;
 
-namespace CCE.Utils
+namespace CCE.Popups
 {
     /// <summary>
     /// A controller for the validation errors popup. This allows creating a popup where the user
