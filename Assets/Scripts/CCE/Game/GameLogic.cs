@@ -210,7 +210,7 @@ namespace CCE.Game
 #endif
             if (_saveEditorOffsetScheduledTime.HasValue && Time.time > _saveEditorOffsetScheduledTime)
             {
-                SaveConfig();
+                EditorConfigProvider.SaveConfig();
                 _saveEditorOffsetScheduledTime = null;
             }
 

@@ -1,4 +1,5 @@
 ﻿using CCE.Core;
+using CCE.Data;
 using CCE.GameUtils;
 using UnityEngine;
 
@@ -14,7 +15,7 @@ namespace CCE.UI
 
         public void SaveConfig()
         {
-            GlobalState.SaveConfig();
+            EditorConfigProvider.SaveConfig();
         }
     }
 }

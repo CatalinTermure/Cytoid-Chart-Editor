@@ -29,7 +29,7 @@ namespace CCE.Core
 
         public static readonly float AspectRatio = (float)Screen.width / Screen.height;
 
-        public static EditorConfig Config;
+        public static EditorConfig Config => EditorConfigProvider.Config;
 
         public static IAudioManager AudioManager;
 
@@ -69,28 +69,6 @@ namespace CCE.Core
             PlayAreaWidth = 24 * AspectRatio / NormalAspectRatio;
             PlayAreaHeight = 12;
 
-            if (File.Exists(Path.Combine(Application.persistentDataPath, "data.txt")))
-            {
-                try
-                {
-                    Config = JsonConvert.DeserializeObject<EditorConfig>(
-                        File.ReadAllText(Path.Combine(Application.persistentDataPath, "data.txt")));
-                }
-                catch (Exception)
-                {
-                    Config = new EditorConfig();
-                }
-            }
-            else
-            {
-                Config = new EditorConfig();
-            }
-
-            if (!Directory.Exists(Config.DirPath)) Config.DirPath = Application.persistentDataPath;
-
-            if (!Directory.Exists(Config.LevelStoragePath)) Directory.CreateDirectory(Config.LevelStoragePath);
-            if (!Directory.Exists(Config.TempStoragePath)) Directory.CreateDirectory(Config.TempStoragePath);
-
 #if UNITY_STANDALONE
             if (!_loadedHotkeys)
             {
@@ -111,14 +89,6 @@ namespace CCE.Core
         private void OnApplicationQuit()
         {
             AudioManager.Stop();
-        }
-
-        public static void SaveConfig()
-        {
-            File.WriteAllText(Path.Combine(Application.persistentDataPath, "data.txt"),
-                JsonConvert.SerializeObject(Config));
-            AudioManager.SetMusicVolume(Config.MusicVolume);
-            AudioManager.SetHitsoundVolume(Config.HitsoundVolume);
         }
 
         public static void LoadLevel(Level level)
