@@ -31,7 +31,7 @@ namespace CCE.Core
 
         public static EditorConfig Config => EditorConfigProvider.Config;
 
-        public static IAudioManager AudioManager;
+        public static IAudioManager AudioManager => AudioManagerProvider.AudioManager;
 
         private static Sprite _backgroundSprite;
 
@@ -61,8 +61,6 @@ namespace CCE.Core
 
         private void Awake()
         {
-            AudioManager ??= new BassAudioManager();
-
             Application.targetFrameRate = 60;
 
             Height = Camera.main!.orthographicSize;
@@ -76,19 +74,6 @@ namespace CCE.Core
                 _loadedHotkeys = true;
             }
 #endif
-        }
-
-        private void OnEnable()
-        {
-            if (AudioManager.IsInitialized) return;
-            AudioManager.Initialize();
-            AudioManager.SetMusicVolume(Config.MusicVolume);
-            AudioManager.SetHitsoundVolume(Config.HitsoundVolume);
-        }
-
-        private void OnApplicationQuit()
-        {
-            AudioManager.Stop();
         }
 
         public static void LoadLevel(Level level)

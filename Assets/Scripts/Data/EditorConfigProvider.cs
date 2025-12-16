@@ -11,7 +11,7 @@ namespace CCE.Data
     {
         private EditorConfig _config;
 
-        public static EditorConfig Config { get => Instance._config; set => Instance.SetConfig(value); }
+        public static EditorConfig Config { get => Instance._config; set => SetConfig(value); }
 
         private readonly List<IEditorConfigChangedListener> _editorConfigChangedListeners = new();
 
@@ -46,10 +46,10 @@ namespace CCE.Data
             if (!Directory.Exists(_config.TempStoragePath)) Directory.CreateDirectory(_config.TempStoragePath);
         }
 
-        private void SetConfig(EditorConfig value)
+        private static void SetConfig(EditorConfig value)
         {
-            _config = value;
-            foreach (var listener in _editorConfigChangedListeners)
+            Instance._config = value;
+            foreach (var listener in Instance._editorConfigChangedListeners)
             {
                 listener.OnEditorConfigChanged(value);
             }
@@ -58,6 +58,7 @@ namespace CCE.Data
         public static void AddConfigChangedListener(IEditorConfigChangedListener listener)
         {
             Instance._editorConfigChangedListeners.Add(listener);
+            listener.OnEditorConfigChanged(Config);
         }
     }
 }
