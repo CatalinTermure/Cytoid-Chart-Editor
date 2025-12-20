@@ -155,7 +155,7 @@ namespace CCE.LevelLoading
             var audioFilePath = Path.Combine(levelDirPath, level.Music.Path);
             var chartFilePath = FileUtils.GetUniqueFilePath(Path.Combine(levelDirPath, $"chart-{type}.json"));
 
-            var chartWriteTask = File.WriteAllTextAsync(chartFilePath, GlobalState.NewChartString);
+            var chartWriteTask = File.WriteAllTextAsync(chartFilePath, Constants.NewChartString);
             var levelDataWriteTask = File.WriteAllTextAsync(Path.Combine(levelDirPath, "level.json"),
                 JsonConvert.SerializeObject(level, new JsonSerializerSettings
                 {
