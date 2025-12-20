@@ -739,14 +739,14 @@ namespace CCE.Game
 
             obj.SetActive(true);
 
-            var colorIndex = ColorIndexes[note.Type];
+            var colorIndex = Chart.ColorIndexByNoteType[note.Type];
             if (CurrentChart.PageList[note.PageIndex].ScanLineDirection == 1)
             {
                 colorIndex++;
             }
 
             ColorUtility.TryParseHtmlString(
-                note.FillColor ?? CurrentChart.FillColors[colorIndex] ?? DefaultFillColors[colorIndex],
+                note.FillColor ?? CurrentChart.FillColors[colorIndex] ?? Chart.DefaultFillColors[colorIndex],
                 out var noteColor);
 
             noteColor.a = (float)note.ActualOpacity / (lowerOpacity ? 3 : 1);

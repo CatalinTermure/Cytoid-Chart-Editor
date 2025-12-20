@@ -1,9 +1,7 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using CCE.Audio;
 using CCE.Data;
 using CCE.GameUtils;
-using Newtonsoft.Json;
 using UnityEngine;
 
 namespace CCE.Core
@@ -29,14 +27,6 @@ namespace CCE.Core
         public static IAudioManager AudioManager => AudioManagerProvider.AudioManager;
 
         private static Sprite _backgroundSprite;
-
-        public static readonly string[] DefaultFillColors =
-        {
-            "#35A7FF", "#FF5964", "#39E59E", "#39E59E", "#35A7FF", "#FF5964", "#F2C85A", "#F2C85A", "#35A7FF",
-            "#FF5964", "#39E59E", "#39E59E"
-        };
-
-        public static readonly int[] ColorIndexes = { 0, 4, 6, 2, 2, 8, 10, 10 };
 
         public static Level CurrentLevel;
         public static Chart CurrentChart;
