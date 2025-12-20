@@ -7,10 +7,10 @@ namespace CCE.Game
     {
         public static void AdjustToResolution()
         {
-            var aspectRatio = GlobalState.AspectRatio;
-            const float normalAspectRatio = GlobalState.NormalAspectRatio;
-            var playAreaWidth = GlobalState.PlayAreaWidth;
-            var playAreaHeight = GlobalState.PlayAreaHeight;
+            var aspectRatio = ScreenDimensionsProvider.AspectRatio;
+            const float normalAspectRatio = ScreenDimensionsProvider.NormalAspectRatio;
+            var playAreaWidth = ScreenDimensionsProvider.PlayAreaWidth;
+            var playAreaHeight = ScreenDimensionsProvider.PlayAreaHeight;
 
             // Adjust for different aspect ratios
             GameObject.Find("PlayAreaBorder").GetComponent<SpriteRenderer>().size =

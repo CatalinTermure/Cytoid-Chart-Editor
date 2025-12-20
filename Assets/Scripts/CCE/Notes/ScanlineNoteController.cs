@@ -36,12 +36,12 @@ namespace CCE.Notes
             gameObject.transform.position = pos;
             TimeInputField.transform.position -=
                 new Vector3(
-                    (float)Screen.width / 2 * (-pos.x / ((float)Screen.width / Screen.height * GlobalState.Height)),
-                    -(pos.y / GlobalState.Height) * Screen.height / 2f);
+                    (float)Screen.width / 2 * (-pos.x / ((float)Screen.width / Screen.height * ScreenDimensionsProvider.UnityHeight)),
+                    -(pos.y / ScreenDimensionsProvider.UnityHeight) * Screen.height / 2f);
             BpmInputField.transform.position -=
                 new Vector3(
-                    (float)Screen.width / 2 * (-pos.x / ((float)Screen.width / Screen.height * GlobalState.Height)),
-                    -(pos.y / GlobalState.Height) * Screen.height / 2f);
+                    (float)Screen.width / 2 * (-pos.x / ((float)Screen.width / Screen.height * ScreenDimensionsProvider.UnityHeight)),
+                    -(pos.y / ScreenDimensionsProvider.UnityHeight) * Screen.height / 2f);
         }
 
         public void BlockGlobalInput() // added as a click event

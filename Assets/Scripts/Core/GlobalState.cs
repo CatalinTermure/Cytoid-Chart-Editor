@@ -8,19 +8,15 @@ namespace CCE.Core
 {
     public class GlobalState : MonoBehaviour
     {
-        public const float NormalAspectRatio = 16f / 9f;
+        /// <summary>
+        /// The width of the play area in Unity units.
+        /// </summary>
+        public static float PlayAreaWidth => ScreenDimensionsProvider.PlayAreaWidth;
 
         /// <summary>
-        ///     Distance, in Unity units, from the center of the screen to the top/bottom edge of the screen.
+        /// The height of the play area in Unity units.
         /// </summary>
-        public static float Height;
-
-        /// <summary>
-        ///     The dimension of the play area, in Unity units.
-        /// </summary>
-        public static float PlayAreaWidth, PlayAreaHeight;
-
-        public static readonly float AspectRatio = (float)Screen.width / Screen.height;
+        public static float PlayAreaHeight => ScreenDimensionsProvider.PlayAreaHeight;
 
         public static EditorConfig Config => EditorConfigProvider.Config;
 
@@ -47,10 +43,6 @@ namespace CCE.Core
         private void Awake()
         {
             Application.targetFrameRate = 60;
-
-            Height = Camera.main!.orthographicSize;
-            PlayAreaWidth = 24 * AspectRatio / NormalAspectRatio;
-            PlayAreaHeight = 12;
 
 #if UNITY_STANDALONE
             if (!_loadedHotkeys)
