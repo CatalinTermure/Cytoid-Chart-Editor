@@ -23,7 +23,7 @@ namespace CCE.LevelLoading
         {
             var unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
             var currentActivity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
-            using var plugin = new AndroidJavaClass(GlobalState.AndroidPluginPackageName);
+            using var plugin = new AndroidJavaClass(Constants.AndroidPluginPackageName);
             var filePath = plugin.CallStatic<string>("HandleIntent", currentActivity);
 
             if (filePath == "No uri") return;

@@ -81,7 +81,7 @@ namespace CCE.LevelLoading
         {
             using var unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
             using var currentActivity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
-            using var plugin = new AndroidJavaClass(GlobalState.AndroidPluginPackageName);
+            using var plugin = new AndroidJavaClass(Constants.AndroidPluginPackageName);
             var message = plugin.CallStatic<string>("ExportToCytoid", currentActivity, tempArchivePath);
             if (message == "") return;
             Debug.LogError(message);
@@ -91,7 +91,7 @@ namespace CCE.LevelLoading
         {
             using var unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
             using var currentActivity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
-            using var plugin = new AndroidJavaClass(GlobalState.AndroidPluginPackageName);
+            using var plugin = new AndroidJavaClass(Constants.AndroidPluginPackageName);
             var message = plugin.CallStatic<string>("ExportCytoidLevel", currentActivity, tempArchivePath);
             if (message == "") return true;
             Debug.LogError(message);
