@@ -1,0 +1,1 @@
+These assets are taken from Cytoid's open source code. Check it out at: https://github.com/cytoid/cytoid.
