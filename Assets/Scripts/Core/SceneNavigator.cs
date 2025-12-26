@@ -12,6 +12,11 @@ namespace CCE.Core
             NavigateToScene("LevelSelectScene");
         }
 
+        public static void NavigateToStoryboardScene()
+        {
+            NavigateToScene("StoryboardScene");
+        }
+
         public static void NavigateToMainScreen()
         {
             if (GlobalState.CurrentChart != null)

@@ -598,7 +598,10 @@ MonoBehaviour:
     - line: '|       m_Height: 76'
     - line: '|       m_Kind: 0'
     - line: '|       m_SubKind: iPad'
-    - line: '|   m_BuildTargetBatching: []'
+    - line: '|   m_BuildTargetBatching:'
+    - line: '|   - m_BuildTarget: Android'
+    - line: '|     m_StaticBatching: 1'
+    - line: '|     m_DynamicBatching: 0'
     - line: '|   m_BuildTargetShaderSettings: []'
     - line: '|   m_BuildTargetGraphicsJobs:'
     - line: '|   - m_BuildTarget: MacStandaloneSupport'
@@ -1075,10 +1078,10 @@ MonoBehaviour:
       type: {class: AndroidPlatformBuildSettings, ns: UnityEditor.Android, asm: UnityEditor.Android.Extensions}
       data:
         m_Development: 1
-        m_ConnectProfiler: 0
-        m_BuildWithDeepProfilingSupport: 0
-        m_AllowDebugging: 0
-        m_WaitForManagedDebugger: 0
+        m_ConnectProfiler: 1
+        m_BuildWithDeepProfilingSupport: 1
+        m_AllowDebugging: 1
+        m_WaitForManagedDebugger: 1
         m_ManagedDebuggerFixedPort: 0
         m_ExplicitNullChecks: 0
         m_ExplicitDivideByZeroChecks: 0
