@@ -6,6 +6,9 @@ namespace CCE.Data
     {
         [JsonProperty("tick")] public int Tick;
         [JsonIgnore] public double Time;
+        /// <summary>
+        /// Duration of a beat in microseconds.
+        /// </summary>
         [JsonProperty("value")] public long Value;
 
         public static long ComputeValueFromBpm(double bpm)
