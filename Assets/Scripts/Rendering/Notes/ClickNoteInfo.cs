@@ -11,5 +11,7 @@ namespace CCE.Rendering.Notes
         public SpriteRenderer NoteRing;
         [NonSerialized] public double StartTime;
         [NonSerialized] public double EndTime;
+        [NonSerialized] public float Size;
+        [NonSerialized] public float Opacity;
     }
 }
