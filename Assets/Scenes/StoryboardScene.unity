@@ -243,10 +243,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 1167453126}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3bf3ba4f8b2e739499a18afc6d4eef8b, type: 3}
+  m_Script: {fileID: 11500000, guid: b58d420b9cdf67a41bed9c1069128f93, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Rendering::CCE.Rendering.StoryboardSceneController
-  notePrefabs:
+  m_EditorClassIdentifier: Storyboard::CCE.Storyboard.StoryboardSceneController
+  _notePrefabs:
     ClickNote: {fileID: 3318615403950730174, guid: 0dd82537b7370064e952f42af8f9c426,
       type: 3}
     HoldNote: {fileID: 0}
