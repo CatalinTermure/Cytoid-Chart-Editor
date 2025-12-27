@@ -249,12 +249,18 @@ MonoBehaviour:
   _notePrefabs:
     ClickNote: {fileID: 3318615403950730174, guid: 0dd82537b7370064e952f42af8f9c426,
       type: 3}
-    HoldNote: {fileID: 0}
-    LongHoldNote: {fileID: 0}
-    DragHeadNote: {fileID: 0}
-    DragChildNote: {fileID: 0}
-    FlickNote: {fileID: 0}
-    CDragHeadNote: {fileID: 0}
+    HoldNote: {fileID: 3318615403950730174, guid: 0dd82537b7370064e952f42af8f9c426,
+      type: 3}
+    LongHoldNote: {fileID: 3318615403950730174, guid: 0dd82537b7370064e952f42af8f9c426,
+      type: 3}
+    DragHeadNote: {fileID: 3318615403950730174, guid: 0dd82537b7370064e952f42af8f9c426,
+      type: 3}
+    DragChildNote: {fileID: 3318615403950730174, guid: 0dd82537b7370064e952f42af8f9c426,
+      type: 3}
+    FlickNote: {fileID: 3318615403950730174, guid: 0dd82537b7370064e952f42af8f9c426,
+      type: 3}
+    CDragHeadNote: {fileID: 3318615403950730174, guid: 0dd82537b7370064e952f42af8f9c426,
+      type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

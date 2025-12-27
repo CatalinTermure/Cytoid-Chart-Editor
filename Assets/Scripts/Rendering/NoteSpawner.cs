@@ -11,11 +11,13 @@ namespace CCE.Rendering
     {
         private readonly ChartObjectPool _chartObjectPool;
         private readonly Chart _chart;
+        private List<ClickNoteInfo> _clickNotes;
 
         public NoteSpawner(ChartObjectPool chartObjectPool, Chart chart)
         {
             _chartObjectPool = chartObjectPool;
             _chart = chart;
+            _clickNotes = new List<ClickNoteInfo>();
         }
 
         /// <summary>
@@ -25,7 +27,10 @@ namespace CCE.Rendering
         /// </summary>
         public void UpdateTime(double time)
         {
-            throw new System.NotImplementedException();
+            foreach (var clickNoteInfo in _clickNotes)
+            {
+                _chartObjectPool.ReturnToPool(clickNoteInfo.gameObject, NoteType.Click);
+            }
         }
 
         /// <summary>
