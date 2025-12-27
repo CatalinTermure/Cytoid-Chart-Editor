@@ -1,0 +1,17 @@
+{
+    "name": "Charting",
+    "rootNamespace": "",
+    "references": [
+        "GUID:b4f7d1bce6144faf92c29d6f8e53a81c",
+        "GUID:fdb6fb930904fd5409afc9012b2e0e02"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
