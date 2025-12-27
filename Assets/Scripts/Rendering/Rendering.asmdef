@@ -2,7 +2,8 @@
     "name": "Rendering",
     "rootNamespace": "CCE",
     "references": [
-        "GUID:99d018cf9483028458c99fff0fc1617b"
+        "GUID:99d018cf9483028458c99fff0fc1617b",
+        "GUID:b4f7d1bce6144faf92c29d6f8e53a81c"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
