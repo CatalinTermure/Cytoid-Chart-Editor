@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace CCE.Rendering
 {
-    public class LevelRenderer : MonoBehaviour
+    public class StoryboardSceneController : MonoBehaviour
     {
         [SerializeField]
         private GameObject _clickNote;
