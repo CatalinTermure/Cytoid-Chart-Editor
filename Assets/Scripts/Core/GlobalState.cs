@@ -24,8 +24,8 @@ namespace CCE.Core
 
         private static Sprite _backgroundSprite;
 
-        public static Level CurrentLevel;
-        public static Chart CurrentChart;
+        public static Level CurrentLevel => CurrentChartProvider.CurrentLevel;
+        public static Chart CurrentChart => CurrentChartProvider.CurrentChart;
 
         public static bool IsGameRunning = false;
 
@@ -55,14 +55,14 @@ namespace CCE.Core
 
         public static void LoadLevel(Level level)
         {
-            CurrentLevel = level;
+            CurrentChartProvider.CurrentLevel = level;
 
             LoadBackground();
         }
 
         public static void LoadChart(ChartMetadata chartMetadata)
         {
-            CurrentChart = LevelLoader.LoadChart(Path.Combine(CurrentLevelPath, chartMetadata.Path), chartMetadata);
+            CurrentChartProvider.CurrentChart = LevelLoader.LoadChart(Path.Combine(CurrentLevelPath, chartMetadata.Path), chartMetadata);
         }
 
         public static void LoadBackground()
