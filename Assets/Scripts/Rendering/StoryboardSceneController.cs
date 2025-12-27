@@ -7,7 +7,7 @@ namespace CCE.Rendering
     public class StoryboardSceneController : MonoBehaviour
     {
         [SerializeField]
-        private GameObject _clickNote;
+        private NotePrefabs notePrefabs;
 
         private List<SpriteRenderer> _noteFills;
 
@@ -19,7 +19,7 @@ namespace CCE.Rendering
 
         void Update()
         {
-            GameObject note = Instantiate(_clickNote, new Vector3(Random.Range(-5.0f, 5.0f), Random.Range(-5.0f, 5.0f), 0.0f), Quaternion.identity);
+            GameObject note = Instantiate(notePrefabs.ClickNote, new Vector3(Random.Range(-5.0f, 5.0f), Random.Range(-5.0f, 5.0f), 0.0f), Quaternion.identity);
             ClickNoteInfo noteInfo = note.GetComponent<ClickNoteInfo>();
             _noteFills.Add(noteInfo.NoteFill);
 

@@ -246,8 +246,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3bf3ba4f8b2e739499a18afc6d4eef8b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Rendering::CCE.Rendering.StoryboardSceneController
-  _clickNote: {fileID: 3318615403950730174, guid: 0dd82537b7370064e952f42af8f9c426,
-    type: 3}
+  notePrefabs:
+    ClickNote: {fileID: 3318615403950730174, guid: 0dd82537b7370064e952f42af8f9c426,
+      type: 3}
+    HoldNote: {fileID: 0}
+    LongHoldNote: {fileID: 0}
+    DragHeadNote: {fileID: 0}
+    DragChildNote: {fileID: 0}
+    FlickNote: {fileID: 0}
+    CDragHeadNote: {fileID: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
