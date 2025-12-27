@@ -138,7 +138,8 @@ namespace CCE.LevelLoading
 
             _levelList.View.FreeResources();
 
-            SceneNavigator.NavigateToStoryboardScene();
+            SceneNavigator.NavigateToStoryboardScene(level, chartData,
+                    GlobalState.AudioManager.CreateStream(File.ReadAllBytes(audioFilePath), AudioStreamType.ForPlayback));
 
             // SceneNavigator.NavigateToChartEdit(level, chartData,
             //     GlobalState.AudioManager.CreateStream(File.ReadAllBytes(audioFilePath), AudioStreamType.ForPlayback));

@@ -12,8 +12,12 @@ namespace CCE.Core
             NavigateToScene("LevelSelectScene");
         }
 
-        public static void NavigateToStoryboardScene()
+        public static void NavigateToStoryboardScene(Level level, ChartMetadata chartFileData,
+            IAudioStream audio)
         {
+            GlobalState.AudioManager.LoadAudio(audio, true);
+            GlobalState.LoadLevel(level);
+            GlobalState.LoadChart(chartFileData);
             NavigateToScene("StoryboardScene");
         }
 
