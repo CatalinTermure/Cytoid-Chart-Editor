@@ -1,0 +1,15 @@
+using System.Collections.Generic;
+
+namespace CCE.Rendering.Notes
+{
+    /// <summary>
+    /// Interface for classes that track the currently visible notes.
+    /// </summary>
+    public interface INoteProvider
+    {
+        /// <summary>
+        /// Gets all the currently visible click notes.
+        /// </summary>
+        List<ClickNoteInfo> GetClickNotes();
+    }
+}
