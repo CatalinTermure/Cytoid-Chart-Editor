@@ -1,9 +1,7 @@
 {
-    "name": "Rendering",
+    "name": "Rendering.Notes",
     "rootNamespace": "CCE",
-    "references": [
-        "GUID:99d018cf9483028458c99fff0fc1617b"
-    ],
+    "references": [],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

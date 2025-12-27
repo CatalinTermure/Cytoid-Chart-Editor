@@ -100,6 +100,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5145443681934056640}
+  - component: {fileID: 4318662167242553293}
   m_Layer: 0
   m_Name: Click Note New
   m_TagString: Untagged
@@ -124,6 +125,22 @@ Transform:
   - {fileID: 2004787799365479400}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4318662167242553293
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3318615403950730174}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1c3ad989acbcfe34788d2385bf583958, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Rendering.Notes::CCE.Rendering.Notes.ClickNoteInfo
+  NoteTransform: {fileID: 5145443681934056640}
+  NoteFillTransform: {fileID: 8290193873186991834}
+  NoteFill: {fileID: 6966755474951153213}
+  NoteRing: {fileID: 199390623063476544}
 --- !u!1 &9158434753634017829
 GameObject:
   m_ObjectHideFlags: 0

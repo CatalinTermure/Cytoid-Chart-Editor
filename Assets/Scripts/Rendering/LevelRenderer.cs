@@ -1,7 +1,8 @@
 using System.Collections.Generic;
+using CCE.Rendering.Notes;
 using UnityEngine;
 
-namespace CCE
+namespace CCE.Rendering
 {
     public class LevelRenderer : MonoBehaviour
     {
@@ -10,19 +11,17 @@ namespace CCE
 
         private List<SpriteRenderer> _noteFills;
 
-        // Start is called once before the first execution of Update after the MonoBehaviour is created
         void Start()
         {
             Random.InitState(12345678);
             _noteFills = new List<SpriteRenderer>();
         }
 
-        // Update is called once per frame
         void Update()
         {
             GameObject note = Instantiate(_clickNote, new Vector3(Random.Range(-5.0f, 5.0f), Random.Range(-5.0f, 5.0f), 0.0f), Quaternion.identity);
-            SpriteRenderer noteFill = note.GetComponentsInChildren<SpriteRenderer>()[0];
-            _noteFills.Add(noteFill);
+            ClickNoteInfo noteInfo = note.GetComponent<ClickNoteInfo>();
+            _noteFills.Add(noteInfo.NoteFill);
 
             for (int i = 0; i < _noteFills.Count; i++)
             {
