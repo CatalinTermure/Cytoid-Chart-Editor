@@ -31,6 +31,31 @@ namespace CCE.Rendering
             {
                 _chartObjectPool.ReturnToPool(clickNoteInfo.gameObject, NoteType.Click);
             }
+            _clickNotes.Clear();
+
+            foreach (Note note in _chart.NoteList)
+            {
+                var noteEndTime = note.Time;
+                if (note.Type == (int)NoteType.Hold || note.Type == (int)NoteType.LongHold)
+                {
+                    noteEndTime += note.HoldTime;
+                }
+                if (note.Type == (int)NoteType.DragHead || note.Type == (int)NoteType.CDragHead)
+                {
+                    noteEndTime = GetDragChain(note)[^1].Time;
+                }
+
+                if (time >= note.Time - note.ApproachTime && time <= noteEndTime)
+                {
+                    var noteObject = _chartObjectPool.GetNote((NoteType)note.Type);
+                    var clickNoteInfo = noteObject.GetComponent<ClickNoteInfo>();
+                    clickNoteInfo.StartTime = note.Time - note.ApproachTime;
+                    clickNoteInfo.EndTime = note.Time;
+                    clickNoteInfo.Size = (float)note.ActualSize;
+                    clickNoteInfo.Opacity = (float)note.ActualOpacity;
+                    _clickNotes.Add(clickNoteInfo);
+                }
+            }
         }
 
         /// <summary>
@@ -45,7 +70,19 @@ namespace CCE.Rendering
 
         public List<ClickNoteInfo> GetClickNotes()
         {
-            throw new System.NotImplementedException();
+            return _clickNotes;
+        }
+
+        private List<Note> GetDragChain(Note headNote)
+        {
+            List<Note> dragChain = new() { headNote };
+            var currentNote = headNote;
+            while (currentNote.NextID != -1)
+            {
+                currentNote = _chart.NoteList[currentNote.NextID];
+                dragChain.Add(currentNote);
+            }
+            return dragChain;
         }
     }
 }

@@ -24,6 +24,8 @@ namespace CCE.Rendering
         private readonly List<GameObject> _prefabs;
         private readonly List<Queue<GameObject>> _notePools;
 
+        protected ChartObjectPool() { }
+
         public ChartObjectPool(NotePrefabs prefabs, PoolSizes poolSizes = null)
         {
             poolSizes ??= new PoolSizes
@@ -67,14 +69,16 @@ namespace CCE.Rendering
             InitializePool();
         }
 
-        public GameObject GetNote(NoteType type)
+        // TODO: see if making this virtual has any performance impact
+        public virtual GameObject GetNote(NoteType type)
         {
             return _notePools[(int)type].Count > 0
                 ? _notePools[(int)type].Dequeue()
                 : Object.Instantiate(_prefabs[(int)type]);
         }
 
-        public void ReturnToPool(GameObject obj, NoteType type)
+        // TODO: see if making this virtual has any performance impact
+        public virtual void ReturnToPool(GameObject obj, NoteType type)
         {
             if (!obj)
             {
