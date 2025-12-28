@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using CCE.Data;
 using CCE.Rendering.Notes;
+using UnityEngine;
 
 namespace CCE.Rendering
 {
@@ -12,12 +13,14 @@ namespace CCE.Rendering
         private readonly ChartObjectPool _chartObjectPool;
         private readonly Chart _chart;
         private List<ClickNoteInfo> _clickNotes;
+        private List<FlickNoteInfo> _flickNotes;
 
         public NoteSpawner(ChartObjectPool chartObjectPool, Chart chart)
         {
             _chartObjectPool = chartObjectPool;
             _chart = chart;
             _clickNotes = new List<ClickNoteInfo>();
+            _flickNotes = new List<FlickNoteInfo>();
         }
 
         /// <summary>
@@ -27,11 +30,7 @@ namespace CCE.Rendering
         /// </summary>
         public void UpdateTime(double time)
         {
-            foreach (var clickNoteInfo in _clickNotes)
-            {
-                _chartObjectPool.ReturnToPool(clickNoteInfo.gameObject, NoteType.Click);
-            }
-            _clickNotes.Clear();
+            ClearNotes();
 
             foreach (Note note in _chart.NoteList)
             {
@@ -48,14 +47,7 @@ namespace CCE.Rendering
                 if (time >= note.Time - note.ApproachTime && time <= noteEndTime)
                 {
                     var noteObject = _chartObjectPool.GetNote((NoteType)note.Type);
-                    var clickNoteInfo = noteObject.GetComponent<ClickNoteInfo>();
-                    clickNoteInfo.StartTime = note.Time - note.ApproachTime;
-                    clickNoteInfo.EndTime = note.Time;
-                    clickNoteInfo.Size = (float)note.ActualSize;
-                    clickNoteInfo.Opacity = (float)note.ActualOpacity;
-                    clickNoteInfo.X = (float)(note.X * 10.0 - 5.0);
-                    clickNoteInfo.Y = (float)(note.Y * 10.0 - 5.0);
-                    _clickNotes.Add(clickNoteInfo);
+                    PopulateNoteInfo(noteObject, note);
                 }
             }
         }
@@ -75,6 +67,11 @@ namespace CCE.Rendering
             return _clickNotes;
         }
 
+        public List<FlickNoteInfo> GetFlickNotes()
+        {
+            return _flickNotes;
+        }
+
         private List<Note> GetDragChain(Note headNote)
         {
             List<Note> dragChain = new() { headNote };
@@ -85,6 +82,47 @@ namespace CCE.Rendering
                 dragChain.Add(currentNote);
             }
             return dragChain;
+        }
+
+        private void PopulateNoteInfo(GameObject noteObject, Note note)
+        {
+            if (note.Type == (int)NoteType.Flick)
+            {
+                var flickNoteInfo = noteObject.GetComponent<FlickNoteInfo>();
+                flickNoteInfo.StartTime = note.Time - note.ApproachTime;
+                flickNoteInfo.EndTime = note.Time;
+                flickNoteInfo.Size = (float)note.ActualSize;
+                flickNoteInfo.Opacity = (float)note.ActualOpacity;
+                flickNoteInfo.X = (float)(note.X * 10.0 - 5.0);
+                flickNoteInfo.Y = (float)(note.Y * 10.0 - 5.0);
+                _flickNotes.Add(flickNoteInfo);
+            }
+            else
+            {
+                var clickNoteInfo = noteObject.GetComponent<ClickNoteInfo>();
+                clickNoteInfo.StartTime = note.Time - note.ApproachTime;
+                clickNoteInfo.EndTime = note.Time;
+                clickNoteInfo.Size = (float)note.ActualSize;
+                clickNoteInfo.Opacity = (float)note.ActualOpacity;
+                clickNoteInfo.X = (float)(note.X * 10.0 - 5.0);
+                clickNoteInfo.Y = (float)(note.Y * 10.0 - 5.0);
+                _clickNotes.Add(clickNoteInfo);
+            }
+        }
+
+        private void ClearNotes()
+        {
+            foreach (var clickNote in _clickNotes)
+            {
+                _chartObjectPool.ReturnToPool(clickNote.gameObject, NoteType.Click);
+            }
+            _clickNotes.Clear();
+
+            foreach (var flickNote in _flickNotes)
+            {
+                _chartObjectPool.ReturnToPool(flickNote.gameObject, NoteType.Flick);
+            }
+            _flickNotes.Clear();
         }
     }
 }

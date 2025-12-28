@@ -22,7 +22,14 @@ namespace CCE.Tests.Rendering
                 LastRequestedType = type;
 
                 var go = new GameObject($"FakeNote_{type}");
-                go.AddComponent<ClickNoteInfo>();
+                if (type == NoteType.Flick)
+                {
+                    go.AddComponent<FlickNoteInfo>();
+                }
+                else
+                {
+                    go.AddComponent<ClickNoteInfo>();
+                }
                 return go;
             }
 
@@ -54,6 +61,38 @@ namespace CCE.Tests.Rendering
             spawner.UpdateTime(1.5);
 
             var activeNotes = spawner.GetClickNotes();
+            Assert.AreEqual(1, activeNotes.Count);
+            Assert.AreEqual(1, pool.GetNoteCallCount);
+            var spawnedInfo = activeNotes[0];
+            Assert.AreEqual(1.0f, spawnedInfo.StartTime);
+            Assert.AreEqual(2.0f, spawnedInfo.EndTime);
+            Assert.AreEqual(1.5f, spawnedInfo.Size);
+            Assert.AreEqual(0.8f, spawnedInfo.Opacity);
+            Assert.AreEqual(1.0f, spawnedInfo.X);
+            Assert.AreEqual(2.0f, spawnedInfo.Y);
+        }
+
+        [Test]
+        public void UpdateTime_SpawnsFlickNote_WhenInRange()
+        {
+            var chart = new Chart();
+            var note = new Note
+            {
+                Type = (int)NoteType.Flick,
+                Time = 2.0,
+                ApproachTime = 1.0,
+                ActualSize = 1.5,
+                ActualOpacity = 0.8,
+                X = 0.6,
+                Y = 0.7
+            };
+            chart.NoteList.Add(note);
+            var pool = new FakeChartObjectPool();
+            var spawner = new NoteSpawner(pool, chart);
+
+            spawner.UpdateTime(1.5);
+
+            var activeNotes = spawner.GetFlickNotes();
             Assert.AreEqual(1, activeNotes.Count);
             Assert.AreEqual(1, pool.GetNoteCallCount);
             var spawnedInfo = activeNotes[0];
