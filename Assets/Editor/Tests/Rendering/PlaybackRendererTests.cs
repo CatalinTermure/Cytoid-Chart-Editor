@@ -82,6 +82,36 @@ namespace CCE.Tests.Rendering
         }
 
         [Test]
+        public void RenderSetsClickNotePositionCorrectly()
+        {
+            PlaybackRenderer playbackRenderer = new(_fakeNoteProvider);
+            _clickNoteInfos[0].StartTime = 0.0f;
+            _clickNoteInfos[0].EndTime = 1.0f;
+            _clickNoteInfos[0].Size = 1.0f;
+            _clickNoteInfos[0].X = 7.1f;
+            _clickNoteInfos[0].Y = 13.2f;
+            _clickNoteInfos[1].StartTime = 0.0f;
+            _clickNoteInfos[1].EndTime = 2.0f;
+            _clickNoteInfos[1].Size = 1.0f;
+            _clickNoteInfos[1].X = 0.0f;
+            _clickNoteInfos[1].Y = 0.0f;
+            _clickNoteInfos[2].StartTime = 0.0f;
+            _clickNoteInfos[2].EndTime = 3.0f;
+            _clickNoteInfos[2].Size = 0.5f;
+            _clickNoteInfos[2].X = -10.0f;
+            _clickNoteInfos[2].Y = -3.5f;
+
+            playbackRenderer.Render(1.0f);
+
+            Assert.AreEqual(7.1f, _clickNoteInfos[0].NoteTransform.localPosition.x, 0.01f);
+            Assert.AreEqual(13.2f, _clickNoteInfos[0].NoteTransform.localPosition.y, 0.01f);
+            Assert.AreEqual(0.0f, _clickNoteInfos[1].NoteTransform.localPosition.x, 0.01f);
+            Assert.AreEqual(0.0f, _clickNoteInfos[1].NoteTransform.localPosition.y, 0.01f);
+            Assert.AreEqual(-10.0f, _clickNoteInfos[2].NoteTransform.localPosition.x, 0.01f);
+            Assert.AreEqual(-3.5f, _clickNoteInfos[2].NoteTransform.localPosition.y, 0.01f);
+        }
+
+        [Test]
         public void RenderSetsClickNotesFillSizeCorrectly()
         {
             PlaybackRenderer playbackRenderer = new(_fakeNoteProvider);

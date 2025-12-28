@@ -19,6 +19,7 @@ namespace CCE.Rendering
         {
             foreach (ClickNoteInfo clickNoteInfo in _noteProvider.GetClickNotes())
             {
+                clickNoteInfo.NoteTransform.localPosition = new Vector3(clickNoteInfo.X, clickNoteInfo.Y, 0.0f);
                 float approachPercentage = (float)((time - clickNoteInfo.StartTime) / (clickNoteInfo.EndTime - clickNoteInfo.StartTime));
                 float noteSize = clickNoteInfo.Size * (0.4f + approachPercentage * 0.6f);
                 clickNoteInfo.NoteTransform.localScale = new Vector3(noteSize, noteSize, 1.0f);
@@ -26,6 +27,10 @@ namespace CCE.Rendering
                 float opacity = clickNoteInfo.Opacity * approachPercentage;
                 clickNoteInfo.NoteFill.color = clickNoteInfo.NoteFill.color.WithAlpha(opacity);
                 clickNoteInfo.NoteRing.color = clickNoteInfo.NoteRing.color.WithAlpha(opacity);
+                if (clickNoteInfo.gameObject.activeSelf == false)
+                {
+                    clickNoteInfo.gameObject.SetActive(true);
+                }
             }
         }
     }

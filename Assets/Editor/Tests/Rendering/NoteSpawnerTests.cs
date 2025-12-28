@@ -43,7 +43,9 @@ namespace CCE.Tests.Rendering
                 Time = 2.0,
                 ApproachTime = 1.0,
                 ActualSize = 1.5,
-                ActualOpacity = 0.8
+                ActualOpacity = 0.8,
+                X = 0.6,
+                Y = 0.7
             };
             chart.NoteList.Add(note);
             var pool = new FakeChartObjectPool();
@@ -59,6 +61,8 @@ namespace CCE.Tests.Rendering
             Assert.AreEqual(2.0f, spawnedInfo.EndTime);
             Assert.AreEqual(1.5f, spawnedInfo.Size);
             Assert.AreEqual(0.8f, spawnedInfo.Opacity);
+            Assert.AreEqual(1.0f, spawnedInfo.X);
+            Assert.AreEqual(2.0f, spawnedInfo.Y);
         }
 
         [Test]

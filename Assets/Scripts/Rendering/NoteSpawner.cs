@@ -53,6 +53,8 @@ namespace CCE.Rendering
                     clickNoteInfo.EndTime = note.Time;
                     clickNoteInfo.Size = (float)note.ActualSize;
                     clickNoteInfo.Opacity = (float)note.ActualOpacity;
+                    clickNoteInfo.X = (float)(note.X * 10.0 - 5.0);
+                    clickNoteInfo.Y = (float)(note.Y * 10.0 - 5.0);
                     _clickNotes.Add(clickNoteInfo);
                 }
             }
