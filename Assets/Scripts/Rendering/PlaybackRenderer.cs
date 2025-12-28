@@ -28,10 +28,6 @@ namespace CCE.Rendering
                 float opacity = clickNoteInfo.Opacity * approachPercentage;
                 clickNoteInfo.NoteFill.color = clickNoteInfo.NoteFill.color.WithAlpha(opacity);
                 clickNoteInfo.NoteRing.color = clickNoteInfo.NoteRing.color.WithAlpha(opacity);
-                if (clickNoteInfo.gameObject.activeSelf == false)
-                {
-                    clickNoteInfo.gameObject.SetActive(true);
-                }
             }
 
             foreach (FlickNoteInfo flickNoteInfo in _noteProvider.GetFlickNotes())
@@ -55,10 +51,6 @@ namespace CCE.Rendering
                 flickNoteInfo.NoteRing.color = flickNoteInfo.NoteRing.color.WithAlpha(opacity);
                 flickNoteInfo.LeftArrow.color = flickNoteInfo.LeftArrow.color.WithAlpha(opacity);
                 flickNoteInfo.RightArrow.color = flickNoteInfo.RightArrow.color.WithAlpha(opacity);
-                if (flickNoteInfo.gameObject.activeSelf == false)
-                {
-                    flickNoteInfo.gameObject.SetActive(true);
-                }
             }
 
             foreach (DragChildNoteInfo dragChildNoteInfo in _noteProvider.GetDragChildNotes())
@@ -69,10 +61,6 @@ namespace CCE.Rendering
                 dragChildNoteInfo.NoteTransform.localScale = new Vector3(noteSize, noteSize, 1.0f);
                 float opacity = dragChildNoteInfo.Opacity * approachPercentage;
                 dragChildNoteInfo.NoteFill.color = dragChildNoteInfo.NoteFill.color.WithAlpha(opacity);
-                if (dragChildNoteInfo.gameObject.activeSelf == false)
-                {
-                    dragChildNoteInfo.gameObject.SetActive(true);
-                }
             }
         }
     }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using CCE.Data;
 using CCE.Rendering.Notes;
@@ -52,6 +53,7 @@ namespace CCE.Rendering
                 {
                     var noteObject = _chartObjectPool.GetNote((NoteType)note.Type);
                     PopulateNoteInfo(noteObject, note);
+                    noteObject.SetActive(true);
                 }
             }
         }
@@ -93,6 +95,39 @@ namespace CCE.Rendering
             return dragChain;
         }
 
+        private Color GetRingColor(Note note)
+        {
+            if (!String.IsNullOrEmpty(note.RingColor))
+            {
+                return ColorExtensions.FromHex(note.RingColor);
+            }
+            if (!String.IsNullOrEmpty(_chart.RingColor))
+            {
+                return ColorExtensions.FromHex(_chart.RingColor);
+            }
+            return Color.white;
+        }
+
+        private Color GetFillColor(Note note)
+        {
+            if (note.Type == (int)NoteType.DragChild || note.Type == (int)NoteType.CDragChild)
+            {
+                return GetRingColor(note);
+            }
+
+            if (!String.IsNullOrEmpty(note.FillColor))
+            {
+                return ColorExtensions.FromHex(note.FillColor);
+            }
+            int colorIndex = Chart.ColorIndexByNoteType[note.Type] +
+                (_chart.PageList[note.PageIndex].ScanLineDirection > 0 ? 1 : 0);
+            if (!String.IsNullOrEmpty(_chart.FillColors[colorIndex]))
+            {
+                return ColorExtensions.FromHex(_chart.FillColors[colorIndex]);
+            }
+            return ColorExtensions.FromHex(Chart.DefaultFillColors[colorIndex]);
+        }
+
         private void PopulateNoteInfo(GameObject noteObject, Note note)
         {
             if (note.Type == (int)NoteType.Flick)
@@ -104,6 +139,10 @@ namespace CCE.Rendering
                 flickNoteInfo.Opacity = (float)note.ActualOpacity;
                 flickNoteInfo.X = (float)(note.X * 10.0 - 5.0);
                 flickNoteInfo.Y = (float)(note.Y * 10.0 - 5.0);
+                flickNoteInfo.LeftArrow.color = new Color(1.0f, 1.0f, 1.0f, 0.0f);
+                flickNoteInfo.RightArrow.color = new Color(1.0f, 1.0f, 1.0f, 0.0f);
+                flickNoteInfo.NoteFill.color = GetFillColor(note).WithAlpha(0.0f);
+                flickNoteInfo.NoteRing.color = GetRingColor(note).WithAlpha(0.0f);
                 _flickNotes.Add(flickNoteInfo);
             }
             else if (note.Type == (int)NoteType.DragChild || note.Type == (int)NoteType.CDragChild)
@@ -115,6 +154,7 @@ namespace CCE.Rendering
                 dragChildNoteInfo.Opacity = (float)note.ActualOpacity;
                 dragChildNoteInfo.X = (float)(note.X * 10.0 - 5.0);
                 dragChildNoteInfo.Y = (float)(note.Y * 10.0 - 5.0);
+                dragChildNoteInfo.NoteFill.color = GetFillColor(note).WithAlpha(0.0f);
                 _dragChildNotes.Add(dragChildNoteInfo);
             }
             else
@@ -126,6 +166,8 @@ namespace CCE.Rendering
                 clickNoteInfo.Opacity = (float)note.ActualOpacity;
                 clickNoteInfo.X = (float)(note.X * 10.0 - 5.0);
                 clickNoteInfo.Y = (float)(note.Y * 10.0 - 5.0);
+                clickNoteInfo.NoteFill.color = GetFillColor(note).WithAlpha(0.0f);
+                clickNoteInfo.NoteRing.color = GetRingColor(note).WithAlpha(0.0f);
                 _clickNotes.Add(clickNoteInfo);
             }
         }

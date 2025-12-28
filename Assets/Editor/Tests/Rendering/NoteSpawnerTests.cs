@@ -8,39 +8,35 @@ namespace CCE.Tests.Rendering
 {
     public class NoteSpawnerTests
     {
-        private class FakeChartObjectPool : ChartObjectPool
+        private class ChartObjectPoolWithTracking : ChartObjectPool
         {
             public int GetNoteCallCount = 0;
             public int ReturnToPoolCallCount = 0;
             public NoteType LastRequestedType;
 
-            public FakeChartObjectPool() : base() { }
+            public ChartObjectPoolWithTracking() : base(new NotePrefabs
+            {
+                ClickNote = Resources.Load<GameObject>("Click Note new"),
+                FlickNote = Resources.Load<GameObject>("Flick Note New"),
+                DragHeadNote = Resources.Load<GameObject>("Click Note New"),
+                DragChildNote = Resources.Load<GameObject>("Drag Child New"),
+                CDragHeadNote = Resources.Load<GameObject>("Click Note New"),
+                HoldNote = Resources.Load<GameObject>("Click Note New"),
+                LongHoldNote = Resources.Load<GameObject>("Click Note New"),
+            })
+            { }
 
             public override GameObject GetNote(NoteType type)
             {
                 GetNoteCallCount++;
                 LastRequestedType = type;
-
-                var go = new GameObject($"FakeNote_{type}");
-                if (type == NoteType.Flick)
-                {
-                    go.AddComponent<FlickNoteInfo>();
-                }
-                else if (type == NoteType.DragChild)
-                {
-                    go.AddComponent<DragChildNoteInfo>();
-                }
-                else
-                {
-                    go.AddComponent<ClickNoteInfo>();
-                }
-                return go;
+                return base.GetNote(type);
             }
 
             public override void ReturnToPool(GameObject obj, NoteType type)
             {
                 ReturnToPoolCallCount++;
-                Object.DestroyImmediate(obj);
+                base.ReturnToPool(obj, type);
             }
         }
 
@@ -56,10 +52,12 @@ namespace CCE.Tests.Rendering
                 ActualSize = 1.5,
                 ActualOpacity = 0.8,
                 X = 0.6,
-                Y = 0.7
+                Y = 0.7,
+                PageIndex = 0
             };
             chart.NoteList.Add(note);
-            var pool = new FakeChartObjectPool();
+            chart.PageList.Add(new Page { ScanLineDirection = 1 });
+            var pool = new ChartObjectPoolWithTracking();
             var spawner = new NoteSpawner(pool, chart);
 
             spawner.UpdateTime(1.5);
@@ -88,10 +86,12 @@ namespace CCE.Tests.Rendering
                 ActualSize = 1.5,
                 ActualOpacity = 0.8,
                 X = 0.6,
-                Y = 0.7
+                Y = 0.7,
+                PageIndex = 0
             };
             chart.NoteList.Add(note);
-            var pool = new FakeChartObjectPool();
+            chart.PageList.Add(new Page { ScanLineDirection = 1 });
+            var pool = new ChartObjectPoolWithTracking();
             var spawner = new NoteSpawner(pool, chart);
 
             spawner.UpdateTime(1.5);
@@ -123,7 +123,7 @@ namespace CCE.Tests.Rendering
                 Y = 0.7
             };
             chart.NoteList.Add(note);
-            var pool = new FakeChartObjectPool();
+            var pool = new ChartObjectPoolWithTracking();
             var spawner = new NoteSpawner(pool, chart);
 
             spawner.UpdateTime(1.5);
@@ -145,7 +145,7 @@ namespace CCE.Tests.Rendering
         {
             var chart = new Chart();
             chart.NoteList.Add(new Note { Type = (int)NoteType.Click, Time = 2.0, ApproachTime = 1.0 });
-            var pool = new FakeChartObjectPool();
+            var pool = new ChartObjectPoolWithTracking();
             var spawner = new NoteSpawner(pool, chart);
 
             spawner.UpdateTime(0.9);
@@ -159,7 +159,7 @@ namespace CCE.Tests.Rendering
         {
             var chart = new Chart();
             chart.NoteList.Add(new Note { Type = (int)NoteType.Click, Time = 2.0, ApproachTime = 1.0 });
-            var pool = new FakeChartObjectPool();
+            var pool = new ChartObjectPoolWithTracking();
             var spawner = new NoteSpawner(pool, chart);
 
             spawner.UpdateTime(2.1);
@@ -176,10 +176,12 @@ namespace CCE.Tests.Rendering
                 Type = (int)NoteType.Hold,
                 Time = 2.0,
                 ApproachTime = 1.0,
-                HoldTime = 1.5
+                HoldTime = 1.5,
+                PageIndex = 0
             };
             chart.NoteList.Add(holdNote);
-            var pool = new FakeChartObjectPool();
+            chart.PageList.Add(new Page { ScanLineDirection = 1 });
+            var pool = new ChartObjectPoolWithTracking();
             var spawner = new NoteSpawner(pool, chart);
 
             spawner.UpdateTime(3.0);
@@ -192,18 +194,200 @@ namespace CCE.Tests.Rendering
         public void UpdateTime_DragChain_StaysActiveUntilChainEnd()
         {
             var chart = new Chart();
-            var head = new Note { ID = 0, NextID = 1, Type = (int)NoteType.DragHead, Time = 2.0, ApproachTime = 1.0 };
-            var child1 = new Note { ID = 1, NextID = 2, Type = (int)NoteType.DragChild, Time = 2.5 };
-            var child2 = new Note { ID = 2, NextID = -1, Type = (int)NoteType.DragChild, Time = 3.0 };
+            var head = new Note { ID = 0, NextID = 1, Type = (int)NoteType.DragHead, Time = 2.0, ApproachTime = 1.0, PageIndex = 0 };
+            var child1 = new Note { ID = 1, NextID = 2, Type = (int)NoteType.DragChild, Time = 2.5, PageIndex = 0 };
+            var child2 = new Note { ID = 2, NextID = -1, Type = (int)NoteType.DragChild, Time = 3.0, PageIndex = 0 };
             chart.NoteList.Add(head);
             chart.NoteList.Add(child1);
             chart.NoteList.Add(child2);
-            var pool = new FakeChartObjectPool();
+            chart.PageList.Add(new Page { ScanLineDirection = 1 });
+            var pool = new ChartObjectPoolWithTracking();
             var spawner = new NoteSpawner(pool, chart);
 
             spawner.UpdateTime(2.8);
 
             Assert.IsTrue(spawner.GetClickNotes().Count >= 1, "Drag Head should be active at 2.8s");
+        }
+
+        [Test]
+        public void UpdateTime_SetsRingColor_FromNote()
+        {
+            var chart = new Chart();
+            var note = new Note
+            {
+                Type = (int)NoteType.Click,
+                Time = 2.0,
+                ApproachTime = 1.0,
+                RingColor = "#FF0000",
+                PageIndex = 0
+            };
+            chart.NoteList.Add(note);
+            chart.PageList.Add(new Page { ScanLineDirection = 1 });
+            var pool = new ChartObjectPoolWithTracking();
+            var spawner = new NoteSpawner(pool, chart);
+
+            spawner.UpdateTime(1.5);
+
+            var activeNotes = spawner.GetClickNotes();
+            Assert.AreEqual(1, activeNotes.Count);
+            var color = activeNotes[0].NoteRing.color;
+            Assert.AreEqual(Color.red.r, color.r, 1e-6f);
+            Assert.AreEqual(Color.red.g, color.g, 1e-6f);
+            Assert.AreEqual(Color.red.b, color.b, 1e-6f);
+        }
+
+        [Test]
+        public void UpdateTime_SetsRingColor_FromChart_WhenNoteRingColorMissing()
+        {
+            var chart = new Chart();
+            chart.RingColor = "#00FF00";
+            var note = new Note
+            {
+                Type = (int)NoteType.Click,
+                Time = 2.0,
+                ApproachTime = 1.0,
+                PageIndex = 0
+            };
+            chart.NoteList.Add(note);
+            chart.PageList.Add(new Page { ScanLineDirection = 1 });
+            var pool = new ChartObjectPoolWithTracking();
+            var spawner = new NoteSpawner(pool, chart);
+
+            spawner.UpdateTime(1.5);
+
+            var activeNotes = spawner.GetClickNotes();
+            var color = activeNotes[0].NoteRing.color;
+            Assert.AreEqual(Color.green.r, color.r, 1e-6f);
+            Assert.AreEqual(Color.green.g, color.g, 1e-6f);
+            Assert.AreEqual(Color.green.b, color.b, 1e-6f);
+        }
+
+        [Test]
+        public void UpdateTime_SetsRingColor_Default_WhenAllMissing()
+        {
+            var chart = new Chart();
+            var note = new Note
+            {
+                Type = (int)NoteType.Click,
+                Time = 2.0,
+                ApproachTime = 1.0,
+                PageIndex = 0
+            };
+            chart.NoteList.Add(note);
+            chart.PageList.Add(new Page { ScanLineDirection = 1 });
+            var pool = new ChartObjectPoolWithTracking();
+            var spawner = new NoteSpawner(pool, chart);
+
+            spawner.UpdateTime(1.5);
+
+            var activeNotes = spawner.GetClickNotes();
+            var color = activeNotes[0].NoteRing.color;
+            Assert.AreEqual(Color.white.r, color.r, 1e-6f);
+            Assert.AreEqual(Color.white.g, color.g, 1e-6f);
+            Assert.AreEqual(Color.white.b, color.b, 1e-6f);
+        }
+
+        [Test]
+        public void UpdateTime_SetsFillColor_FromNote()
+        {
+            var chart = new Chart();
+            var note = new Note
+            {
+                Type = (int)NoteType.Click,
+                Time = 2.0,
+                ApproachTime = 1.0,
+                FillColor = "#0000FF"
+            };
+            chart.NoteList.Add(note);
+            var pool = new ChartObjectPoolWithTracking();
+            var spawner = new NoteSpawner(pool, chart);
+
+            spawner.UpdateTime(1.5);
+
+            var activeNotes = spawner.GetClickNotes();
+            var color = activeNotes[0].NoteFill.color;
+            Assert.AreEqual(Color.blue.r, color.r, 1e-6f);
+            Assert.AreEqual(Color.blue.g, color.g, 1e-6f);
+            Assert.AreEqual(Color.blue.b, color.b, 1e-6f);
+        }
+
+        [Test]
+        public void UpdateTime_DragChild_UsesRingColorLogicForFill()
+        {
+            var chart = new Chart();
+            chart.RingColor = "#FFFF00";
+            var note = new Note
+            {
+                Type = (int)NoteType.DragChild,
+                Time = 2.0,
+                ApproachTime = 1.0,
+                FillColor = "#FF0000",
+                PageIndex = 0
+            };
+            chart.NoteList.Add(note);
+            chart.PageList.Add(new Page { ScanLineDirection = 1 });
+            var pool = new ChartObjectPoolWithTracking();
+            var spawner = new NoteSpawner(pool, chart);
+
+            spawner.UpdateTime(1.5);
+
+            var activeNotes = spawner.GetDragChildNotes();
+            var color = activeNotes[0].NoteFill.color;
+            Assert.AreEqual(1.0f, color.r, 1e-6f);
+            Assert.AreEqual(1.0f, color.g, 1e-6f);
+        }
+
+        [Test]
+        public void UpdateTime_SetsFillColor_FromChart_WhenNoteFillMissing()
+        {
+            var chart = new Chart();
+            chart.PageList.Add(new Page { ScanLineDirection = 1 });
+
+            for (int i = 0; i < 12; i++) chart.FillColors[i] = "#00FFFF";
+
+            var note = new Note
+            {
+                Type = (int)NoteType.Click,
+                Time = 2.0,
+                ApproachTime = 1.0,
+                PageIndex = 0
+            };
+            chart.NoteList.Add(note);
+            var pool = new ChartObjectPoolWithTracking();
+            var spawner = new NoteSpawner(pool, chart);
+
+            spawner.UpdateTime(1.5);
+
+            var activeNotes = spawner.GetClickNotes();
+            var color = activeNotes[0].NoteFill.color;
+            Assert.AreEqual(0.0f, color.r, 1e-6f);
+            Assert.AreEqual(1.0f, color.g, 1e-6f);
+            Assert.AreEqual(1.0f, color.b, 1e-6f);
+        }
+
+        [Test]
+        public void UpdateTime_SetsFillColor_Default_WhenAllMissing()
+        {
+            var chart = new Chart();
+            var note = new Note
+            {
+                Type = (int)NoteType.Click,
+                Time = 2.0,
+                ApproachTime = 1.0,
+                PageIndex = 0
+            };
+            chart.NoteList.Add(note);
+            chart.PageList.Add(new Page { ScanLineDirection = 1 });
+            var pool = new ChartObjectPoolWithTracking();
+            var spawner = new NoteSpawner(pool, chart);
+
+            spawner.UpdateTime(1.5);
+
+            var activeNotes = spawner.GetClickNotes();
+            var color = activeNotes[0].NoteFill.color;
+            Assert.AreEqual(1.0f, color.r, 1e-6f);
+            Assert.AreEqual(0.349f, color.g, 0.001f);
+            Assert.AreEqual(0.392f, color.b, 0.001f);
         }
     }
 }

@@ -8,5 +8,14 @@ namespace CCE.Rendering
         {
             return new Color(color.r, color.g, color.b, alpha);
         }
+
+        public static Color FromHex(string hex)
+        {
+            if (ColorUtility.TryParseHtmlString(hex, out Color color))
+            {
+                return color;
+            }
+            return Color.white;
+        }
     }
 }
