@@ -68,12 +68,12 @@ namespace CCE.Tests.Rendering
             Assert.AreEqual(1, activeNotes.Count);
             Assert.AreEqual(1, pool.GetNoteCallCount);
             var spawnedInfo = activeNotes[0];
-            Assert.AreEqual(1.0f, spawnedInfo.StartTime);
-            Assert.AreEqual(2.0f, spawnedInfo.EndTime);
-            Assert.AreEqual(1.5f, spawnedInfo.Size);
-            Assert.AreEqual(0.8f, spawnedInfo.Opacity);
-            Assert.AreEqual(1.0f, spawnedInfo.X);
-            Assert.AreEqual(2.0f, spawnedInfo.Y);
+            Assert.AreEqual(1.0f, spawnedInfo.StartTime, 1e-6f);
+            Assert.AreEqual(2.0f, spawnedInfo.EndTime, 1e-6f);
+            Assert.AreEqual(1.5f, spawnedInfo.Size, 1e-6f);
+            Assert.AreEqual(0.8f, spawnedInfo.Opacity, 1e-6f);
+            Assert.AreEqual(1.0f, spawnedInfo.X, 1e-6f);
+            Assert.AreEqual(2.0f, spawnedInfo.Y, 1e-6f);
         }
 
         [Test]
@@ -100,12 +100,12 @@ namespace CCE.Tests.Rendering
             Assert.AreEqual(1, activeNotes.Count);
             Assert.AreEqual(1, pool.GetNoteCallCount);
             var spawnedInfo = activeNotes[0];
-            Assert.AreEqual(1.0f, spawnedInfo.StartTime);
-            Assert.AreEqual(2.0f, spawnedInfo.EndTime);
-            Assert.AreEqual(1.5f, spawnedInfo.Size);
-            Assert.AreEqual(0.8f, spawnedInfo.Opacity);
-            Assert.AreEqual(1.0f, spawnedInfo.X);
-            Assert.AreEqual(2.0f, spawnedInfo.Y);
+            Assert.AreEqual(1.0f, spawnedInfo.StartTime, 1e-6f);
+            Assert.AreEqual(2.0f, spawnedInfo.EndTime, 1e-6f);
+            Assert.AreEqual(1.5f, spawnedInfo.Size, 1e-6f);
+            Assert.AreEqual(0.8f, spawnedInfo.Opacity, 1e-6f);
+            Assert.AreEqual(1.0f, spawnedInfo.X, 1e-6f);
+            Assert.AreEqual(2.0f, spawnedInfo.Y, 1e-6f);
         }
 
         [Test]
@@ -132,12 +132,12 @@ namespace CCE.Tests.Rendering
             Assert.AreEqual(1, activeNotes.Count);
             Assert.AreEqual(1, pool.GetNoteCallCount);
             var spawnedInfo = activeNotes[0];
-            Assert.AreEqual(1.0f, spawnedInfo.StartTime);
-            Assert.AreEqual(2.0f, spawnedInfo.EndTime);
-            Assert.AreEqual(0.975f, spawnedInfo.Size);
-            Assert.AreEqual(0.8f, spawnedInfo.Opacity);
-            Assert.AreEqual(1.0f, spawnedInfo.X);
-            Assert.AreEqual(2.0f, spawnedInfo.Y);
+            Assert.AreEqual(1.0f, spawnedInfo.StartTime, 1e-6f);
+            Assert.AreEqual(2.0f, spawnedInfo.EndTime, 1e-6f);
+            Assert.AreEqual(0.975f, spawnedInfo.Size, 1e-6f);
+            Assert.AreEqual(0.8f, spawnedInfo.Opacity, 1e-6f);
+            Assert.AreEqual(1.0f, spawnedInfo.X, 1e-6f);
+            Assert.AreEqual(2.0f, spawnedInfo.Y, 1e-6f);
         }
 
         [Test]
