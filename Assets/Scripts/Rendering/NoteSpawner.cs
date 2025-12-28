@@ -106,7 +106,7 @@ namespace CCE.Rendering
                 flickNoteInfo.Y = (float)(note.Y * 10.0 - 5.0);
                 _flickNotes.Add(flickNoteInfo);
             }
-            else if (note.Type == (int)NoteType.DragChild)
+            else if (note.Type == (int)NoteType.DragChild || note.Type == (int)NoteType.CDragChild)
             {
                 var dragChildNoteInfo = noteObject.GetComponent<DragChildNoteInfo>();
                 dragChildNoteInfo.StartTime = note.Time - note.ApproachTime;
