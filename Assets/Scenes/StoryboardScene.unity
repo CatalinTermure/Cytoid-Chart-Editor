@@ -255,7 +255,7 @@ MonoBehaviour:
       type: 3}
     DragHeadNote: {fileID: 3318615403950730174, guid: 0dd82537b7370064e952f42af8f9c426,
       type: 3}
-    DragChildNote: {fileID: 3318615403950730174, guid: 0dd82537b7370064e952f42af8f9c426,
+    DragChildNote: {fileID: 4097558142101695417, guid: e873432d87eb60f419e179e13369ba9b,
       type: 3}
     FlickNote: {fileID: 709623842097727893, guid: a55135e6e70847e4b9ee1f60fd7f1a63,
       type: 3}

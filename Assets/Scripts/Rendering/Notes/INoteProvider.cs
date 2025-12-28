@@ -15,5 +15,9 @@ namespace CCE.Rendering.Notes
         /// Gets all the currently visible flick notes.
         /// </summary>
         List<FlickNoteInfo> GetFlickNotes();
+        /// <summary>
+        /// Gets all the currently visible drag child notes.
+        /// </summary>
+        List<DragChildNoteInfo> GetDragChildNotes();
     }
 }

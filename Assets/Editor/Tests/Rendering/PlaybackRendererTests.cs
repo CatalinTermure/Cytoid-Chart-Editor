@@ -12,11 +12,13 @@ namespace CCE.Tests.Rendering
         {
             private readonly List<ClickNoteInfo> _clickNotes;
             private readonly List<FlickNoteInfo> _flickNotes;
+            private readonly List<DragChildNoteInfo> _dragChildNotes;
 
-            public FakeNoteProvider(List<ClickNoteInfo> clickNotes, List<FlickNoteInfo> flickNotes)
+            public FakeNoteProvider(List<ClickNoteInfo> clickNotes, List<FlickNoteInfo> flickNotes, List<DragChildNoteInfo> dragChildNotes)
             {
                 _clickNotes = clickNotes;
                 _flickNotes = flickNotes;
+                _dragChildNotes = dragChildNotes;
             }
 
             public List<ClickNoteInfo> GetClickNotes()
@@ -27,6 +29,11 @@ namespace CCE.Tests.Rendering
             public List<FlickNoteInfo> GetFlickNotes()
             {
                 return _flickNotes;
+            }
+
+            public List<DragChildNoteInfo> GetDragChildNotes()
+            {
+                return _dragChildNotes;
             }
         }
 
@@ -57,7 +64,7 @@ namespace CCE.Tests.Rendering
                 {
                     _clickNoteInfos.Add(clickNote.GetComponent<ClickNoteInfo>());
                 }
-                _fakeNoteProvider = new FakeNoteProvider(_clickNoteInfos, new List<FlickNoteInfo>());
+                _fakeNoteProvider = new FakeNoteProvider(_clickNoteInfos, new List<FlickNoteInfo>(), new List<DragChildNoteInfo>());
             }
 
             [Test]
@@ -194,7 +201,7 @@ namespace CCE.Tests.Rendering
                 {
                     _flickNoteInfos.Add(flickNote.GetComponent<FlickNoteInfo>());
                 }
-                _fakeNoteProvider = new FakeNoteProvider(new List<ClickNoteInfo>(), _flickNoteInfos);
+                _fakeNoteProvider = new FakeNoteProvider(new List<ClickNoteInfo>(), _flickNoteInfos, new List<DragChildNoteInfo>());
             }
 
             [Test]
@@ -320,6 +327,112 @@ namespace CCE.Tests.Rendering
                 Assert.AreEqual(maxOffset * 0.5f, _flickNoteInfos[1].RightArrowTransform.localPosition.x, 0.01f);
                 Assert.AreEqual(-maxOffset, _flickNoteInfos[2].LeftArrowTransform.localPosition.x, 0.01f);
                 Assert.AreEqual(maxOffset, _flickNoteInfos[2].RightArrowTransform.localPosition.x, 0.01f);
+            }
+        }
+
+        [TestFixture]
+        public class DragChildNotes
+        {
+            private GameObject _dragChildNotePrefab;
+            private FakeNoteProvider _fakeNoteProvider;
+            private List<DragChildNoteInfo> _dragChildNoteInfos;
+
+            [OneTimeSetUp]
+            public void OneTimeSetUp()
+            {
+                _dragChildNotePrefab = Resources.Load<GameObject>("Drag Child New");
+            }
+
+            [SetUp]
+            public void SetUp()
+            {
+                List<GameObject> dragChildNotes = new()
+                {
+                    Object.Instantiate(_dragChildNotePrefab, Vector3.zero, Quaternion.identity),
+                    Object.Instantiate(_dragChildNotePrefab, Vector3.left, Quaternion.identity),
+                    Object.Instantiate(_dragChildNotePrefab, Vector3.right, Quaternion.identity),
+                };
+                _dragChildNoteInfos = new List<DragChildNoteInfo>();
+                foreach (GameObject dragChildNote in dragChildNotes)
+                {
+                    _dragChildNoteInfos.Add(dragChildNote.GetComponent<DragChildNoteInfo>());
+                }
+                _fakeNoteProvider = new FakeNoteProvider(new List<ClickNoteInfo>(), new List<FlickNoteInfo>(), _dragChildNoteInfos);
+            }
+
+            [Test]
+            public void RenderSetsDragChildNotesAbsoluteNoteSizeCorrectly()
+            {
+                PlaybackRenderer playbackRenderer = new(_fakeNoteProvider);
+                _dragChildNoteInfos[0].StartTime = 0.0f;
+                _dragChildNoteInfos[0].EndTime = 1.0f;
+                _dragChildNoteInfos[0].Size = 1.0f;
+                _dragChildNoteInfos[1].StartTime = 0.0f;
+                _dragChildNoteInfos[1].EndTime = 2.0f;
+                _dragChildNoteInfos[1].Size = 1.0f;
+                _dragChildNoteInfos[2].StartTime = 0.0f;
+                _dragChildNoteInfos[2].EndTime = 3.0f;
+                _dragChildNoteInfos[2].Size = 0.5f;
+
+                playbackRenderer.Render(1.0f);
+
+                Assert.AreEqual(1.0f, _dragChildNoteInfos[0].NoteTransform.localScale.x, 0.01f);
+                Assert.AreEqual(1.0f, _dragChildNoteInfos[0].NoteTransform.localScale.y, 0.01f);
+                Assert.AreEqual(0.85f, _dragChildNoteInfos[1].NoteTransform.localScale.x, 0.01f);
+                Assert.AreEqual(0.85f, _dragChildNoteInfos[1].NoteTransform.localScale.y, 0.01f);
+                Assert.AreEqual(0.4f, _dragChildNoteInfos[2].NoteTransform.localScale.x, 0.01f);
+                Assert.AreEqual(0.4f, _dragChildNoteInfos[2].NoteTransform.localScale.y, 0.01f);
+            }
+
+            [Test]
+            public void RenderSetsDragChildNotePositionCorrectly()
+            {
+                PlaybackRenderer playbackRenderer = new(_fakeNoteProvider);
+                _dragChildNoteInfos[0].StartTime = 0.0f;
+                _dragChildNoteInfos[0].EndTime = 1.0f;
+                _dragChildNoteInfos[0].Size = 1.0f;
+                _dragChildNoteInfos[0].X = 7.1f;
+                _dragChildNoteInfos[0].Y = 13.2f;
+                _dragChildNoteInfos[1].StartTime = 0.0f;
+                _dragChildNoteInfos[1].EndTime = 2.0f;
+                _dragChildNoteInfos[1].Size = 1.0f;
+                _dragChildNoteInfos[1].X = 0.0f;
+                _dragChildNoteInfos[1].Y = 0.0f;
+                _dragChildNoteInfos[2].StartTime = 0.0f;
+                _dragChildNoteInfos[2].EndTime = 3.0f;
+                _dragChildNoteInfos[2].Size = 0.5f;
+                _dragChildNoteInfos[2].X = -10.0f;
+                _dragChildNoteInfos[2].Y = -3.5f;
+
+                playbackRenderer.Render(1.0f);
+
+                Assert.AreEqual(7.1f, _dragChildNoteInfos[0].NoteTransform.localPosition.x, 0.01f);
+                Assert.AreEqual(13.2f, _dragChildNoteInfos[0].NoteTransform.localPosition.y, 0.01f);
+                Assert.AreEqual(0.0f, _dragChildNoteInfos[1].NoteTransform.localPosition.x, 0.01f);
+                Assert.AreEqual(0.0f, _dragChildNoteInfos[1].NoteTransform.localPosition.y, 0.01f);
+                Assert.AreEqual(-10.0f, _dragChildNoteInfos[2].NoteTransform.localPosition.x, 0.01f);
+                Assert.AreEqual(-3.5f, _dragChildNoteInfos[2].NoteTransform.localPosition.y, 0.01f);
+            }
+
+            [Test]
+            public void RenderSetsDragChildNotesOpacityCorrectly()
+            {
+                PlaybackRenderer playbackRenderer = new(_fakeNoteProvider);
+                _dragChildNoteInfos[0].StartTime = 0.0f;
+                _dragChildNoteInfos[0].EndTime = 1.0f;
+                _dragChildNoteInfos[0].Opacity = 1.0f;
+                _dragChildNoteInfos[1].StartTime = 0.0f;
+                _dragChildNoteInfos[1].EndTime = 2.0f;
+                _dragChildNoteInfos[1].Opacity = 0.5f;
+                _dragChildNoteInfos[2].StartTime = 0.0f;
+                _dragChildNoteInfos[2].EndTime = 3.0f;
+                _dragChildNoteInfos[2].Opacity = 1.0f;
+
+                playbackRenderer.Render(1.0f);
+
+                Assert.AreEqual(1.0f, _dragChildNoteInfos[0].NoteFill.color.a, 0.01f);
+                Assert.AreEqual(0.25f, _dragChildNoteInfos[1].NoteFill.color.a, 0.01f);
+                Assert.AreEqual(0.33f, _dragChildNoteInfos[2].NoteFill.color.a, 0.01f);
             }
         }
     }

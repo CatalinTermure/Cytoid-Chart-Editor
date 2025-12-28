@@ -33,6 +33,7 @@ namespace CCE.Rendering
                     clickNoteInfo.gameObject.SetActive(true);
                 }
             }
+
             foreach (FlickNoteInfo flickNoteInfo in _noteProvider.GetFlickNotes())
             {
                 flickNoteInfo.NoteTransform.localPosition = new Vector3(flickNoteInfo.X, flickNoteInfo.Y, 0.0f);
@@ -57,6 +58,20 @@ namespace CCE.Rendering
                 if (flickNoteInfo.gameObject.activeSelf == false)
                 {
                     flickNoteInfo.gameObject.SetActive(true);
+                }
+            }
+
+            foreach (DragChildNoteInfo dragChildNoteInfo in _noteProvider.GetDragChildNotes())
+            {
+                dragChildNoteInfo.NoteTransform.localPosition = new Vector3(dragChildNoteInfo.X, dragChildNoteInfo.Y, 0.0f);
+                float approachPercentage = (float)((time - dragChildNoteInfo.StartTime) / (dragChildNoteInfo.EndTime - dragChildNoteInfo.StartTime));
+                float noteSize = dragChildNoteInfo.Size * (0.7f + approachPercentage * 0.3f);
+                dragChildNoteInfo.NoteTransform.localScale = new Vector3(noteSize, noteSize, 1.0f);
+                float opacity = dragChildNoteInfo.Opacity * approachPercentage;
+                dragChildNoteInfo.NoteFill.color = dragChildNoteInfo.NoteFill.color.WithAlpha(opacity);
+                if (dragChildNoteInfo.gameObject.activeSelf == false)
+                {
+                    dragChildNoteInfo.gameObject.SetActive(true);
                 }
             }
         }

@@ -14,6 +14,9 @@ namespace CCE.Rendering
         private readonly Chart _chart;
         private List<ClickNoteInfo> _clickNotes;
         private List<FlickNoteInfo> _flickNotes;
+        private List<DragChildNoteInfo> _dragChildNotes;
+
+        private const float DRAG_CHILD_SIZE_MULTIPLIER = 0.65f;
 
         public NoteSpawner(ChartObjectPool chartObjectPool, Chart chart)
         {
@@ -21,6 +24,7 @@ namespace CCE.Rendering
             _chart = chart;
             _clickNotes = new List<ClickNoteInfo>();
             _flickNotes = new List<FlickNoteInfo>();
+            _dragChildNotes = new List<DragChildNoteInfo>();
         }
 
         /// <summary>
@@ -72,6 +76,11 @@ namespace CCE.Rendering
             return _flickNotes;
         }
 
+        public List<DragChildNoteInfo> GetDragChildNotes()
+        {
+            return _dragChildNotes;
+        }
+
         private List<Note> GetDragChain(Note headNote)
         {
             List<Note> dragChain = new() { headNote };
@@ -96,6 +105,17 @@ namespace CCE.Rendering
                 flickNoteInfo.X = (float)(note.X * 10.0 - 5.0);
                 flickNoteInfo.Y = (float)(note.Y * 10.0 - 5.0);
                 _flickNotes.Add(flickNoteInfo);
+            }
+            else if (note.Type == (int)NoteType.DragChild)
+            {
+                var dragChildNoteInfo = noteObject.GetComponent<DragChildNoteInfo>();
+                dragChildNoteInfo.StartTime = note.Time - note.ApproachTime;
+                dragChildNoteInfo.EndTime = note.Time;
+                dragChildNoteInfo.Size = (float)note.ActualSize * DRAG_CHILD_SIZE_MULTIPLIER;
+                dragChildNoteInfo.Opacity = (float)note.ActualOpacity;
+                dragChildNoteInfo.X = (float)(note.X * 10.0 - 5.0);
+                dragChildNoteInfo.Y = (float)(note.Y * 10.0 - 5.0);
+                _dragChildNotes.Add(dragChildNoteInfo);
             }
             else
             {
@@ -123,6 +143,12 @@ namespace CCE.Rendering
                 _chartObjectPool.ReturnToPool(flickNote.gameObject, NoteType.Flick);
             }
             _flickNotes.Clear();
+
+            foreach (var dragChildNote in _dragChildNotes)
+            {
+                _chartObjectPool.ReturnToPool(dragChildNote.gameObject, NoteType.DragChild);
+            }
+            _dragChildNotes.Clear();
         }
     }
 }
