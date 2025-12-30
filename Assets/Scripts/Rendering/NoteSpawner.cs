@@ -15,6 +15,7 @@ namespace CCE.Rendering
         private readonly Chart _chart;
         private List<ClickNoteInfo> _clickNotes;
         private List<HoldNoteInfo> _holdNotes;
+        private List<LongHoldNoteInfo> _longHoldNotes;
         private List<FlickNoteInfo> _flickNotes;
         private List<DragChildNoteInfo> _dragChildNotes;
 
@@ -26,6 +27,7 @@ namespace CCE.Rendering
             _chart = chart;
             _clickNotes = new List<ClickNoteInfo>();
             _holdNotes = new List<HoldNoteInfo>();
+            _longHoldNotes = new List<LongHoldNoteInfo>();
             _flickNotes = new List<FlickNoteInfo>();
             _dragChildNotes = new List<DragChildNoteInfo>();
         }
@@ -80,6 +82,11 @@ namespace CCE.Rendering
             return _holdNotes;
         }
 
+
+        public List<LongHoldNoteInfo> GetLongHoldNotes()
+        {
+            return _longHoldNotes;
+        }
 
         public List<FlickNoteInfo> GetFlickNotes()
         {
@@ -176,9 +183,10 @@ namespace CCE.Rendering
                 holdNoteInfo.Opacity = (float)note.ActualOpacity;
                 holdNoteInfo.X = (float)(note.X * 10.0 - 5.0);
                 holdNoteInfo.Y = (float)(note.Y * 10.0 - 5.0);
-                holdNoteInfo.NoteFill.color = GetFillColor(note).WithAlpha(0.0f);
+                Color fillColor = GetFillColor(note);
+                holdNoteInfo.NoteFill.color = fillColor.WithAlpha(0.0f);
                 holdNoteInfo.NoteRing.color = GetRingColor(note).WithAlpha(0.0f);
-                holdNoteInfo.NoteCompletedBody.color = holdNoteInfo.NoteFill.color;
+                holdNoteInfo.NoteCompletedBody.color = fillColor;
                 holdNoteInfo.NoteCompletedBody.size = new Vector3(0.0f, 0.0f);
                 holdNoteInfo.NoteBodyBackground.color = Color.white.WithAlpha(0.0f);
                 holdNoteInfo.NoteBodyBackground.size = new Vector3(0.0f, 10.0f * note.HoldTick / page.ActualPageSize);
@@ -188,6 +196,30 @@ namespace CCE.Rendering
                     holdNoteInfo.NoteBodyTransform.localRotation = Quaternion.Euler(0.0f, 0.0f, 180.0f);
                 }
                 _holdNotes.Add(holdNoteInfo);
+            }
+            else if (note.Type == (int)NoteType.LongHold)
+            {
+                var longHoldNoteInfo = noteObject.GetComponent<LongHoldNoteInfo>();
+                longHoldNoteInfo.IntroTime = note.Time - note.ApproachTime;
+                longHoldNoteInfo.StartTime = note.Time;
+                longHoldNoteInfo.EndTime = note.Time + note.HoldTime;
+                longHoldNoteInfo.Size = (float)note.ActualSize;
+                longHoldNoteInfo.Opacity = (float)note.ActualOpacity;
+                longHoldNoteInfo.X = (float)(note.X * 10.0 - 5.0);
+                longHoldNoteInfo.Y = (float)(note.Y * 10.0 - 5.0);
+                Color fillColor = GetFillColor(note);
+                longHoldNoteInfo.NoteFill.color = fillColor.WithAlpha(0.0f);
+                longHoldNoteInfo.NoteRing.color = GetRingColor(note).WithAlpha(0.0f);
+                longHoldNoteInfo.NoteCompletedBodyTop.color = fillColor;
+                longHoldNoteInfo.NoteCompletedBodyTop.size = new Vector3(0.0f, 0.0f);
+                longHoldNoteInfo.NoteCompletedBodyBottom.color = fillColor;
+                longHoldNoteInfo.NoteCompletedBodyBottom.size = new Vector3(0.0f, 0.0f);
+                longHoldNoteInfo.NoteBodyBackgroundTop.color = Color.white.WithAlpha(0.0f);
+                longHoldNoteInfo.NoteBodyBackgroundTop.size = new Vector3(1.0f, 40.0f);
+                longHoldNoteInfo.NoteBodyBackgroundBottom.color = Color.white.WithAlpha(0.0f);
+                longHoldNoteInfo.NoteBodyBackgroundBottom.size = new Vector3(1.0f, 40.0f);
+                longHoldNoteInfo.NoteBodyTransform.localScale = new Vector2(0, 1.0f);
+                _longHoldNotes.Add(longHoldNoteInfo);
             }
             else
             {
@@ -229,6 +261,12 @@ namespace CCE.Rendering
                 _chartObjectPool.ReturnToPool(holdNote.gameObject, NoteType.Hold);
             }
             _holdNotes.Clear();
+
+            foreach (var longHoldNote in _longHoldNotes)
+            {
+                _chartObjectPool.ReturnToPool(longHoldNote.gameObject, NoteType.LongHold);
+            }
+            _longHoldNotes.Clear();
         }
     }
 }

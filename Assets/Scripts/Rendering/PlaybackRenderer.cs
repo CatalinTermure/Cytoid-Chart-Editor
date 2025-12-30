@@ -40,12 +40,28 @@ namespace CCE.Rendering
                 holdNoteInfo.NoteFill.color = holdNoteInfo.NoteFill.color.WithAlpha(opacity);
                 holdNoteInfo.NoteRing.color = holdNoteInfo.NoteRing.color.WithAlpha(opacity);
                 Vector2 bodyBackgroundScale = holdNoteInfo.NoteBodyBackground.size;
-                holdNoteInfo.NoteBodyBackground.color = holdNoteInfo.NoteBodyBackground.color.WithAlpha(opacity * 0.5f);
+                holdNoteInfo.NoteBodyBackground.color = holdNoteInfo.NoteBodyBackground.color.WithAlpha(opacity);
                 holdNoteInfo.NoteBodyBackground.size = new Vector2(1.0f, bodyBackgroundScale.y);
                 float completionPercentage = Mathf.Clamp01((float)((time - holdNoteInfo.StartTime) / (holdNoteInfo.EndTime - holdNoteInfo.StartTime)));
-                holdNoteInfo.NoteCompletedBody.color = holdNoteInfo.NoteCompletedBody.color.WithAlpha(opacity);
                 holdNoteInfo.NoteCompletedBody.size = new Vector2(1.0f, bodyBackgroundScale.y * completionPercentage);
                 holdNoteInfo.NoteBodyTransform.localScale = new Vector2(approachPercentage * 0.7f, 1.0f) / (0.4f + approachPercentage * 0.6f);
+            }
+
+            foreach (LongHoldNoteInfo longHoldNoteInfo in _noteProvider.GetLongHoldNotes())
+            {
+                longHoldNoteInfo.NoteTransform.localPosition = new Vector3(longHoldNoteInfo.X, longHoldNoteInfo.Y, 0.0f);
+                float approachPercentage = Mathf.Clamp01((float)((time - longHoldNoteInfo.IntroTime) / (longHoldNoteInfo.StartTime - longHoldNoteInfo.IntroTime)));
+                float noteSize = longHoldNoteInfo.Size * (0.4f + approachPercentage * 0.6f);
+                longHoldNoteInfo.NoteTransform.localScale = new Vector3(noteSize, noteSize, 1.0f);
+                float opacity = longHoldNoteInfo.Opacity * approachPercentage;
+                longHoldNoteInfo.NoteFill.color = longHoldNoteInfo.NoteFill.color.WithAlpha(opacity);
+                longHoldNoteInfo.NoteRing.color = longHoldNoteInfo.NoteRing.color.WithAlpha(opacity);
+                longHoldNoteInfo.NoteBodyBackgroundTop.color = longHoldNoteInfo.NoteBodyBackgroundTop.color.WithAlpha(opacity);
+                longHoldNoteInfo.NoteBodyBackgroundBottom.color = longHoldNoteInfo.NoteBodyBackgroundBottom.color.WithAlpha(opacity);
+                float completionPercentage = Mathf.Clamp01((float)((time - longHoldNoteInfo.StartTime) / (longHoldNoteInfo.EndTime - longHoldNoteInfo.StartTime)));
+                longHoldNoteInfo.NoteCompletedBodyTop.size = new Vector2(1.0f, (5.0f - longHoldNoteInfo.Y) * completionPercentage);
+                longHoldNoteInfo.NoteCompletedBodyBottom.size = new Vector2(1.0f, (5.0f + longHoldNoteInfo.Y) * completionPercentage);
+                longHoldNoteInfo.NoteBodyTransform.localScale = new Vector2(approachPercentage * 0.7f, 1.0f) / (0.4f + approachPercentage * 0.6f);
             }
 
             foreach (FlickNoteInfo flickNoteInfo in _noteProvider.GetFlickNotes())

@@ -16,6 +16,10 @@ namespace CCE.Rendering.Notes
         /// </summary>
         List<HoldNoteInfo> GetHoldNotes();
         /// <summary>
+        /// Gets all the currently visible long hold notes.
+        /// </summary>
+        List<LongHoldNoteInfo> GetLongHoldNotes();
+        /// <summary>
         /// Gets all the currently visible flick notes.
         /// </summary>
         List<FlickNoteInfo> GetFlickNotes();

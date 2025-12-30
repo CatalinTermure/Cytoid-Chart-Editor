@@ -22,7 +22,7 @@ namespace CCE.Tests.Rendering
                 DragChildNote = Resources.Load<GameObject>("Drag Child New"),
                 CDragHeadNote = Resources.Load<GameObject>("Click Note New"),
                 HoldNote = Resources.Load<GameObject>("Hold Note New"),
-                LongHoldNote = Resources.Load<GameObject>("Click Note New"),
+                LongHoldNote = Resources.Load<GameObject>("Long Hold Note New"),
             })
             { }
 
@@ -189,6 +189,30 @@ namespace CCE.Tests.Rendering
 
             Assert.AreEqual(1, spawner.GetHoldNotes().Count);
             Assert.AreEqual(NoteType.Hold, pool.LastRequestedType);
+        }
+
+        [Test]
+        public void UpdateTime_LongHoldNote_StaysActiveUntilHoldEnd()
+        {
+            var chart = new Chart();
+            var holdNote = new Note
+            {
+                Type = (int)NoteType.LongHold,
+                Time = 2.0,
+                ApproachTime = 1.0,
+                HoldTime = 1.5,
+                HoldTick = 100,
+                PageIndex = 0
+            };
+            chart.NoteList.Add(holdNote);
+            chart.PageList.Add(new Page { ScanLineDirection = 1, ActualStartTick = 0, EndTick = 400 });
+            var pool = new ChartObjectPoolWithTracking();
+            var spawner = new NoteSpawner(pool, chart);
+
+            spawner.UpdateTime(3.0);
+
+            Assert.AreEqual(1, spawner.GetLongHoldNotes().Count);
+            Assert.AreEqual(NoteType.LongHold, pool.LastRequestedType);
         }
 
         [Test]
