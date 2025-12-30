@@ -30,6 +30,24 @@ namespace CCE.Rendering
                 clickNoteInfo.NoteRing.color = clickNoteInfo.NoteRing.color.WithAlpha(opacity);
             }
 
+            foreach (HoldNoteInfo holdNoteInfo in _noteProvider.GetHoldNotes())
+            {
+                holdNoteInfo.NoteTransform.localPosition = new Vector3(holdNoteInfo.X, holdNoteInfo.Y, 0.0f);
+                float approachPercentage = Mathf.Clamp01((float)((time - holdNoteInfo.IntroTime) / (holdNoteInfo.StartTime - holdNoteInfo.IntroTime)));
+                float noteSize = holdNoteInfo.Size * (0.4f + approachPercentage * 0.6f);
+                holdNoteInfo.NoteTransform.localScale = new Vector3(noteSize, noteSize, 1.0f);
+                float opacity = holdNoteInfo.Opacity * approachPercentage;
+                holdNoteInfo.NoteFill.color = holdNoteInfo.NoteFill.color.WithAlpha(opacity);
+                holdNoteInfo.NoteRing.color = holdNoteInfo.NoteRing.color.WithAlpha(opacity);
+                Vector2 bodyBackgroundScale = holdNoteInfo.NoteBodyBackground.size;
+                holdNoteInfo.NoteBodyBackground.color = holdNoteInfo.NoteBodyBackground.color.WithAlpha(opacity * 0.5f);
+                holdNoteInfo.NoteBodyBackground.size = new Vector2(1.0f, bodyBackgroundScale.y);
+                float completionPercentage = Mathf.Clamp01((float)((time - holdNoteInfo.StartTime) / (holdNoteInfo.EndTime - holdNoteInfo.StartTime)));
+                holdNoteInfo.NoteCompletedBody.color = holdNoteInfo.NoteCompletedBody.color.WithAlpha(opacity);
+                holdNoteInfo.NoteCompletedBody.size = new Vector2(1.0f, bodyBackgroundScale.y * completionPercentage);
+                holdNoteInfo.NoteBodyTransform.localScale = new Vector2(approachPercentage * 0.7f, 1.0f) / (0.4f + approachPercentage * 0.6f);
+            }
+
             foreach (FlickNoteInfo flickNoteInfo in _noteProvider.GetFlickNotes())
             {
                 flickNoteInfo.NoteTransform.localPosition = new Vector3(flickNoteInfo.X, flickNoteInfo.Y, 0.0f);

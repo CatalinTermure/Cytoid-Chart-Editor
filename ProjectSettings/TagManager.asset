@@ -53,6 +53,15 @@ TagManager:
   - 
   - 
   m_SortingLayers:
+  - name: Hold Line
+    uniqueID: 3230830227
+    locked: 0
+  - name: Long Hold Line
+    uniqueID: 3889644161
+    locked: 0
+  - name: Drag Line
+    uniqueID: 1613375901
+    locked: 0
   - name: Default
     uniqueID: 0
     locked: 0

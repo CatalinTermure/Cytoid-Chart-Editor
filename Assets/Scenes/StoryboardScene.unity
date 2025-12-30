@@ -168,7 +168,7 @@ Camera:
     width: 1
     height: 1
   near clip plane: 0
-  far clip plane: 10
+  far clip plane: 20
   field of view: 60
   orthographic: 1
   orthographic size: 5
@@ -249,7 +249,7 @@ MonoBehaviour:
   _notePrefabs:
     ClickNote: {fileID: 3318615403950730174, guid: 0dd82537b7370064e952f42af8f9c426,
       type: 3}
-    HoldNote: {fileID: 3318615403950730174, guid: 0dd82537b7370064e952f42af8f9c426,
+    HoldNote: {fileID: 8228104545510126005, guid: c1205474cc476d24aaa4fe008b170877,
       type: 3}
     LongHoldNote: {fileID: 3318615403950730174, guid: 0dd82537b7370064e952f42af8f9c426,
       type: 3}

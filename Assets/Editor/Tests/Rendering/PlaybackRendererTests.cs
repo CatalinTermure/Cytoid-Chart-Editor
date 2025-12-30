@@ -13,12 +13,14 @@ namespace CCE.Tests.Rendering
             private readonly List<ClickNoteInfo> _clickNotes;
             private readonly List<FlickNoteInfo> _flickNotes;
             private readonly List<DragChildNoteInfo> _dragChildNotes;
+            private readonly List<HoldNoteInfo> _holdNotes;
 
-            public FakeNoteProvider(List<ClickNoteInfo> clickNotes, List<FlickNoteInfo> flickNotes, List<DragChildNoteInfo> dragChildNotes)
+            public FakeNoteProvider(List<ClickNoteInfo> clickNotes, List<FlickNoteInfo> flickNotes, List<DragChildNoteInfo> dragChildNotes, List<HoldNoteInfo> holdNotes)
             {
                 _clickNotes = clickNotes;
                 _flickNotes = flickNotes;
                 _dragChildNotes = dragChildNotes;
+                _holdNotes = holdNotes;
             }
 
             public List<ClickNoteInfo> GetClickNotes()
@@ -34,6 +36,11 @@ namespace CCE.Tests.Rendering
             public List<DragChildNoteInfo> GetDragChildNotes()
             {
                 return _dragChildNotes;
+            }
+
+            public List<HoldNoteInfo> GetHoldNotes()
+            {
+                return _holdNotes;
             }
         }
 
@@ -64,7 +71,7 @@ namespace CCE.Tests.Rendering
                 {
                     _clickNoteInfos.Add(clickNote.GetComponent<ClickNoteInfo>());
                 }
-                _fakeNoteProvider = new FakeNoteProvider(_clickNoteInfos, new List<FlickNoteInfo>(), new List<DragChildNoteInfo>());
+                _fakeNoteProvider = new FakeNoteProvider(_clickNoteInfos, new List<FlickNoteInfo>(), new List<DragChildNoteInfo>(), new List<HoldNoteInfo>());
             }
 
             [Test]
@@ -201,7 +208,7 @@ namespace CCE.Tests.Rendering
                 {
                     _flickNoteInfos.Add(flickNote.GetComponent<FlickNoteInfo>());
                 }
-                _fakeNoteProvider = new FakeNoteProvider(new List<ClickNoteInfo>(), _flickNoteInfos, new List<DragChildNoteInfo>());
+                _fakeNoteProvider = new FakeNoteProvider(new List<ClickNoteInfo>(), _flickNoteInfos, new List<DragChildNoteInfo>(), new List<HoldNoteInfo>());
             }
 
             [Test]
@@ -357,7 +364,7 @@ namespace CCE.Tests.Rendering
                 {
                     _dragChildNoteInfos.Add(dragChildNote.GetComponent<DragChildNoteInfo>());
                 }
-                _fakeNoteProvider = new FakeNoteProvider(new List<ClickNoteInfo>(), new List<FlickNoteInfo>(), _dragChildNoteInfos);
+                _fakeNoteProvider = new FakeNoteProvider(new List<ClickNoteInfo>(), new List<FlickNoteInfo>(), _dragChildNoteInfos, new List<HoldNoteInfo>());
             }
 
             [Test]
@@ -433,6 +440,188 @@ namespace CCE.Tests.Rendering
                 Assert.AreEqual(1.0f, _dragChildNoteInfos[0].NoteFill.color.a, 0.01f);
                 Assert.AreEqual(0.25f, _dragChildNoteInfos[1].NoteFill.color.a, 0.01f);
                 Assert.AreEqual(0.33f, _dragChildNoteInfos[2].NoteFill.color.a, 0.01f);
+            }
+        }
+
+        [TestFixture]
+        public class HoldNotes
+        {
+            private GameObject _holdNotePrefab;
+            private FakeNoteProvider _fakeNoteProvider;
+            private List<HoldNoteInfo> _holdNoteInfos;
+
+            [OneTimeSetUp]
+            public void OneTimeSetUp()
+            {
+                _holdNotePrefab = Resources.Load<GameObject>("Hold Note New");
+            }
+
+            [SetUp]
+            public void SetUp()
+            {
+                List<GameObject> holdNotes = new()
+            {
+                Object.Instantiate(_holdNotePrefab, Vector3.zero, Quaternion.identity),
+                Object.Instantiate(_holdNotePrefab, Vector3.left, Quaternion.identity),
+                Object.Instantiate(_holdNotePrefab, Vector3.right, Quaternion.identity),
+            };
+                _holdNoteInfos = new List<HoldNoteInfo>();
+                foreach (GameObject holdNote in holdNotes)
+                {
+                    var holdNoteInfo = holdNote.GetComponent<HoldNoteInfo>();
+                    holdNoteInfo.NoteBodyBackground.size = new Vector2(1.0f, 5.0f);
+                    _holdNoteInfos.Add(holdNoteInfo);
+                }
+                _fakeNoteProvider = new FakeNoteProvider(new List<ClickNoteInfo>(), new List<FlickNoteInfo>(), new List<DragChildNoteInfo>(), _holdNoteInfos);
+            }
+
+            [Test]
+            public void RenderSetsHoldNotePositionCorrectly()
+            {
+                PlaybackRenderer playbackRenderer = new(_fakeNoteProvider);
+                _holdNoteInfos[0].IntroTime = 0.0;
+                _holdNoteInfos[0].StartTime = 1.0;
+                _holdNoteInfos[0].EndTime = 2.0;
+                _holdNoteInfos[0].X = 7.1f;
+                _holdNoteInfos[0].Y = 13.2f;
+                _holdNoteInfos[1].IntroTime = 0.0;
+                _holdNoteInfos[1].StartTime = 1.0;
+                _holdNoteInfos[1].EndTime = 2.0;
+                _holdNoteInfos[1].X = 0.0f;
+                _holdNoteInfos[1].Y = 0.0f;
+                _holdNoteInfos[2].IntroTime = 0.0;
+                _holdNoteInfos[2].StartTime = 1.0;
+                _holdNoteInfos[2].EndTime = 2.0;
+                _holdNoteInfos[2].X = -10.0f;
+                _holdNoteInfos[2].Y = -3.5f;
+
+                playbackRenderer.Render(1.0);
+
+                Assert.AreEqual(7.1f, _holdNoteInfos[0].NoteTransform.localPosition.x, 0.01f);
+                Assert.AreEqual(13.2f, _holdNoteInfos[0].NoteTransform.localPosition.y, 0.01f);
+                Assert.AreEqual(0.0f, _holdNoteInfos[1].NoteTransform.localPosition.x, 0.01f);
+                Assert.AreEqual(0.0f, _holdNoteInfos[1].NoteTransform.localPosition.y, 0.01f);
+                Assert.AreEqual(-10.0f, _holdNoteInfos[2].NoteTransform.localPosition.x, 0.01f);
+                Assert.AreEqual(-3.5f, _holdNoteInfos[2].NoteTransform.localPosition.y, 0.01f);
+            }
+
+            [Test]
+            public void RenderSetsHoldNotesAbsoluteNoteSizeCorrectly()
+            {
+                PlaybackRenderer playbackRenderer = new(_fakeNoteProvider);
+                _holdNoteInfos[0].IntroTime = 0.0;
+                _holdNoteInfos[0].StartTime = 1.0;
+                _holdNoteInfos[0].EndTime = 2.0;
+                _holdNoteInfos[0].Size = 1.0f;
+                _holdNoteInfos[1].IntroTime = 0.0;
+                _holdNoteInfos[1].StartTime = 2.0;
+                _holdNoteInfos[1].EndTime = 3.0;
+                _holdNoteInfos[1].Size = 1.0f;
+                _holdNoteInfos[2].IntroTime = 0.0;
+                _holdNoteInfos[2].StartTime = 3.0;
+                _holdNoteInfos[2].EndTime = 4.0;
+                _holdNoteInfos[2].Size = 0.5f;
+
+                playbackRenderer.Render(1.0);
+
+                Assert.AreEqual(1.0f, _holdNoteInfos[0].NoteTransform.localScale.x, 0.01f);
+                Assert.AreEqual(1.0f, _holdNoteInfos[0].NoteTransform.localScale.y, 0.01f);
+                Assert.AreEqual(0.7f, _holdNoteInfos[1].NoteTransform.localScale.x, 0.01f);
+                Assert.AreEqual(0.7f, _holdNoteInfos[1].NoteTransform.localScale.y, 0.01f);
+                Assert.AreEqual(0.30f, _holdNoteInfos[2].NoteTransform.localScale.x, 0.01f);
+                Assert.AreEqual(0.30f, _holdNoteInfos[2].NoteTransform.localScale.y, 0.01f);
+            }
+
+            [Test]
+            public void RenderSetsHoldNotesOpacityCorrectly()
+            {
+                PlaybackRenderer playbackRenderer = new(_fakeNoteProvider);
+                _holdNoteInfos[0].IntroTime = 0.0;
+                _holdNoteInfos[0].StartTime = 1.0;
+                _holdNoteInfos[0].Opacity = 1.0f;
+                _holdNoteInfos[1].IntroTime = 0.0;
+                _holdNoteInfos[1].StartTime = 2.0;
+                _holdNoteInfos[1].Opacity = 0.5f;
+                _holdNoteInfos[2].IntroTime = 0.0;
+                _holdNoteInfos[2].StartTime = 3.0;
+                _holdNoteInfos[2].Opacity = 1.0f;
+
+                playbackRenderer.Render(1.0);
+
+                Assert.AreEqual(1.0f, _holdNoteInfos[0].NoteFill.color.a, 0.01f);
+                Assert.AreEqual(1.0f, _holdNoteInfos[0].NoteRing.color.a, 0.01f);
+                Assert.AreEqual(0.25f, _holdNoteInfos[1].NoteFill.color.a, 0.01f);
+                Assert.AreEqual(0.25f, _holdNoteInfos[1].NoteRing.color.a, 0.01f);
+                Assert.AreEqual(0.33f, _holdNoteInfos[2].NoteFill.color.a, 0.01f);
+                Assert.AreEqual(0.33f, _holdNoteInfos[2].NoteRing.color.a, 0.01f);
+            }
+
+            [Test]
+            public void RenderSetsHoldNotesBodyBackgroundCorrectly()
+            {
+                PlaybackRenderer playbackRenderer = new(_fakeNoteProvider);
+                _holdNoteInfos[0].IntroTime = 0.0;
+                _holdNoteInfos[0].StartTime = 1.0;
+                _holdNoteInfos[0].Opacity = 1.0f;
+                _holdNoteInfos[1].IntroTime = 0.0;
+                _holdNoteInfos[1].StartTime = 2.0;
+                _holdNoteInfos[1].Opacity = 0.5f;
+                _holdNoteInfos[2].IntroTime = 0.0;
+                _holdNoteInfos[2].StartTime = 4.0;
+                _holdNoteInfos[2].Opacity = 1.0f;
+
+                playbackRenderer.Render(1.0);
+
+                Assert.AreEqual(0.5f, _holdNoteInfos[0].NoteBodyBackground.color.a, 0.01f);
+                Assert.AreEqual(0.125f, _holdNoteInfos[1].NoteBodyBackground.color.a, 0.01f);
+                Assert.AreEqual(0.125f, _holdNoteInfos[2].NoteBodyBackground.color.a, 0.01f);
+                Assert.AreEqual(1.0f, _holdNoteInfos[0].NoteBodyBackground.size.x, 0.01f);
+                Assert.AreEqual(5.0f, _holdNoteInfos[0].NoteBodyBackground.size.y, 0.01f);
+            }
+
+            [Test]
+            public void RenderSetsHoldNotesCompletedBodyCorrectly()
+            {
+                PlaybackRenderer playbackRenderer = new(_fakeNoteProvider);
+                _holdNoteInfos[0].IntroTime = -1.0;
+                _holdNoteInfos[0].StartTime = 0.0;
+                _holdNoteInfos[0].EndTime = 2.0;
+                _holdNoteInfos[0].Opacity = 1.0f;
+                _holdNoteInfos[1].IntroTime = -1.0;
+                _holdNoteInfos[1].StartTime = 0.5;
+                _holdNoteInfos[1].EndTime = 1.5;
+                _holdNoteInfos[1].Opacity = 1.0f;
+                _holdNoteInfos[2].IntroTime = -1.0;
+                _holdNoteInfos[2].StartTime = 1.0;
+                _holdNoteInfos[2].EndTime = 2.0;
+                _holdNoteInfos[2].Opacity = 1.0f;
+
+                playbackRenderer.Render(1.0);
+
+                Assert.AreEqual(2.5f, _holdNoteInfos[0].NoteCompletedBody.size.y, 0.01f);
+                Assert.AreEqual(2.5f, _holdNoteInfos[1].NoteCompletedBody.size.y, 0.01f);
+                Assert.AreEqual(0.0f, _holdNoteInfos[2].NoteCompletedBody.size.y, 0.01f);
+                Assert.AreEqual(1.0f, _holdNoteInfos[0].NoteCompletedBody.color.a, 0.01f);
+            }
+
+            [Test]
+            public void RenderSetsHoldNotesBodyTransformScaleCorrectly()
+            {
+                PlaybackRenderer playbackRenderer = new(_fakeNoteProvider);
+                _holdNoteInfos[0].IntroTime = 0.0;
+                _holdNoteInfos[0].StartTime = 1.0;
+                _holdNoteInfos[1].IntroTime = 0.0;
+                _holdNoteInfos[1].StartTime = 2.0;
+                _holdNoteInfos[1].Size = 1.0f;
+                _holdNoteInfos[2].IntroTime = 0.0;
+                _holdNoteInfos[2].StartTime = 4.0;
+                _holdNoteInfos[2].Size = 1.0f;
+
+                playbackRenderer.Render(1.0);
+
+                Assert.AreEqual(0.7f, _holdNoteInfos[0].NoteBodyTransform.localScale.x, 0.01f);
+                Assert.AreEqual(0.5f, _holdNoteInfos[1].NoteBodyTransform.localScale.x, 0.01f);
+                Assert.AreEqual(1.428f, _holdNoteInfos[1].NoteBodyTransform.localScale.y, 0.01f);
             }
         }
     }

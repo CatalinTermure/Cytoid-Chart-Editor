@@ -14,6 +14,7 @@ namespace CCE.Rendering
         private readonly ChartObjectPool _chartObjectPool;
         private readonly Chart _chart;
         private List<ClickNoteInfo> _clickNotes;
+        private List<HoldNoteInfo> _holdNotes;
         private List<FlickNoteInfo> _flickNotes;
         private List<DragChildNoteInfo> _dragChildNotes;
 
@@ -24,6 +25,7 @@ namespace CCE.Rendering
             _chartObjectPool = chartObjectPool;
             _chart = chart;
             _clickNotes = new List<ClickNoteInfo>();
+            _holdNotes = new List<HoldNoteInfo>();
             _flickNotes = new List<FlickNoteInfo>();
             _dragChildNotes = new List<DragChildNoteInfo>();
         }
@@ -72,6 +74,12 @@ namespace CCE.Rendering
         {
             return _clickNotes;
         }
+
+        public List<HoldNoteInfo> GetHoldNotes()
+        {
+            return _holdNotes;
+        }
+
 
         public List<FlickNoteInfo> GetFlickNotes()
         {
@@ -157,6 +165,30 @@ namespace CCE.Rendering
                 dragChildNoteInfo.NoteFill.color = GetFillColor(note).WithAlpha(0.0f);
                 _dragChildNotes.Add(dragChildNoteInfo);
             }
+            else if (note.Type == (int)NoteType.Hold)
+            {
+                var holdNoteInfo = noteObject.GetComponent<HoldNoteInfo>();
+                var page = _chart.PageList[note.PageIndex];
+                holdNoteInfo.IntroTime = note.Time - note.ApproachTime;
+                holdNoteInfo.StartTime = note.Time;
+                holdNoteInfo.EndTime = note.Time + note.HoldTime;
+                holdNoteInfo.Size = (float)note.ActualSize;
+                holdNoteInfo.Opacity = (float)note.ActualOpacity;
+                holdNoteInfo.X = (float)(note.X * 10.0 - 5.0);
+                holdNoteInfo.Y = (float)(note.Y * 10.0 - 5.0);
+                holdNoteInfo.NoteFill.color = GetFillColor(note).WithAlpha(0.0f);
+                holdNoteInfo.NoteRing.color = GetRingColor(note).WithAlpha(0.0f);
+                holdNoteInfo.NoteCompletedBody.color = holdNoteInfo.NoteFill.color;
+                holdNoteInfo.NoteCompletedBody.size = new Vector3(0.0f, 0.0f);
+                holdNoteInfo.NoteBodyBackground.color = Color.white.WithAlpha(0.0f);
+                holdNoteInfo.NoteBodyBackground.size = new Vector3(0.0f, 10.0f * note.HoldTick / page.ActualPageSize);
+                holdNoteInfo.NoteBodyTransform.localScale = new Vector2(0, 1.0f);
+                if (page.ScanLineDirection < 0)
+                {
+                    holdNoteInfo.NoteBodyTransform.localRotation = Quaternion.Euler(0.0f, 0.0f, 180.0f);
+                }
+                _holdNotes.Add(holdNoteInfo);
+            }
             else
             {
                 var clickNoteInfo = noteObject.GetComponent<ClickNoteInfo>();
@@ -191,6 +223,12 @@ namespace CCE.Rendering
                 _chartObjectPool.ReturnToPool(dragChildNote.gameObject, NoteType.DragChild);
             }
             _dragChildNotes.Clear();
+
+            foreach (var holdNote in _holdNotes)
+            {
+                _chartObjectPool.ReturnToPool(holdNote.gameObject, NoteType.Hold);
+            }
+            _holdNotes.Clear();
         }
     }
 }
