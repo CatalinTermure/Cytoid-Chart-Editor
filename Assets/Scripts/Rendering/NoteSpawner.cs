@@ -133,8 +133,8 @@ namespace CCE.Rendering
             if (note.Type == (int)NoteType.Flick)
             {
                 var flickNoteInfo = noteObject.GetComponent<FlickNoteInfo>();
-                flickNoteInfo.StartTime = note.Time - note.ApproachTime;
-                flickNoteInfo.EndTime = note.Time;
+                flickNoteInfo.IntroTime = note.Time - note.ApproachTime;
+                flickNoteInfo.Time = note.Time;
                 flickNoteInfo.Size = (float)note.ActualSize;
                 flickNoteInfo.Opacity = (float)note.ActualOpacity;
                 flickNoteInfo.X = (float)(note.X * 10.0 - 5.0);
@@ -148,8 +148,8 @@ namespace CCE.Rendering
             else if (note.Type == (int)NoteType.DragChild || note.Type == (int)NoteType.CDragChild)
             {
                 var dragChildNoteInfo = noteObject.GetComponent<DragChildNoteInfo>();
-                dragChildNoteInfo.StartTime = note.Time - note.ApproachTime;
-                dragChildNoteInfo.EndTime = note.Time;
+                dragChildNoteInfo.IntroTime = note.Time - note.ApproachTime;
+                dragChildNoteInfo.Time = note.Time;
                 dragChildNoteInfo.Size = (float)note.ActualSize * DRAG_CHILD_SIZE_MULTIPLIER;
                 dragChildNoteInfo.Opacity = (float)note.ActualOpacity;
                 dragChildNoteInfo.X = (float)(note.X * 10.0 - 5.0);
@@ -160,8 +160,8 @@ namespace CCE.Rendering
             else
             {
                 var clickNoteInfo = noteObject.GetComponent<ClickNoteInfo>();
-                clickNoteInfo.StartTime = note.Time - note.ApproachTime;
-                clickNoteInfo.EndTime = note.Time;
+                clickNoteInfo.IntroTime = note.Time - note.ApproachTime;
+                clickNoteInfo.Time = note.Time;
                 clickNoteInfo.Size = (float)note.ActualSize;
                 clickNoteInfo.Opacity = (float)note.ActualOpacity;
                 clickNoteInfo.X = (float)(note.X * 10.0 - 5.0);

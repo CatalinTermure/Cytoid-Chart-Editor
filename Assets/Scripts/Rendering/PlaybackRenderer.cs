@@ -21,7 +21,7 @@ namespace CCE.Rendering
             foreach (ClickNoteInfo clickNoteInfo in _noteProvider.GetClickNotes())
             {
                 clickNoteInfo.NoteTransform.localPosition = new Vector3(clickNoteInfo.X, clickNoteInfo.Y, 0.0f);
-                float approachPercentage = (float)((time - clickNoteInfo.StartTime) / (clickNoteInfo.EndTime - clickNoteInfo.StartTime));
+                float approachPercentage = (float)((time - clickNoteInfo.IntroTime) / (clickNoteInfo.Time - clickNoteInfo.IntroTime));
                 float noteSize = clickNoteInfo.Size * (0.4f + approachPercentage * 0.6f);
                 clickNoteInfo.NoteTransform.localScale = new Vector3(noteSize, noteSize, 1.0f);
                 clickNoteInfo.NoteFillTransform.localScale = new Vector3(approachPercentage, approachPercentage, 1.0f);
@@ -33,8 +33,8 @@ namespace CCE.Rendering
             foreach (FlickNoteInfo flickNoteInfo in _noteProvider.GetFlickNotes())
             {
                 flickNoteInfo.NoteTransform.localPosition = new Vector3(flickNoteInfo.X, flickNoteInfo.Y, 0.0f);
-                float approachPercentage = (float)((time - flickNoteInfo.StartTime) / (flickNoteInfo.EndTime - flickNoteInfo.StartTime));
-                float arrowApproachPercentage = Mathf.Clamp01((float)((time - flickNoteInfo.StartTime) / (flickNoteInfo.EndTime - flickNoteInfo.StartTime - 0.25f)));
+                float approachPercentage = (float)((time - flickNoteInfo.IntroTime) / (flickNoteInfo.Time - flickNoteInfo.IntroTime));
+                float arrowApproachPercentage = Mathf.Clamp01((float)((time - flickNoteInfo.IntroTime) / (flickNoteInfo.Time - flickNoteInfo.IntroTime - 0.25f)));
                 float noteSize = flickNoteInfo.Size * (0.4f + approachPercentage * 0.6f);
                 flickNoteInfo.NoteTransform.localScale = new Vector3(noteSize, noteSize, 1.0f);
                 flickNoteInfo.NoteFillTransform.localScale = new Vector3(approachPercentage, approachPercentage, 1.0f);
@@ -56,7 +56,7 @@ namespace CCE.Rendering
             foreach (DragChildNoteInfo dragChildNoteInfo in _noteProvider.GetDragChildNotes())
             {
                 dragChildNoteInfo.NoteTransform.localPosition = new Vector3(dragChildNoteInfo.X, dragChildNoteInfo.Y, 0.0f);
-                float approachPercentage = (float)((time - dragChildNoteInfo.StartTime) / (dragChildNoteInfo.EndTime - dragChildNoteInfo.StartTime));
+                float approachPercentage = (float)((time - dragChildNoteInfo.IntroTime) / (dragChildNoteInfo.Time - dragChildNoteInfo.IntroTime));
                 float noteSize = dragChildNoteInfo.Size * (0.7f + approachPercentage * 0.3f);
                 dragChildNoteInfo.NoteTransform.localScale = new Vector3(noteSize, noteSize, 1.0f);
                 float opacity = dragChildNoteInfo.Opacity * approachPercentage;

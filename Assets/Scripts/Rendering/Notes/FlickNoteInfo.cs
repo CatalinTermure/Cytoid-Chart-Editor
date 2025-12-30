@@ -13,8 +13,8 @@ namespace CCE.Rendering.Notes
         public SpriteRenderer NoteRing;
         public SpriteRenderer LeftArrow;
         public SpriteRenderer RightArrow;
-        [NonSerialized] public double StartTime;
-        [NonSerialized] public double EndTime;
+        [NonSerialized] public double IntroTime;
+        [NonSerialized] public double Time;
         [NonSerialized] public float Size;
         [NonSerialized] public float Opacity;
         [NonSerialized] public float X;

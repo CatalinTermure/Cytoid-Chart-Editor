@@ -7,8 +7,8 @@ namespace CCE.Rendering.Notes
     {
         public Transform NoteTransform;
         public SpriteRenderer NoteFill;
-        [NonSerialized] public double StartTime;
-        [NonSerialized] public double EndTime;
+        [NonSerialized] public double IntroTime;
+        [NonSerialized] public double Time;
         [NonSerialized] public float Size;
         [NonSerialized] public float Opacity;
         [NonSerialized] public float X;

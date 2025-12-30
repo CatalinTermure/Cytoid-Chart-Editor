@@ -78,14 +78,14 @@ namespace CCE.Tests.Rendering
             public void RenderSetsClickNotesAbsoluteNoteSizeCorrectly()
             {
                 PlaybackRenderer playbackRenderer = new(_fakeNoteProvider);
-                _clickNoteInfos[0].StartTime = 0.0f;
-                _clickNoteInfos[0].EndTime = 1.0f;
+                _clickNoteInfos[0].IntroTime = 0.0f;
+                _clickNoteInfos[0].Time = 1.0f;
                 _clickNoteInfos[0].Size = 1.0f;
-                _clickNoteInfos[1].StartTime = 0.0f;
-                _clickNoteInfos[1].EndTime = 2.0f;
+                _clickNoteInfos[1].IntroTime = 0.0f;
+                _clickNoteInfos[1].Time = 2.0f;
                 _clickNoteInfos[1].Size = 1.0f;
-                _clickNoteInfos[2].StartTime = 0.0f;
-                _clickNoteInfos[2].EndTime = 3.0f;
+                _clickNoteInfos[2].IntroTime = 0.0f;
+                _clickNoteInfos[2].Time = 3.0f;
                 _clickNoteInfos[2].Size = 0.5f;
 
                 playbackRenderer.Render(1.0f);
@@ -102,18 +102,18 @@ namespace CCE.Tests.Rendering
             public void RenderSetsClickNotePositionCorrectly()
             {
                 PlaybackRenderer playbackRenderer = new(_fakeNoteProvider);
-                _clickNoteInfos[0].StartTime = 0.0f;
-                _clickNoteInfos[0].EndTime = 1.0f;
+                _clickNoteInfos[0].IntroTime = 0.0f;
+                _clickNoteInfos[0].Time = 1.0f;
                 _clickNoteInfos[0].Size = 1.0f;
                 _clickNoteInfos[0].X = 7.1f;
                 _clickNoteInfos[0].Y = 13.2f;
-                _clickNoteInfos[1].StartTime = 0.0f;
-                _clickNoteInfos[1].EndTime = 2.0f;
+                _clickNoteInfos[1].IntroTime = 0.0f;
+                _clickNoteInfos[1].Time = 2.0f;
                 _clickNoteInfos[1].Size = 1.0f;
                 _clickNoteInfos[1].X = 0.0f;
                 _clickNoteInfos[1].Y = 0.0f;
-                _clickNoteInfos[2].StartTime = 0.0f;
-                _clickNoteInfos[2].EndTime = 3.0f;
+                _clickNoteInfos[2].IntroTime = 0.0f;
+                _clickNoteInfos[2].Time = 3.0f;
                 _clickNoteInfos[2].Size = 0.5f;
                 _clickNoteInfos[2].X = -10.0f;
                 _clickNoteInfos[2].Y = -3.5f;
@@ -132,12 +132,12 @@ namespace CCE.Tests.Rendering
             public void RenderSetsClickNotesFillSizeCorrectly()
             {
                 PlaybackRenderer playbackRenderer = new(_fakeNoteProvider);
-                _clickNoteInfos[0].StartTime = 0.0f;
-                _clickNoteInfos[0].EndTime = 1.0f;
-                _clickNoteInfos[1].StartTime = 0.0f;
-                _clickNoteInfos[1].EndTime = 2.0f;
-                _clickNoteInfos[2].StartTime = 0.0f;
-                _clickNoteInfos[2].EndTime = 3.0f;
+                _clickNoteInfos[0].IntroTime = 0.0f;
+                _clickNoteInfos[0].Time = 1.0f;
+                _clickNoteInfos[1].IntroTime = 0.0f;
+                _clickNoteInfos[1].Time = 2.0f;
+                _clickNoteInfos[2].IntroTime = 0.0f;
+                _clickNoteInfos[2].Time = 3.0f;
 
                 playbackRenderer.Render(1.0f);
 
@@ -153,14 +153,14 @@ namespace CCE.Tests.Rendering
             public void RenderSetsClickNotesOpacityCorrectly()
             {
                 PlaybackRenderer playbackRenderer = new(_fakeNoteProvider);
-                _clickNoteInfos[0].StartTime = 0.0f;
-                _clickNoteInfos[0].EndTime = 1.0f;
+                _clickNoteInfos[0].IntroTime = 0.0f;
+                _clickNoteInfos[0].Time = 1.0f;
                 _clickNoteInfos[0].Opacity = 1.0f;
-                _clickNoteInfos[1].StartTime = 0.0f;
-                _clickNoteInfos[1].EndTime = 2.0f;
+                _clickNoteInfos[1].IntroTime = 0.0f;
+                _clickNoteInfos[1].Time = 2.0f;
                 _clickNoteInfos[1].Opacity = 0.5f;
-                _clickNoteInfos[2].StartTime = 0.0f;
-                _clickNoteInfos[2].EndTime = 3.0f;
+                _clickNoteInfos[2].IntroTime = 0.0f;
+                _clickNoteInfos[2].Time = 3.0f;
                 _clickNoteInfos[2].Opacity = 1.0f;
 
                 playbackRenderer.Render(1.0f);
@@ -208,14 +208,14 @@ namespace CCE.Tests.Rendering
             public void RenderSetsFlickNotesAbsoluteNoteSizeCorrectly()
             {
                 PlaybackRenderer playbackRenderer = new(_fakeNoteProvider);
-                _flickNoteInfos[0].StartTime = 0.0f;
-                _flickNoteInfos[0].EndTime = 1.0f;
+                _flickNoteInfos[0].IntroTime = 0.0f;
+                _flickNoteInfos[0].Time = 1.0f;
                 _flickNoteInfos[0].Size = 1.0f;
-                _flickNoteInfos[1].StartTime = 0.0f;
-                _flickNoteInfos[1].EndTime = 2.0f;
+                _flickNoteInfos[1].IntroTime = 0.0f;
+                _flickNoteInfos[1].Time = 2.0f;
                 _flickNoteInfos[1].Size = 1.0f;
-                _flickNoteInfos[2].StartTime = 0.0f;
-                _flickNoteInfos[2].EndTime = 3.0f;
+                _flickNoteInfos[2].IntroTime = 0.0f;
+                _flickNoteInfos[2].Time = 3.0f;
                 _flickNoteInfos[2].Size = 0.5f;
 
                 playbackRenderer.Render(1.0f);
@@ -232,16 +232,16 @@ namespace CCE.Tests.Rendering
             public void RenderSetsFlickNotePositionCorrectly()
             {
                 PlaybackRenderer playbackRenderer = new(_fakeNoteProvider);
-                _flickNoteInfos[0].StartTime = 0.0f;
-                _flickNoteInfos[0].EndTime = 1.0f;
+                _flickNoteInfos[0].IntroTime = 0.0f;
+                _flickNoteInfos[0].Time = 1.0f;
                 _flickNoteInfos[0].X = 7.1f;
                 _flickNoteInfos[0].Y = 13.2f;
-                _flickNoteInfos[1].StartTime = 0.0f;
-                _flickNoteInfos[1].EndTime = 2.0f;
+                _flickNoteInfos[1].IntroTime = 0.0f;
+                _flickNoteInfos[1].Time = 2.0f;
                 _flickNoteInfos[1].X = 0.0f;
                 _flickNoteInfos[1].Y = 0.0f;
-                _flickNoteInfos[2].StartTime = 0.0f;
-                _flickNoteInfos[2].EndTime = 3.0f;
+                _flickNoteInfos[2].IntroTime = 0.0f;
+                _flickNoteInfos[2].Time = 3.0f;
                 _flickNoteInfos[2].X = -10.0f;
                 _flickNoteInfos[2].Y = -3.5f;
 
@@ -259,12 +259,12 @@ namespace CCE.Tests.Rendering
             public void RenderSetsFlickNotesFillSizeCorrectly()
             {
                 PlaybackRenderer playbackRenderer = new(_fakeNoteProvider);
-                _flickNoteInfos[0].StartTime = 0.0f;
-                _flickNoteInfos[0].EndTime = 1.0f;
-                _flickNoteInfos[1].StartTime = 0.0f;
-                _flickNoteInfos[1].EndTime = 2.0f;
-                _flickNoteInfos[2].StartTime = 0.0f;
-                _flickNoteInfos[2].EndTime = 3.0f;
+                _flickNoteInfos[0].IntroTime = 0.0f;
+                _flickNoteInfos[0].Time = 1.0f;
+                _flickNoteInfos[1].IntroTime = 0.0f;
+                _flickNoteInfos[1].Time = 2.0f;
+                _flickNoteInfos[2].IntroTime = 0.0f;
+                _flickNoteInfos[2].Time = 3.0f;
 
                 playbackRenderer.Render(1.0f);
 
@@ -280,14 +280,14 @@ namespace CCE.Tests.Rendering
             public void RenderSetsFlickNotesOpacityCorrectly()
             {
                 PlaybackRenderer playbackRenderer = new(_fakeNoteProvider);
-                _flickNoteInfos[0].StartTime = 0.0f;
-                _flickNoteInfos[0].EndTime = 1.0f;
+                _flickNoteInfos[0].IntroTime = 0.0f;
+                _flickNoteInfos[0].Time = 1.0f;
                 _flickNoteInfos[0].Opacity = 1.0f;
-                _flickNoteInfos[1].StartTime = 0.0f;
-                _flickNoteInfos[1].EndTime = 2.0f;
+                _flickNoteInfos[1].IntroTime = 0.0f;
+                _flickNoteInfos[1].Time = 2.0f;
                 _flickNoteInfos[1].Opacity = 0.5f;
-                _flickNoteInfos[2].StartTime = 0.0f;
-                _flickNoteInfos[2].EndTime = 3.0f;
+                _flickNoteInfos[2].IntroTime = 0.0f;
+                _flickNoteInfos[2].Time = 3.0f;
                 _flickNoteInfos[2].Opacity = 1.0f;
 
                 playbackRenderer.Render(1.0f);
@@ -310,12 +310,12 @@ namespace CCE.Tests.Rendering
             public void RenderSetsFlickNotesArrowPositionCorrectly()
             {
                 PlaybackRenderer playbackRenderer = new(_fakeNoteProvider);
-                _flickNoteInfos[0].StartTime = 0.0f;
-                _flickNoteInfos[0].EndTime = 1.25f;
-                _flickNoteInfos[1].StartTime = 0.0f;
-                _flickNoteInfos[1].EndTime = 2.25f;
-                _flickNoteInfos[2].StartTime = 1.0f;
-                _flickNoteInfos[2].EndTime = 2.0f;
+                _flickNoteInfos[0].IntroTime = 0.0f;
+                _flickNoteInfos[0].Time = 1.25f;
+                _flickNoteInfos[1].IntroTime = 0.0f;
+                _flickNoteInfos[1].Time = 2.25f;
+                _flickNoteInfos[2].IntroTime = 1.0f;
+                _flickNoteInfos[2].Time = 2.0f;
 
                 playbackRenderer.Render(1.0f);
 
@@ -364,14 +364,14 @@ namespace CCE.Tests.Rendering
             public void RenderSetsDragChildNotesAbsoluteNoteSizeCorrectly()
             {
                 PlaybackRenderer playbackRenderer = new(_fakeNoteProvider);
-                _dragChildNoteInfos[0].StartTime = 0.0f;
-                _dragChildNoteInfos[0].EndTime = 1.0f;
+                _dragChildNoteInfos[0].IntroTime = 0.0f;
+                _dragChildNoteInfos[0].Time = 1.0f;
                 _dragChildNoteInfos[0].Size = 1.0f;
-                _dragChildNoteInfos[1].StartTime = 0.0f;
-                _dragChildNoteInfos[1].EndTime = 2.0f;
+                _dragChildNoteInfos[1].IntroTime = 0.0f;
+                _dragChildNoteInfos[1].Time = 2.0f;
                 _dragChildNoteInfos[1].Size = 1.0f;
-                _dragChildNoteInfos[2].StartTime = 0.0f;
-                _dragChildNoteInfos[2].EndTime = 3.0f;
+                _dragChildNoteInfos[2].IntroTime = 0.0f;
+                _dragChildNoteInfos[2].Time = 3.0f;
                 _dragChildNoteInfos[2].Size = 0.5f;
 
                 playbackRenderer.Render(1.0f);
@@ -388,18 +388,18 @@ namespace CCE.Tests.Rendering
             public void RenderSetsDragChildNotePositionCorrectly()
             {
                 PlaybackRenderer playbackRenderer = new(_fakeNoteProvider);
-                _dragChildNoteInfos[0].StartTime = 0.0f;
-                _dragChildNoteInfos[0].EndTime = 1.0f;
+                _dragChildNoteInfos[0].IntroTime = 0.0f;
+                _dragChildNoteInfos[0].Time = 1.0f;
                 _dragChildNoteInfos[0].Size = 1.0f;
                 _dragChildNoteInfos[0].X = 7.1f;
                 _dragChildNoteInfos[0].Y = 13.2f;
-                _dragChildNoteInfos[1].StartTime = 0.0f;
-                _dragChildNoteInfos[1].EndTime = 2.0f;
+                _dragChildNoteInfos[1].IntroTime = 0.0f;
+                _dragChildNoteInfos[1].Time = 2.0f;
                 _dragChildNoteInfos[1].Size = 1.0f;
                 _dragChildNoteInfos[1].X = 0.0f;
                 _dragChildNoteInfos[1].Y = 0.0f;
-                _dragChildNoteInfos[2].StartTime = 0.0f;
-                _dragChildNoteInfos[2].EndTime = 3.0f;
+                _dragChildNoteInfos[2].IntroTime = 0.0f;
+                _dragChildNoteInfos[2].Time = 3.0f;
                 _dragChildNoteInfos[2].Size = 0.5f;
                 _dragChildNoteInfos[2].X = -10.0f;
                 _dragChildNoteInfos[2].Y = -3.5f;
@@ -418,14 +418,14 @@ namespace CCE.Tests.Rendering
             public void RenderSetsDragChildNotesOpacityCorrectly()
             {
                 PlaybackRenderer playbackRenderer = new(_fakeNoteProvider);
-                _dragChildNoteInfos[0].StartTime = 0.0f;
-                _dragChildNoteInfos[0].EndTime = 1.0f;
+                _dragChildNoteInfos[0].IntroTime = 0.0f;
+                _dragChildNoteInfos[0].Time = 1.0f;
                 _dragChildNoteInfos[0].Opacity = 1.0f;
-                _dragChildNoteInfos[1].StartTime = 0.0f;
-                _dragChildNoteInfos[1].EndTime = 2.0f;
+                _dragChildNoteInfos[1].IntroTime = 0.0f;
+                _dragChildNoteInfos[1].Time = 2.0f;
                 _dragChildNoteInfos[1].Opacity = 0.5f;
-                _dragChildNoteInfos[2].StartTime = 0.0f;
-                _dragChildNoteInfos[2].EndTime = 3.0f;
+                _dragChildNoteInfos[2].IntroTime = 0.0f;
+                _dragChildNoteInfos[2].Time = 3.0f;
                 _dragChildNoteInfos[2].Opacity = 1.0f;
 
                 playbackRenderer.Render(1.0f);
