@@ -34,9 +34,17 @@ namespace CCE.Storyboard
             _audioManager.Time = _audioManager.MaxTime * timePercentage;
         }
 
+        private Rect GetScreenRect(Vector2 center, float aspectRatio, float height)
+        {
+            float width = aspectRatio * height;
+            float x = center.x - width / 2.0f;
+            float y = center.y - height / 2.0f;
+            return new Rect(x, y, width, height);
+        }
+
         void Awake()
         {
-            var chartToScreenCoordinatesConverter = new ChartToScreenCoordinatesConverter();
+            var chartToScreenCoordinatesConverter = new ChartToScreenCoordinatesConverter(GetScreenRect(new Vector2(2.5f, 0), (float)Screen.width / Screen.height, 5.0f));
             _chart = CurrentChartProvider.CurrentChart;
             _noteTimingCalculator = new NoteTimingCalculator(_chart);
             _noteVisualsCalculator = new NoteVisualsCalculator(_chart);
