@@ -60,7 +60,7 @@ namespace CCE.Tests.Rendering
 
             public float ScreenYFromChartY(double chartY)
             {
-                return (float)chartY * ScreenSize;
+                return 0.8f * (float)chartY * ScreenSize - 0.1f;
             }
         }
 
@@ -101,7 +101,7 @@ namespace CCE.Tests.Rendering
             Assert.AreEqual(1.65f, spawnedInfo.Size, 0.001f, "Note size should be correct.");
             Assert.AreEqual(0.8f, spawnedInfo.Opacity, 1e-6f, "Note opacity should be correct.");
             Assert.AreEqual(5.4f, spawnedInfo.X, 1e-6f, "Note X position should be correct.");
-            Assert.AreEqual(5.6f, spawnedInfo.Y, 1e-6f, "Note Y position should be correct.");
+            Assert.AreEqual(4.38f, spawnedInfo.Y, 1e-6f, "Note Y position should be correct.");
         }
 
         [Test]
@@ -135,7 +135,7 @@ namespace CCE.Tests.Rendering
             Assert.AreEqual(9.0f, spawnedInfo.Size, 0.01f, "Note size should be correct.");
             Assert.AreEqual(0.8f, spawnedInfo.Opacity, 1e-6f, "Note opacity should be correct.");
             Assert.AreEqual(5.4f, spawnedInfo.X, 1e-6f, "Note X position should be correct.");
-            Assert.AreEqual(5.6f, spawnedInfo.Y, 1e-6f, "Note Y position should be correct.");
+            Assert.AreEqual(4.38f, spawnedInfo.Y, 1e-6f, "Note Y position should be correct.");
         }
 
         [Test]
@@ -167,7 +167,7 @@ namespace CCE.Tests.Rendering
             Assert.AreEqual(7.5f, spawnedInfo.Size, 1e-6f, "Note size should be correct.");
             Assert.AreEqual(0.8f, spawnedInfo.Opacity, 1e-6f, "Note opacity should be correct.");
             Assert.AreEqual(5.4f, spawnedInfo.X, 1e-6f, "Note X position should be correct.");
-            Assert.AreEqual(5.6f, spawnedInfo.Y, 1e-6f, "Note Y position should be correct.");
+            Assert.AreEqual(4.38f, spawnedInfo.Y, 1e-6f, "Note Y position should be correct.");
         }
 
         [Test]
@@ -204,8 +204,8 @@ namespace CCE.Tests.Rendering
             Assert.AreEqual(3.0f, spawnedInfo.Size, 1e-6f, "Note size should be correct.");
             Assert.AreEqual(0.8f, spawnedInfo.Opacity, 1e-6f, "Note opacity should be correct.");
             Assert.AreEqual(5.4f, spawnedInfo.X, 1e-6f, "Note X position should be correct.");
-            Assert.AreEqual(5.6f, spawnedInfo.Y, 1e-6f, "Note Y position should be correct.");
-            Assert.AreEqual(2.0f, spawnedInfo.NoteBodyBackground.size.y, 1e-6f, "Note body background size should be correct.");
+            Assert.AreEqual(4.38f, spawnedInfo.Y, 1e-6f, "Note Y position should be correct.");
+            Assert.AreEqual(1.6f, spawnedInfo.NoteBodyBackground.size.y, 1e-6f, "Note body background size should be correct.");
         }
 
         [Test]
@@ -241,7 +241,7 @@ namespace CCE.Tests.Rendering
             Assert.AreEqual(4.5f, spawnedInfo.Size, 1e-6f, "Note size should be correct.");
             Assert.AreEqual(0.8f, spawnedInfo.Opacity, 1e-6f, "Note opacity should be correct.");
             Assert.AreEqual(5.4f, spawnedInfo.X, 1e-6f, "Note X position should be correct.");
-            Assert.AreEqual(5.6f, spawnedInfo.Y, 1e-6f, "Note Y position should be correct.");
+            Assert.AreEqual(4.38f, spawnedInfo.Y, 1e-6f, "Note Y position should be correct.");
             Assert.AreEqual(32.0f, spawnedInfo.NoteBodyBackgroundTop.size.y, 1e-6f, "Note body background top size should be correct.");
             Assert.AreEqual(32.0f, spawnedInfo.NoteBodyBackgroundBottom.size.y, 1e-6f, "Note body background bottom size should be correct.");
         }

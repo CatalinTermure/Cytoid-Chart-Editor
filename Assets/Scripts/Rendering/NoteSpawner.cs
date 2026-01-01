@@ -192,8 +192,10 @@ namespace CCE.Rendering
                 holdNoteInfo.NoteCompletedBody.color = fillColor;
                 holdNoteInfo.NoteCompletedBody.size = new Vector3(0.0f, 0.0f);
                 holdNoteInfo.NoteBodyBackground.color = Color.white.WithAlpha(0.0f);
+                float pageFillPercentage = (float)note.HoldTick / page.ActualPageSize;
                 holdNoteInfo.NoteBodyBackground.size = new Vector3(0.0f,
-                        _chartToScreenConverter.ScreenSize * ((float)note.HoldTick / page.ActualPageSize));
+                        _chartToScreenConverter.ScreenYFromChartY(pageFillPercentage)
+                        - _chartToScreenConverter.ScreenYFromChartY(0));
                 holdNoteInfo.NoteBodyTransform.localScale = new Vector2(0, 1.0f);
                 if (page.ScanLineDirection < 0)
                 {
