@@ -19,6 +19,8 @@ namespace CCE.Rendering
         private List<FlickNoteInfo> _flickNotes;
         private List<DragChildNoteInfo> _dragChildNotes;
         private readonly IChartToScreenCoordinatesConverter _chartToScreenConverter;
+        // How much the chart is scaled down from the original Cytoid full-screen size
+        private readonly float _scalingRatio;
 
         private const float LONG_HOLD_BODY_SIZE = 4.0f;
 
@@ -33,6 +35,7 @@ namespace CCE.Rendering
             _flickNotes = new List<FlickNoteInfo>();
             _dragChildNotes = new List<DragChildNoteInfo>();
             _chartToScreenConverter = chartToScreenConverter;
+            _scalingRatio = _chartToScreenConverter.ScreenSize / 10.0f;
         }
 
         /// <summary>
@@ -194,9 +197,9 @@ namespace CCE.Rendering
                 holdNoteInfo.NoteBodyBackground.color = Color.white.WithAlpha(0.0f);
                 float pageFillPercentage = (float)note.HoldTick / page.ActualPageSize;
                 holdNoteInfo.NoteBodyBackground.size = new Vector3(0.0f,
-                        _chartToScreenConverter.ScreenYFromChartY(pageFillPercentage)
-                        - _chartToScreenConverter.ScreenYFromChartY(0));
-                holdNoteInfo.NoteBodyTransform.localScale = new Vector2(0, 1.0f);
+                        (_chartToScreenConverter.ScreenYFromChartY(pageFillPercentage)
+                        - _chartToScreenConverter.ScreenYFromChartY(0)) / _scalingRatio);
+                holdNoteInfo.NoteBodyTransform.localScale = new Vector2(0, _scalingRatio);
                 if (page.ScanLineDirection < 0)
                 {
                     holdNoteInfo.NoteBodyTransform.localRotation = Quaternion.Euler(0.0f, 0.0f, 180.0f);
@@ -226,11 +229,11 @@ namespace CCE.Rendering
                 longHoldNoteInfo.NoteCompletedBodyBottom.size = new Vector3(0.0f, 0.0f);
                 longHoldNoteInfo.NoteBodyBackgroundTop.color = Color.white.WithAlpha(0.0f);
                 longHoldNoteInfo.NoteBodyBackgroundTop.size = new Vector3(1.0f,
-                        _chartToScreenConverter.ScreenSize * LONG_HOLD_BODY_SIZE);
+                        _chartToScreenConverter.ScreenSize * LONG_HOLD_BODY_SIZE / _scalingRatio);
                 longHoldNoteInfo.NoteBodyBackgroundBottom.color = Color.white.WithAlpha(0.0f);
                 longHoldNoteInfo.NoteBodyBackgroundBottom.size = new Vector3(1.0f,
-                        _chartToScreenConverter.ScreenSize * LONG_HOLD_BODY_SIZE);
-                longHoldNoteInfo.NoteBodyTransform.localScale = new Vector2(0, 1.0f);
+                        _chartToScreenConverter.ScreenSize * LONG_HOLD_BODY_SIZE / _scalingRatio);
+                longHoldNoteInfo.NoteBodyTransform.localScale = new Vector2(0, _scalingRatio);
                 _longHoldNotes.Add(longHoldNoteInfo);
             }
             else

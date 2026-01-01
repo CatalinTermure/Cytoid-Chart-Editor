@@ -205,7 +205,8 @@ namespace CCE.Tests.Rendering
             Assert.AreEqual(0.8f, spawnedInfo.Opacity, 1e-6f, "Note opacity should be correct.");
             Assert.AreEqual(5.4f, spawnedInfo.X, 1e-6f, "Note X position should be correct.");
             Assert.AreEqual(4.38f, spawnedInfo.Y, 1e-6f, "Note Y position should be correct.");
-            Assert.AreEqual(1.6f, spawnedInfo.NoteBodyBackground.size.y, 1e-6f, "Note body background size should be correct.");
+            Assert.AreEqual(2.0f, spawnedInfo.NoteBodyBackground.size.y, 1e-6f, "Note body background size should be correct.");
+            Assert.AreEqual(0.8f, spawnedInfo.NoteBodyTransform.localScale.y, 1e-6f, "Note body bar frequency should be correct.");
         }
 
         [Test]
@@ -242,8 +243,9 @@ namespace CCE.Tests.Rendering
             Assert.AreEqual(0.8f, spawnedInfo.Opacity, 1e-6f, "Note opacity should be correct.");
             Assert.AreEqual(5.4f, spawnedInfo.X, 1e-6f, "Note X position should be correct.");
             Assert.AreEqual(4.38f, spawnedInfo.Y, 1e-6f, "Note Y position should be correct.");
-            Assert.AreEqual(32.0f, spawnedInfo.NoteBodyBackgroundTop.size.y, 1e-6f, "Note body background top size should be correct.");
-            Assert.AreEqual(32.0f, spawnedInfo.NoteBodyBackgroundBottom.size.y, 1e-6f, "Note body background bottom size should be correct.");
+            Assert.AreEqual(40.0f, spawnedInfo.NoteBodyBackgroundTop.size.y, 1e-6f, "Note body background top size should be correct.");
+            Assert.AreEqual(40.0f, spawnedInfo.NoteBodyBackgroundBottom.size.y, 1e-6f, "Note body background bottom size should be correct.");
+            Assert.AreEqual(0.8f, spawnedInfo.NoteBodyTransform.localScale.y, 1e-6f, "Note body bar frequency should be correct.");
         }
 
         [Test]

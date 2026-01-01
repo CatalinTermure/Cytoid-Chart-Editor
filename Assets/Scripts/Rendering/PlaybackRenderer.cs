@@ -47,7 +47,9 @@ namespace CCE.Rendering
                 holdNoteInfo.NoteBodyBackground.size = new Vector2(1.0f, bodyBackgroundScale.y);
                 float completionPercentage = Mathf.Clamp01((float)((time - holdNoteInfo.StartTime) / (holdNoteInfo.EndTime - holdNoteInfo.StartTime)));
                 holdNoteInfo.NoteCompletedBody.size = new Vector2(1.0f, bodyBackgroundScale.y * completionPercentage);
-                holdNoteInfo.NoteBodyTransform.localScale = new Vector2(approachPercentage * 0.6f, 1.0f / holdNoteInfo.Size) / (0.4f + approachPercentage * 0.6f);
+                // When miniaturizing the chart, we want the bars of the hold notes to have less space between them
+                float scalingFactor = holdNoteInfo.NoteBodyTransform.localScale.y;
+                holdNoteInfo.NoteBodyTransform.localScale = new Vector2(approachPercentage * 0.6f, scalingFactor / holdNoteInfo.Size) / (0.4f + approachPercentage * 0.6f);
             }
 
             foreach (LongHoldNoteInfo longHoldNoteInfo in _noteProvider.GetLongHoldNotes())
@@ -62,9 +64,11 @@ namespace CCE.Rendering
                 longHoldNoteInfo.NoteBodyBackgroundTop.color = longHoldNoteInfo.NoteBodyBackgroundTop.color.WithAlpha(opacity);
                 longHoldNoteInfo.NoteBodyBackgroundBottom.color = longHoldNoteInfo.NoteBodyBackgroundBottom.color.WithAlpha(opacity);
                 float completionPercentage = Mathf.Clamp01((float)((time - longHoldNoteInfo.StartTime) / (longHoldNoteInfo.EndTime - longHoldNoteInfo.StartTime)));
-                longHoldNoteInfo.NoteCompletedBodyTop.size = new Vector2(1.0f, (_longHoldVisibleSize / 2 - longHoldNoteInfo.Y) * completionPercentage);
-                longHoldNoteInfo.NoteCompletedBodyBottom.size = new Vector2(1.0f, (_longHoldVisibleSize / 2 + longHoldNoteInfo.Y) * completionPercentage);
-                longHoldNoteInfo.NoteBodyTransform.localScale = new Vector2(approachPercentage * 0.6f, 1.0f / longHoldNoteInfo.Size) / (0.4f + approachPercentage * 0.6f);
+                // When miniaturizing the chart, we want the bars of the hold notes to have less space between them
+                float scalingFactor = longHoldNoteInfo.NoteBodyTransform.localScale.y;
+                longHoldNoteInfo.NoteCompletedBodyTop.size = new Vector2(1.0f, (_longHoldVisibleSize / 2 - longHoldNoteInfo.Y) * completionPercentage / scalingFactor);
+                longHoldNoteInfo.NoteCompletedBodyBottom.size = new Vector2(1.0f, (_longHoldVisibleSize / 2 + longHoldNoteInfo.Y) * completionPercentage / scalingFactor);
+                longHoldNoteInfo.NoteBodyTransform.localScale = new Vector2(approachPercentage * 0.6f, scalingFactor / longHoldNoteInfo.Size) / (0.4f + approachPercentage * 0.6f);
             }
 
             foreach (FlickNoteInfo flickNoteInfo in _noteProvider.GetFlickNotes())
