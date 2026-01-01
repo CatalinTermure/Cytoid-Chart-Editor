@@ -209,10 +209,10 @@ namespace CCE.Tests.Rendering
 
                 Assert.AreEqual(1.0f, _clickNoteInfos[0].NoteFill.color.a, 0.01f, "Note 0 fill opacity should be correct");
                 Assert.AreEqual(1.0f, _clickNoteInfos[0].NoteRing.color.a, 0.01f, "Note 0 ring opacity should be correct");
-                Assert.AreEqual(0.25f, _clickNoteInfos[1].NoteFill.color.a, 0.01f, "Note 1 fill opacity should be correct");
-                Assert.AreEqual(0.25f, _clickNoteInfos[1].NoteRing.color.a, 0.01f, "Note 1 ring opacity should be correct");
-                Assert.AreEqual(0.33f, _clickNoteInfos[2].NoteFill.color.a, 0.01f, "Note 2 fill opacity should be correct");
-                Assert.AreEqual(0.33f, _clickNoteInfos[2].NoteRing.color.a, 0.01f, "Note 2 ring opacity should be correct");
+                Assert.AreEqual(0.5f, _clickNoteInfos[1].NoteFill.color.a, 0.01f, "Note 1 fill opacity should be correct");
+                Assert.AreEqual(0.5f, _clickNoteInfos[1].NoteRing.color.a, 0.01f, "Note 1 ring opacity should be correct");
+                Assert.AreEqual(0.66f, _clickNoteInfos[2].NoteFill.color.a, 0.01f, "Note 2 fill opacity should be correct");
+                Assert.AreEqual(0.66f, _clickNoteInfos[2].NoteRing.color.a, 0.01f, "Note 2 ring opacity should be correct");
             }
         }
 
@@ -352,14 +352,14 @@ namespace CCE.Tests.Rendering
                 Assert.AreEqual(1.0f, _flickNoteInfos[0].NoteRing.color.a, 0.01f, "Note 0 ring opacity should be correct");
                 Assert.AreEqual(1.0f, _flickNoteInfos[0].LeftArrow.color.a, 0.01f, "Note 0 left arrow opacity should be correct");
                 Assert.AreEqual(1.0f, _flickNoteInfos[0].RightArrow.color.a, 0.01f, "Note 0 right arrow opacity should be correct");
-                Assert.AreEqual(0.25f, _flickNoteInfos[1].NoteFill.color.a, 0.01f, "Note 1 fill opacity should be correct");
-                Assert.AreEqual(0.25f, _flickNoteInfos[1].NoteRing.color.a, 0.01f, "Note 1 ring opacity should be correct");
-                Assert.AreEqual(0.25f, _flickNoteInfos[1].LeftArrow.color.a, 0.01f, "Note 1 left arrow opacity should be correct");
-                Assert.AreEqual(0.25f, _flickNoteInfos[1].RightArrow.color.a, 0.01f, "Note 1 right arrow opacity should be correct");
-                Assert.AreEqual(0.33f, _flickNoteInfos[2].NoteFill.color.a, 0.01f, "Note 2 fill opacity should be correct");
-                Assert.AreEqual(0.33f, _flickNoteInfos[2].NoteRing.color.a, 0.01f, "Note 2 ring opacity should be correct");
-                Assert.AreEqual(0.33f, _flickNoteInfos[2].LeftArrow.color.a, 0.01f, "Note 2 left arrow opacity should be correct");
-                Assert.AreEqual(0.33f, _flickNoteInfos[2].RightArrow.color.a, 0.01f, "Note 2 right arrow opacity should be correct");
+                Assert.AreEqual(0.5f, _flickNoteInfos[1].NoteFill.color.a, 0.01f, "Note 1 fill opacity should be correct");
+                Assert.AreEqual(0.5f, _flickNoteInfos[1].NoteRing.color.a, 0.01f, "Note 1 ring opacity should be correct");
+                Assert.AreEqual(0.5f, _flickNoteInfos[1].LeftArrow.color.a, 0.01f, "Note 1 left arrow opacity should be correct");
+                Assert.AreEqual(0.5f, _flickNoteInfos[1].RightArrow.color.a, 0.01f, "Note 1 right arrow opacity should be correct");
+                Assert.AreEqual(0.66f, _flickNoteInfos[2].NoteFill.color.a, 0.01f, "Note 2 fill opacity should be correct");
+                Assert.AreEqual(0.66f, _flickNoteInfos[2].NoteRing.color.a, 0.01f, "Note 2 ring opacity should be correct");
+                Assert.AreEqual(0.66f, _flickNoteInfos[2].LeftArrow.color.a, 0.01f, "Note 2 left arrow opacity should be correct");
+                Assert.AreEqual(0.66f, _flickNoteInfos[2].RightArrow.color.a, 0.01f, "Note 2 right arrow opacity should be correct");
             }
 
             [Test]
@@ -492,8 +492,8 @@ namespace CCE.Tests.Rendering
                 playbackRenderer.Render(1.0f);
 
                 Assert.AreEqual(1.0f, _dragChildNoteInfos[0].NoteFill.color.a, 0.01f, "Note 0 fill opacity should be correct");
-                Assert.AreEqual(0.25f, _dragChildNoteInfos[1].NoteFill.color.a, 0.01f, "Note 1 fill opacity should be correct");
-                Assert.AreEqual(0.33f, _dragChildNoteInfos[2].NoteFill.color.a, 0.01f, "Note 2 fill opacity should be correct");
+                Assert.AreEqual(0.5f, _dragChildNoteInfos[1].NoteFill.color.a, 0.01f, "Note 1 fill opacity should be correct");
+                Assert.AreEqual(0.66f, _dragChildNoteInfos[2].NoteFill.color.a, 0.01f, "Note 2 fill opacity should be correct");
             }
         }
 
@@ -614,10 +614,10 @@ namespace CCE.Tests.Rendering
 
                 Assert.AreEqual(1.0f, _holdNoteInfos[0].NoteFill.color.a, 0.01f, "Note 0 fill opacity should be correct");
                 Assert.AreEqual(1.0f, _holdNoteInfos[0].NoteRing.color.a, 0.01f, "Note 0 ring opacity should be correct");
-                Assert.AreEqual(0.25f, _holdNoteInfos[1].NoteFill.color.a, 0.01f, "Note 1 fill opacity should be correct");
-                Assert.AreEqual(0.25f, _holdNoteInfos[1].NoteRing.color.a, 0.01f, "Note 1 ring opacity should be correct");
-                Assert.AreEqual(0.33f, _holdNoteInfos[2].NoteFill.color.a, 0.01f, "Note 2 fill opacity should be correct");
-                Assert.AreEqual(0.33f, _holdNoteInfos[2].NoteRing.color.a, 0.01f, "Note 2 ring opacity should be correct");
+                Assert.AreEqual(0.5f, _holdNoteInfos[1].NoteFill.color.a, 0.01f, "Note 1 fill opacity should be correct");
+                Assert.AreEqual(0.5f, _holdNoteInfos[1].NoteRing.color.a, 0.01f, "Note 1 ring opacity should be correct");
+                Assert.AreEqual(0.66f, _holdNoteInfos[2].NoteFill.color.a, 0.01f, "Note 2 fill opacity should be correct");
+                Assert.AreEqual(0.66f, _holdNoteInfos[2].NoteRing.color.a, 0.01f, "Note 2 ring opacity should be correct");
             }
 
             [Test]
@@ -640,8 +640,8 @@ namespace CCE.Tests.Rendering
                 playbackRenderer.Render(1.0);
 
                 Assert.AreEqual(1.0f, _holdNoteInfos[0].NoteBodyBackground.color.a, 0.01f, "Note 0 body background opacity should be correct");
-                Assert.AreEqual(0.25f, _holdNoteInfos[1].NoteBodyBackground.color.a, 0.01f, "Note 1 body background opacity should be correct");
-                Assert.AreEqual(0.25f, _holdNoteInfos[2].NoteBodyBackground.color.a, 0.01f, "Note 2 body background opacity should be correct");
+                Assert.AreEqual(0.5f, _holdNoteInfos[1].NoteBodyBackground.color.a, 0.01f, "Note 1 body background opacity should be correct");
+                Assert.AreEqual(0.5f, _holdNoteInfos[2].NoteBodyBackground.color.a, 0.01f, "Note 2 body background opacity should be correct");
                 Assert.AreEqual(1.0f, _holdNoteInfos[0].NoteBodyBackground.size.x, 0.01f, "Note 0 body background X size should be correct");
                 Assert.AreEqual(5.0f, _holdNoteInfos[0].NoteBodyBackground.size.y, 0.01f, "Note 0 body background Y size should be correct");
             }
@@ -813,10 +813,10 @@ namespace CCE.Tests.Rendering
 
                 Assert.AreEqual(1.0f, _longHoldNoteInfos[0].NoteFill.color.a, 0.01f, "Note 0 fill opacity should be correct");
                 Assert.AreEqual(1.0f, _longHoldNoteInfos[0].NoteRing.color.a, 0.01f, "Note 0 ring opacity should be correct");
-                Assert.AreEqual(0.25f, _longHoldNoteInfos[1].NoteFill.color.a, 0.01f, "Note 1 fill opacity should be correct");
-                Assert.AreEqual(0.25f, _longHoldNoteInfos[1].NoteRing.color.a, 0.01f, "Note 1 ring opacity should be correct");
-                Assert.AreEqual(0.33f, _longHoldNoteInfos[2].NoteFill.color.a, 0.01f, "Note 2 fill opacity should be correct");
-                Assert.AreEqual(0.33f, _longHoldNoteInfos[2].NoteRing.color.a, 0.01f, "Note 2 ring opacity should be correct");
+                Assert.AreEqual(0.5f, _longHoldNoteInfos[1].NoteFill.color.a, 0.01f, "Note 1 fill opacity should be correct");
+                Assert.AreEqual(0.5f, _longHoldNoteInfos[1].NoteRing.color.a, 0.01f, "Note 1 ring opacity should be correct");
+                Assert.AreEqual(0.66f, _longHoldNoteInfos[2].NoteFill.color.a, 0.01f, "Note 2 fill opacity should be correct");
+                Assert.AreEqual(0.66f, _longHoldNoteInfos[2].NoteRing.color.a, 0.01f, "Note 2 ring opacity should be correct");
             }
 
             [Test]
@@ -840,10 +840,10 @@ namespace CCE.Tests.Rendering
 
                 Assert.AreEqual(1.0f, _longHoldNoteInfos[0].NoteBodyBackgroundTop.color.a, 0.01f, "Note 0 body background top opacity should be correct");
                 Assert.AreEqual(1.0f, _longHoldNoteInfos[0].NoteBodyBackgroundBottom.color.a, 0.01f, "Note 0 body background bottom opacity should be correct");
-                Assert.AreEqual(0.25f, _longHoldNoteInfos[1].NoteBodyBackgroundTop.color.a, 0.01f, "Note 1 body background top opacity should be correct");
-                Assert.AreEqual(0.25f, _longHoldNoteInfos[1].NoteBodyBackgroundBottom.color.a, 0.01f, "Note 1 body background bottom opacity should be correct");
-                Assert.AreEqual(0.33f, _longHoldNoteInfos[2].NoteBodyBackgroundTop.color.a, 0.01f, "Note 2 body background top opacity should be correct");
-                Assert.AreEqual(0.33f, _longHoldNoteInfos[2].NoteBodyBackgroundBottom.color.a, 0.01f, "Note 2 body background bottom opacity should be correct");
+                Assert.AreEqual(0.5f, _longHoldNoteInfos[1].NoteBodyBackgroundTop.color.a, 0.01f, "Note 1 body background top opacity should be correct");
+                Assert.AreEqual(0.5f, _longHoldNoteInfos[1].NoteBodyBackgroundBottom.color.a, 0.01f, "Note 1 body background bottom opacity should be correct");
+                Assert.AreEqual(0.66f, _longHoldNoteInfos[2].NoteBodyBackgroundTop.color.a, 0.01f, "Note 2 body background top opacity should be correct");
+                Assert.AreEqual(0.66f, _longHoldNoteInfos[2].NoteBodyBackgroundBottom.color.a, 0.01f, "Note 2 body background bottom opacity should be correct");
             }
 
             [Test]

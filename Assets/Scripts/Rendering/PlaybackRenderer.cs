@@ -28,7 +28,7 @@ namespace CCE.Rendering
                 float noteSize = clickNoteInfo.Size * (0.4f + approachPercentage * 0.6f);
                 clickNoteInfo.NoteTransform.localScale = new Vector3(noteSize, noteSize, 1.0f);
                 clickNoteInfo.NoteFillTransform.localScale = new Vector3(approachPercentage, approachPercentage, 1.0f);
-                float opacity = clickNoteInfo.Opacity * approachPercentage;
+                float opacity = clickNoteInfo.Opacity * Mathf.Clamp01(approachPercentage * 2);
                 clickNoteInfo.NoteFill.color = clickNoteInfo.NoteFill.color.WithAlpha(opacity);
                 clickNoteInfo.NoteRing.color = clickNoteInfo.NoteRing.color.WithAlpha(opacity);
             }
@@ -39,7 +39,7 @@ namespace CCE.Rendering
                 float approachPercentage = Mathf.Clamp01((float)((time - holdNoteInfo.IntroTime) / (holdNoteInfo.StartTime - holdNoteInfo.IntroTime)));
                 float noteSize = holdNoteInfo.Size * (0.4f + approachPercentage * 0.6f);
                 holdNoteInfo.NoteTransform.localScale = new Vector3(noteSize, noteSize, 1.0f);
-                float opacity = holdNoteInfo.Opacity * approachPercentage;
+                float opacity = holdNoteInfo.Opacity * Mathf.Clamp01(approachPercentage * 2);
                 holdNoteInfo.NoteFill.color = holdNoteInfo.NoteFill.color.WithAlpha(opacity);
                 holdNoteInfo.NoteRing.color = holdNoteInfo.NoteRing.color.WithAlpha(opacity);
                 Vector2 bodyBackgroundScale = holdNoteInfo.NoteBodyBackground.size;
@@ -58,7 +58,7 @@ namespace CCE.Rendering
                 float approachPercentage = Mathf.Clamp01((float)((time - longHoldNoteInfo.IntroTime) / (longHoldNoteInfo.StartTime - longHoldNoteInfo.IntroTime)));
                 float noteSize = longHoldNoteInfo.Size * (0.4f + approachPercentage * 0.6f);
                 longHoldNoteInfo.NoteTransform.localScale = new Vector3(noteSize, noteSize, 1.0f);
-                float opacity = longHoldNoteInfo.Opacity * approachPercentage;
+                float opacity = longHoldNoteInfo.Opacity * Mathf.Clamp01(approachPercentage * 2);
                 longHoldNoteInfo.NoteFill.color = longHoldNoteInfo.NoteFill.color.WithAlpha(opacity);
                 longHoldNoteInfo.NoteRing.color = longHoldNoteInfo.NoteRing.color.WithAlpha(opacity);
                 longHoldNoteInfo.NoteBodyBackgroundTop.color = longHoldNoteInfo.NoteBodyBackgroundTop.color.WithAlpha(opacity);
@@ -87,7 +87,7 @@ namespace CCE.Rendering
                     new Vector3(_flickArrowMaxOffset, 0.0f, 0.0f),
                     Vector3.zero,
                     arrowApproachPercentage) / noteSize;
-                float opacity = flickNoteInfo.Opacity * approachPercentage;
+                float opacity = flickNoteInfo.Opacity * Mathf.Clamp01(approachPercentage * 2);
                 flickNoteInfo.NoteFill.color = flickNoteInfo.NoteFill.color.WithAlpha(opacity);
                 flickNoteInfo.NoteRing.color = flickNoteInfo.NoteRing.color.WithAlpha(opacity);
                 flickNoteInfo.LeftArrow.color = flickNoteInfo.LeftArrow.color.WithAlpha(opacity);
@@ -100,7 +100,7 @@ namespace CCE.Rendering
                 float approachPercentage = (float)((time - dragChildNoteInfo.IntroTime) / (dragChildNoteInfo.Time - dragChildNoteInfo.IntroTime));
                 float noteSize = dragChildNoteInfo.Size * (0.7f + approachPercentage * 0.3f);
                 dragChildNoteInfo.NoteTransform.localScale = new Vector3(noteSize, noteSize, 1.0f);
-                float opacity = dragChildNoteInfo.Opacity * approachPercentage;
+                float opacity = dragChildNoteInfo.Opacity * Mathf.Clamp01(approachPercentage * 2);
                 dragChildNoteInfo.NoteFill.color = dragChildNoteInfo.NoteFill.color.WithAlpha(opacity);
             }
         }
