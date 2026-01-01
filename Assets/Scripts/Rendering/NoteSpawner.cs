@@ -23,7 +23,7 @@ namespace CCE.Rendering
         private const float LONG_HOLD_BODY_SIZE = 4.0f;
 
         public NoteSpawner(ChartObjectPool chartObjectPool, Chart chart,
-                            IChartToScreenCoordinatesConverter chartToScreenConverter = null)
+                            IChartToScreenCoordinatesConverter chartToScreenConverter)
         {
             _chartObjectPool = chartObjectPool;
             _chart = chart;
@@ -32,8 +32,7 @@ namespace CCE.Rendering
             _longHoldNotes = new List<LongHoldNoteInfo>();
             _flickNotes = new List<FlickNoteInfo>();
             _dragChildNotes = new List<DragChildNoteInfo>();
-            _chartToScreenConverter = chartToScreenConverter ??
-                new ChartToScreenCoordinatesConverter();
+            _chartToScreenConverter = chartToScreenConverter;
         }
 
         /// <summary>

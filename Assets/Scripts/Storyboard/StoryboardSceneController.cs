@@ -15,22 +15,35 @@ namespace CCE.Storyboard
         private Chart _chart;
         private NoteTimingCalculator _noteTimingCalculator;
         private NoteVisualsCalculator _noteVisualsCalculator;
+        private IAudioManager _audioManager;
 
+        public void TogglePlayPause()
+        {
+            if (_audioManager.IsPlaying)
+            {
+                _audioManager.Pause();
+            }
+            else
+            {
+                _audioManager.Play();
+            }
+        }
 
+        public void SetTime(float timePercentage)
+        {
+            _audioManager.Time = _audioManager.MaxTime * timePercentage;
+        }
 
         void Awake()
         {
+            var chartToScreenCoordinatesConverter = new ChartToScreenCoordinatesConverter();
             _chart = CurrentChartProvider.CurrentChart;
             _noteTimingCalculator = new NoteTimingCalculator(_chart);
             _noteVisualsCalculator = new NoteVisualsCalculator(_chart);
             _chartObjectPool = new ChartObjectPool(_notePrefabs);
-            _noteSpawner = new NoteSpawner(_chartObjectPool, _chart);
-            _playbackRenderer = new PlaybackRenderer(_noteSpawner);
-        }
-
-        void Start()
-        {
-            AudioManagerProvider.AudioManager.Play();
+            _noteSpawner = new NoteSpawner(_chartObjectPool, _chart, chartToScreenCoordinatesConverter);
+            _playbackRenderer = new PlaybackRenderer(_noteSpawner, chartToScreenCoordinatesConverter);
+            _audioManager = AudioManagerProvider.AudioManager;
         }
 
         void Update()

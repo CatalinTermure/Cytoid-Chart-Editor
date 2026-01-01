@@ -71,5 +71,8 @@ TagManager:
   - name: Notes
     uniqueID: 494735107
     locked: 0
+  - name: UI
+    uniqueID: 417469089
+    locked: 0
   m_RenderingLayers:
   - Default

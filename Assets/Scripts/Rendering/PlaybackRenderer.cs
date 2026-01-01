@@ -12,10 +12,9 @@ namespace CCE.Rendering
         private readonly float _flickArrowMaxOffset;
         private readonly float _longHoldVisibleSize;
 
-        public PlaybackRenderer(INoteProvider noteProvider, IChartToScreenCoordinatesConverter chartToScreenConverter = null)
+        public PlaybackRenderer(INoteProvider noteProvider, IChartToScreenCoordinatesConverter chartToScreenConverter)
         {
             _noteProvider = noteProvider;
-            chartToScreenConverter ??= new ChartToScreenCoordinatesConverter();
             _longHoldVisibleSize = chartToScreenConverter.ScreenSize * 1.0f;
             _flickArrowMaxOffset = chartToScreenConverter.ScreenSize * 0.15f;
         }
