@@ -82,11 +82,11 @@ namespace CCE.Rendering
                 flickNoteInfo.LeftArrowTransform.localPosition = Vector3.Lerp(
                     new Vector3(-_flickArrowMaxOffset, 0.0f, 0.0f),
                     Vector3.zero,
-                    arrowApproachPercentage);
+                    arrowApproachPercentage) / noteSize;
                 flickNoteInfo.RightArrowTransform.localPosition = Vector3.Lerp(
                     new Vector3(_flickArrowMaxOffset, 0.0f, 0.0f),
                     Vector3.zero,
-                    arrowApproachPercentage);
+                    arrowApproachPercentage) / noteSize;
                 float opacity = flickNoteInfo.Opacity * approachPercentage;
                 flickNoteInfo.NoteFill.color = flickNoteInfo.NoteFill.color.WithAlpha(opacity);
                 flickNoteInfo.NoteRing.color = flickNoteInfo.NoteRing.color.WithAlpha(opacity);

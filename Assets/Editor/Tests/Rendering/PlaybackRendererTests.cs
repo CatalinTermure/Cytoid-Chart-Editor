@@ -282,14 +282,17 @@ namespace CCE.Tests.Rendering
                 _flickNoteInfos[0].Time = 1.0f;
                 _flickNoteInfos[0].X = 7.1f;
                 _flickNoteInfos[0].Y = 13.2f;
+                _flickNoteInfos[0].Size = 1.0f;
                 _flickNoteInfos[1].IntroTime = 0.0f;
                 _flickNoteInfos[1].Time = 2.0f;
                 _flickNoteInfos[1].X = 0.0f;
                 _flickNoteInfos[1].Y = 0.0f;
+                _flickNoteInfos[1].Size = 1.0f;
                 _flickNoteInfos[2].IntroTime = 0.0f;
                 _flickNoteInfos[2].Time = 3.0f;
                 _flickNoteInfos[2].X = -10.0f;
                 _flickNoteInfos[2].Y = -3.5f;
+                _flickNoteInfos[2].Size = 0.5f;
 
                 playbackRenderer.Render(1.0f);
 
@@ -307,10 +310,13 @@ namespace CCE.Tests.Rendering
                 PlaybackRenderer playbackRenderer = new(_fakeNoteProvider, _chartToScreenCoordinatesConverter);
                 _flickNoteInfos[0].IntroTime = 0.0f;
                 _flickNoteInfos[0].Time = 1.0f;
+                _flickNoteInfos[0].Size = 1.0f;
                 _flickNoteInfos[1].IntroTime = 0.0f;
                 _flickNoteInfos[1].Time = 2.0f;
+                _flickNoteInfos[1].Size = 1.0f;
                 _flickNoteInfos[2].IntroTime = 0.0f;
                 _flickNoteInfos[2].Time = 3.0f;
+                _flickNoteInfos[2].Size = 0.5f;
 
                 playbackRenderer.Render(1.0f);
 
@@ -329,12 +335,16 @@ namespace CCE.Tests.Rendering
                 _flickNoteInfos[0].IntroTime = 0.0f;
                 _flickNoteInfos[0].Time = 1.0f;
                 _flickNoteInfos[0].Opacity = 1.0f;
+                _flickNoteInfos[0].Size = 0.5f;
                 _flickNoteInfos[1].IntroTime = 0.0f;
                 _flickNoteInfos[1].Time = 2.0f;
                 _flickNoteInfos[1].Opacity = 0.5f;
+                _flickNoteInfos[1].Size = 0.5f;
                 _flickNoteInfos[2].IntroTime = 0.0f;
                 _flickNoteInfos[2].Time = 3.0f;
                 _flickNoteInfos[2].Opacity = 1.0f;
+                _flickNoteInfos[2].Size = 0.5f;
+
 
                 playbackRenderer.Render(1.0f);
 
@@ -358,19 +368,22 @@ namespace CCE.Tests.Rendering
                 PlaybackRenderer playbackRenderer = new(_fakeNoteProvider, _chartToScreenCoordinatesConverter);
                 _flickNoteInfos[0].IntroTime = 0.0f;
                 _flickNoteInfos[0].Time = 1.25f;
+                _flickNoteInfos[0].Size = 1.0f;
                 _flickNoteInfos[1].IntroTime = 0.0f;
                 _flickNoteInfos[1].Time = 2.25f;
+                _flickNoteInfos[1].Size = 0.5f;
                 _flickNoteInfos[2].IntroTime = 1.0f;
                 _flickNoteInfos[2].Time = 2.0f;
+                _flickNoteInfos[2].Size = 2.0f;
 
                 playbackRenderer.Render(1.0f);
 
                 Assert.AreEqual(0.0f, _flickNoteInfos[0].LeftArrowTransform.localPosition.x, 0.01f, "Note 0 left arrow X position should be correct");
                 Assert.AreEqual(0.0f, _flickNoteInfos[0].RightArrowTransform.localPosition.x, 0.01f, "Note 0 right arrow X position should be correct");
-                Assert.AreEqual(-0.6f, _flickNoteInfos[1].LeftArrowTransform.localPosition.x, 0.01f, "Note 1 left arrow X position should be correct");
-                Assert.AreEqual(0.6f, _flickNoteInfos[1].RightArrowTransform.localPosition.x, 0.01f, "Note 1 right arrow X position should be correct");
-                Assert.AreEqual(-1.2f, _flickNoteInfos[2].LeftArrowTransform.localPosition.x, 0.01f, "Note 2 left arrow X position should be correct");
-                Assert.AreEqual(1.2f, _flickNoteInfos[2].RightArrowTransform.localPosition.x, 0.01f, "Note 2 right arrow X position should be correct");
+                Assert.AreEqual(-1.8f, _flickNoteInfos[1].LeftArrowTransform.localPosition.x, 0.01f, "Note 1 left arrow X position should be correct");
+                Assert.AreEqual(1.8f, _flickNoteInfos[1].RightArrowTransform.localPosition.x, 0.01f, "Note 1 right arrow X position should be correct");
+                Assert.AreEqual(-1.5f, _flickNoteInfos[2].LeftArrowTransform.localPosition.x, 0.01f, "Note 2 left arrow X position should be correct");
+                Assert.AreEqual(1.5f, _flickNoteInfos[2].RightArrowTransform.localPosition.x, 0.01f, "Note 2 right arrow X position should be correct");
             }
         }
 
