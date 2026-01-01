@@ -98,7 +98,7 @@ namespace CCE.Rendering
             note.ActualOpacity = note.Opacity < 0 ? _chart.Opacity : note.Opacity;
 
             // Calculate note size
-            note.ActualSize = note.Size < 0 ? _chart.Size : note.Size;
+            note.ActualSize = note.Size < 0 ? _chart.Size : _chart.Size * note.Size;
         }
 
         // Taken straight from Cytoid source code

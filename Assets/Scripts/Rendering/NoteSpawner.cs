@@ -18,10 +18,12 @@ namespace CCE.Rendering
         private List<LongHoldNoteInfo> _longHoldNotes;
         private List<FlickNoteInfo> _flickNotes;
         private List<DragChildNoteInfo> _dragChildNotes;
+        private readonly IChartToScreenCoordinatesConverter _chartToScreenConverter;
 
-        private const float DRAG_CHILD_SIZE_MULTIPLIER = 0.65f;
+        private const float LONG_HOLD_BODY_SIZE = 4.0f;
 
-        public NoteSpawner(ChartObjectPool chartObjectPool, Chart chart)
+        public NoteSpawner(ChartObjectPool chartObjectPool, Chart chart,
+                            IChartToScreenCoordinatesConverter chartToScreenConverter = null)
         {
             _chartObjectPool = chartObjectPool;
             _chart = chart;
@@ -30,6 +32,8 @@ namespace CCE.Rendering
             _longHoldNotes = new List<LongHoldNoteInfo>();
             _flickNotes = new List<FlickNoteInfo>();
             _dragChildNotes = new List<DragChildNoteInfo>();
+            _chartToScreenConverter = chartToScreenConverter ??
+                new ChartToScreenCoordinatesConverter();
         }
 
         /// <summary>
@@ -150,10 +154,10 @@ namespace CCE.Rendering
                 var flickNoteInfo = noteObject.GetComponent<FlickNoteInfo>();
                 flickNoteInfo.IntroTime = note.Time - note.ApproachTime;
                 flickNoteInfo.Time = note.Time;
-                flickNoteInfo.Size = (float)note.ActualSize;
+                flickNoteInfo.Size = (float)note.ActualSize * _chartToScreenConverter.FlickNoteSize;
                 flickNoteInfo.Opacity = (float)note.ActualOpacity;
-                flickNoteInfo.X = (float)(note.X * 10.0 - 5.0);
-                flickNoteInfo.Y = (float)(note.Y * 10.0 - 5.0);
+                flickNoteInfo.X = _chartToScreenConverter.ScreenXFromChartX(note.X);
+                flickNoteInfo.Y = _chartToScreenConverter.ScreenYFromChartY(note.Y);
                 flickNoteInfo.LeftArrow.color = new Color(1.0f, 1.0f, 1.0f, 0.0f);
                 flickNoteInfo.RightArrow.color = new Color(1.0f, 1.0f, 1.0f, 0.0f);
                 flickNoteInfo.NoteFill.color = GetFillColor(note).WithAlpha(0.0f);
@@ -165,10 +169,10 @@ namespace CCE.Rendering
                 var dragChildNoteInfo = noteObject.GetComponent<DragChildNoteInfo>();
                 dragChildNoteInfo.IntroTime = note.Time - note.ApproachTime;
                 dragChildNoteInfo.Time = note.Time;
-                dragChildNoteInfo.Size = (float)note.ActualSize * DRAG_CHILD_SIZE_MULTIPLIER;
+                dragChildNoteInfo.Size = (float)note.ActualSize * _chartToScreenConverter.DragChildNoteSize;
                 dragChildNoteInfo.Opacity = (float)note.ActualOpacity;
-                dragChildNoteInfo.X = (float)(note.X * 10.0 - 5.0);
-                dragChildNoteInfo.Y = (float)(note.Y * 10.0 - 5.0);
+                dragChildNoteInfo.X = _chartToScreenConverter.ScreenXFromChartX(note.X);
+                dragChildNoteInfo.Y = _chartToScreenConverter.ScreenYFromChartY(note.Y);
                 dragChildNoteInfo.NoteFill.color = GetFillColor(note).WithAlpha(0.0f);
                 _dragChildNotes.Add(dragChildNoteInfo);
             }
@@ -179,17 +183,18 @@ namespace CCE.Rendering
                 holdNoteInfo.IntroTime = note.Time - note.ApproachTime;
                 holdNoteInfo.StartTime = note.Time;
                 holdNoteInfo.EndTime = note.Time + note.HoldTime;
-                holdNoteInfo.Size = (float)note.ActualSize;
+                holdNoteInfo.Size = (float)note.ActualSize * _chartToScreenConverter.HoldNoteSize;
                 holdNoteInfo.Opacity = (float)note.ActualOpacity;
-                holdNoteInfo.X = (float)(note.X * 10.0 - 5.0);
-                holdNoteInfo.Y = (float)(note.Y * 10.0 - 5.0);
+                holdNoteInfo.X = _chartToScreenConverter.ScreenXFromChartX(note.X);
+                holdNoteInfo.Y = _chartToScreenConverter.ScreenYFromChartY(note.Y);
                 Color fillColor = GetFillColor(note);
                 holdNoteInfo.NoteFill.color = fillColor.WithAlpha(0.0f);
                 holdNoteInfo.NoteRing.color = GetRingColor(note).WithAlpha(0.0f);
                 holdNoteInfo.NoteCompletedBody.color = fillColor;
                 holdNoteInfo.NoteCompletedBody.size = new Vector3(0.0f, 0.0f);
                 holdNoteInfo.NoteBodyBackground.color = Color.white.WithAlpha(0.0f);
-                holdNoteInfo.NoteBodyBackground.size = new Vector3(0.0f, 10.0f * note.HoldTick / page.ActualPageSize);
+                holdNoteInfo.NoteBodyBackground.size = new Vector3(0.0f,
+                        _chartToScreenConverter.ScreenSize * ((float)note.HoldTick / page.ActualPageSize));
                 holdNoteInfo.NoteBodyTransform.localScale = new Vector2(0, 1.0f);
                 if (page.ScanLineDirection < 0)
                 {
@@ -203,10 +208,10 @@ namespace CCE.Rendering
                 longHoldNoteInfo.IntroTime = note.Time - note.ApproachTime;
                 longHoldNoteInfo.StartTime = note.Time;
                 longHoldNoteInfo.EndTime = note.Time + note.HoldTime;
-                longHoldNoteInfo.Size = (float)note.ActualSize;
+                longHoldNoteInfo.Size = (float)note.ActualSize * _chartToScreenConverter.LongHoldNoteSize;
                 longHoldNoteInfo.Opacity = (float)note.ActualOpacity;
-                longHoldNoteInfo.X = (float)(note.X * 10.0 - 5.0);
-                longHoldNoteInfo.Y = (float)(note.Y * 10.0 - 5.0);
+                longHoldNoteInfo.X = _chartToScreenConverter.ScreenXFromChartX(note.X);
+                longHoldNoteInfo.Y = _chartToScreenConverter.ScreenYFromChartY(note.Y);
                 Color fillColor = GetFillColor(note);
                 longHoldNoteInfo.NoteFill.color = fillColor.WithAlpha(0.0f);
                 longHoldNoteInfo.NoteRing.color = GetRingColor(note).WithAlpha(0.0f);
@@ -215,9 +220,11 @@ namespace CCE.Rendering
                 longHoldNoteInfo.NoteCompletedBodyBottom.color = fillColor;
                 longHoldNoteInfo.NoteCompletedBodyBottom.size = new Vector3(0.0f, 0.0f);
                 longHoldNoteInfo.NoteBodyBackgroundTop.color = Color.white.WithAlpha(0.0f);
-                longHoldNoteInfo.NoteBodyBackgroundTop.size = new Vector3(1.0f, 40.0f);
+                longHoldNoteInfo.NoteBodyBackgroundTop.size = new Vector3(1.0f,
+                        _chartToScreenConverter.ScreenSize * LONG_HOLD_BODY_SIZE);
                 longHoldNoteInfo.NoteBodyBackgroundBottom.color = Color.white.WithAlpha(0.0f);
-                longHoldNoteInfo.NoteBodyBackgroundBottom.size = new Vector3(1.0f, 40.0f);
+                longHoldNoteInfo.NoteBodyBackgroundBottom.size = new Vector3(1.0f,
+                        _chartToScreenConverter.ScreenSize * LONG_HOLD_BODY_SIZE);
                 longHoldNoteInfo.NoteBodyTransform.localScale = new Vector2(0, 1.0f);
                 _longHoldNotes.Add(longHoldNoteInfo);
             }
@@ -226,10 +233,10 @@ namespace CCE.Rendering
                 var clickNoteInfo = noteObject.GetComponent<ClickNoteInfo>();
                 clickNoteInfo.IntroTime = note.Time - note.ApproachTime;
                 clickNoteInfo.Time = note.Time;
-                clickNoteInfo.Size = (float)note.ActualSize;
+                clickNoteInfo.Size = (float)note.ActualSize * _chartToScreenConverter.ClickNoteSize;
                 clickNoteInfo.Opacity = (float)note.ActualOpacity;
-                clickNoteInfo.X = (float)(note.X * 10.0 - 5.0);
-                clickNoteInfo.Y = (float)(note.Y * 10.0 - 5.0);
+                clickNoteInfo.X = _chartToScreenConverter.ScreenXFromChartX(note.X);
+                clickNoteInfo.Y = _chartToScreenConverter.ScreenYFromChartY(note.Y);
                 clickNoteInfo.NoteFill.color = GetFillColor(note).WithAlpha(0.0f);
                 clickNoteInfo.NoteRing.color = GetRingColor(note).WithAlpha(0.0f);
                 _clickNotes.Add(clickNoteInfo);

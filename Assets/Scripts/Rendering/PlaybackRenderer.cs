@@ -9,11 +9,15 @@ namespace CCE.Rendering
     public class PlaybackRenderer : ILevelRenderer
     {
         private readonly INoteProvider _noteProvider;
-        private readonly float _flickArrowMaxOffset = 5.0f * 0.3f;
+        private readonly float _flickArrowMaxOffset;
+        private readonly float _longHoldVisibleSize;
 
-        public PlaybackRenderer(INoteProvider noteProvider)
+        public PlaybackRenderer(INoteProvider noteProvider, IChartToScreenCoordinatesConverter chartToScreenConverter = null)
         {
             _noteProvider = noteProvider;
+            chartToScreenConverter ??= new ChartToScreenCoordinatesConverter();
+            _longHoldVisibleSize = chartToScreenConverter.ScreenSize * 1.0f;
+            _flickArrowMaxOffset = chartToScreenConverter.ScreenSize * 0.15f;
         }
 
         public void Render(double time)
@@ -44,7 +48,7 @@ namespace CCE.Rendering
                 holdNoteInfo.NoteBodyBackground.size = new Vector2(1.0f, bodyBackgroundScale.y);
                 float completionPercentage = Mathf.Clamp01((float)((time - holdNoteInfo.StartTime) / (holdNoteInfo.EndTime - holdNoteInfo.StartTime)));
                 holdNoteInfo.NoteCompletedBody.size = new Vector2(1.0f, bodyBackgroundScale.y * completionPercentage);
-                holdNoteInfo.NoteBodyTransform.localScale = new Vector2(approachPercentage * 0.7f, 1.0f) / (0.4f + approachPercentage * 0.6f);
+                holdNoteInfo.NoteBodyTransform.localScale = new Vector2(approachPercentage * 0.6f, 1.0f / holdNoteInfo.Size) / (0.4f + approachPercentage * 0.6f);
             }
 
             foreach (LongHoldNoteInfo longHoldNoteInfo in _noteProvider.GetLongHoldNotes())
@@ -59,9 +63,9 @@ namespace CCE.Rendering
                 longHoldNoteInfo.NoteBodyBackgroundTop.color = longHoldNoteInfo.NoteBodyBackgroundTop.color.WithAlpha(opacity);
                 longHoldNoteInfo.NoteBodyBackgroundBottom.color = longHoldNoteInfo.NoteBodyBackgroundBottom.color.WithAlpha(opacity);
                 float completionPercentage = Mathf.Clamp01((float)((time - longHoldNoteInfo.StartTime) / (longHoldNoteInfo.EndTime - longHoldNoteInfo.StartTime)));
-                longHoldNoteInfo.NoteCompletedBodyTop.size = new Vector2(1.0f, (5.0f - longHoldNoteInfo.Y) * completionPercentage);
-                longHoldNoteInfo.NoteCompletedBodyBottom.size = new Vector2(1.0f, (5.0f + longHoldNoteInfo.Y) * completionPercentage);
-                longHoldNoteInfo.NoteBodyTransform.localScale = new Vector2(approachPercentage * 0.7f, 1.0f) / (0.4f + approachPercentage * 0.6f);
+                longHoldNoteInfo.NoteCompletedBodyTop.size = new Vector2(1.0f, (_longHoldVisibleSize / 2 - longHoldNoteInfo.Y) * completionPercentage);
+                longHoldNoteInfo.NoteCompletedBodyBottom.size = new Vector2(1.0f, (_longHoldVisibleSize / 2 + longHoldNoteInfo.Y) * completionPercentage);
+                longHoldNoteInfo.NoteBodyTransform.localScale = new Vector2(approachPercentage * 0.6f, 1.0f / longHoldNoteInfo.Size) / (0.4f + approachPercentage * 0.6f);
             }
 
             foreach (FlickNoteInfo flickNoteInfo in _noteProvider.GetFlickNotes())
