@@ -199,6 +199,10 @@ namespace CCE.Rendering
                 {
                     holdNoteInfo.NoteBodyTransform.localRotation = Quaternion.Euler(0.0f, 0.0f, 180.0f);
                 }
+                else
+                {
+                    holdNoteInfo.NoteBodyTransform.localRotation = Quaternion.identity;
+                }
                 _holdNotes.Add(holdNoteInfo);
             }
             else if (note.Type == (int)NoteType.LongHold)
