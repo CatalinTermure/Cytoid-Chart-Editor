@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using CCE.Rendering.Notes;
 using UnityEngine;
 
@@ -96,18 +97,22 @@ namespace CCE.Rendering
 
             foreach (DragHeadNoteInfo dragHeadNoteInfo in _noteProvider.GetDragHeadNotes())
             {
-                dragHeadNoteInfo.NoteTransform.localPosition = new Vector3(dragHeadNoteInfo.X, dragHeadNoteInfo.Y, 0.0f);
                 float approachPercentage = Mathf.Clamp01((float)((time - dragHeadNoteInfo.IntroTime) / (dragHeadNoteInfo.StartTime - dragHeadNoteInfo.IntroTime)));
                 float noteSize = dragHeadNoteInfo.Size * (0.7f + approachPercentage * 0.3f);
                 dragHeadNoteInfo.NoteTransform.localScale = new Vector3(noteSize, noteSize, 1.0f);
                 float opacity = dragHeadNoteInfo.Opacity * Mathf.Clamp01(approachPercentage * 2);
                 dragHeadNoteInfo.NoteFill.color = dragHeadNoteInfo.NoteFill.color.WithAlpha(opacity);
                 dragHeadNoteInfo.NoteRing.color = dragHeadNoteInfo.NoteRing.color.WithAlpha(opacity);
+                int i = GetDragPathIndex(dragHeadNoteInfo.DragPath, time);
+                float t = (float)((time - dragHeadNoteInfo.DragPath[i - 1].Time) / (dragHeadNoteInfo.DragPath[i].Time - dragHeadNoteInfo.DragPath[i - 1].Time));
+                Vector2 prevPos = new(dragHeadNoteInfo.DragPath[i - 1].X, dragHeadNoteInfo.DragPath[i - 1].Y);
+                Vector2 nextPos = new(dragHeadNoteInfo.DragPath[i].X, dragHeadNoteInfo.DragPath[i].Y);
+                Vector2 newPosition = Vector2.Lerp(prevPos, nextPos, (float)t);
+                dragHeadNoteInfo.NoteTransform.localPosition = newPosition;
             }
 
             foreach (CDragHeadNoteInfo cdragHeadNoteInfo in _noteProvider.GetCDragHeadNotes())
             {
-                cdragHeadNoteInfo.NoteTransform.localPosition = new Vector3(cdragHeadNoteInfo.X, cdragHeadNoteInfo.Y, 0.0f);
                 float approachPercentage = Mathf.Clamp01((float)((time - cdragHeadNoteInfo.IntroTime) / (cdragHeadNoteInfo.StartTime - cdragHeadNoteInfo.IntroTime)));
                 float noteSize = cdragHeadNoteInfo.Size * (0.4f + approachPercentage * 0.6f);
                 cdragHeadNoteInfo.NoteTransform.localScale = new Vector3(noteSize, noteSize, 1.0f);
@@ -116,6 +121,12 @@ namespace CCE.Rendering
                 cdragHeadNoteInfo.NoteFill.color = cdragHeadNoteInfo.NoteFill.color.WithAlpha(opacity);
                 cdragHeadNoteInfo.NoteRing.color = cdragHeadNoteInfo.NoteRing.color.WithAlpha(opacity);
                 cdragHeadNoteInfo.NoteArrow.color = cdragHeadNoteInfo.NoteArrow.color.WithAlpha(opacity);
+                int i = GetDragPathIndex(cdragHeadNoteInfo.DragPath, time);
+                float t = (float)((time - cdragHeadNoteInfo.DragPath[i - 1].Time) / (cdragHeadNoteInfo.DragPath[i].Time - cdragHeadNoteInfo.DragPath[i - 1].Time));
+                Vector2 prevPos = new(cdragHeadNoteInfo.DragPath[i - 1].X, cdragHeadNoteInfo.DragPath[i - 1].Y);
+                Vector2 nextPos = new(cdragHeadNoteInfo.DragPath[i].X, cdragHeadNoteInfo.DragPath[i].Y);
+                Vector2 newPosition = Vector2.Lerp(prevPos, nextPos, (float)t);
+                cdragHeadNoteInfo.NoteTransform.SetLocalPositionAndRotation(newPosition, cdragHeadNoteInfo.DragPath[i].Rotation);
             }
 
             foreach (DragChildNoteInfo dragChildNoteInfo in _noteProvider.GetDragChildNotes())
@@ -127,6 +138,18 @@ namespace CCE.Rendering
                 float opacity = dragChildNoteInfo.Opacity * Mathf.Clamp01(approachPercentage * 2);
                 dragChildNoteInfo.NoteFill.color = dragChildNoteInfo.NoteFill.color.WithAlpha(opacity);
             }
+        }
+
+        private int GetDragPathIndex(List<DragPathNode> dragPath, double time)
+        {
+            for (int i = 1; i < dragPath.Count; i++)
+            {
+                if (dragPath[i - 1].Time <= time && time <= dragPath[i].Time)
+                {
+                    return i;
+                }
+            }
+            return -1;
         }
     }
 }

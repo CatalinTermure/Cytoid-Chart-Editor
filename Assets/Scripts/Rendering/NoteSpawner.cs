@@ -263,8 +263,7 @@ namespace CCE.Rendering
                 dragHeadNoteInfo.EndTime = _chart.NoteList[noteIndex].Time;
                 dragHeadNoteInfo.Size = (float)note.ActualSize * _chartToScreenConverter.DragHeadNoteSize;
                 dragHeadNoteInfo.Opacity = (float)note.ActualOpacity;
-                dragHeadNoteInfo.X = _chartToScreenConverter.ScreenXFromChartX(note.X);
-                dragHeadNoteInfo.Y = _chartToScreenConverter.ScreenYFromChartY(note.Y);
+                dragHeadNoteInfo.DragPath = GetDragPath(note);
                 dragHeadNoteInfo.NoteFill.color = GetFillColor(note).WithAlpha(0.0f);
                 dragHeadNoteInfo.NoteRing.color = GetRingColor(note).WithAlpha(0.0f);
                 _dragHeadNotes.Add(dragHeadNoteInfo);
@@ -282,8 +281,29 @@ namespace CCE.Rendering
                 cdragHeadNoteInfo.EndTime = _chart.NoteList[noteIndex].Time;
                 cdragHeadNoteInfo.Size = (float)note.ActualSize * _chartToScreenConverter.CDragHeadNoteSize;
                 cdragHeadNoteInfo.Opacity = (float)note.ActualOpacity;
-                cdragHeadNoteInfo.X = _chartToScreenConverter.ScreenXFromChartX(note.X);
-                cdragHeadNoteInfo.Y = _chartToScreenConverter.ScreenYFromChartY(note.Y);
+                cdragHeadNoteInfo.DragPath = GetDragPath(note);
+                for (int i = 2; i < cdragHeadNoteInfo.DragPath.Count; i++)
+                {
+                    Vector2 prevPos = new(cdragHeadNoteInfo.DragPath[i - 1].X, cdragHeadNoteInfo.DragPath[i - 1].Y);
+                    Vector2 pos = new(cdragHeadNoteInfo.DragPath[i].X, cdragHeadNoteInfo.DragPath[i].Y);
+                    cdragHeadNoteInfo.DragPath[i] = new DragPathNode
+                    {
+                        X = pos.x,
+                        Y = pos.y,
+                        Time = cdragHeadNoteInfo.DragPath[i].Time,
+                        Rotation = Quaternion.FromToRotation(Vector2.up, pos - prevPos)
+                    };
+                }
+                if (cdragHeadNoteInfo.DragPath.Count > 2)
+                {
+                    cdragHeadNoteInfo.DragPath[1] = new DragPathNode
+                    {
+                        X = cdragHeadNoteInfo.DragPath[1].X,
+                        Y = cdragHeadNoteInfo.DragPath[1].Y,
+                        Time = cdragHeadNoteInfo.DragPath[1].Time,
+                        Rotation = cdragHeadNoteInfo.DragPath[2].Rotation
+                    };
+                }
                 cdragHeadNoteInfo.NoteFill.color = GetFillColor(note).WithAlpha(0.0f);
                 cdragHeadNoteInfo.NoteRing.color = GetRingColor(note).WithAlpha(0.0f);
                 cdragHeadNoteInfo.NoteArrow.color = GetRingColor(note).WithAlpha(0.0f);
@@ -347,6 +367,33 @@ namespace CCE.Rendering
                 _chartObjectPool.ReturnToPool(cDragHeadNote.gameObject, NoteType.CDragHead);
             }
             _cdragHeadNotes.Clear();
+        }
+
+        private List<DragPathNode> GetDragPath(Note note)
+        {
+            var dragPath = new List<DragPathNode>
+            {
+                new() {
+                    X = _chartToScreenConverter.ScreenXFromChartX(note.X),
+                    Y = _chartToScreenConverter.ScreenYFromChartY(note.Y),
+                    Time = 0.0f,
+                    Rotation = Quaternion.identity
+                }
+            };
+            int noteIndex = note.ID;
+            while (noteIndex != -1)
+            {
+                Note chainNote = _chart.NoteList[noteIndex];
+                dragPath.Add(new()
+                {
+                    X = _chartToScreenConverter.ScreenXFromChartX(chainNote.X),
+                    Y = _chartToScreenConverter.ScreenYFromChartY(chainNote.Y),
+                    Time = chainNote.Time,
+                    Rotation = Quaternion.identity
+                });
+                noteIndex = chainNote.NextID;
+            }
+            return dragPath;
         }
     }
 }

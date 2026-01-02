@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace CCE.Rendering.Notes
@@ -13,7 +14,6 @@ namespace CCE.Rendering.Notes
         [NonSerialized] public double EndTime;
         [NonSerialized] public float Size;
         [NonSerialized] public float Opacity;
-        [NonSerialized] public float X;
-        [NonSerialized] public float Y;
+        [NonSerialized] public List<DragPathNode> DragPath;
     }
 }
