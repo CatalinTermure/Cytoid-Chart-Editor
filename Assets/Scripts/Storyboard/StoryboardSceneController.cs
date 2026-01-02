@@ -63,7 +63,7 @@ namespace CCE.Storyboard
 
         void Update()
         {
-            double time = AudioManagerProvider.AudioManager.Time;
+            double time = AudioManagerProvider.AudioManager.Time + _chart.MusicOffset;
             _noteSpawner16x9.UpdateTime(time);
             _playbackRenderer16x9.Render(time);
             _noteSpawner4x3.UpdateTime(time);
