@@ -73,6 +73,16 @@ namespace CCE.Tests.Rendering
             {
                 return _longHoldNotes;
             }
+
+            public List<DragHeadNoteInfo> GetDragHeadNotes()
+            {
+                return new List<DragHeadNoteInfo>();
+            }
+
+            public List<CDragHeadNoteInfo> GetCDragHeadNotes()
+            {
+                return new List<CDragHeadNoteInfo>();
+            }
         }
 
         [TestFixture]

@@ -18,9 +18,9 @@ namespace CCE.Tests.Rendering
             {
                 ClickNote = Resources.Load<GameObject>("Click Note new"),
                 FlickNote = Resources.Load<GameObject>("Flick Note New"),
-                DragHeadNote = Resources.Load<GameObject>("Click Note New"),
+                DragHeadNote = Resources.Load<GameObject>("Drag Head Note New"),
                 DragChildNote = Resources.Load<GameObject>("Drag Child New"),
-                CDragHeadNote = Resources.Load<GameObject>("Click Note New"),
+                CDragHeadNote = Resources.Load<GameObject>("CDrag Head Note New"),
                 HoldNote = Resources.Load<GameObject>("Hold Note New"),
                 LongHoldNote = Resources.Load<GameObject>("Long Hold Note New"),
             })
@@ -339,7 +339,26 @@ namespace CCE.Tests.Rendering
 
             spawner.UpdateTime(2.8);
 
-            Assert.IsTrue(spawner.GetClickNotes().Count >= 1, "Drag Head should be active at 2.8s");
+            Assert.IsTrue(spawner.GetDragHeadNotes().Count >= 1, "Drag Head should be active at 2.8s");
+        }
+
+        [Test]
+        public void UpdateTime_CDragChain_StaysActiveUntilChainEnd()
+        {
+            var chart = new Chart();
+            var head = new Note { ID = 0, NextID = 1, Type = (int)NoteType.CDragHead, Time = 2.0, ApproachTime = 1.0, PageIndex = 0 };
+            var child1 = new Note { ID = 1, NextID = 2, Type = (int)NoteType.CDragChild, Time = 2.5, PageIndex = 0 };
+            var child2 = new Note { ID = 2, NextID = -1, Type = (int)NoteType.CDragChild, Time = 3.0, PageIndex = 0 };
+            chart.NoteList.Add(head);
+            chart.NoteList.Add(child1);
+            chart.NoteList.Add(child2);
+            chart.PageList.Add(new Page { ScanLineDirection = 1 });
+            var pool = new ChartObjectPoolWithTracking();
+            var spawner = new NoteSpawner(pool, chart, _chartToScreenConverter);
+
+            spawner.UpdateTime(2.8);
+
+            Assert.IsTrue(spawner.GetCDragHeadNotes().Count >= 1, "CDrag Head should be active at 2.8s");
         }
 
         [Test]

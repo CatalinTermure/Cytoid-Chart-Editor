@@ -563,13 +563,13 @@ MonoBehaviour:
       type: 3}
     LongHoldNote: {fileID: 492882668290676778, guid: a970cec48a815744cbb9f9d2e4469384,
       type: 3}
-    DragHeadNote: {fileID: 3318615403950730174, guid: 0dd82537b7370064e952f42af8f9c426,
+    DragHeadNote: {fileID: 9123791298504511215, guid: 1980575f794407942b94f690d752fe7a,
       type: 3}
     DragChildNote: {fileID: 4097558142101695417, guid: e873432d87eb60f419e179e13369ba9b,
       type: 3}
     FlickNote: {fileID: 709623842097727893, guid: a55135e6e70847e4b9ee1f60fd7f1a63,
       type: 3}
-    CDragHeadNote: {fileID: 3318615403950730174, guid: 0dd82537b7370064e952f42af8f9c426,
+    CDragHeadNote: {fileID: 4340750657196764792, guid: 85720214b85a7034caddd1f6a72a2a0e,
       type: 3}
 --- !u!1 &1404435730
 GameObject:

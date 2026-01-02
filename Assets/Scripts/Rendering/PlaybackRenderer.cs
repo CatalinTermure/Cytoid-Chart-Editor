@@ -94,6 +94,30 @@ namespace CCE.Rendering
                 flickNoteInfo.RightArrow.color = flickNoteInfo.RightArrow.color.WithAlpha(opacity);
             }
 
+            foreach (DragHeadNoteInfo dragHeadNoteInfo in _noteProvider.GetDragHeadNotes())
+            {
+                dragHeadNoteInfo.NoteTransform.localPosition = new Vector3(dragHeadNoteInfo.X, dragHeadNoteInfo.Y, 0.0f);
+                float approachPercentage = Mathf.Clamp01((float)((time - dragHeadNoteInfo.IntroTime) / (dragHeadNoteInfo.StartTime - dragHeadNoteInfo.IntroTime)));
+                float noteSize = dragHeadNoteInfo.Size * (0.7f + approachPercentage * 0.3f);
+                dragHeadNoteInfo.NoteTransform.localScale = new Vector3(noteSize, noteSize, 1.0f);
+                float opacity = dragHeadNoteInfo.Opacity * Mathf.Clamp01(approachPercentage * 2);
+                dragHeadNoteInfo.NoteFill.color = dragHeadNoteInfo.NoteFill.color.WithAlpha(opacity);
+                dragHeadNoteInfo.NoteRing.color = dragHeadNoteInfo.NoteRing.color.WithAlpha(opacity);
+            }
+
+            foreach (CDragHeadNoteInfo cdragHeadNoteInfo in _noteProvider.GetCDragHeadNotes())
+            {
+                cdragHeadNoteInfo.NoteTransform.localPosition = new Vector3(cdragHeadNoteInfo.X, cdragHeadNoteInfo.Y, 0.0f);
+                float approachPercentage = Mathf.Clamp01((float)((time - cdragHeadNoteInfo.IntroTime) / (cdragHeadNoteInfo.StartTime - cdragHeadNoteInfo.IntroTime)));
+                float noteSize = cdragHeadNoteInfo.Size * (0.4f + approachPercentage * 0.6f);
+                cdragHeadNoteInfo.NoteTransform.localScale = new Vector3(noteSize, noteSize, 1.0f);
+                cdragHeadNoteInfo.NoteFillTransform.localScale = new Vector3(approachPercentage, approachPercentage, 1.0f);
+                float opacity = cdragHeadNoteInfo.Opacity * Mathf.Clamp01(approachPercentage * 2);
+                cdragHeadNoteInfo.NoteFill.color = cdragHeadNoteInfo.NoteFill.color.WithAlpha(opacity);
+                cdragHeadNoteInfo.NoteRing.color = cdragHeadNoteInfo.NoteRing.color.WithAlpha(opacity);
+                cdragHeadNoteInfo.NoteArrow.color = cdragHeadNoteInfo.NoteArrow.color.WithAlpha(opacity);
+            }
+
             foreach (DragChildNoteInfo dragChildNoteInfo in _noteProvider.GetDragChildNotes())
             {
                 dragChildNoteInfo.NoteTransform.localPosition = new Vector3(dragChildNoteInfo.X, dragChildNoteInfo.Y, 0.0f);

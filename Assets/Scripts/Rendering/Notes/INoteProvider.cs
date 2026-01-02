@@ -24,8 +24,16 @@ namespace CCE.Rendering.Notes
         /// </summary>
         List<FlickNoteInfo> GetFlickNotes();
         /// <summary>
+        /// Gets all the currently visible drag head notes.
+        /// </summary>
+        List<DragHeadNoteInfo> GetDragHeadNotes();
+        /// <summary>
         /// Gets all the currently visible drag child notes.
         /// </summary>
         List<DragChildNoteInfo> GetDragChildNotes();
+        /// <summary>
+        /// Gets all the currently visible drag head notes.
+        /// </summary>
+        List<CDragHeadNoteInfo> GetCDragHeadNotes();
     }
 }

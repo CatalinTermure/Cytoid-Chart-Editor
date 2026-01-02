@@ -17,7 +17,9 @@ namespace CCE.Rendering
         private List<HoldNoteInfo> _holdNotes;
         private List<LongHoldNoteInfo> _longHoldNotes;
         private List<FlickNoteInfo> _flickNotes;
+        private List<DragHeadNoteInfo> _dragHeadNotes;
         private List<DragChildNoteInfo> _dragChildNotes;
+        private List<CDragHeadNoteInfo> _cdragHeadNotes;
         private readonly IChartToScreenCoordinatesConverter _chartToScreenConverter;
         // How much the chart is scaled down from the original Cytoid full-screen size
         private readonly float _scalingRatio;
@@ -33,6 +35,8 @@ namespace CCE.Rendering
             _holdNotes = new List<HoldNoteInfo>();
             _longHoldNotes = new List<LongHoldNoteInfo>();
             _flickNotes = new List<FlickNoteInfo>();
+            _dragHeadNotes = new List<DragHeadNoteInfo>();
+            _cdragHeadNotes = new List<CDragHeadNoteInfo>();
             _dragChildNotes = new List<DragChildNoteInfo>();
             _chartToScreenConverter = chartToScreenConverter;
             _scalingRatio = _chartToScreenConverter.ScreenSize / 10.0f;
@@ -97,6 +101,16 @@ namespace CCE.Rendering
         public List<FlickNoteInfo> GetFlickNotes()
         {
             return _flickNotes;
+        }
+
+        public List<DragHeadNoteInfo> GetDragHeadNotes()
+        {
+            return _dragHeadNotes;
+        }
+
+        public List<CDragHeadNoteInfo> GetCDragHeadNotes()
+        {
+            return _cdragHeadNotes;
         }
 
         public List<DragChildNoteInfo> GetDragChildNotes()
@@ -236,6 +250,45 @@ namespace CCE.Rendering
                 longHoldNoteInfo.NoteBodyTransform.localScale = new Vector2(0, _scalingRatio);
                 _longHoldNotes.Add(longHoldNoteInfo);
             }
+            else if (note.Type == (int)NoteType.DragHead)
+            {
+                var dragHeadNoteInfo = noteObject.GetComponent<DragHeadNoteInfo>();
+                dragHeadNoteInfo.IntroTime = note.Time - note.ApproachTime;
+                dragHeadNoteInfo.StartTime = note.Time;
+                int noteIndex = note.ID;
+                while (_chart.NoteList[noteIndex].NextID != -1)
+                {
+                    noteIndex = _chart.NoteList[noteIndex].NextID;
+                }
+                dragHeadNoteInfo.EndTime = _chart.NoteList[noteIndex].Time;
+                dragHeadNoteInfo.Size = (float)note.ActualSize * _chartToScreenConverter.DragHeadNoteSize;
+                dragHeadNoteInfo.Opacity = (float)note.ActualOpacity;
+                dragHeadNoteInfo.X = _chartToScreenConverter.ScreenXFromChartX(note.X);
+                dragHeadNoteInfo.Y = _chartToScreenConverter.ScreenYFromChartY(note.Y);
+                dragHeadNoteInfo.NoteFill.color = GetFillColor(note).WithAlpha(0.0f);
+                dragHeadNoteInfo.NoteRing.color = GetRingColor(note).WithAlpha(0.0f);
+                _dragHeadNotes.Add(dragHeadNoteInfo);
+            }
+            else if (note.Type == (int)NoteType.CDragHead)
+            {
+                var cdragHeadNoteInfo = noteObject.GetComponent<CDragHeadNoteInfo>();
+                cdragHeadNoteInfo.IntroTime = note.Time - note.ApproachTime;
+                cdragHeadNoteInfo.StartTime = note.Time;
+                int noteIndex = note.ID;
+                while (_chart.NoteList[noteIndex].NextID != -1)
+                {
+                    noteIndex = _chart.NoteList[noteIndex].NextID;
+                }
+                cdragHeadNoteInfo.EndTime = _chart.NoteList[noteIndex].Time;
+                cdragHeadNoteInfo.Size = (float)note.ActualSize * _chartToScreenConverter.CDragHeadNoteSize;
+                cdragHeadNoteInfo.Opacity = (float)note.ActualOpacity;
+                cdragHeadNoteInfo.X = _chartToScreenConverter.ScreenXFromChartX(note.X);
+                cdragHeadNoteInfo.Y = _chartToScreenConverter.ScreenYFromChartY(note.Y);
+                cdragHeadNoteInfo.NoteFill.color = GetFillColor(note).WithAlpha(0.0f);
+                cdragHeadNoteInfo.NoteRing.color = GetRingColor(note).WithAlpha(0.0f);
+                cdragHeadNoteInfo.NoteArrow.color = GetRingColor(note).WithAlpha(0.0f);
+                _cdragHeadNotes.Add(cdragHeadNoteInfo);
+            }
             else
             {
                 var clickNoteInfo = noteObject.GetComponent<ClickNoteInfo>();
@@ -282,6 +335,18 @@ namespace CCE.Rendering
                 _chartObjectPool.ReturnToPool(longHoldNote.gameObject, NoteType.LongHold);
             }
             _longHoldNotes.Clear();
+
+            foreach (var dragHeadNote in _dragHeadNotes)
+            {
+                _chartObjectPool.ReturnToPool(dragHeadNote.gameObject, NoteType.DragHead);
+            }
+            _dragHeadNotes.Clear();
+
+            foreach (var cDragHeadNote in _cdragHeadNotes)
+            {
+                _chartObjectPool.ReturnToPool(cDragHeadNote.gameObject, NoteType.CDragHead);
+            }
+            _cdragHeadNotes.Clear();
         }
     }
 }
