@@ -145,11 +145,6 @@ namespace CCE.Rendering
 
         private Color GetFillColor(Note note)
         {
-            if (note.Type == (int)NoteType.DragChild || note.Type == (int)NoteType.CDragChild)
-            {
-                return GetRingColor(note);
-            }
-
             if (!String.IsNullOrEmpty(note.FillColor))
             {
                 return ColorExtensions.FromHex(note.FillColor);

@@ -153,6 +153,8 @@ namespace CCE.Tests.Rendering
                 Y = 0.7
             };
             chart.NoteList.Add(note);
+            var page = new Page { ScanLineDirection = 1 };
+            chart.PageList.Add(page);
             var pool = new ChartObjectPoolWithTracking();
             var spawner = new NoteSpawner(pool, chart, _chartToScreenConverter);
 
@@ -461,32 +463,6 @@ namespace CCE.Tests.Rendering
             Assert.AreEqual(Color.blue.r, color.r, 1e-6f, "Red component should match");
             Assert.AreEqual(Color.blue.g, color.g, 1e-6f, "Green component should match");
             Assert.AreEqual(Color.blue.b, color.b, 1e-6f, "Blue component should match");
-        }
-
-        [Test]
-        public void UpdateTime_DragChild_UsesRingColorLogicForFill()
-        {
-            var chart = new Chart();
-            chart.RingColor = "#FFFF00";
-            var note = new Note
-            {
-                Type = (int)NoteType.DragChild,
-                Time = 2.0,
-                ApproachTime = 1.0,
-                FillColor = "#FF0000",
-                PageIndex = 0
-            };
-            chart.NoteList.Add(note);
-            chart.PageList.Add(new Page { ScanLineDirection = 1 });
-            var pool = new ChartObjectPoolWithTracking();
-            var spawner = new NoteSpawner(pool, chart, _chartToScreenConverter);
-
-            spawner.UpdateTime(1.5);
-
-            var activeNotes = spawner.GetDragChildNotes();
-            var color = activeNotes[0].NoteFill.color;
-            Assert.AreEqual(1.0f, color.r, 1e-6f);
-            Assert.AreEqual(1.0f, color.g, 1e-6f);
         }
 
         [Test]
