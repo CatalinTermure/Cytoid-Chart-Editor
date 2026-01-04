@@ -1,4 +1,7 @@
+using UnityEngine;
 using CCE.Data;
+using System.Collections.Generic;
+using System;
 
 namespace CCE.Rendering
 {
@@ -9,10 +12,34 @@ namespace CCE.Rendering
     public class NoteVisualsCalculator : IChartChangedListener
     {
         private readonly Chart _chart;
+        private readonly List<Color> _defaultFillColors;
+        private readonly Color _defaultRingColor;
 
         public NoteVisualsCalculator(Chart chart)
         {
             _chart = chart;
+
+            if (!String.IsNullOrEmpty(_chart.RingColor))
+            {
+                _defaultRingColor = FromHex(_chart.RingColor);
+            }
+            else
+            {
+                _defaultRingColor = Color.white;
+            }
+
+            _defaultFillColors = new List<Color>();
+            for (int i = 0; i < Chart.DefaultFillColors.Length; i++)
+            {
+                if (!String.IsNullOrEmpty(_chart.FillColors[i]))
+                {
+                    _defaultFillColors.Add(FromHex(_chart.FillColors[i]));
+                }
+                else
+                {
+                    _defaultFillColors.Add(FromHex(Chart.DefaultFillColors[i]));
+                }
+            }
 
             CalculateNoteVisuals();
         }
@@ -97,6 +124,31 @@ namespace CCE.Rendering
             // Calculate note opacity
             note.ActualOpacity = note.Opacity < 0 ? _chart.Opacity : note.Opacity;
 
+            // Calculate note fill color
+            int colorIndex = Chart.ColorIndexByNoteType[note.Type];
+            if (notePage.ScanLineDirection == 1)
+            {
+                colorIndex += 1;
+            }
+            if (!String.IsNullOrEmpty(note.FillColor))
+            {
+                note.ActualFillColor = FromHex(note.FillColor);
+            }
+            else
+            {
+                note.ActualFillColor = _defaultFillColors[colorIndex];
+            }
+
+            // Calculate note ring color
+            if (!String.IsNullOrEmpty(note.RingColor))
+            {
+                note.ActualRingColor = FromHex(note.RingColor);
+            }
+            else
+            {
+                note.ActualRingColor = _defaultRingColor;
+            }
+
             // Calculate note size
             note.ActualSize = note.Size < 0 ? _chart.Size : _chart.Size * note.Size;
         }
@@ -109,6 +161,15 @@ namespace CCE.Rendering
             var pageRatio = (double)(note.Tick - page.ActualStartTick) / (page.EndTick - page.ActualStartTick);
             var tempo = (page.EndTime - page.ActualStartTime) * pageRatio + (previousPage.EndTime - previousPage.ActualStartTime) * (1.367f - pageRatio);
             return tempo >= 1.367 ? 1.0 : 1.367 / tempo;
+        }
+
+        private static Color FromHex(string hex)
+        {
+            if (ColorUtility.TryParseHtmlString(hex, out Color color))
+            {
+                return color;
+            }
+            return Color.white;
         }
     }
 }

@@ -364,7 +364,7 @@ namespace CCE.Tests.Rendering
         }
 
         [Test]
-        public void UpdateTime_SetsRingColor_FromNote()
+        public void UpdateTime_ReflectsActualRingColor_OnSpawnedNote()
         {
             var chart = new Chart();
             var note = new Note
@@ -372,7 +372,7 @@ namespace CCE.Tests.Rendering
                 Type = (int)NoteType.Click,
                 Time = 2.0,
                 ApproachTime = 1.0,
-                RingColor = "#FF0000",
+                ActualRingColor = Color.red,
                 PageIndex = 0
             };
             chart.NoteList.Add(note);
@@ -391,68 +391,19 @@ namespace CCE.Tests.Rendering
         }
 
         [Test]
-        public void UpdateTime_SetsRingColor_FromChart_WhenNoteRingColorMissing()
+        public void UpdateTime_ReflectsActualFillColor_OnSpawnedNote()
         {
             var chart = new Chart();
-            chart.RingColor = "#00FF00";
             var note = new Note
             {
                 Type = (int)NoteType.Click,
                 Time = 2.0,
                 ApproachTime = 1.0,
+                ActualFillColor = Color.blue,
                 PageIndex = 0
             };
             chart.NoteList.Add(note);
             chart.PageList.Add(new Page { ScanLineDirection = 1 });
-            var pool = new ChartObjectPoolWithTracking();
-            var spawner = new NoteSpawner(pool, chart, _chartToScreenConverter);
-
-            spawner.UpdateTime(1.5);
-
-            var activeNotes = spawner.GetClickNotes();
-            var color = activeNotes[0].NoteRing.color;
-            Assert.AreEqual(Color.green.r, color.r, 1e-6f, "Red component should match");
-            Assert.AreEqual(Color.green.g, color.g, 1e-6f, "Green component should match");
-            Assert.AreEqual(Color.green.b, color.b, 1e-6f, "Blue component should match");
-        }
-
-        [Test]
-        public void UpdateTime_SetsRingColor_Default_WhenAllMissing()
-        {
-            var chart = new Chart();
-            var note = new Note
-            {
-                Type = (int)NoteType.Click,
-                Time = 2.0,
-                ApproachTime = 1.0,
-                PageIndex = 0
-            };
-            chart.NoteList.Add(note);
-            chart.PageList.Add(new Page { ScanLineDirection = 1 });
-            var pool = new ChartObjectPoolWithTracking();
-            var spawner = new NoteSpawner(pool, chart, _chartToScreenConverter);
-
-            spawner.UpdateTime(1.5);
-
-            var activeNotes = spawner.GetClickNotes();
-            var color = activeNotes[0].NoteRing.color;
-            Assert.AreEqual(Color.white.r, color.r, 1e-6f, "Red component should match");
-            Assert.AreEqual(Color.white.g, color.g, 1e-6f, "Green component should match");
-            Assert.AreEqual(Color.white.b, color.b, 1e-6f, "Blue component should match");
-        }
-
-        [Test]
-        public void UpdateTime_SetsFillColor_FromNote()
-        {
-            var chart = new Chart();
-            var note = new Note
-            {
-                Type = (int)NoteType.Click,
-                Time = 2.0,
-                ApproachTime = 1.0,
-                FillColor = "#0000FF"
-            };
-            chart.NoteList.Add(note);
             var pool = new ChartObjectPoolWithTracking();
             var spawner = new NoteSpawner(pool, chart, _chartToScreenConverter);
 
@@ -463,59 +414,6 @@ namespace CCE.Tests.Rendering
             Assert.AreEqual(Color.blue.r, color.r, 1e-6f, "Red component should match");
             Assert.AreEqual(Color.blue.g, color.g, 1e-6f, "Green component should match");
             Assert.AreEqual(Color.blue.b, color.b, 1e-6f, "Blue component should match");
-        }
-
-        [Test]
-        public void UpdateTime_SetsFillColor_FromChart_WhenNoteFillMissing()
-        {
-            var chart = new Chart();
-            chart.PageList.Add(new Page { ScanLineDirection = 1 });
-
-            for (int i = 0; i < 12; i++) chart.FillColors[i] = "#00FFFF";
-
-            var note = new Note
-            {
-                Type = (int)NoteType.Click,
-                Time = 2.0,
-                ApproachTime = 1.0,
-                PageIndex = 0
-            };
-            chart.NoteList.Add(note);
-            var pool = new ChartObjectPoolWithTracking();
-            var spawner = new NoteSpawner(pool, chart, _chartToScreenConverter);
-
-            spawner.UpdateTime(1.5);
-
-            var activeNotes = spawner.GetClickNotes();
-            var color = activeNotes[0].NoteFill.color;
-            Assert.AreEqual(0.0f, color.r, 1e-6f, "Red component should match");
-            Assert.AreEqual(1.0f, color.g, 1e-6f, "Green component should match");
-            Assert.AreEqual(1.0f, color.b, 1e-6f, "Blue component should match");
-        }
-
-        [Test]
-        public void UpdateTime_SetsFillColor_Default_WhenAllMissing()
-        {
-            var chart = new Chart();
-            var note = new Note
-            {
-                Type = (int)NoteType.Click,
-                Time = 2.0,
-                ApproachTime = 1.0,
-                PageIndex = 0
-            };
-            chart.NoteList.Add(note);
-            chart.PageList.Add(new Page { ScanLineDirection = 1 });
-            var pool = new ChartObjectPoolWithTracking();
-            var spawner = new NoteSpawner(pool, chart, _chartToScreenConverter);
-
-            spawner.UpdateTime(1.5);
-
-            var activeNotes = spawner.GetClickNotes();
-            var color = activeNotes[0].NoteFill.color;
-            Assert.AreEqual(1.0f, color.r, 1e-6f, "Red component should match");
-            Assert.AreEqual(0.349f, color.g, 0.001f, "Green component should match");
-            Assert.AreEqual(0.392f, color.b, 0.001f, "Blue component should match");
         }
     }
 }
