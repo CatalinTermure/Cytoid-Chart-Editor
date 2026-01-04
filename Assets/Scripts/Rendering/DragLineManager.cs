@@ -1,44 +1,92 @@
+using System.Collections.Generic;
+using CCE.Rendering.Notes;
 using UnityEngine;
 
 namespace CCE.Rendering
 {
-    public class DragLineManager : MonoBehaviour
+    public class DragLineManager
     {
-        [SerializeField] private Mesh _quadMesh;
-        [SerializeField] private Material _lineMaterial;
+        private readonly Mesh _quadMesh;
+        private readonly Material _lineMaterial;
+        private readonly MaterialPropertyBlock props;
+        private readonly INoteProvider _noteProvider;
 
-        [Range(0.0f, 1.0f)]
-        public float ClipStart = 0.0f;
-        [Range(0.0f, 1.0f)]
-        public float ClipEnd = 1.0f;
+        private readonly float _dragLineWidth;
 
-        private MaterialPropertyBlock props;
-
-        private const float DRAG_LINE_WIDTH = 0.16f;
-
-        public void AddDragLine(Vector2 start, Vector2 end)
+        public DragLineManager(Mesh quadMesh, Material lineMaterial, INoteProvider noteProvider,
+                               IChartToScreenCoordinatesConverter chartToScreenConverter)
         {
-            //
-        }
-
-        void Start()
-        {
+            _quadMesh = quadMesh;
+            _lineMaterial = lineMaterial;
+            _noteProvider = noteProvider;
             props = new MaterialPropertyBlock();
-            _lineMaterial.enableInstancing = true;
+            _dragLineWidth = 0.16f * chartToScreenConverter.ScreenSize / 10.0f;
         }
 
-        void Update()
+        struct DragLineRenderData
         {
-            props.SetVectorArray("_TilingProps", new Vector4[]
+            public Vector2 Position;
+            public Quaternion Rotation;
+            public float Size;
+        }
+
+        public void Render(double time)
+        {
+            List<List<DragPathNode>> dragPaths = new List<List<DragPathNode>>();
+            foreach (var dragHeadNoteInfo in _noteProvider.GetDragHeadNotes())
             {
-                new Vector4(5 / 0.16f, ClipStart, ClipEnd, 0),
-                new Vector4(3 / 0.16f, ClipStart, ClipEnd, 0),
-            });
-            Graphics.DrawMeshInstanced(_quadMesh, 0, _lineMaterial, new Matrix4x4[]
+                dragPaths.Add(dragHeadNoteInfo.DragPath);
+            }
+            foreach (var cdragChildNoteInfo in _noteProvider.GetCDragHeadNotes())
             {
-                Matrix4x4.TRS(new Vector3(0, 0, 0), Quaternion.Euler(0, 0, 45), new Vector3(DRAG_LINE_WIDTH, 5, 1)),
-                Matrix4x4.TRS(new Vector3(2, 2, 0), Quaternion.Euler(0, 0, 45), new Vector3(DRAG_LINE_WIDTH, 3, 1)),
-            }, 2, props, UnityEngine.Rendering.ShadowCastingMode.Off, false, 0);
+                dragPaths.Add(cdragChildNoteInfo.DragPath);
+            }
+
+            if (dragPaths.Count == 0)
+            {
+                return;
+            }
+
+            var matrices = new List<Matrix4x4>();
+            var tilingProps = new List<Vector4>();
+
+            foreach (var dragPath in dragPaths)
+            {
+                for (int i = 2; i < dragPath.Count; i++)
+                {
+                    var startNode = dragPath[i - 1];
+                    var endNode = dragPath[i];
+
+                    if (time < startNode.IntroTime || time > endNode.Time)
+                    {
+                        continue;
+                    }
+
+                    Vector2 startPos = new(startNode.X, startNode.Y);
+                    Vector2 endPos = new(endNode.X, endNode.Y);
+                    Vector2 linePosition = (startPos + endPos) / 2.0f;
+                    Quaternion rotation = Quaternion.FromToRotation(Vector3.up, endPos - startPos);
+                    float lineLength = Vector2.Distance(startPos, endPos);
+                    float clipStart = (float)(time - startNode.Time) / (float)(endNode.Time - startNode.Time);
+                    float clipEnd = 1.0f - (float)(endNode.IntroTime - time - 0.133f) / (float)(endNode.IntroTime - startNode.IntroTime);
+                    // setting Z to 1.0f to avoid z-fighting with notes
+                    matrices.Add(Matrix4x4.TRS(new Vector3(linePosition.x, linePosition.y, 1.0f), rotation, new Vector3(_dragLineWidth, lineLength, 1)));
+                    tilingProps.Add(new Vector4(lineLength / _dragLineWidth, clipStart, clipEnd, 0));
+                }
+            }
+
+            if (matrices.Count == 0)
+            {
+                return;
+            }
+
+            props.Clear();
+            props.SetVectorArray("_TilingProps", tilingProps.ToArray());
+            Graphics.DrawMeshInstanced(_quadMesh, 0, _lineMaterial, matrices.ToArray(),
+                                       matrices.Count, props,
+                                       UnityEngine.Rendering.ShadowCastingMode.Off,
+                                       /* receiveShadows= */ false,
+                                       /* layer= */ 0);
         }
     }
 }

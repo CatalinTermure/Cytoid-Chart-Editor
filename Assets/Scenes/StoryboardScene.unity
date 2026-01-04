@@ -520,7 +520,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1167453127}
   - component: {fileID: 1167453128}
-  - component: {fileID: 1167453129}
   m_Layer: 0
   m_Name: Play Area
   m_TagString: Untagged
@@ -572,22 +571,8 @@ MonoBehaviour:
       type: 3}
     CDragHeadNote: {fileID: 4340750657196764792, guid: 85720214b85a7034caddd1f6a72a2a0e,
       type: 3}
---- !u!114 &1167453129
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1167453126}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 258d49e4b684ada4487c6215692d6aa4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Rendering::CCE.DragLineManager
   _quadMesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
-  _lineMaterial: {fileID: 2100000, guid: eb1dc9f83629caf45b393932ae68bd28, type: 2}
-  ClipStart: 0
-  ClipEnd: 1
+  _dragLineMaterial: {fileID: 2100000, guid: eb1dc9f83629caf45b393932ae68bd28, type: 2}
 --- !u!1 &1404435730
 GameObject:
   m_ObjectHideFlags: 0

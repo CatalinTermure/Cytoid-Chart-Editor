@@ -319,12 +319,14 @@ namespace CCE.Rendering
                     X = _chartToScreenConverter.ScreenXFromChartX(note.X),
                     Y = _chartToScreenConverter.ScreenYFromChartY(note.Y),
                     Time = 0.0f,
+                    IntroTime = 0.0f,
                     Rotation = Quaternion.identity
                 },
                 new() {
                     X = _chartToScreenConverter.ScreenXFromChartX(note.X),
                     Y = _chartToScreenConverter.ScreenYFromChartY(note.Y),
                     Time = note.Time,
+                    IntroTime = note.Time - note.ApproachTime,
                     Rotation = Quaternion.identity
                 }
             };
@@ -342,6 +344,7 @@ namespace CCE.Rendering
                     X = currPos.x,
                     Y = currPos.y,
                     Time = chainNote.Time,
+                    IntroTime = chainNote.Time - chainNote.ApproachTime,
                     Rotation = rotation,
                 });
                 noteIndex = chainNote.NextID;
@@ -352,14 +355,16 @@ namespace CCE.Rendering
                 {
                     X = dragPath[0].X,
                     Y = dragPath[0].Y,
-                    Time = 0.0f,
+                    Time = dragPath[0].Time,
+                    IntroTime = dragPath[0].IntroTime,
                     Rotation = dragPath[2].Rotation
                 };
                 dragPath[1] = new DragPathNode
                 {
                     X = dragPath[1].X,
                     Y = dragPath[1].Y,
-                    Time = note.Time,
+                    Time = dragPath[1].Time,
+                    IntroTime = dragPath[1].IntroTime,
                     Rotation = dragPath[2].Rotation
                 };
             }
