@@ -11,6 +11,7 @@ namespace CCE.Rendering.Notes
         public SpriteRenderer NoteRing;
         public SpriteRenderer NoteBodyBackground;
         public SpriteRenderer NoteCompletedBody;
+        public SpriteMask SpriteMask;
         [NonSerialized] public double IntroTime;
         [NonSerialized] public double StartTime;
         [NonSerialized] public double EndTime;

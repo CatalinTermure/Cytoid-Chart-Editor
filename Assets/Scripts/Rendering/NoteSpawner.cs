@@ -185,6 +185,8 @@ namespace CCE.Rendering
                 holdNoteInfo.NoteCompletedBody.color = note.ActualFillColor;
                 holdNoteInfo.NoteCompletedBody.size = new Vector3(0.0f, 0.0f);
                 holdNoteInfo.NoteCompletedBody.sortingOrder = _lastSortingOrder;
+                holdNoteInfo.SpriteMask.frontSortingOrder = _lastSortingOrder;
+                holdNoteInfo.SpriteMask.backSortingOrder = _lastSortingOrder - 2;
                 float pageFillPercentage = (float)note.HoldTick / page.ActualPageSize;
                 holdNoteInfo.NoteBodyBackground.size = new Vector3(0.0f,
                         (_chartToScreenConverter.ScreenYFromChartY(pageFillPercentage)
@@ -229,6 +231,8 @@ namespace CCE.Rendering
                 longHoldNoteInfo.NoteCompletedBodyBottom.size = new Vector3(0.0f, 0.0f);
                 longHoldNoteInfo.NoteCompletedBodyBottom.sortingOrder = _lastSortingOrder;
                 longHoldNoteInfo.NoteBodyTransform.localScale = new Vector2(0, _scalingRatio);
+                longHoldNoteInfo.SpriteMask.frontSortingOrder = _lastSortingOrder;
+                longHoldNoteInfo.SpriteMask.backSortingOrder = _lastSortingOrder - 1;
                 _longHoldNotes.Add(longHoldNoteInfo);
             }
             else if (note.Type == (int)NoteType.DragHead)
