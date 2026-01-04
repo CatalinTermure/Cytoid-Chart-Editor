@@ -52,6 +52,7 @@ namespace CCE.Tests.Rendering
             public float FlickNoteSize => 6.0f;
             public float CDragHeadNoteSize => 7.0f;
             public float ScreenSize => 8.0f;
+            public float AspectRatio => 16.0f / 9.0f;
 
             public float ScreenXFromChartX(double chartX)
             {

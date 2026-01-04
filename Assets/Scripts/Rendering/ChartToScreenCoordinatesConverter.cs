@@ -55,6 +55,7 @@ namespace CCE.Rendering
         public float HoldNoteSize { get => _noteSizes.HoldNoteSize; }
         public float LongHoldNoteSize { get => _noteSizes.LongHoldNoteSize; }
         public float ScreenSize { get => _playAreaRect.height; }
+        public float AspectRatio { get => _playAreaRect.width / _playAreaRect.height; }
 
         public float ScreenXFromChartX(double chartX)
         {

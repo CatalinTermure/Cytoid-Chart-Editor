@@ -188,5 +188,30 @@ namespace CCE.EditorTests
 
             Assert.AreEqual(5.0f, converter.ScreenSize, 0.01f);
         }
+
+        [Test]
+        public void AspectRatioCorrect_DefaultRect()
+        {
+            var converter = new ChartToScreenCoordinatesConverter(GetDefaultPlayAreaRect());
+
+            Assert.AreEqual(16.0f / 9.0f, converter.AspectRatio, 0.01f);
+        }
+
+        [Test]
+        public void AspectRatioCorrect_NonDefaultRect()
+        {
+            var converter = new ChartToScreenCoordinatesConverter(GetOffsetSmallPlayAreaRect());
+
+            Assert.AreEqual(16.0f / 9.0f, converter.AspectRatio, 0.01f);
+        }
+
+        [Test]
+        public void AspectRatioCorrect_SquareRect()
+        {
+            var rect = new Rect(-5.0f, -5.0f, 10.0f, 10.0f);
+            var converter = new ChartToScreenCoordinatesConverter(rect);
+
+            Assert.AreEqual(1.0f, converter.AspectRatio, 0.01f);
+        }
     }
 }

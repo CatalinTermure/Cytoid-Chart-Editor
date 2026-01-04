@@ -11,6 +11,7 @@ namespace CCE.Rendering
         float HoldNoteSize { get; }
         float LongHoldNoteSize { get; }
         float ScreenSize { get; }
+        float AspectRatio { get; }
 
         float ScreenXFromChartX(double chartX);
         public float ScreenYFromChartY(double chartY);
