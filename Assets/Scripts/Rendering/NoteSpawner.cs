@@ -246,28 +246,6 @@ namespace CCE.Rendering
                 cdragHeadNoteInfo.Size = (float)note.ActualSize * _chartToScreenConverter.CDragHeadNoteSize;
                 cdragHeadNoteInfo.Opacity = (float)note.ActualOpacity;
                 cdragHeadNoteInfo.DragPath = GetDragPath(note);
-                for (int i = 2; i < cdragHeadNoteInfo.DragPath.Count; i++)
-                {
-                    Vector2 prevPos = new(cdragHeadNoteInfo.DragPath[i - 1].X, cdragHeadNoteInfo.DragPath[i - 1].Y);
-                    Vector2 pos = new(cdragHeadNoteInfo.DragPath[i].X, cdragHeadNoteInfo.DragPath[i].Y);
-                    cdragHeadNoteInfo.DragPath[i] = new DragPathNode
-                    {
-                        X = pos.x,
-                        Y = pos.y,
-                        Time = cdragHeadNoteInfo.DragPath[i].Time,
-                        Rotation = Quaternion.FromToRotation(Vector2.up, pos - prevPos)
-                    };
-                }
-                if (cdragHeadNoteInfo.DragPath.Count > 2)
-                {
-                    cdragHeadNoteInfo.DragPath[1] = new DragPathNode
-                    {
-                        X = cdragHeadNoteInfo.DragPath[1].X,
-                        Y = cdragHeadNoteInfo.DragPath[1].Y,
-                        Time = cdragHeadNoteInfo.DragPath[1].Time,
-                        Rotation = cdragHeadNoteInfo.DragPath[2].Rotation
-                    };
-                }
                 cdragHeadNoteInfo.NoteFill.color = note.ActualFillColor.WithAlpha(0.0f);
                 cdragHeadNoteInfo.NoteRing.color = note.ActualRingColor.WithAlpha(0.0f);
                 cdragHeadNoteInfo.NoteArrow.color = note.ActualRingColor.WithAlpha(0.0f);
@@ -342,20 +320,48 @@ namespace CCE.Rendering
                     Y = _chartToScreenConverter.ScreenYFromChartY(note.Y),
                     Time = 0.0f,
                     Rotation = Quaternion.identity
+                },
+                new() {
+                    X = _chartToScreenConverter.ScreenXFromChartX(note.X),
+                    Y = _chartToScreenConverter.ScreenYFromChartY(note.Y),
+                    Time = note.Time,
+                    Rotation = Quaternion.identity
                 }
             };
-            int noteIndex = note.ID;
+            int noteIndex = _chart.NoteList[note.ID].NextID;
             while (noteIndex != -1)
             {
                 Note chainNote = _chart.NoteList[noteIndex];
+                Vector2 prevPos = new(dragPath[^1].X, dragPath[^1].Y);
+                Vector2 currPos = new(
+                    _chartToScreenConverter.ScreenXFromChartX(chainNote.X),
+                    _chartToScreenConverter.ScreenYFromChartY(chainNote.Y));
+                Quaternion rotation = Quaternion.FromToRotation(Vector2.up, currPos - prevPos);
                 dragPath.Add(new()
                 {
-                    X = _chartToScreenConverter.ScreenXFromChartX(chainNote.X),
-                    Y = _chartToScreenConverter.ScreenYFromChartY(chainNote.Y),
+                    X = currPos.x,
+                    Y = currPos.y,
                     Time = chainNote.Time,
-                    Rotation = Quaternion.identity
+                    Rotation = rotation,
                 });
                 noteIndex = chainNote.NextID;
+            }
+            if (dragPath.Count > 2)
+            {
+                dragPath[0] = new DragPathNode
+                {
+                    X = dragPath[0].X,
+                    Y = dragPath[0].Y,
+                    Time = 0.0f,
+                    Rotation = dragPath[2].Rotation
+                };
+                dragPath[1] = new DragPathNode
+                {
+                    X = dragPath[1].X,
+                    Y = dragPath[1].Y,
+                    Time = note.Time,
+                    Rotation = dragPath[2].Rotation
+                };
             }
             return dragPath;
         }
