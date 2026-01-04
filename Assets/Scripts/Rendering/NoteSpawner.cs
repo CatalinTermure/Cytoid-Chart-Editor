@@ -22,8 +22,11 @@ namespace CCE.Rendering
         private readonly IChartToScreenCoordinatesConverter _chartToScreenConverter;
         // How much the chart is scaled down from the original Cytoid full-screen size
         private readonly float _scalingRatio;
+        // The last sorting order used when spawning notes, to ensure correct ordering of notes
+        private int _lastSortingOrder = MAX_SORTING_ORDER;
 
         private const float LONG_HOLD_BODY_SIZE = 4.0f;
+        private const int MAX_SORTING_ORDER = 32767;
 
         public NoteSpawner(ChartObjectPool chartObjectPool, Chart chart,
                             IChartToScreenCoordinatesConverter chartToScreenConverter)
@@ -49,6 +52,7 @@ namespace CCE.Rendering
         public void UpdateTime(double time)
         {
             ClearNotes();
+            _lastSortingOrder = MAX_SORTING_ORDER;
 
             foreach (Note note in _chart.NoteList)
             {
@@ -90,7 +94,6 @@ namespace CCE.Rendering
         {
             return _holdNotes;
         }
-
 
         public List<LongHoldNoteInfo> GetLongHoldNotes()
         {
@@ -140,10 +143,13 @@ namespace CCE.Rendering
                 flickNoteInfo.Opacity = (float)note.ActualOpacity;
                 flickNoteInfo.X = _chartToScreenConverter.ScreenXFromChartX(note.X);
                 flickNoteInfo.Y = _chartToScreenConverter.ScreenYFromChartY(note.Y);
+                // Note arrow sorting order is left default intentionally for consistency with Cytoid
                 flickNoteInfo.LeftArrow.color = new Color(1.0f, 1.0f, 1.0f, 0.0f);
                 flickNoteInfo.RightArrow.color = new Color(1.0f, 1.0f, 1.0f, 0.0f);
                 flickNoteInfo.NoteFill.color = note.ActualFillColor.WithAlpha(0.0f);
+                flickNoteInfo.NoteFill.sortingOrder = _lastSortingOrder - 1;
                 flickNoteInfo.NoteRing.color = note.ActualRingColor.WithAlpha(0.0f);
+                flickNoteInfo.NoteRing.sortingOrder = _lastSortingOrder;
                 _flickNotes.Add(flickNoteInfo);
             }
             else if (note.Type == (int)NoteType.DragChild || note.Type == (int)NoteType.CDragChild)
@@ -156,6 +162,7 @@ namespace CCE.Rendering
                 dragChildNoteInfo.X = _chartToScreenConverter.ScreenXFromChartX(note.X);
                 dragChildNoteInfo.Y = _chartToScreenConverter.ScreenYFromChartY(note.Y);
                 dragChildNoteInfo.NoteFill.color = note.ActualFillColor.WithAlpha(0.0f);
+                dragChildNoteInfo.NoteFill.sortingOrder = _lastSortingOrder - 1;
                 _dragChildNotes.Add(dragChildNoteInfo);
             }
             else if (note.Type == (int)NoteType.Hold)
@@ -170,10 +177,14 @@ namespace CCE.Rendering
                 holdNoteInfo.X = _chartToScreenConverter.ScreenXFromChartX(note.X);
                 holdNoteInfo.Y = _chartToScreenConverter.ScreenYFromChartY(note.Y);
                 holdNoteInfo.NoteFill.color = note.ActualFillColor.WithAlpha(0.0f);
+                holdNoteInfo.NoteFill.sortingOrder = _lastSortingOrder - 1;
                 holdNoteInfo.NoteRing.color = note.ActualRingColor.WithAlpha(0.0f);
+                holdNoteInfo.NoteRing.sortingOrder = _lastSortingOrder;
+                holdNoteInfo.NoteBodyBackground.color = Color.white.WithAlpha(0.0f);
+                holdNoteInfo.NoteBodyBackground.sortingOrder = _lastSortingOrder - 1;
                 holdNoteInfo.NoteCompletedBody.color = note.ActualFillColor;
                 holdNoteInfo.NoteCompletedBody.size = new Vector3(0.0f, 0.0f);
-                holdNoteInfo.NoteBodyBackground.color = Color.white.WithAlpha(0.0f);
+                holdNoteInfo.NoteCompletedBody.sortingOrder = _lastSortingOrder;
                 float pageFillPercentage = (float)note.HoldTick / page.ActualPageSize;
                 holdNoteInfo.NoteBodyBackground.size = new Vector3(0.0f,
                         (_chartToScreenConverter.ScreenYFromChartY(pageFillPercentage)
@@ -200,17 +211,23 @@ namespace CCE.Rendering
                 longHoldNoteInfo.X = _chartToScreenConverter.ScreenXFromChartX(note.X);
                 longHoldNoteInfo.Y = _chartToScreenConverter.ScreenYFromChartY(note.Y);
                 longHoldNoteInfo.NoteFill.color = note.ActualFillColor.WithAlpha(0.0f);
+                longHoldNoteInfo.NoteFill.sortingOrder = _lastSortingOrder - 1;
                 longHoldNoteInfo.NoteRing.color = note.ActualRingColor.WithAlpha(0.0f);
-                longHoldNoteInfo.NoteCompletedBodyTop.color = note.ActualFillColor;
-                longHoldNoteInfo.NoteCompletedBodyTop.size = new Vector3(0.0f, 0.0f);
-                longHoldNoteInfo.NoteCompletedBodyBottom.color = note.ActualFillColor;
-                longHoldNoteInfo.NoteCompletedBodyBottom.size = new Vector3(0.0f, 0.0f);
+                longHoldNoteInfo.NoteRing.sortingOrder = _lastSortingOrder;
                 longHoldNoteInfo.NoteBodyBackgroundTop.color = Color.white.WithAlpha(0.0f);
                 longHoldNoteInfo.NoteBodyBackgroundTop.size = new Vector3(1.0f,
                         _chartToScreenConverter.ScreenSize * LONG_HOLD_BODY_SIZE / _scalingRatio);
+                longHoldNoteInfo.NoteBodyBackgroundTop.sortingOrder = _lastSortingOrder - 1;
                 longHoldNoteInfo.NoteBodyBackgroundBottom.color = Color.white.WithAlpha(0.0f);
                 longHoldNoteInfo.NoteBodyBackgroundBottom.size = new Vector3(1.0f,
                         _chartToScreenConverter.ScreenSize * LONG_HOLD_BODY_SIZE / _scalingRatio);
+                longHoldNoteInfo.NoteBodyBackgroundBottom.sortingOrder = _lastSortingOrder - 1;
+                longHoldNoteInfo.NoteCompletedBodyTop.color = note.ActualFillColor;
+                longHoldNoteInfo.NoteCompletedBodyTop.size = new Vector3(0.0f, 0.0f);
+                longHoldNoteInfo.NoteCompletedBodyTop.sortingOrder = _lastSortingOrder;
+                longHoldNoteInfo.NoteCompletedBodyBottom.color = note.ActualFillColor;
+                longHoldNoteInfo.NoteCompletedBodyBottom.size = new Vector3(0.0f, 0.0f);
+                longHoldNoteInfo.NoteCompletedBodyBottom.sortingOrder = _lastSortingOrder;
                 longHoldNoteInfo.NoteBodyTransform.localScale = new Vector2(0, _scalingRatio);
                 _longHoldNotes.Add(longHoldNoteInfo);
             }
@@ -228,8 +245,10 @@ namespace CCE.Rendering
                 dragHeadNoteInfo.Size = (float)note.ActualSize * _chartToScreenConverter.DragHeadNoteSize;
                 dragHeadNoteInfo.Opacity = (float)note.ActualOpacity;
                 dragHeadNoteInfo.DragPath = GetDragPath(note);
-                dragHeadNoteInfo.NoteFill.color = note.ActualFillColor.WithAlpha(0.0f);
                 dragHeadNoteInfo.NoteRing.color = note.ActualRingColor.WithAlpha(0.0f);
+                dragHeadNoteInfo.NoteRing.sortingOrder = _lastSortingOrder - 1;
+                dragHeadNoteInfo.NoteFill.color = note.ActualFillColor.WithAlpha(0.0f);
+                dragHeadNoteInfo.NoteFill.sortingOrder = _lastSortingOrder;
                 _dragHeadNotes.Add(dragHeadNoteInfo);
             }
             else if (note.Type == (int)NoteType.CDragHead)
@@ -247,8 +266,11 @@ namespace CCE.Rendering
                 cdragHeadNoteInfo.Opacity = (float)note.ActualOpacity;
                 cdragHeadNoteInfo.DragPath = GetDragPath(note);
                 cdragHeadNoteInfo.NoteFill.color = note.ActualFillColor.WithAlpha(0.0f);
+                cdragHeadNoteInfo.NoteFill.sortingOrder = _lastSortingOrder - 1;
                 cdragHeadNoteInfo.NoteRing.color = note.ActualRingColor.WithAlpha(0.0f);
+                cdragHeadNoteInfo.NoteRing.sortingOrder = _lastSortingOrder - 2;
                 cdragHeadNoteInfo.NoteArrow.color = note.ActualRingColor.WithAlpha(0.0f);
+                cdragHeadNoteInfo.NoteArrow.sortingOrder = _lastSortingOrder;
                 _cdragHeadNotes.Add(cdragHeadNoteInfo);
             }
             else
@@ -261,9 +283,13 @@ namespace CCE.Rendering
                 clickNoteInfo.X = _chartToScreenConverter.ScreenXFromChartX(note.X);
                 clickNoteInfo.Y = _chartToScreenConverter.ScreenYFromChartY(note.Y);
                 clickNoteInfo.NoteFill.color = note.ActualFillColor.WithAlpha(0.0f);
+                clickNoteInfo.NoteFill.sortingOrder = _lastSortingOrder - 1;
                 clickNoteInfo.NoteRing.color = note.ActualRingColor.WithAlpha(0.0f);
+                clickNoteInfo.NoteRing.sortingOrder = _lastSortingOrder;
                 _clickNotes.Add(clickNoteInfo);
             }
+
+            _lastSortingOrder -= 3;
         }
 
         private void ClearNotes()
