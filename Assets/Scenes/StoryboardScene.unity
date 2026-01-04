@@ -573,6 +573,8 @@ MonoBehaviour:
       type: 3}
   _quadMesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
   _dragLineMaterial: {fileID: 2100000, guid: eb1dc9f83629caf45b393932ae68bd28, type: 2}
+  _scanlinePrefab: {fileID: 6227396154300257298, guid: 4cbef52a7e8e2be42a26127333c25f60,
+    type: 3}
 --- !u!1 &1404435730
 GameObject:
   m_ObjectHideFlags: 0

@@ -11,12 +11,15 @@ namespace CCE.Storyboard
         [SerializeField] private NotePrefabs _notePrefabs;
         [SerializeField] private Mesh _quadMesh;
         [SerializeField] private Material _dragLineMaterial;
+        [SerializeField] private GameObject _scanlinePrefab;
         private ChartObjectPool _chartObjectPool16x9;
         private ChartObjectPool _chartObjectPool4x3;
         private NoteSpawner _noteSpawner16x9;
         private NoteSpawner _noteSpawner4x3;
         private PlaybackRenderer _playbackRenderer16x9;
         private PlaybackRenderer _playbackRenderer4x3;
+        private ScanlineRenderer _scanlineRenderer16x9;
+        private ScanlineRenderer _scanlineRenderer4x3;
         private DragLineManager _dragLineManager4x3;
         private DragLineManager _dragLineManager16x9;
         private Chart _chart;
@@ -64,6 +67,8 @@ namespace CCE.Storyboard
             _playbackRenderer4x3 = new PlaybackRenderer(_noteSpawner4x3, chartToScreenCoordinatesConverter4x3);
             _dragLineManager16x9 = new DragLineManager(_quadMesh, _dragLineMaterial, _noteSpawner16x9, chartToScreenCoordinatesConverter16x9);
             _dragLineManager4x3 = new DragLineManager(_quadMesh, _dragLineMaterial, _noteSpawner4x3, chartToScreenCoordinatesConverter4x3);
+            _scanlineRenderer16x9 = new ScanlineRenderer(_chart, _scanlinePrefab, chartToScreenCoordinatesConverter16x9);
+            _scanlineRenderer4x3 = new ScanlineRenderer(_chart, _scanlinePrefab, chartToScreenCoordinatesConverter4x3);
             _audioManager = AudioManagerProvider.AudioManager;
         }
 
@@ -76,6 +81,8 @@ namespace CCE.Storyboard
             _playbackRenderer4x3.Render(time);
             _dragLineManager16x9.Render(time);
             _dragLineManager4x3.Render(time);
+            _scanlineRenderer16x9.UpdateTime(time);
+            _scanlineRenderer4x3.UpdateTime(time);
         }
     }
 }
