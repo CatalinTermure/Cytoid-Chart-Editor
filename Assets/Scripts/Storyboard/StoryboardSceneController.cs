@@ -1,8 +1,10 @@
+using System;
 using CCE.Audio;
 using CCE.Data;
 using CCE.Rendering;
 using CCE.Rendering.Notes;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace CCE.Storyboard
 {
@@ -12,6 +14,7 @@ namespace CCE.Storyboard
         [SerializeField] private Mesh _quadMesh;
         [SerializeField] private Material _dragLineMaterial;
         [SerializeField] private GameObject _scanlinePrefab;
+        [SerializeField] private Slider _timeSlider;
         private ChartObjectPool _chartObjectPool16x9;
         private ChartObjectPool _chartObjectPool4x3;
         private NoteSpawner _noteSpawner16x9;
@@ -41,7 +44,8 @@ namespace CCE.Storyboard
 
         public void SetTime(float timePercentage)
         {
-            _audioManager.Time = _audioManager.MaxTime * timePercentage;
+            double time = timePercentage * (_audioManager.MaxTime + _chart.MusicOffset);
+            _audioManager.Time = Math.Max(0.0, time - _chart.MusicOffset);
         }
 
         private Rect GetScreenRect(Vector2 center, float aspectRatio, float height)
@@ -83,6 +87,10 @@ namespace CCE.Storyboard
             _dragLineManager4x3.Render(time);
             _scanlineRenderer16x9.UpdateTime(time);
             _scanlineRenderer4x3.UpdateTime(time);
+            if (_audioManager.IsPlaying)
+            {
+                _timeSlider.SetValueWithoutNotify((float)(time / _audioManager.MaxTime));
+            }
         }
     }
 }
