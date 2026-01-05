@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using CCE.Core;
+using CCE.Data;
 using CCE.GameUtils;
 using CCE.Utils;
 using Newtonsoft.Json;
@@ -61,7 +62,7 @@ namespace CCE.UI
             {
                 try
                 {
-                    GlobalState.CurrentChart = LevelLoader.LoadChart(pickedFile, GlobalState.CurrentChart.Metadata);
+                    CurrentChartProvider.CurrentChart = LevelLoader.LoadChart(pickedFile, CurrentChartProvider.CurrentChart.Metadata);
                     MessageToaster.CreateToast(
                         "Chart file imported. It will not be saved unless you save the chart in the chart editing screen.");
                 }
@@ -81,7 +82,7 @@ namespace CCE.UI
                     if (paths.Length == 0) return;
                     try
                     {
-                        GlobalState.CurrentChart = LevelLoader.LoadChart(paths[0], GlobalState.CurrentChart.Metadata);
+                        CurrentChartProvider.CurrentChart = LevelLoader.LoadChart(paths[0], CurrentChartProvider.CurrentChart.Metadata);
                         MessageToaster.CreateToast(
                             "Chart file imported. It will not be saved unless you save the chart in the chart editing screen.");
                     }

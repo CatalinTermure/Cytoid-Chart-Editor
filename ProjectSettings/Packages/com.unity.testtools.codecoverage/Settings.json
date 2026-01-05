@@ -14,7 +14,7 @@
             {
                 "type": "System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089",
                 "key": "IncludeAssemblies",
-                "value": "{\"m_Value\":\"CCE,Commands,Core,Data,EditorTests,GameUtils,Popups,StandaloneFileBrowser,Tests,Utils\"}"
+                "value": "{\"m_Value\":\"Audio,CCE,Charting,Commands,Core,Coroutines,Data,GameUtils,LevelLoading,Popups,Rendering,Rendering.Notes,Storyboard,Timing,Utils,Validation,Validators\"}"
             },
             {
                 "type": "System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089",

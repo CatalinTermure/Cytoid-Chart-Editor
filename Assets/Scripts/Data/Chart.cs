@@ -70,6 +70,9 @@ namespace CCE.Data
         public bool? SkipMusicOnCompletion;
 
         [JsonProperty("tempo_list")] public List<Tempo> TempoList = new();
+        /// <summary>
+        /// Duration of a beat in ticks
+        /// </summary>
         [JsonProperty("time_base")] public int TimeBase = 480;
         [JsonProperty("vertical_margin")] public int? VerticalMargin;
 

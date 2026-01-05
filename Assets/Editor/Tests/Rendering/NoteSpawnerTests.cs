@@ -1,0 +1,420 @@
+using CCE.Data;
+using CCE.Rendering;
+using CCE.Rendering.Notes;
+using NUnit.Framework;
+using UnityEngine;
+
+namespace CCE.Tests.Rendering
+{
+    public class NoteSpawnerTests
+    {
+        private class ChartObjectPoolWithTracking : ChartObjectPool
+        {
+            public int GetNoteCallCount = 0;
+            public int ReturnToPoolCallCount = 0;
+            public NoteType LastRequestedType;
+
+            public ChartObjectPoolWithTracking() : base(new NotePrefabs
+            {
+                ClickNote = Resources.Load<GameObject>("Click Note new"),
+                FlickNote = Resources.Load<GameObject>("Flick Note New"),
+                DragHeadNote = Resources.Load<GameObject>("Drag Head Note New"),
+                DragChildNote = Resources.Load<GameObject>("Drag Child New"),
+                CDragHeadNote = Resources.Load<GameObject>("CDrag Head Note New"),
+                HoldNote = Resources.Load<GameObject>("Hold Note New"),
+                LongHoldNote = Resources.Load<GameObject>("Long Hold Note New"),
+            })
+            { }
+
+            public override GameObject GetNote(NoteType type)
+            {
+                GetNoteCallCount++;
+                LastRequestedType = type;
+                return base.GetNote(type);
+            }
+
+            public override void ReturnToPool(GameObject obj, NoteType type)
+            {
+                ReturnToPoolCallCount++;
+                base.ReturnToPool(obj, type);
+            }
+        }
+
+        private IChartToScreenCoordinatesConverter _chartToScreenConverter;
+
+        private class FakeChartToScreenCoordinatesConverter : IChartToScreenCoordinatesConverter
+        {
+            public float ClickNoteSize => 1.1f;
+            public float HoldNoteSize => 2.0f;
+            public float LongHoldNoteSize => 3.0f;
+            public float DragHeadNoteSize => 4.0f;
+            public float DragChildNoteSize => 5.0f;
+            public float FlickNoteSize => 6.0f;
+            public float CDragHeadNoteSize => 7.0f;
+            public float ScreenSize => 8.0f;
+            public float AspectRatio => 16.0f / 9.0f;
+
+            public float ScreenXFromChartX(double chartX)
+            {
+                return (float)chartX * 9.0f;
+            }
+
+            public float ScreenYFromChartY(double chartY)
+            {
+                return 0.8f * (float)chartY * ScreenSize - 0.1f;
+            }
+        }
+
+        [OneTimeSetUp]
+        public void OneTimeSetUp()
+        {
+            _chartToScreenConverter = new FakeChartToScreenCoordinatesConverter();
+        }
+
+        [Test]
+        public void UpdateTime_SpawnsClickNote_WhenInRange_WithCorrectProperties()
+        {
+            var chart = new Chart();
+            var note = new Note
+            {
+                Type = (int)NoteType.Click,
+                Time = 2.0,
+                ApproachTime = 1.0,
+                ActualSize = 1.5,
+                ActualOpacity = 0.8,
+                X = 0.6,
+                Y = 0.7,
+                PageIndex = 0
+            };
+            chart.NoteList.Add(note);
+            chart.PageList.Add(new Page { ScanLineDirection = 1 });
+            var pool = new ChartObjectPoolWithTracking();
+            var spawner = new NoteSpawner(pool, chart, _chartToScreenConverter);
+
+            spawner.UpdateTime(1.5);
+
+            var activeNotes = spawner.GetClickNotes();
+            Assert.AreEqual(1, activeNotes.Count, "There should be one active note");
+            Assert.AreEqual(1, pool.GetNoteCallCount, "Exactly one note should be requested");
+            var spawnedInfo = activeNotes[0];
+            Assert.AreEqual(1.0f, spawnedInfo.IntroTime, 1e-6f, "Intro time should be correct");
+            Assert.AreEqual(2.0f, spawnedInfo.Time, 1e-6f, "Note time should be correct.");
+            Assert.AreEqual(1.65f, spawnedInfo.Size, 0.001f, "Note size should be correct.");
+            Assert.AreEqual(0.8f, spawnedInfo.Opacity, 1e-6f, "Note opacity should be correct.");
+            Assert.AreEqual(5.4f, spawnedInfo.X, 1e-6f, "Note X position should be correct.");
+            Assert.AreEqual(4.38f, spawnedInfo.Y, 1e-6f, "Note Y position should be correct.");
+        }
+
+        [Test]
+        public void UpdateTime_SpawnsFlickNote_WhenInRange()
+        {
+            var chart = new Chart();
+            var note = new Note
+            {
+                Type = (int)NoteType.Flick,
+                Time = 2.0,
+                ApproachTime = 1.0,
+                ActualSize = 1.5,
+                ActualOpacity = 0.8,
+                X = 0.6,
+                Y = 0.7,
+                PageIndex = 0
+            };
+            chart.NoteList.Add(note);
+            chart.PageList.Add(new Page { ScanLineDirection = 1 });
+            var pool = new ChartObjectPoolWithTracking();
+            var spawner = new NoteSpawner(pool, chart, _chartToScreenConverter);
+
+            spawner.UpdateTime(1.5);
+
+            var activeNotes = spawner.GetFlickNotes();
+            Assert.AreEqual(1, activeNotes.Count, "There should be one active note");
+            Assert.AreEqual(1, pool.GetNoteCallCount, "Exactly one note should be requested");
+            var spawnedInfo = activeNotes[0];
+            Assert.AreEqual(1.0f, spawnedInfo.IntroTime, 1e-6f, "Intro time should be correct");
+            Assert.AreEqual(2.0f, spawnedInfo.Time, 1e-6f, "Note time should be correct.");
+            Assert.AreEqual(9.0f, spawnedInfo.Size, 0.01f, "Note size should be correct.");
+            Assert.AreEqual(0.8f, spawnedInfo.Opacity, 1e-6f, "Note opacity should be correct.");
+            Assert.AreEqual(5.4f, spawnedInfo.X, 1e-6f, "Note X position should be correct.");
+            Assert.AreEqual(4.38f, spawnedInfo.Y, 1e-6f, "Note Y position should be correct.");
+        }
+
+        [Test]
+        public void UpdateTime_SpawnsDragChildNote_WhenInRange()
+        {
+            var chart = new Chart();
+            var note = new Note
+            {
+                Type = (int)NoteType.DragChild,
+                Time = 2.0,
+                ApproachTime = 1.0,
+                ActualSize = 1.5,
+                ActualOpacity = 0.8,
+                X = 0.6,
+                Y = 0.7
+            };
+            chart.NoteList.Add(note);
+            var page = new Page { ScanLineDirection = 1 };
+            chart.PageList.Add(page);
+            var pool = new ChartObjectPoolWithTracking();
+            var spawner = new NoteSpawner(pool, chart, _chartToScreenConverter);
+
+            spawner.UpdateTime(1.5);
+
+            var activeNotes = spawner.GetDragChildNotes();
+            Assert.AreEqual(1, activeNotes.Count, "There should be one active note");
+            Assert.AreEqual(1, pool.GetNoteCallCount, "Exactly one note should be requested");
+            var spawnedInfo = activeNotes[0];
+            Assert.AreEqual(1.0f, spawnedInfo.IntroTime, 1e-6f, "Intro time should be correct");
+            Assert.AreEqual(2.0f, spawnedInfo.Time, 1e-6f, "Note time should be correct.");
+            Assert.AreEqual(7.5f, spawnedInfo.Size, 1e-6f, "Note size should be correct.");
+            Assert.AreEqual(0.8f, spawnedInfo.Opacity, 1e-6f, "Note opacity should be correct.");
+            Assert.AreEqual(5.4f, spawnedInfo.X, 1e-6f, "Note X position should be correct.");
+            Assert.AreEqual(4.38f, spawnedInfo.Y, 1e-6f, "Note Y position should be correct.");
+        }
+
+        [Test]
+        public void UpdateTime_SpawnsHoldNote_WhenInRange()
+        {
+            var chart = new Chart();
+            var note = new Note
+            {
+                Type = (int)NoteType.Hold,
+                Time = 2.0,
+                ApproachTime = 1.0,
+                HoldTime = 1.5,
+                HoldTick = 100,
+                ActualSize = 1.5,
+                ActualOpacity = 0.8,
+                X = 0.6,
+                Y = 0.7,
+                PageIndex = 0
+            };
+            chart.NoteList.Add(note);
+            chart.PageList.Add(new Page { ScanLineDirection = 1, ActualStartTick = 0, EndTick = 400 });
+            var pool = new ChartObjectPoolWithTracking();
+            var spawner = new NoteSpawner(pool, chart, _chartToScreenConverter);
+
+            spawner.UpdateTime(1.5);
+
+            var activeNotes = spawner.GetHoldNotes();
+            Assert.AreEqual(1, activeNotes.Count, "There should be one active note");
+            Assert.AreEqual(1, pool.GetNoteCallCount, "Exactly one note should be requested");
+            var spawnedInfo = activeNotes[0];
+            Assert.AreEqual(1.0f, spawnedInfo.IntroTime, 1e-6f, "Intro time should be correct");
+            Assert.AreEqual(2.0f, spawnedInfo.StartTime, 1e-6f, "Note start time should be correct.");
+            Assert.AreEqual(3.5f, spawnedInfo.EndTime, 1e-6f, "Note end time should be correct.");
+            Assert.AreEqual(3.0f, spawnedInfo.Size, 1e-6f, "Note size should be correct.");
+            Assert.AreEqual(0.8f, spawnedInfo.Opacity, 1e-6f, "Note opacity should be correct.");
+            Assert.AreEqual(5.4f, spawnedInfo.X, 1e-6f, "Note X position should be correct.");
+            Assert.AreEqual(4.38f, spawnedInfo.Y, 1e-6f, "Note Y position should be correct.");
+            Assert.AreEqual(2.0f, spawnedInfo.NoteBodyBackground.size.y, 1e-6f, "Note body background size should be correct.");
+            Assert.AreEqual(0.8f, spawnedInfo.NoteBodyTransform.localScale.y, 1e-6f, "Note body bar frequency should be correct.");
+        }
+
+        [Test]
+        public void UpdateTime_SpawnsLongHoldNote_WhenInRange()
+        {
+            var chart = new Chart();
+            var note = new Note
+            {
+                Type = (int)NoteType.LongHold,
+                Time = 2.0,
+                ApproachTime = 1.0,
+                HoldTime = 1.5,
+                ActualSize = 1.5,
+                ActualOpacity = 0.8,
+                X = 0.6,
+                Y = 0.7,
+                PageIndex = 0
+            };
+            chart.NoteList.Add(note);
+            chart.PageList.Add(new Page { ScanLineDirection = 1 });
+            var pool = new ChartObjectPoolWithTracking();
+            var spawner = new NoteSpawner(pool, chart, _chartToScreenConverter);
+
+            spawner.UpdateTime(1.5);
+
+            var activeNotes = spawner.GetLongHoldNotes();
+            Assert.AreEqual(1, activeNotes.Count, "There should be one active note");
+            Assert.AreEqual(1, pool.GetNoteCallCount, "Exactly one note should be requested");
+            var spawnedInfo = activeNotes[0];
+            Assert.AreEqual(1.0f, spawnedInfo.IntroTime, 1e-6f, "Intro time should be correct");
+            Assert.AreEqual(2.0f, spawnedInfo.StartTime, 1e-6f, "Note start time should be correct.");
+            Assert.AreEqual(3.5f, spawnedInfo.EndTime, 1e-6f, "Note end time should be correct.");
+            Assert.AreEqual(4.5f, spawnedInfo.Size, 1e-6f, "Note size should be correct.");
+            Assert.AreEqual(0.8f, spawnedInfo.Opacity, 1e-6f, "Note opacity should be correct.");
+            Assert.AreEqual(5.4f, spawnedInfo.X, 1e-6f, "Note X position should be correct.");
+            Assert.AreEqual(4.38f, spawnedInfo.Y, 1e-6f, "Note Y position should be correct.");
+            Assert.AreEqual(40.0f, spawnedInfo.NoteBodyBackgroundTop.size.y, 1e-6f, "Note body background top size should be correct.");
+            Assert.AreEqual(40.0f, spawnedInfo.NoteBodyBackgroundBottom.size.y, 1e-6f, "Note body background bottom size should be correct.");
+            Assert.AreEqual(0.8f, spawnedInfo.NoteBodyTransform.localScale.y, 1e-6f, "Note body bar frequency should be correct.");
+        }
+
+        [Test]
+        public void UpdateTime_DoesNotSpawn_WhenTooEarly()
+        {
+            var chart = new Chart();
+            chart.NoteList.Add(new Note { Type = (int)NoteType.Click, Time = 2.0, ApproachTime = 1.0 });
+            var pool = new ChartObjectPoolWithTracking();
+            var spawner = new NoteSpawner(pool, chart, _chartToScreenConverter);
+
+            spawner.UpdateTime(0.9);
+
+            Assert.AreEqual(0, spawner.GetClickNotes().Count, "There should be no active notes");
+            Assert.AreEqual(0, pool.GetNoteCallCount, "No notes should be requested");
+        }
+
+        [Test]
+        public void UpdateTime_Despawns_WhenTooLate()
+        {
+            var chart = new Chart();
+            chart.NoteList.Add(new Note { Type = (int)NoteType.Click, Time = 2.0, ApproachTime = 1.0 });
+            var pool = new ChartObjectPoolWithTracking();
+            var spawner = new NoteSpawner(pool, chart, _chartToScreenConverter);
+
+            spawner.UpdateTime(2.1);
+
+            Assert.AreEqual(0, spawner.GetClickNotes().Count);
+        }
+
+        [Test]
+        public void UpdateTime_HoldNote_StaysActiveUntilHoldEnd()
+        {
+            var chart = new Chart();
+            var holdNote = new Note
+            {
+                Type = (int)NoteType.Hold,
+                Time = 2.0,
+                ApproachTime = 1.0,
+                HoldTime = 1.5,
+                HoldTick = 100,
+                PageIndex = 0
+            };
+            chart.NoteList.Add(holdNote);
+            chart.PageList.Add(new Page { ScanLineDirection = 1, ActualStartTick = 0, EndTick = 400 });
+            var pool = new ChartObjectPoolWithTracking();
+            var spawner = new NoteSpawner(pool, chart, _chartToScreenConverter);
+
+            spawner.UpdateTime(3.0);
+
+            Assert.AreEqual(1, spawner.GetHoldNotes().Count);
+            Assert.AreEqual(NoteType.Hold, pool.LastRequestedType);
+        }
+
+        [Test]
+        public void UpdateTime_LongHoldNote_StaysActiveUntilHoldEnd()
+        {
+            var chart = new Chart();
+            var holdNote = new Note
+            {
+                Type = (int)NoteType.LongHold,
+                Time = 2.0,
+                ApproachTime = 1.0,
+                HoldTime = 1.5,
+                HoldTick = 100,
+                PageIndex = 0
+            };
+            chart.NoteList.Add(holdNote);
+            chart.PageList.Add(new Page { ScanLineDirection = 1, ActualStartTick = 0, EndTick = 400 });
+            var pool = new ChartObjectPoolWithTracking();
+            var spawner = new NoteSpawner(pool, chart, _chartToScreenConverter);
+
+            spawner.UpdateTime(3.0);
+
+            Assert.AreEqual(1, spawner.GetLongHoldNotes().Count);
+            Assert.AreEqual(NoteType.LongHold, pool.LastRequestedType);
+        }
+
+        [Test]
+        public void UpdateTime_DragChain_StaysActiveUntilChainEnd()
+        {
+            var chart = new Chart();
+            var head = new Note { ID = 0, NextID = 1, Type = (int)NoteType.DragHead, Time = 2.0, ApproachTime = 1.0, PageIndex = 0 };
+            var child1 = new Note { ID = 1, NextID = 2, Type = (int)NoteType.DragChild, Time = 2.5, PageIndex = 0 };
+            var child2 = new Note { ID = 2, NextID = -1, Type = (int)NoteType.DragChild, Time = 3.0, PageIndex = 0 };
+            chart.NoteList.Add(head);
+            chart.NoteList.Add(child1);
+            chart.NoteList.Add(child2);
+            chart.PageList.Add(new Page { ScanLineDirection = 1 });
+            var pool = new ChartObjectPoolWithTracking();
+            var spawner = new NoteSpawner(pool, chart, _chartToScreenConverter);
+
+            spawner.UpdateTime(2.8);
+
+            Assert.IsTrue(spawner.GetDragHeadNotes().Count >= 1, "Drag Head should be active at 2.8s");
+        }
+
+        [Test]
+        public void UpdateTime_CDragChain_StaysActiveUntilChainEnd()
+        {
+            var chart = new Chart();
+            var head = new Note { ID = 0, NextID = 1, Type = (int)NoteType.CDragHead, Time = 2.0, ApproachTime = 1.0, PageIndex = 0 };
+            var child1 = new Note { ID = 1, NextID = 2, Type = (int)NoteType.CDragChild, Time = 2.5, PageIndex = 0 };
+            var child2 = new Note { ID = 2, NextID = -1, Type = (int)NoteType.CDragChild, Time = 3.0, PageIndex = 0 };
+            chart.NoteList.Add(head);
+            chart.NoteList.Add(child1);
+            chart.NoteList.Add(child2);
+            chart.PageList.Add(new Page { ScanLineDirection = 1 });
+            var pool = new ChartObjectPoolWithTracking();
+            var spawner = new NoteSpawner(pool, chart, _chartToScreenConverter);
+
+            spawner.UpdateTime(2.8);
+
+            Assert.IsTrue(spawner.GetCDragHeadNotes().Count >= 1, "CDrag Head should be active at 2.8s");
+        }
+
+        [Test]
+        public void UpdateTime_ReflectsActualRingColor_OnSpawnedNote()
+        {
+            var chart = new Chart();
+            var note = new Note
+            {
+                Type = (int)NoteType.Click,
+                Time = 2.0,
+                ApproachTime = 1.0,
+                ActualRingColor = Color.red,
+                PageIndex = 0
+            };
+            chart.NoteList.Add(note);
+            chart.PageList.Add(new Page { ScanLineDirection = 1 });
+            var pool = new ChartObjectPoolWithTracking();
+            var spawner = new NoteSpawner(pool, chart, _chartToScreenConverter);
+
+            spawner.UpdateTime(1.5);
+
+            var activeNotes = spawner.GetClickNotes();
+            Assert.AreEqual(1, activeNotes.Count);
+            var color = activeNotes[0].NoteRing.color;
+            Assert.AreEqual(Color.red.r, color.r, 1e-6f, "Red component should match");
+            Assert.AreEqual(Color.red.g, color.g, 1e-6f, "Green component should match");
+            Assert.AreEqual(Color.red.b, color.b, 1e-6f, "Blue component should match");
+        }
+
+        [Test]
+        public void UpdateTime_ReflectsActualFillColor_OnSpawnedNote()
+        {
+            var chart = new Chart();
+            var note = new Note
+            {
+                Type = (int)NoteType.Click,
+                Time = 2.0,
+                ApproachTime = 1.0,
+                ActualFillColor = Color.blue,
+                PageIndex = 0
+            };
+            chart.NoteList.Add(note);
+            chart.PageList.Add(new Page { ScanLineDirection = 1 });
+            var pool = new ChartObjectPoolWithTracking();
+            var spawner = new NoteSpawner(pool, chart, _chartToScreenConverter);
+
+            spawner.UpdateTime(1.5);
+
+            var activeNotes = spawner.GetClickNotes();
+            var color = activeNotes[0].NoteFill.color;
+            Assert.AreEqual(Color.blue.r, color.r, 1e-6f, "Red component should match");
+            Assert.AreEqual(Color.blue.g, color.g, 1e-6f, "Green component should match");
+            Assert.AreEqual(Color.blue.b, color.b, 1e-6f, "Blue component should match");
+        }
+    }
+}

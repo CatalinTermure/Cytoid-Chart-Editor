@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using Newtonsoft.Json;
+using UnityEngine;
 
 namespace CCE.Data
 {
@@ -10,6 +11,8 @@ namespace CCE.Data
     {
         [JsonIgnore] public double ActualOpacity = 1.0;
         [JsonIgnore] public double ActualSize = 1.0;
+        [JsonIgnore] public Color ActualFillColor;
+        [JsonIgnore] public Color ActualRingColor;
         [JsonProperty("approach_rate")] public double ApproachRate = 1.0;
         [JsonIgnore] public double ApproachTime;
         [JsonIgnore] public int DragChainID = -1;
@@ -34,23 +37,26 @@ namespace CCE.Data
 
         public Note(Note other)
         {
-            PageIndex = other.PageIndex;
-            Type = other.Type;
-            ID = other.ID;
-            Tick = other.Tick;
-            X = other.X;
-            HoldTick = other.HoldTick;
-            NextID = other.NextID;
-            ApproachRate = other.ApproachRate;
-            Size = other.Size;
-            RingColor = other.RingColor;
-            FillColor = other.FillColor;
-            Opacity = other.Opacity;
-            ActualOpacity = other.ActualOpacity;
             ActualSize = other.ActualSize;
-            Time = other.Time;
-            HoldTime = other.HoldTime;
+            ActualOpacity = other.ActualOpacity;
+            ActualFillColor = other.ActualFillColor;
+            ActualRingColor = other.ActualRingColor;
+            ApproachRate = other.ApproachRate;
             ApproachTime = other.ApproachTime;
+            DragChainID = other.DragChainID;
+            FillColor = other.FillColor;
+            HoldTick = other.HoldTick;
+            HoldTime = other.HoldTime;
+            ID = other.ID;
+            NextID = other.NextID;
+            Opacity = other.Opacity;
+            PageIndex = other.PageIndex;
+            RingColor = other.RingColor;
+            Size = other.Size;
+            Tick = other.Tick;
+            Time = other.Time;
+            Type = other.Type;
+            X = other.X;
             Y = other.Y;
         }
 
